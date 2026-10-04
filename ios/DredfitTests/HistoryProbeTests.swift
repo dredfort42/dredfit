@@ -1,18 +1,15 @@
 //
 //  What the history sheet says about a probe — and what it may not claim.
 //
-//  Until this wave it said nothing at all. The record carried the probe in its
-//  own plan (`SessionExercise.probe` is in the record's CodingKeys) and the
-//  screen printed the working sets beside a name: a session of "2 × 15 plus a
-//  probe" read exactly like a session of two sets. What the file did NOT carry
-//  was the number the probe showed — it reached the engine through
-//  `completeWorkout(probes:)` and was dropped — so the outcome was
-//  unrecoverable the moment the rating landed.
+//  The record carries the probe in its own plan (`SessionExercise.probe` is in
+//  the record's CodingKeys) and the number it showed (`probes`). Without a line
+//  of its own, a session of "2 × 15 plus a probe" would read exactly like a
+//  session of two sets.
 //
 //  The line is a pure function of a record and one exercise, which is what
-//  makes it testable at all: the two probe rules that stay uncovered live
-//  inside a SwiftUI view as private members (see the note at the bottom of
-//  ProbeChannelTests), and this one deliberately does not join them.
+//  makes it testable at all: the probe rule that stays uncovered lives inside
+//  a SwiftUI view as a private member (see the note at the bottom of
+//  ProbeChannelTests), and this one deliberately does not join it.
 //
 
 import XCTest
@@ -33,8 +30,8 @@ final class HistoryProbeTests: XCTestCase {
     }
 
     /// `variationAfter` is what the session ENDED on — the only thing the app
-    /// is allowed to read the verdict off. Re-deriving §40.4's pass rule here
-    /// would be a second copy of it, free to disagree with the engine.
+    /// is allowed to read the verdict off. Re-deriving the engine's pass rule
+    /// here would be a second copy of it, free to disagree with the engine.
     private func record(variationAfter: Int, probes: [Pattern: Int]? = nil,
                         positions: Bool = true) -> WorkoutRecord {
         WorkoutRecord(
@@ -45,7 +42,7 @@ final class HistoryProbeTests: XCTestCase {
                 : nil)
     }
 
-    // MARK: - With the number the wave started recording
+    // MARK: - With the number the probe showed
 
     func testAPassedProbeNamesTheMovementAndWhatWasShown() throws {
         let line = try XCTUnwrap(HistorySheet.probeLine(
@@ -64,7 +61,7 @@ final class HistoryProbeTests: XCTestCase {
         XCTAssertFalse(line.contains("passed"), line)
     }
 
-    // MARK: - Without it: every record written before this wave
+    // MARK: - Without it
 
     /// A record with no `probes` is either an old one or a session whose probe
     /// was never performed, and the file cannot tell those apart. So the line

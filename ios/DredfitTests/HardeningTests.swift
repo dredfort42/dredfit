@@ -43,11 +43,9 @@ final class HardeningTests: AppStoreTestCase {
 
     // MARK: - Cold-launch activation (issue #93)
 
-    /// Seeds a journal whose last workout happened `daysAgo` days ago —
-    /// several sessions, so the levels sit clear of the zero clamp. Returns
-    /// the levels as seeded.
-    /// Four workouts, then the positions they left behind — the shape a decay
-    /// is measured against now that there is no level to subtract from.
+    /// Seeds a journal whose last workout happened `daysAgo` days ago — four
+    /// workouts — and returns the positions they left behind: the shape a
+    /// decay is measured against.
     @discardableResult
     private func seedWorkout(daysAgo: Int, at url: URL) -> [Pattern: RecordedPosition] {
         let store = makeStore(storageURL: url, notifications: NotificationSpy())
@@ -58,7 +56,7 @@ final class HardeningTests: AppStoreTestCase {
         return AppStore.positions(of: store.engineState)
     }
 
-    /// A decay is one rung of DOSE (§40.3), and on the floor of a grid it takes
+    /// A decay is one rung of DOSE, and on the floor of a grid it takes
     /// a set instead — so what every assertion below actually claims is "the
     /// plan moved, and it never moved up".
     private func assertDecayed(_ store: AppStore, from seeded: [Pattern: RecordedPosition],
@@ -77,7 +75,7 @@ final class HardeningTests: AppStoreTestCase {
 
     /// Regression: a cold launch renders already `.active`, so the phase
     /// transition never fires — `activate()` from `onAppear` must run the
-    /// blind-zone decay, or a 7–13-day comeback trains on pre-break levels.
+    /// blind-zone decay, or a 7–13-day comeback trains on the pre-break plan.
     func testColdLaunchActivationAppliesSilentDecay() {
         let seeded = seedWorkout(daysAgo: 10, at: tempURL)
 
@@ -190,8 +188,8 @@ final class HardeningTests: AppStoreTestCase {
         let spy = NotificationSpy()
         let store = makeStore(notifications: spy)
         // Every day trains — no rest-day interference. Read off the current
-        // default rather than naming weekdays: spelling them out turned this
-        // into a rest-day fixture the moment the default moved.
+        // default rather than naming weekdays: named, they would turn this into
+        // a rest-day fixture the moment the default moves.
         for wd in store.settings.restWeekdays { store.toggleRestDay(wd) }
         store.setReminderTime(hour: 20, minute: 0)
         store.setReminderEnabled(true)

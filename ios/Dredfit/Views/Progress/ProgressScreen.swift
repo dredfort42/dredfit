@@ -30,8 +30,8 @@ struct ProgressScreen: View {
     /// skipping when nothing moved.
     @State private var renderedCardKey: [Int]?
     @State private var destination: Destination?
-    /// 120 of chart plus room for the date axis — and that axis is text now,
-    /// so the room has to grow with it (UX review, 05.09.2026).
+    /// 120 of chart plus room for the date axis — and that axis is text, so
+    /// the room has to grow with it.
     @ScaledMetric(relativeTo: .caption2) private var chartHeight: CGFloat = 134
 
     private var canShare: Bool { !store.records.isEmpty }
@@ -46,9 +46,9 @@ struct ProgressScreen: View {
     }
 
     /// Both halves keep their intrinsic width: a four-digit total meeting a
-    /// Russian caption must not be squeezed into wrapping — a number broken
-    /// mid-digit ("1 27" / "0") was exactly the bug. The share button yields
-    /// instead. At accessibility sizes the caption moves under the number.
+    /// Russian caption must not be squeezed into wrapping — into a number
+    /// broken mid-digit ("1 27" / "0"). The share button yields instead. At
+    /// accessibility sizes the caption moves under the number.
     @ViewBuilder
     private var statRow: some View {
         if typeSize.isAccessibilitySize {
@@ -81,8 +81,8 @@ struct ProgressScreen: View {
             // Named, not inherited. Without it SwiftUI hands the largest
             // number on the screen `.primary` — #FFFFFF in dark against the
             // ink token's #F2F2F4, and #000000 in light against #111214 — so
-            // the one element the palette is most careful about was the one
-            // element outside it (UX review 05.09.2026).
+            // the one element the palette is most careful about would be the
+            // one element outside it.
             .foregroundStyle(Theme.ink)
             .tracking(-2)
             .monospacedDigit()
@@ -103,8 +103,8 @@ struct ProgressScreen: View {
 
     /// One word, in every language: that is what keeps a four-digit total
     /// and a Russian caption on the same row. The word is "step" because the
-    /// scale counts growth events along the ladders (§40.2), which is exactly
-    /// what the glossary already calls steps.
+    /// scale counts growth events along the ladders, which is exactly what
+    /// the glossary already calls steps.
     private var stepsLabel: String {
         String(localized: "progress.stepsLabel",
                defaultValue: "steps",
@@ -200,17 +200,18 @@ struct ProgressScreen: View {
         }
         // Everything the card DRAWS — its numbers, its day and its curve — so
         // the main-thread render runs exactly when the picture would change.
-        // Keyed on the two numbers alone it kept the day it was first drawn
-        // on, and a restored journal with the same count kept the old curve.
+        // Keyed on the two numbers alone it would keep the day it was first
+        // drawn on, and a restored journal with the same count would keep the
+        // old curve.
         let curve = store.progressCurve()
         let day = Calendar.current.ordinality(of: .day, in: .era, for: store.today) ?? 0
         let key = [store.records.count, store.totalProgress, day] + curve
         guard key != renderedCardKey else { return }
         renderedCardKey = key
         // `progressCurve()` rather than a second walk of the journal: it is
-        // cut at the reset too now, so the milestone card and this one draw
-        // the same line — and after a reset neither sends out the old peak
-        // under a headline that says 0 (UX review 05.09.2026, finding 36).
+        // cut at the reset, so the milestone card and this one draw the same
+        // line — and after a reset neither sends out the old peak under a
+        // headline that says 0.
         card = ShareCardFactory.card(headline: summaryHeadline, slot: .progress,
                                      steps: curve)
     }
@@ -246,16 +247,15 @@ struct ProgressScreen: View {
         }
     }
 
-    /// One line, and it must not repeat the mistake the rating caption made:
-    /// the causal half is claimed only where the steps actually fell.
+    /// One line, and it claims no more than happened: the causal half only
+    /// where the steps actually fell.
     @ViewBuilder
     private func breakFactLine(_ bands: [StepsChart.BreakBand]) -> some View {
         // The freshest band that actually COST steps, and only failing that
-        // the longest. Choosing by length alone put the explanation on a
-        // harmless gap while the visible drop beside it went unexplained —
-        // and then withheld "The plan met you lower.", the half of the line
-        // written so a dip would not read as a failure (UX review,
-        // 05.09.2026).
+        // the longest. Choosing by length alone would put the explanation on
+        // a harmless gap while the visible drop beside it went unexplained —
+        // and would withhold "The plan met you lower.", the half of the line
+        // written so a dip does not read as a failure.
         if let band = bands.last(where: { $0.costSteps })
             ?? bands.max(by: { $0.days < $1.days }) {
             Text(breakFact(band, of: bands.count))
@@ -302,9 +302,9 @@ struct ProgressScreen: View {
 
     private func plot(_ record: WorkoutRecord, _ p: Pattern) -> Plotted? {
         guard let position = record.positionsAfter?[p] else { return nil }
-        // All six coordinates: a snapshot replotted without `sub` and `cut`
-        // sat up to two steps off the number beside the row (UI-truth audit,
-        // 27.08.2026). Older records carry neither key and plot as before.
+        // Every recorded coordinate: replotted without `sub` and `cut`, a
+        // snapshot would sit off the number beside the row. Older records
+        // carry neither key and plot with both at zero.
         return Plotted(date: record.date,
                        value: Engine.progress(p, variation: position.variation,
                                               sets: position.sets, dose: position.dose,
@@ -322,11 +322,11 @@ struct ProgressScreen: View {
                        ownSkips: !(record.setsSkipped?.isEmpty ?? true))
     }
 
-    /// The variation alone. Behind "\(p.displayName) — " the kicker ran out
-    /// of width and truncated its TAIL — and the tail is the differentiator
-    /// ("on a step", "with a pause"), so two rungs of one ladder drew the
-    /// same title in six of the seven languages. The movement is named by the
-    /// row that was just tapped and tinted (UX review, 05.09.2026).
+    /// The variation alone. Behind "\(p.displayName) — " the kicker runs out
+    /// of width and truncates its TAIL — and the tail is the differentiator
+    /// ("on a step", "with a pause"), so two rungs of one ladder would draw
+    /// the same title. The movement is named by the row that was just tapped
+    /// and tinted.
     private var chartTitle: String {
         guard let p = effectivePattern else { return String(localized: "total steps") }
         return Library.name(p, store.engineState.position(p).variation)

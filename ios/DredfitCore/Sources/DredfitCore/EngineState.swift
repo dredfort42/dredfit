@@ -31,10 +31,11 @@ public struct EngineState: Codable, Equatable, Sendable {
     public var cut: [Pattern: Int]
     /// THE JOURNAL OF WHAT WAS SHOWN: per variation touched, the last dose
     /// actually performed, in that variation's own unit. Feedback writes it
-    /// for every exercise done — the fold when numbers were entered, the
-    /// plan's top on a tap. A probing exercise writes the probe's number under
-    /// the NEXT variation instead, and nothing at all when the probe went
-    /// unanswered or this movement came out "hard".
+    /// for every exercise done — the fold when numbers were entered, the best
+    /// set those numbers prove when they met the plan, the plan's top on a
+    /// tap. A probing exercise writes the probe's number under the NEXT
+    /// variation instead, and nothing at all when the probe went unanswered
+    /// or this movement came out "hard".
     ///
     /// It is the point of return (`landingDose`), the bound on the
     /// cross-credit (`riseWithinJournal`) and the evidence the probe gate
@@ -45,7 +46,8 @@ public struct EngineState: Codable, Equatable, Sendable {
     // MARK: - Global fields
 
     /// Appearances left before the next set may come back. While it ticks, a
-    /// growth event goes into the DOSE.
+    /// growth event goes into the DOSE — or, under a cut, can be lost on a set
+    /// the cut hides (see `Engine.riseBy`).
     public var setsHold: [Pattern: Int]
     /// The work of the last plan SHOWN, done or not — written by `recordShown`
     /// when the app records a showing, and again by feedback — and the

@@ -9,9 +9,9 @@ extension AppStore {
     /// The snapshot this screen has to say something about, and WHICH thing.
     ///
     /// Inside the occasion the card offers to carry on. Past it — but before
-    /// the workout counts as forgotten — the card ASKS instead of deciding
-    /// (owner, 06.09.2026): three hours is a long lunch, not a lost session,
-    /// and recording it unasked put a rating nobody gave into the journal.
+    /// the workout counts as forgotten — the card ASKS instead of deciding:
+    /// three hours is a long lunch, not a lost session, and recording it
+    /// unasked would put a rating nobody gave into the journal.
     var pendingWorkoutCard: (snapshot: WorkoutSnapshot, awaitingAnswer: Bool)? {
         if let snap = resumableWorkout() { return (snap, false) }
         if let snap = unfinishedWorkoutAwaitingAnswer() { return (snap, true) }
@@ -30,9 +30,9 @@ struct ResumeCard: View {
         let total = store.nextSession.exercises.count
         let position = min(snap.exIndex + 1, total)
         // A workout that only wants its rating has nothing to restart: the
-        // work is done and unrecorded, and "Start over" — one tap, no
-        // question, beside "Continue" — read as "replay" while it meant
-        // "throw the whole session away" (UX review 05.09.2026).
+        // work is done and unrecorded, and "Start over" beside "Continue"
+        // would read as "replay" while it means "throw the whole session
+        // away".
         let onlyRatingLeft = snap.atFeedback == true
         return VStack(alignment: .leading, spacing: 0) {
             Text(awaitingAnswer
@@ -59,7 +59,7 @@ struct ResumeCard: View {
             // How long ago, because the same card answers a four-minute
             // interruption and a two-hour one identically, and the person
             // coming back after two hours is cold. The system spells the
-            // interval, so no plural of ours has to (UX review 05.09.2026).
+            // interval, so no plural of ours has to.
             //
             // Past ten minutes only: below that the interruption is plainly
             // the moment the person just left, and the relative formatter
@@ -73,9 +73,8 @@ struct ResumeCard: View {
             }
 
             if awaitingAnswer && !onlyRatingLeft {
-                // What the second button does, in the words the flow's own
-                // "Finish now" already uses — one sentence, one vocabulary,
-                // and already translated into all six languages.
+                // What the second button does, named by its label: the
+                // flow's own "Finish now", making the same call (`finishNow`).
                 Text("“Finish now” keeps what you've done and goes to the rating — the remaining exercises are marked as skipped.")
                     .dredfitFont(13)
                     .foregroundStyle(Theme.ink2)
@@ -100,10 +99,10 @@ struct ResumeCard: View {
                     // over" is an answer nobody wants at that distance.
                     //
                     // It opens the RATING rather than recording a verdict of
-                    // its own (owner, 06.09.2026): the athlete was there, and
-                    // they say how it went. Same words as the control inside
-                    // the flow that does the same thing, so the two cannot
-                    // read as different offers.
+                    // its own: the athlete was there, and they say how it
+                    // went. Same words as the control inside the flow that
+                    // does the same thing, so the two cannot read as
+                    // different offers.
                     Button {
                         activeWorkout = ActiveWorkout(session: store.nextSession,
                                                       resume: snap,
@@ -129,11 +128,11 @@ struct ResumeCard: View {
         .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 18))
         // The same guard, for the most expensive tap on this screen: "Start
         // over" throws away the only copy of a half-finished workout — the
-        // numbers entered, the probe, the sets skipped — and it stood beside
-        // "Continue" with nothing in front of it, while skipping ONE set
-        // raises a question (SkipConfirmation.swift:4-9). Same two words as
-        // the reset alert, because what is being kept is the same thing: the
-        // work already done (UX review 05.09.2026).
+        // numbers entered, the probe, the sets skipped — and it stands beside
+        // "Continue", while skipping ONE set raises a question
+        // (SkipConfirmation.swift:4-9). The same "Keep my progress" as the
+        // reset alert, because what is being kept is the same thing: the
+        // work already done.
         //
         // On the card rather than on the screen: an alert belongs to the
         // control that raises it, and this one is the only one of the three

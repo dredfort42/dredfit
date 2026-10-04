@@ -35,15 +35,13 @@ struct SettingsSheet: SettingsGroup {
                         .padding(.top, 26)
 
                     // ONE grammar for the whole screen, so that what a line
-                    // belongs to is read off the page and not guessed (owner,
-                    // 13.09.2026: everything ran into one heap). Every group
-                    // opens with a kicker; inside a group a caption sits
-                    // 6 pt under the control it explains and 14 pt from the
-                    // next control; groups stand 28 pt apart. Two blocks used
-                    // to have no kicker — Sounds read as part of Equipment,
-                    // Reminder as part of Appearance — and the reminder lives
-                    // with the rest days now: it fires on training days only,
-                    // and toggling a rest day reschedules it (`toggleRestDay`).
+                    // belongs to is read off the page and not guessed. Every
+                    // group under the "How it works" row opens with a kicker;
+                    // inside a group a caption sits 6 pt under the control it
+                    // explains and 14 pt from the next control; groups stand
+                    // 28 pt apart. The reminder lives with the rest days: it
+                    // fires on training days only, and toggling a rest day
+                    // reschedules it (`toggleRestDay`).
                     howItWorksSection
                     RhythmSection()
                     EquipmentSection()

@@ -1,45 +1,33 @@
 //
-//  The debut badge tests, moved out of AppStoreTests.swift, which had grown
-//  past nine hundred lines. It is still over the linter's file ceiling after
-//  this — the point is that the badge is its own subject, not that the count
-//  now passes. The code moved unchanged.
+//  The debut badge tests, in a file of their own: the badge is its own
+//  subject.
 //
 
 import XCTest
 import DredfitCore
 @testable import Dredfit
 
-// MARK: - The debut badge across the pain semantics
+// MARK: - The debut badge and what was performed
 
 extension AppStoreTests {
 
-    /// The sign that flips against discomfort: an exercise actually PERFORMED
-    /// counts toward the debut history, while a painful one does not. moved
-    /// where that shows: the report unloaded the movement to the previous
-    /// tier, so the badge question returned only after a climb back.
-    ///
-    /// A later wave moves it again, and closer to the point: the first report
-    /// keeps the variation and only drops the dose inside it, so the badge is
-    /// still standing right after the report — the tier really has never been
-    /// performed, because the report voided the session for it. It goes the
-    /// moment the trainee actually performs that tier.
-    ///
-    /// The "performed" side used to be a held exercise. The hold is cancelled,
-    /// so it is now an ordinary rated session — which is the same claim with
-    /// one fewer input involved.
+    /// An exercise actually PERFORMED counts toward the debut history, while
+    /// a skipped one does not. So the badge on a new variation stays standing
+    /// through a session that skipped the movement — the variation really has
+    /// never been performed — and goes the moment the trainee performs it.
     func testAPerformedExerciseCountsWhereAPainfulOneDoesNot() {
         let hurtURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-test-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: hurtURL) }
-        // The weekly ceiling holds the slow-adapting patterns to three levels
-        // a week, so a walk up the scale can no longer be a run of
+        // The weekly ceiling holds the slow-adapting patterns to three growth
+        // events a week, so a walk up the scale cannot be a run of
         // same-instant taps — every workout here gets its own day.
         let start = Date()
         for (url, performed) in [(tempURL!, true), (hurtURL, false)] {
             let store = makeStore(storageURL: url)
             var day = 0
-            // Every probe is passed: since §40.4 that is the only door into a
-            // new movement, so a walk that ignored them would never get there.
+            // Every probe is passed: that is the only door into a new
+            // movement, so a walk that ignored them would never get there.
             func train(_ result: FeedbackResult, overrides: [Pattern: Double] = [:],
                        skipped: Set<Pattern> = []) {
                 day += 1
@@ -67,10 +55,8 @@ extension AppStoreTests {
                 }
                 train(.more)
             }
-            // The movement used to be taken out of the session by a pain
-            // report; a SKIP is the signal that survived, and the badge's rule
-            // is the same either way — it is about what the person has DONE,
-            // not about what was planned for them.
+            // A SKIP is the signal here: the badge's rule is about what the
+            // person has DONE, not about what was planned for them.
             if performed {
                 train(.plan)
                 XCTAssertFalse(store.debutPatterns.contains(.pull),
@@ -86,19 +72,4 @@ extension AppStoreTests {
                            "performed at last — the badge is spent")
         }
     }
-
-    // SNIPPED: the two tests of the freeze — that a report rested the movement
-    // and was kept apart from a plain skip in the journal, and that Today only
-    // mentioned a resting movement while it was in the plan. Nothing rests any
-    // more: a movement the person finds too hard stays in the plan and gets an
-    // easier variation or fewer sets.
-    //
-    // The handle's own equivalents live in SessionLengthTests (what a handle
-    // does to the plan) and WeakLinkPromptTests (that the movement stays in the
-    // rotation afterwards).
-
-    // SNIPPED: two more tests of the pain report — that a reported exercise
-    // did not count as performed, and that the report froze the pattern,
-    // stayed apart from a skip in the journal and survived a reload. The input
-    // is gone; the journal field went with it.
 }

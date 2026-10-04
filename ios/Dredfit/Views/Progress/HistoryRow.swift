@@ -29,18 +29,17 @@ struct HistoryRow: View {
                 VStack(alignment: .trailing, spacing: 2) {
                     // NAMED. Three rows of numbers can stand under one
                     // movement — the plan, what was done, what it became —
-                    // and this one used to be the only one without a word.
-                    // With the fact in accent directly under it and "After:"
-                    // directly below, the reader had to guess which of the
-                    // three was which, and guessed that the accent was the
-                    // future (owner, workout 37, 12.09.2026).
+                    // and each carries a word. With the fact in accent
+                    // directly under a bare plan and "After:" directly below,
+                    // the reader would have to guess which of the three is
+                    // which, and would take the accent for the future.
                     Text("plan \(ex.display)")
                         .dredfitFont(15)
                         .monospacedDigit()
                         .foregroundStyle(Theme.ink2)
-                    // Only a record written before the wave can carry this.
-                    // History says what happened, and what happened is that
-                    // the person reported it.
+                    // Only a record written by a build that had the pain
+                    // report can carry this. History says what happened, and
+                    // what happened is that the person reported it.
                     if shown.discomfort?.contains(ex.pattern) == true {
                         Text("hurt")
                             .dredfitFont(12.5)
@@ -49,11 +48,10 @@ struct HistoryRow: View {
                         Text(HistorySheet.skipWord(ex, in: shown))
                             .dredfitFont(12.5)
                             .foregroundStyle(Theme.ink2)
-                            // The one line on this row without a name of its
-                            // own, while every neighbour carries one — so a
-                            // test could only count anonymous labels, and
-                            // counting them measured what fit on screen rather
-                            // than what happened (nightly 06.09.2026).
+                            // Named, like the lines under the row: without it
+                            // a test could only count anonymous labels, and
+                            // counting them measures what fits on screen
+                            // rather than what happened.
                             .accessibilityIdentifier(
                                 "history-skipword-\(ex.pattern.rawValue)")
                     }
@@ -77,9 +75,9 @@ struct HistoryRow: View {
                     .accessibilityIdentifier("history-setsskipped-\(ex.pattern.rawValue)")
             }
             // The one cause of a drop that lands on a session's point without
-            // being that session's doing: the athlete moved the movement down
-            // themselves, and two weeks later the chart shows a step they no
-            // longer remember taking (UX review 05.09.2026, finding 64).
+            // being that session's doing and without a break to explain it:
+            // the athlete moved the movement down themselves, and two weeks
+            // later the chart shows a step they no longer remember taking.
             if easedByHand.contains(ex.pattern) {
                 Text(String(localized: "history.easedByHand",
                             defaultValue: "You chose an easier variation before this workout"))
@@ -105,7 +103,7 @@ struct HistoryRow: View {
     /// be read against each other digit for digit. Accented, because it is
     /// the one line that says the session went differently from the plan;
     /// the word in front of it is what stops the accent being read as "next
-    /// time" (owner, workout 37, 12.09.2026).
+    /// time".
     @ViewBuilder
     private var factRow: some View {
         if shown.skipped?.contains(ex.pattern) != true,
