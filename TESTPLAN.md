@@ -1089,8 +1089,8 @@ the repository, like `reference/` itself.
 | Command | Must print | Clean means |
 |---|---|---|
 | `python3 scripts/update_reference_manifest.py --check` | `OK:` | the local `reference/` really is the one that produced the fixture. It is not versioned, so it goes stale silently |
-| `node verify2.js` | `провалов: 0` | every block of the verifier — 1 471 227 checks on engine 3.7.0 |
-| `node accept.js` | `ПРИЁМКА ЧИСТА` | not one `ПРОВАЛ` line across the twenty-seven wave-acceptance blocks below. It is the wave's own gate: every wave replaces the copy in `reference/` with the one written for it |
+| `node verify2.js` | `провалов: 0` | every block of the verifier — 1 501 778 checks on engine 3.7.0 |
+| `node accept.js` | `ПРИЁМКА ЧИСТА` | not one `ПРОВАЛ` line across the twenty-eight wave-acceptance blocks below. It is the wave's own gate: every wave replaces the copy in `reference/` with the one written for it |
 | `node passcheck_v3.js` | `Провалов всего: 0` | П1 and П2 both PASS — the two passability claims of §40, that every variation can be reached and that entering one never lengthens the session |
 | `node audit_static.js` | `НОВЫХ СРАБАТЫВАНИЙ НЕТ` | no new hit of the "fix applied to one branch of two" class |
 
@@ -1145,10 +1145,10 @@ trust. It is deterministic, self-contained and takes seconds, and it calls the
 engine's **exported** predicates rather than keeping its own copies of them
 (rule 16 of the audit protocol), so a rule and its check cannot drift apart.
 
-Twenty-seven blocks. The `Пn` numbers are the ones they carried in the v2.27
+Twenty-eight blocks. The `Пn` numbers are the ones they carried in the v2.27
 acceptance and keep them on purpose, so a block can be traced back to the
 defect that created it; the `Иn` and `Фn` blocks arrived with v3, `Ж1`, `Ж2`
-and `В1` with v3.6, `Н1`, `Н2`, `К1` and `В2` with v3.7. There is no
+and `В1` with v3.6, `Н1`, `Н2`, `К1`, `В2` and `К2` with v3.7. There is no
 П13 any more — the roll-call it performed is now an `EXPECTED` list plus a
 `process.on('exit')` hook, which also catches a script that dies before the
 last block instead of printing "no failures" and reading as a pass.
@@ -1180,6 +1180,7 @@ last block instead of printing "no failures" and reading as a pass.
 | Н2 | A credit that returns a set ends there and is charged one event; and an event the window grants but the cut hides is not charged at all | The credit returned a set and added a dose step, the window's rebuild kept the set alone and charged both; and a lost granted event was charged anyway (§41.16) |
 | К1 | A set the cross-credit returns arms the branch's hold, so its own next appearance returns no second set | Without the hold, the pull-up branch went 2 → 3 → 4 sets on consecutive appearances, against the spacing the hold exists for (§36.3, §41.16) |
 | В2 | The hold is armed by sets coming back on screen: a descent that carries the cut down a variation arms none, a probe entry that adds sets keeps its hold | A descent off a band armed the hold with no set added, and the next growth event was lost to the hold's corner (§41.16) |
+| К2 | The cross-credit repeats what the trained branch kept after its weekly ceiling: under a spent budget the pull stands and so do the pull-ups; with one event of budget left an "easy" gives each branch one — with the control that without the window both rise, by two | The credit repeated the gain before the window: the pull-ups grew for growth the pull never kept, and a logger's pull slot outran the window (§41.16) |
 
 Two things this table deliberately does not claim. Ф1 and П12 are bounded by
 what the engine already accepted rather than by zero, so they detect a

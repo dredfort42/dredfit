@@ -96,8 +96,19 @@ extension Engine {
             }
         }
 
-        crossCredit(&next, session: session, result: result,
-                    overrides: overrides, entryPos: entryPos)
+        // The pull branch that trained meets its weekly ceiling BEFORE the
+        // cross-credit, so the credit repeats the gain the branch KEPT. Repeated
+        // before the ceiling, the credit would grow the other branch for growth
+        // the trained one did not keep, and lift a logger's pull slot past the
+        // window.
+        let pullEx = session.exercises.first { Pattern.pullSide.contains($0.pattern) }
+        if window.haveGap, let trained = pullEx?.pattern {
+            applyWeeklyCap(&next, [trained], entryPos: entryPos, adapted: adapted)
+        }
+        if let pullEx {
+            crossCredit(&next, trainedEx: pullEx, result: result,
+                        overrides: overrides, entryPos: entryPos)
+        }
         // Remember what the person SAW and at what position — the position is
         // the ENTRY one, because the plan was shown before the feedback.
         // An exercise with a probe writes its memory too, with the set the
@@ -108,7 +119,8 @@ extension Engine {
             next.shownOrd[ex.pattern] = posOrd(ex.pattern, entryPos[ex.pattern]!)
         }
         if window.haveGap {
-            applyWeeklyCap(&next, entryPos: entryPos, adapted: adapted)
+            applyWeeklyCap(&next, Pattern.allCases.filter { $0 != pullEx?.pattern },
+                           entryPos: entryPos, adapted: adapted)
         }
         return next
     }
@@ -412,15 +424,12 @@ extension Engine {
     /// slot. The applied gain is repeated to the other branch, bounded by ITS
     /// OWN growth cell and BY ITS OWN JOURNAL: repeated unbounded, someone
     /// else's gain would lift that branch's base dose past anything the person
-    /// has shown in it. The gain is the trained branch's BEFORE its weekly
-    /// ceiling: the ceiling runs once, after the credit, and trims each branch
-    /// by its own budget.
-    private static func crossCredit(_ next: inout EngineState, session: Session,
+    /// has shown in it. The gain is what the trained branch kept after its
+    /// weekly ceiling; the other branch then meets its own.
+    private static func crossCredit(_ next: inout EngineState, trainedEx: SessionExercise,
                                     result: FeedbackResult, overrides: [Pattern: Double],
                                     entryPos: [Pattern: Position]) {
-        guard next.hasBar,
-              let trainedEx = session.exercises.first(where: { Pattern.pullSide.contains($0.pattern) })
-        else { return }
+        guard next.hasBar else { return }
         let trained = trainedEx.pattern
         let other: Pattern = trained == .pull ? .pullBar : .pull
         // (#141) The mark is set by a "less" for the WHOLE session, named or
@@ -456,9 +465,11 @@ extension Engine {
         return WeekWindow(haveGap: true, gain: state.weekGain, ageDays: aged)
     }
 
-    /// (#129) The weekly ceiling is applied ONCE, after every
-    /// rise of this session — the cross-credit included, which would otherwise
-    /// walk around the budget.
+    /// (#129) The weekly ceiling is applied ONCE to each pattern, after every
+    /// rise of it this session: to the pull branch that trained before the
+    /// cross-credit, which repeats what that branch kept, and to every other
+    /// pattern after it — the credit included, which would otherwise walk
+    /// around the other branch's budget.
     ///
     /// Fast adaptation by facts is NOT subject to it: there the dose equals
     /// what was shown rather than what was assigned, and trimming it would be
@@ -483,10 +494,10 @@ extension Engine {
     /// The window charges what the rebuild REALISED, not what it granted: a
     /// granted event can land on a set the cut hides and be lost, and it was
     /// charged all the same.
-    private static func applyWeeklyCap(_ next: inout EngineState,
+    private static func applyWeeklyCap(_ next: inout EngineState, _ patterns: [Pattern],
                                        entryPos: [Pattern: Position],
                                        adapted: Set<Pattern>) {
-        for p in Pattern.allCases {
+        for p in patterns {
             if adapted.contains(p) { continue }
             let entry = entryPos[p]!
             if next.vars[p] != entry.variation { continue }

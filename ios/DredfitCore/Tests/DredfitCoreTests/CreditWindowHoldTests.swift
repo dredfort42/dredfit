@@ -219,4 +219,40 @@ final class CreditWindowHoldTests: XCTestCase {
         XCTAssertEqual(capped.cut[.pullBar], 1, "the window took the credit's set back")
         XCTAssertNil(capped.setsHold[.pullBar], "and the hold with it")
     }
+
+    // MARK: - §41.16 п. 5 · the credit repeats what the trained branch kept
+
+    /// The trained branch stands under its spent window, and the branch it
+    /// credits stands with it. Credited before the window, the other branch
+    /// grew for growth the trained one never kept.
+    func testUnderASpentWindowTheCreditRepeatsNothing() throws {
+        var s = slot(barVariation: 5, barDose: 8, barCut: 0, barJournal: 15, counter: 0)
+        s.weekGain[.pull] = EngineConfig.weeklyRiseSlow
+        s.weekAgeDays = 1
+        let a = try appearance(s, .pull)
+        XCTAssertGreaterThan(Engine.progress(a.feedback(.plan), .pullBar), Engine.progress(a.state, .pullBar),
+                             "control: without the window the credit lands")
+        let capped = a.feedback(.plan, gapDays: 1)
+        XCTAssertEqual(capped.position(.pull), a.state.position(.pull), "the window stops the trained branch")
+        XCTAssertEqual(capped.position(.pullBar), a.state.position(.pullBar), "and the credit repeats nothing")
+        XCTAssertNil(capped.weekGain[.pullBar])
+    }
+
+    /// The other side: with one event of budget left, an "easy" keeps one of
+    /// its two events, and the credit repeats exactly that one.
+    func testTheCreditRepeatsTheEventTheWindowLeft() throws {
+        var s = slot(barVariation: 3, barDose: 4, barCut: 0, barJournal: 15, counter: 0)
+        s.weekGain[.pull] = EngineConfig.weeklyRiseSlow - 1
+        s.weekAgeDays = 1
+        let a = try appearance(s, .pull)
+        func rise(_ after: EngineState, _ p: Pattern) -> Int {
+            Engine.progress(after, p) - Engine.progress(a.state, p)
+        }
+        let free = a.feedback(.more)
+        XCTAssertEqual(rise(free, .pull), 2, "control: an easy is two events")
+        XCTAssertEqual(rise(free, .pullBar), 2, "and without the window the credit repeats both")
+        let capped = a.feedback(.more, gapDays: 1)
+        XCTAssertEqual(rise(capped, .pull), 1, "the window keeps one")
+        XCTAssertEqual(rise(capped, .pullBar), 1, "and the credit repeats that one")
+    }
 }

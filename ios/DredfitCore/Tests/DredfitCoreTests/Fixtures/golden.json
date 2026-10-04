@@ -104562,7 +104562,7 @@
       0,
       0,
       0,
-      0
+      1
      ],
      "shownAfter": {
       "squat": {
@@ -104620,7 +104620,7 @@
       0,
       0,
       0,
-      2
+      0
      ],
      "shownWorkAfter": [
       14,
@@ -104657,7 +104657,7 @@
       4,
       3,
       3,
-      3
+      2
      ],
      "weekAgeDaysAfter": 5,
      "failStreakAfter": [
@@ -104683,7 +104683,7 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 32.7,
+     "estimatedTotalMin": 28.8,
      "warmupMin": 6,
      "cooldownMin": 4,
      "exercises": [
@@ -104703,12 +104703,11 @@
        "unit": "reps",
        "load": 5,
        "perSide": false,
-       "sets": 3,
+       "sets": 2,
        "restSetSec": 60,
        "restExerciseSec": 60,
        "loads": [
         6,
-        5,
         5
        ]
       },
@@ -104733,12 +104732,11 @@
        "unit": "reps",
        "load": 11,
        "perSide": false,
-       "sets": 3,
+       "sets": 2,
        "restSetSec": 60,
        "restExerciseSec": 60,
        "loads": [
         12,
-        11,
         11
        ]
       },
@@ -104748,12 +104746,11 @@
        "unit": "reps",
        "load": 5,
        "perSide": false,
-       "sets": 3,
+       "sets": 2,
        "restSetSec": 60,
        "restExerciseSec": 60,
        "loads": [
         6,
-        5,
         5
        ]
       },
@@ -104889,19 +104886,19 @@
       0,
       0,
       0,
-      1
+      2
      ],
      "shownWorkAfter": [
       15,
-      16,
+      11,
       16,
       27,
-      16,
+      11,
       32,
       60,
       110,
       15,
-      34
+      23
      ],
      "shownOrdAfter": [
       3,
@@ -104913,7 +104910,7 @@
       3,
       2,
       3,
-      94
+      93
      ],
      "rampWindowAfter": 0,
      "weekGainAfter": [
