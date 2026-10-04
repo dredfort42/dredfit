@@ -156,6 +156,22 @@ final class NextTimeTests: AppStoreTestCase {
         XCTAssertEqual(store.currentPositions[pattern]?.dose, Dose.hold.max)
     }
 
+    /// Under a cut, the step that completes a rung moves the measure by more
+    /// than one event, so a second step burned on the ceiling hid inside the
+    /// first one's jump. A plank on 45-40 s with one set cut: the first tap
+    /// makes it 2×45, the second has nowhere to go — one step landed.
+    func testAStepBurnedOnTheCeilingUnderACutIsNotCountedAsLanded() {
+        var unraised = EngineState.initial
+        unraised.vars[.coreAntiExt] = 1
+        unraised.doses[.coreAntiExt] = Dose.hold.max - Dose.hold.step
+        unraised.sets[.coreAntiExt] = EngineConfig.setsBase
+        unraised.sub[.coreAntiExt] = 1
+        unraised.cut[.coreAntiExt] = 1
+        let raised = Engine.raiseDose(state: unraised, pattern: .coreAntiExt, steps: 2)
+        XCTAssertEqual(raised.doses[.coreAntiExt], Dose.hold.max, "the premise: the first step reaches the top")
+        XCTAssertEqual(AppStore.landed([.coreAntiExt: 2], from: unraised), [.coreAntiExt: 1])
+    }
+
     /// The share is what the screens read; a record written before the share
     /// existed falls back to the decision, and a record that says nothing
     /// landed says so even though the decision is on it.

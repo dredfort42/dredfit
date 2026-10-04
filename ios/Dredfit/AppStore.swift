@@ -492,10 +492,11 @@ final class AppStore {
                                            probes: probes,
                                            raised: raised)
         // The share of the raise that MOVED the position — the same call
-        // once more without it, and the ordinals compared. On the grid's
-        // ceiling the engine parks a raise (§41.13), so the taps and the
-        // rise can differ, and the journal names the rise: the taps stay in
-        // `raisedSteps` because a changed rating replays them.
+        // once more without it, and the raise replayed over that state one
+        // step at a time (`landed`). On the grid's ceiling the engine parks a
+        // raise, so the taps and the rise can differ, and the journal names
+        // the rise: the taps stay in `raisedSteps` because a changed rating
+        // replays them.
         var landed: [Pattern: Int] = [:]
         if !raised.isEmpty {
             let unraised = Engine.applyFeedback(state: before, session: session,
@@ -504,7 +505,7 @@ final class AppStore {
                                                 setsSkipped: setsSkipped,
                                                 gapDays: gapFraction(now: date),
                                                 probes: probes)
-            landed = Self.landed(raised, from: unraised, to: engineState)
+            landed = Self.landed(raised, from: unraised)
         }
         // What it takes to change this rating afterwards, and which movements
         // it actually eased. Both are facts of THIS moment and of no other:
