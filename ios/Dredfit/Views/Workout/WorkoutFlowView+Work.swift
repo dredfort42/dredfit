@@ -161,8 +161,14 @@ extension WorkoutFlowView {
                                   actual: setActual,
                                   setIndex: flow.setIndex, sets: flow.totalSets,
                                   planned: setInForce,
+                                  // Whether the number is worth printing is
+                                  // asked of the plan and the record, never of
+                                  // a declared time: the person set that one
+                                  // themselves, and on an even plan it would
+                                  // stand under every set saying nothing new.
                                   uneven: flow.exercise.loads != nil
-                                      || setInForce != flow.exercise.plannedLoad(set: flow.setIndex))
+                                      || SetFacts.offPlan(flow.actuals, flow.exercise,
+                                                          set: flow.setIndex) != nil)
                     .padding(.top, 10)
             }
 
@@ -408,20 +414,15 @@ extension WorkoutFlowView {
     /// In order of precedence.
     private var workNumber: Int {
         if flow.holdCountingIn { return flow.holdCountInClock.remaining }
-        // Before the effort a DECLARED time is what the clock will run from,
-        // so it is what the screen shows: the number the person is about to
-        // agree to, not the plan they have already decided against.
-        if flow.holdExerciseIntro, let declared = flow.holdDeclared { return declared }
         if flow.holdSwitchPausing { return flow.holdSwitchClock.remaining }
         if flow.holding { return flow.holdClock.remaining }
         if flow.current.isProbe { return flow.probeActuals[flow.exercise.pattern] ?? flow.current.planned }
-        return SetFacts.inForce(flow.actuals, flow.exercise, set: flow.setIndex)
+        return setInForce
     }
 
-    /// What THIS set will actually run at — the number the big digit shows.
-    private var setInForce: Int {
-        SetFacts.inForce(flow.actuals, flow.exercise, set: flow.setIndex)
-    }
+    /// What THIS set will actually run at — the number the big digit shows,
+    /// and on a hold the one its clock is set from, a declared time included.
+    private var setInForce: Int { flow.targetInForce }
 
     /// The caption's: this set's own number, nothing when it is the plan.
     /// The plan of THIS SET — against the flat base an untouched top set of

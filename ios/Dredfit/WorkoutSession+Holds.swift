@@ -67,8 +67,7 @@ extension WorkoutSession {
         // about that one (§40.4).
         var planned = current.isProbe
             ? (probeActuals[exercise.pattern] ?? current.planned)
-            : SetFacts.holdTarget(actuals, exercise, set: setIndex,
-                                  declared: holdDeclared)
+            : targetInForce
         #if DEBUG
         // The UI suite used to set a hold's length through the adjuster on
         // this screen, which R23 removed: nothing is entered before the
@@ -411,5 +410,26 @@ extension WorkoutSession {
         let held = holdTotal - holdClock.remaining
         guard Double(held) > Self.holdMistapSeconds else { return nil }
         return SetFacts.holdEndedByTap(heldSeconds: held)
+    }
+
+    /// What the set under way runs at: the number the work screen shows while
+    /// nothing is running, and the one `startHold` sets the clock from.
+    ///
+    /// One reading for both, because the screen is the promise the clock
+    /// keeps. A declared time stands in for the plan for the whole exercise
+    /// (`SetFacts.holdTarget`), so it is the number the screen names: the one
+    /// the person agreed to, not the plan they decided against. That has to
+    /// hold on every set the run does not open — after an absence in the
+    /// rest, a Stop inside the mis-tap grace, a skipped set or a restore —
+    /// where a screen reading the plan would name 15 and the clock would then
+    /// count the declared 45.
+    ///
+    /// Reps read `inForce` whatever a snapshot carries: a declaration governs
+    /// a hold only, the same rule the header prices the sets by
+    /// (`SessionAhead`).
+    var targetInForce: Int {
+        exercise.unit == .hold
+            ? SetFacts.holdTarget(actuals, exercise, set: setIndex, declared: holdDeclared)
+            : SetFacts.inForce(actuals, exercise, set: setIndex)
     }
 }

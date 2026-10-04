@@ -229,4 +229,65 @@ extension WorkoutSessionTests {
         XCTAssertNil(flow.holdDeclared)
         XCTAssertEqual(flow.holdTotal, 15)
     }
+
+    // MARK: - The number a set the run does not open shows
+
+    /// The rest ran out with nobody there, so the run stopped and set 2 waits
+    /// on its own button — showing the number its clock will count.
+    func testASetTheRunNoLongerOpensShowsTheDeclaredTimeItWillRun() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        declare(45, on: flow)
+        flow.startHoldExercise()
+        run(flow, for: GetReady.countInSeconds + 45)
+        clock += 600
+        flow.tick()
+        XCTAssertFalse(flow.holdAutoRun)
+        XCTAssertEqual(flow.setIndex, 1)
+
+        XCTAssertEqual(flow.targetInForce, 45, "the screen names the declared time, not the plan of 15")
+        flow.startHoldExercise()
+        run(flow, for: GetReady.countInSeconds)
+        XCTAssertEqual(flow.holdClock.remaining, 45, "and the clock counts what the screen named")
+    }
+
+    func testAStopInsideTheGraceHandsBackTheDeclaredTimeTheClockWillRun() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        declare(45, on: flow)
+        flow.startHoldExercise()
+        run(flow, for: GetReady.countInSeconds + 45 + 60)
+        XCTAssertEqual(flow.setIndex, 1)
+        XCTAssertTrue(flow.holding, "the run opened set 2 on its rest's go")
+        run(flow, for: 2)
+        flow.stopHoldEarly()
+        XCTAssertFalse(flow.holding)
+
+        XCTAssertEqual(flow.targetInForce, 45, "the set handed back names the declared time, not the plan of 15")
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds)
+        XCTAssertEqual(flow.holdClock.remaining, 45, "and the clock counts what the screen named")
+    }
+
+    /// Below the plan, and with nothing recorded yet: the declaration alone
+    /// is what the set after a skipped one runs at.
+    func testASetAfterASkipShowsTheDeclaredTimeItWillRun() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        declare(10, on: flow)
+        flow.skipSet()
+        XCTAssertEqual(flow.setIndex, 1)
+
+        XCTAssertEqual(flow.targetInForce, 10, "the screen names the declared time, not the plan of 15")
+        flow.startHoldExercise()
+        run(flow, for: GetReady.countInSeconds)
+        XCTAssertEqual(flow.holdClock.remaining, 10, "and the clock counts what the screen named")
+    }
+
+    /// Nothing on a reps movement can declare a time, so one found there came
+    /// off a snapshot, and the set goes on naming the reps it asks for.
+    func testARepsMovementNamesItsOwnNumberWhateverIsDeclared() {
+        let flow = makeFlow(makeStore())
+        flow.declineWarmup()
+        XCTAssertEqual(flow.exercise.unit, .reps)
+        flow.holdDeclared = 45
+        XCTAssertEqual(flow.targetInForce, flow.exercise.plannedLoad(set: 0))
+    }
 }
