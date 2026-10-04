@@ -169,7 +169,7 @@ final class EnergyEstimateTests: XCTestCase {
     }
 
     /// A record from before the flow measured its blocks: the plan stands in,
-    /// which is the only honest fallback and also the old behaviour.
+    /// which is the only honest fallback.
     private func segments(_ exercises: [SessionExercise], skipped: Set<Pattern> = [],
                           warmupSec: Int? = nil, cooldownSec: Int? = nil) throws -> SessionSegments {
         try XCTUnwrap(EnergyEstimate.segments(exercises: exercises, skipped: skipped,
@@ -177,8 +177,8 @@ final class EnergyEstimateTests: XCTestCase {
     }
 
     /// The one guard that catches a warm-up or cool-down copied as a literal:
-    /// the two used to be spelled 5 and 3 here while the engine had moved the
-    /// cool-down to 4, and the extra minute went to Health unnoticed.
+    /// a copy goes stale the moment the engine moves a block length, and the
+    /// difference goes to Health unnoticed.
     func testSegmentsReadTheEngineSBlockLengths() throws {
         let seg = try segments([exercise(.squat, load: 10, sets: 3)])
         XCTAssertEqual(seg.warmupSec, Double(EngineConfig.warmupMin * 60))
@@ -226,8 +226,8 @@ final class EnergyEstimateTests: XCTestCase {
     // MARK: - Blocks that did not happen
 
     /// Both blocks end on one tap of a footer button. Charging their planned
-    /// minutes anyway billed 9 minutes — 27 % of a median session — to a
-    /// person who may have declined both.
+    /// minutes anyway would bill ten minutes to a person who may have
+    /// declined both.
     func testDeclinedBlocksAreNotCharged() throws {
         let seg = try segments([exercise(.squat, load: 10, sets: 3)],
                                warmupSec: 0, cooldownSec: 0)
@@ -261,9 +261,8 @@ final class EnergyEstimateTests: XCTestCase {
         XCTAssertEqual(seg.cooldownSec, 0)
     }
 
-    /// No work, no calorie. This session used to be priced at 24.8 kcal on the
-    /// standard rung — the lowest figure in the whole golden fixture, for a
-    /// workout in which nothing was performed.
+    /// No work, no calorie: the two blocks alone must not price a workout in
+    /// which nothing was performed.
     func testASessionWithNoWorkPerformedYieldsNoCalorie() throws {
         let seg = try segments([exercise(.squat, load: 10, sets: 3)], skipped: [.squat])
         XCTAssertGreaterThan(seg.totalSec, 0, "the blocks still took time")

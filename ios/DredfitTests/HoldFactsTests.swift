@@ -2,12 +2,12 @@
 //  The arithmetic of a hands-free hold: the writer the exercise summary needs,
 //  the allowance a hold ended by thumb pays, and the time a declared hold runs
 //  for. A file of its own beside SetFactsTests, which is about the per-set
-//  fact in general and already stands at 521 lines against a 600-line lint.
+//  fact in general and is kept under the lint's 600-line file warning.
 //
 //  Every rule here is a pure function on purpose. A rule stated inside a
 //  SwiftUI view is a rule no gating test can reach — CI runs with
-//  `-skip-testing:DredfitUITests` — which is how the audit of 27.08.2026
-//  found rules that had quietly stopped being true.
+//  `-skip-testing:DredfitUITests` — and such a rule can quietly stop being
+//  true.
 //
 
 import XCTest
@@ -27,7 +27,7 @@ final class HoldFactsTests: XCTestCase {
         var state = EngineState.initial
         for p in Pattern.allCases {
             state.doses[p] = Dose.grid(Library.unit(p, 1)).max
-            // A ceiling offers a PROBE (§40.4), which would change what the
+            // A ceiling offers a PROBE, which would change what the
             // last set of these exercises even is. "Hard" was said, so the
             // plan is three working sets and nothing else.
             state.lastHard.insert(p)
@@ -46,9 +46,9 @@ final class HoldFactsTests: XCTestCase {
 
     // MARK: - Writing one set without truncating the rest
 
-    /// The defect the summary exists to make impossible: correcting set 1
-    /// when sets 2 and 3 are already recorded used to delete them, because the
-    /// only writer there was `recording`, which truncates by design.
+    /// The defect the summary's writer exists to make impossible: correcting
+    /// set 1 when sets 2 and 3 are already recorded must not delete them, as
+    /// `recording` — which truncates by design — would.
     func testCorrectingAnEarlierSetLeavesTheLaterOnesStanding() {
         var facts = SetFacts.recording(40, in: [:], hold, set: 0)
         facts = SetFacts.recording(38, in: facts, hold, set: 1)
@@ -60,9 +60,6 @@ final class HoldFactsTests: XCTestCase {
                        "the sets after the corrected one are facts, not forecasts")
     }
 
-    /// …and `recording` still truncates, because on the work screen the sets
-    /// after the one under way have not happened yet. Both halves in one test:
-    /// the pair is the rule.
     /// The panel walks a hold in fives, on the grid the plan is set on: from
     /// a grid line one tap is one line, from a number off the grid — the
     /// clock's 38 — the first tap lands on the next line in that direction.
@@ -75,6 +72,9 @@ final class HoldFactsTests: XCTestCase {
         XCTAssertEqual(AdjustPanel.holdStep(5, -1), 0, "the corridor, not the step, is the floor")
     }
 
+    /// `recording`, the work screen's writer, still truncates: there the sets
+    /// after the one under way have not happened yet. This and
+    /// `testCorrectingAnEarlierSetLeavesTheLaterOnesStanding` are one rule.
     func testTheWorkScreenWriterStillTruncates() {
         var facts = SetFacts.recording(40, in: [:], hold, set: 0)
         facts = SetFacts.recording(38, in: facts, hold, set: 1)
@@ -136,14 +136,14 @@ final class HoldFactsTests: XCTestCase {
 
     // MARK: - The clock records every set of an uneven plan
 
-    /// Workout 42 (owner, 21.09.2026): 35-30-30 held exactly as asked came
-    /// out as 35-35-30 on the summary, in the journal and in the next plan —
-    /// on BOTH holds of the session, with nothing typed and nothing declared.
+    /// An uneven plan held exactly as asked — 20-15-15 here, 35-30-30 in the
+    /// field — must not come out as 20-20-15 (35-35-30) on the summary, in the
+    /// journal and in the next plan, with nothing typed and nothing declared.
     /// The clock records every set through `recording`, so a hold to plan
     /// writes set 1 (nothing said), set 2 (nothing said), then set 3 — and
-    /// the fill for the two sets already behind carried set ONE's number
-    /// onto set two instead of set two's own plan. Walked the way the flow
-    /// walks it: the clock is set from `holdTarget`, then records what ran.
+    /// the fill for the two sets already behind has to give set two its own
+    /// plan, not set ONE's number. Walked the way the flow walks it: the clock
+    /// is set from `holdTarget`, then records what ran.
     func testAHoldRunExactlyToAnUnevenPlanSaysNothing() throws {
         let uneven = try XCTUnwrap(unevenHold())
         let plan = (0..<uneven.sets).map { uneven.plannedLoad(set: $0) }
@@ -161,12 +161,11 @@ final class HoldFactsTests: XCTestCase {
         XCTAssertNil(SetFacts.override(facts, for: uneven), "the rating governs the pattern")
     }
 
-    /// The fill itself, on the set that showed the defect: a third set
+    /// The fill itself, on the set that shows the defect: a third set
     /// recorded with nothing said before it gets sets one and two AT THEIR
     /// OWN PLAN — what `inForce` showed and the clock ran — not set one's
-    /// number twice. The summary's writer already filled this way
-    /// (`testGapsBeforeTheCorrectedSetAreFilledWithTheirOwnPlan`); the work
-    /// screen's did not.
+    /// number twice. The summary's writer fills the same way
+    /// (`testGapsBeforeTheCorrectedSetAreFilledWithTheirOwnPlan`).
     func testGapsBeforeTheSetUnderWayAreFilledAsTheScreenReadThem() throws {
         let uneven = try XCTUnwrap(unevenHold())
         let plan = (0..<uneven.sets).map { uneven.plannedLoad(set: $0) }
@@ -177,8 +176,8 @@ final class HoldFactsTests: XCTestCase {
 
     /// The same rule after a SURPLUS. A number above the plan stays on its
     /// own set (`inForce`), so the clock of the set after it ran the plan —
-    /// and that is what the fill has to say it ran at once a later set is
-    /// recorded. The carry used to put the surplus there too.
+    /// and that is what the fill has to say it ran once a later set is
+    /// recorded, not the surplus.
     func testTheFillAfterASurplusIsThePlanTheClockRan() {
         var facts = SetFacts.recording(hold.load + 5, in: [:], hold, set: 0)
         XCTAssertEqual(SetFacts.holdTarget(facts, hold, set: 1, declared: nil), hold.load,
@@ -253,7 +252,7 @@ final class HoldFactsTests: XCTestCase {
                        corridor.lowerBound)
     }
 
-    // MARK: - The set the run opens by itself (R32)
+    // MARK: - The set the run opens by itself
 
     /// One tap buys the exercise, and every working set of it after the first
     /// starts on the go of the rest before it. The predicate is asked by TWO
@@ -282,7 +281,7 @@ final class HoldFactsTests: XCTestCase {
         }
     }
 
-    /// §40.4: the probe is one set of a movement nobody has done, possibly in
+    /// The probe is one set of a movement nobody has done, possibly in
     /// another unit — the run never drops anyone into it.
     func testTheProbeIsNeverOpenedByTheRun() {
         let probing = holdWithProbe()
@@ -301,10 +300,10 @@ final class HoldFactsTests: XCTestCase {
         XCTAssertFalse(SetFacts.runOpensSet(-1, of: hold, running: true))
     }
 
-    // MARK: - Who still owes the count-in (R32)
+    // MARK: - Who still owes the count-in
 
-    /// The rule the wave turns on: a rest that ran out under the person's eyes
-    /// IS the count-in, and laying a second one on top of it was the defect.
+    /// A rest that ran out under the person's eyes IS the count-in, and laying
+    /// a second one on top of it would be a defect.
     func testARestThatRanOutHandsOverWithNoCountIn() {
         XCTAssertFalse(SetFacts.restHandsOverWithCountIn(endedByTap: false, overshootSec: 0))
         XCTAssertFalse(SetFacts.restHandsOverWithCountIn(endedByTap: false, overshootSec: 1))
@@ -346,12 +345,12 @@ final class HoldFactsTests: XCTestCase {
     /// rung split across the sets, so the top set stands one above the rest.
     ///
     /// Off a CLEAN state, not this suite's: the sub-step is disabled on the
-    /// top rung of a grid (§40.1), which is exactly where `setUp` puts
+    /// top rung of a grid, which is exactly where `setUp` puts
     /// everything, so an uneven plan cannot be built there at all.
     private func unevenReps() -> SessionExercise? { uneven(reps.pattern) }
 
-    /// The same shape on a hold — 20-15-15 s off the initial state, the plan
-    /// workout 42 met as 35-30-30 (`testAHoldRunExactlyToAnUnevenPlanSaysNothing`).
+    /// The same shape on a hold — 20-15-15 s off the initial state, the shape
+    /// of the 35-30-30 in `testAHoldRunExactlyToAnUnevenPlanSaysNothing`.
     private func unevenHold() -> SessionExercise? { uneven(hold.pattern) }
 
     private func uneven(_ pattern: Pattern) -> SessionExercise? {

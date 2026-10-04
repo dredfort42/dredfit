@@ -2,12 +2,11 @@
 //  What the calendar side of the store says: the week card's number and the
 //  word the cards use for the next training day (`AppStore+Calendar.swift`).
 //
-//  The file sat at 75 % with the uncovered part concentrated in two places:
-//  the branch that reads a record written before the scale changed, and the
-//  hardcoded Russian and Portuguese weekday phrases. The first is closed here.
-//  The second cannot be — see the note at the bottom of the file; it is a
-//  locale-dependent branch of user-facing text that no gate looks at, unit
-//  test plan and localization check included.
+//  The branch that reads a record written before the scale changed is covered
+//  here. The hardcoded Russian and Portuguese weekday phrases cannot be — see
+//  the note at the bottom of the file; they are a locale-dependent branch of
+//  user-facing text that no gate looks at, unit test plan and localization
+//  check included.
 //
 
 import XCTest
@@ -66,7 +65,7 @@ final class CalendarCaptionTests: AppStoreTestCase {
 
     /// A fresh install on a marked weekday is offered the plan on Today (rest
     /// is rest FROM something), so the next training date is today as well —
-    /// it used to say "tomorrow" for the very session Today was offering.
+    /// not "tomorrow" for the very session Today is offering.
     func test_nextTrainingDate_whenAFreshInstallStartsOnAMarkedWeekday_isToday() {
         let store = makeStore()
         store.update(refreshWidget: false) {

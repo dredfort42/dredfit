@@ -63,12 +63,9 @@ final class CooldownTests: XCTestCase {
                       "a workout of pure skips has nothing to stretch")
     }
 
-    /// RE-MARKED. The holds alone used to equal the reserved minutes exactly —
-    /// 6 × 30 s = 3 min — with the transitions and the switch pauses riding
-    /// inside the "≈". `cooldownMin` is 4 now, and the extra minute is not
-    /// more stretching: it pays for the longer transitions. So the identity
-    /// moved from "the holds fill the reserve" to "the holds plus what carries
-    /// them do", and the whole-block version of it lives in BlockReserveTests
+    /// The holds alone — 6 × 30 s = 3 min — do not fill the reserved minutes:
+    /// the reserve also pays for the transitions and the switch pauses that
+    /// carry them. The whole-block counterpart lives in BlockReserveTests,
     /// where both blocks are counted together.
     func testTheHoldsAloneNoLongerFillTheReserve() {
         let holds = Cooldown.positionCount * Cooldown.positionSeconds
@@ -78,13 +75,13 @@ final class CooldownTests: XCTestCase {
     }
 
     func testAPerSidePositionSplitsIntoTwoWholeSidesPlusThePause() {
-        // 15 + 5 + 15 (issue #35): the slot splits into two equal whole
-        // sides, and the pause is the app-layer constant the acceptance
-        // pinned — shared with the workout's per-side holds.
+        // 15 + 4 + 15 (issue #35): the slot splits into two equal whole
+        // sides, and the pause is the app-layer constant shared with the
+        // workout's per-side holds.
         XCTAssertEqual(Cooldown.sideSeconds * 2, Cooldown.positionSeconds,
                        "the sides must consume the whole slot")
         XCTAssertEqual(Cooldown.sideSeconds, 15)
-        XCTAssertEqual(Cooldown.sideSwitchPauseSec, 4)   // on trial, 06.09.2026
+        XCTAssertEqual(Cooldown.sideSwitchPauseSec, 4)   // on trial
     }
 
     // MARK: - The stage machine (issue #35)
@@ -138,11 +135,9 @@ final class CooldownTests: XCTestCase {
     }
 
     func testAdvanceAbsorbsBackgroundedTimeAcrossStages() {
-        // 22 s past the first side's end: the pause (5) and the second side
+        // 22 s past the first side's end: the pause (4) and the second side
         // (15) are consumed whole, landing 3 s into the next position — which
-        // since #52 opens with its transition, so 3 s into that. It was 2 s
-        // while the switch pause was five; the pause is on trial at four
-        // (06.09.2026) and the overshoot simply reaches one second further.
+        // opens with its transition (#52), so 3 s into that.
         let positions = machinePositions
         let landing = GuidedBlock.cooldown.advance(from: (0, .firstHalf), overshoot: 22,
                                        positions: positions)
@@ -156,11 +151,9 @@ final class CooldownTests: XCTestCase {
                                       positions: positions))
     }
 
-    /// The flag decides whether the app counts the sides (15 + 5 + 15) or
-    /// hands the count to the user, so it has to agree with the position's
-    /// own instructions. Chest and wrists told the user to "swap halfway
-    /// through" while being flagged bilateral — they were the two positions
-    /// the app knew were two-sided and still did not count (I-10).
+    /// The flag decides whether the app counts the sides itself or hands the
+    /// count to the user, so it has to agree with the position's own
+    /// instructions (I-10).
     func testPerSideFlagsAgreeWithTheInstructions() {
         let all = Cooldown.positions(
             performed: [.squat, .pull, .pushH, .coreRot, .calf, .lunge])

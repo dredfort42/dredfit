@@ -12,12 +12,12 @@ final class MilestoneTests: AppStoreTestCase {
     /// Seeded through a file rather than by assignment: `engineState` is
     /// `private(set)` so that only `completeWorkout` can move it, and these
     /// tests have no business being the exception. This also exercises the
-    /// real load path — which, since §40.8, is the only thing that separates a
-    /// seeded state from a clean start.
+    /// real load path — the only thing that separates a seeded state from a
+    /// clean start.
     ///
     /// `atCeiling` puts a movement on the top of ITS CURRENT variation, with a
-    /// journal to match: that is the one position a probe is offered from
-    /// (§40.4), and a probe is now the only door into a new movement.
+    /// journal to match: that is the one position a probe is offered from,
+    /// and a probe is the only door into a new movement.
     private func seededStore(counter: Int = 0,
                              atCeiling: [Pattern] = [],
                              atTopVariation: [Pattern] = [],
@@ -127,10 +127,10 @@ final class MilestoneTests: AppStoreTestCase {
         XCTAssertEqual(sets, 4)
     }
 
-    /// A rating on its own can no longer cross a variation — that is the whole
-    /// point of §40.4 — so the drop this test needs is produced the way one
-    /// still is: by the deload on the third shortfall, seeded with a streak of
-    /// two. The subject, "a step down is never announced", is untouched.
+    /// From the floor of a variation on the base sets, one "hard" only takes
+    /// a set off, so the drop this test needs is produced by the deload on
+    /// the third shortfall, seeded with a streak of two. The subject: a step
+    /// down is never announced.
     func testDroppingAVariationIsNotAMilestone() throws {
         let subject = session(atCounter: 0).exercises[0].pattern
         let store = try seededStore(atFloorOfSecond: [subject],
@@ -158,9 +158,7 @@ final class MilestoneTests: AppStoreTestCase {
     }
 
     /// The property is "a neighbour that stays put must not swallow this
-    /// movement's milestone"; what makes a neighbour stay put has changed
-    /// three times — a pin, a freeze, and now a SKIP, which is the signal that
-    /// survived them all.
+    /// movement's milestone"; what keeps the neighbour put here is a SKIP.
     func testAMovementThatStaysPutDoesNotSwallowAMilestone() throws {
         let subject = session(atCounter: 9).exercises[0].pattern
         let stillOther = session(atCounter: 9).exercises[1].pattern

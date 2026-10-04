@@ -62,9 +62,12 @@ struct PatternProgressRow: View {
                     .accessibilityLabel(Text(verbatim: p.displayName + ", ")
                         + Text("step \(steps) of \(Engine.ladderSpan(p))"))
                 if selected {
+                    // ink, not ink2: this line only exists on the accented
+                    // fill, where ink2 is 4.03:1 in the light scheme — under
+                    // the 4.5 small text needs.
                     selectedDetail(p, variation, position, of: total)
                         .dredfitFont(11)
-                        .foregroundStyle(Theme.ink2)
+                        .foregroundStyle(Theme.ink)
                         .lineLimit(typeSize.isAccessibilitySize ? nil : 1)
                         // 0.85, not 0.7: at the old floor this line rendered
                         // at 7.7 pt AND still lost its tail, and the tail is
@@ -101,7 +104,7 @@ struct PatternProgressRow: View {
                 HStack(spacing: 12) {
                     patternName(p)
                     Spacer(minLength: 8)
-                    stepsNumber(steps)
+                    stepsNumber(steps, selected: selected)
                     disclosure(selected)
                 }
                 progressBar(p, steps: steps)
@@ -113,7 +116,7 @@ struct PatternProgressRow: View {
                 patternName(p).frame(width: 152, alignment: .leading)
                 progressBar(p, steps: steps)
                 HStack(spacing: 6) {
-                    stepsNumber(steps).frame(width: 44, alignment: .trailing)
+                    stepsNumber(steps, selected: selected).frame(width: 44, alignment: .trailing)
                     disclosure(selected)
                 }
             }
@@ -128,11 +131,13 @@ struct PatternProgressRow: View {
             .minimumScaleFactor(0.85)
     }
 
-    private func stepsNumber(_ steps: Int) -> some View {
+    /// ink on the accented fill of the selected row, for the reason the
+    /// detail line gives.
+    private func stepsNumber(_ steps: Int, selected: Bool) -> some View {
         Text("\(steps)")
             .dredfitFont(13.5, weight: .semibold)
             .monospacedDigit()
-            .foregroundStyle(Theme.ink2)
+            .foregroundStyle(selected ? Theme.ink : Theme.ink2)
             .lineLimit(1)
             .minimumScaleFactor(0.8)
     }

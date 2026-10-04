@@ -158,7 +158,8 @@ final class AppStore {
     let notifications: NotificationScheduling
     let widgetSnapshotURL: URL?
     /// The state file existed but could not be read (data protection before
-    /// first unlock, transient I/O). While set, persist() is a no-op: the
+    /// first unlock, transient I/O), or was read and could not be put aside
+    /// before a write would replace it. While set, persist() is a no-op: the
     /// file on disk is the only copy of the journal and must never be
     /// overwritten from the empty in-memory state. Everything that publishes
     /// state outward — widget snapshot, backup export — checks this too.
@@ -181,6 +182,12 @@ final class AppStore {
 
     private static let log = Logger(subsystem: "app.dredfit", category: "store")
 
+    /// Nonisolated for the reason `WorkoutSession`'s deinit gives: the store
+    /// is the class whose isolated deinit crashed on the iOS 26.2 simulator.
+    /// The app keeps one store for its whole life, but every unit test frees
+    /// one. Nothing here needs the main actor to be torn down.
+    nonisolated deinit {}
+
     init(storageURL: URL = StateFile.defaultURL,
          health: WorkoutHealthWriting = HealthKitWorkoutWriter(),
          notifications: NotificationScheduling = UserNotificationScheduler(),
@@ -200,11 +207,12 @@ final class AppStore {
         case .absent, .undecodable:
             adopt(nil)
         case .unreadable:
-            // Unlike a decode failure, the journal may be perfectly fine —
-            // e.g. still protected before first unlock. Freeze rather than
-            // quarantine; reloadIfNeeded() lifts it.
+            // The journal may be perfectly fine — still protected before the
+            // first unlock — or damaged with nowhere to put a copy. Either
+            // way the file is the only copy: freeze rather than start over on
+            // top of it; reloadIfNeeded() lifts it.
             journalFrozen = true
-            Self.log.fault("state file exists but could not be read — persistence frozen")
+            Self.log.fault("state file could not be read or put aside — persistence frozen")
             adopt(nil)
         case .loaded(let data):
             adopt(data)
@@ -218,8 +226,9 @@ final class AppStore {
         refreshWidgetSnapshot()   // the widget mirrors state from launch
     }
 
-    /// Second chance for a launch whose state file could not be read. Called
-    /// when the scene becomes active — i.e. once the device is unlocked.
+    /// Second chance for a launch whose state file could not be read or put
+    /// aside. Called when the scene becomes active — i.e. once the device is
+    /// unlocked.
     func reloadIfNeeded() {
         // Reloading over work already done would erase it silently, and
         // mid-workout would move the engine counter out from under a running
@@ -492,10 +501,11 @@ final class AppStore {
                                            probes: probes,
                                            raised: raised)
         // The share of the raise that MOVED the position — the same call
-        // once more without it, and the ordinals compared. On the grid's
-        // ceiling the engine parks a raise (§41.13), so the taps and the
-        // rise can differ, and the journal names the rise: the taps stay in
-        // `raisedSteps` because a changed rating replays them.
+        // once more without it, and the raise replayed over that state one
+        // step at a time (`landed`). On the grid's ceiling the engine parks a
+        // raise, so the taps and the rise can differ, and the journal names
+        // the rise: the taps stay in `raisedSteps` because a changed rating
+        // replays them.
         var landed: [Pattern: Int] = [:]
         if !raised.isEmpty {
             let unraised = Engine.applyFeedback(state: before, session: session,
@@ -504,7 +514,7 @@ final class AppStore {
                                                 setsSkipped: setsSkipped,
                                                 gapDays: gapFraction(now: date),
                                                 probes: probes)
-            landed = Self.landed(raised, from: unraised, to: engineState)
+            landed = Self.landed(raised, from: unraised)
         }
         // What it takes to change this rating afterwards, and which movements
         // it actually eased. Both are facts of THIS moment and of no other:

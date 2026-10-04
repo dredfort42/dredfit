@@ -10,9 +10,8 @@ import XCTest
 final class BadgePillTests: XCTestCase {
     private let badge = "new variation"
 
-    /// The defect this wave fixes: with the appearance out of the key, the
-    /// second call was a cache hit and Today kept drawing the light pill on
-    /// the dark card.
+    /// With the appearance out of the cache key, the second call would be a
+    /// cache hit and Today would keep drawing the light pill on the dark card.
     func testLightAndDarkProduceDifferentPills() throws {
         let light = try XCTUnwrap(BadgePill.image(text: badge, scale: 2,
                                                   typeSize: .large,
@@ -38,24 +37,24 @@ final class BadgePillTests: XCTestCase {
     /// for both, and the day a token gains an Increased Contrast value the
     /// pill is the one thing that never picks it up.
     ///
-    /// Object identity, not pixels, since finding 16 moved the glyph off
-    /// accentText (4.20:1 on accentSoft) onto `ink`: BOTH of the pill's two
-    /// tokens are Increased-Contrast-invariant today — ink is #F2F2F4 in both
-    /// dark columns and accentSoft #3A2013 in both — so the two bitmaps are
+    /// Object identity, not pixels. The glyph is on `ink`, not accentText
+    /// (4.20:1 on accentSoft, I-21), and BOTH of the pill's two tokens are
+    /// Increased-Contrast-invariant today — ink is #F2F2F4 in both dark
+    /// columns and accentSoft #3A2013 in both — so the two bitmaps are
     /// legitimately identical and no pixel can tell them apart in either
-    /// scheme. What the finding leaves testable is the half that was the
-    /// defect: whether `contrast` is in the key at all. Dropped from it, the
-    /// second call is a cache hit and hands back the very same object.
+    /// scheme. What is testable is whether `contrast` is in the key at all:
+    /// dropped from it, the second call is a cache hit and hands back the very
+    /// same object.
     ///
     /// That the colours are resolved for the appearance they are asked for is
-    /// still pinned by the light/dark test above, where the fill does move.
-    /// The MOVE itself — that the glyph is `ink` and not accentText — is not
-    /// pinned here and deliberately not faked: the centre pixel is a stroke
-    /// antialiased into the fill at an unknown coverage, and both tones sit on
-    /// the same side of accentSoft in both schemes, so every assertion this
-    /// bitmap can carry passes for the colour the finding replaced as well.
-    /// The gate for the pair is the floor in `BrandPaletteTests`, which now
-    /// measures ink-on-accentSoft in all four appearances.
+    /// pinned by the light/dark test above, where the fill does move. That the
+    /// glyph is `ink` and not accentText is not pinned here and deliberately
+    /// not faked: the centre pixel is a stroke antialiased into the fill at an
+    /// unknown coverage, and both tones sit on the same side of accentSoft in
+    /// both schemes, so every assertion this bitmap can carry passes for
+    /// accentText as well. The gate for the pair is the floor in
+    /// `BrandPaletteTests`, which measures ink-on-accentSoft in all four
+    /// appearances.
     func testIncreasedContrastIsItsOwnEntry() throws {
         let standard = try XCTUnwrap(BadgePill.image(text: badge, scale: 2,
                                                      typeSize: .large,
@@ -89,12 +88,6 @@ final class BadgePillTests: XCTestCase {
     private func fillSample(_ image: UIImage) -> [UInt8]? {
         pixel(image, atX: 3, y: image.size.height / 2)
     }
-
-    // A glyph sampler stood here — the horizontal centre of the capsule. It
-    // went with the assertion that used it: once finding 16 put the glyph on
-    // `ink`, no reading of that pixel separates a passing pill from a failing
-    // one (see the contrast test above). A helper kept "in case" is a helper
-    // the next reader builds a false assertion on.
 
     private func pixel(_ image: UIImage, atX x: CGFloat, y: CGFloat) -> [UInt8]? {
         guard let cgImage = image.cgImage else { return nil }

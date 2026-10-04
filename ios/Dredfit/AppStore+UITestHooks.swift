@@ -44,25 +44,20 @@ extension AppStore {
         if CommandLine.arguments.contains("--uitest-restday") {
             seed { $0.settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)] }
         }
-        // Only workout 95 days ago → the comeback card with the paths it
-        // still has: the numbered offers and "Start from scratch" (#127). The
-        // sick row went with the illness lens.
+        // Only workout 95 days ago → the comeback card with its numbered
+        // offers and "Start from scratch" (#127).
         if CommandLine.arguments.contains("--uitest-comeback-long") {
             seedLoneWorkout(daysAgo: 95)
         }
-        // `--uitest-illness` seeded a five-day gap so the quiet "I was sick"
-        // offer would appear. The offer is gone, no test passed the flag any
-        // more, and a hook nothing reaches is a branch that will be trusted by
-        // the next reader.
+        // Every flag here is one a UI test passes: a hook nothing reaches is a
+        // branch that will be trusted by the next reader.
     }
 
     /// The hooks that only build a STATE — no settings, no journal beyond the
     /// one record a break needs. Split off so the flag walk above stays inside
-    /// the linter's complexity bound: it grows by one branch every wave, and
-    /// the bound is a CI error rather than a style opinion.
+    /// the linter's complexity bound.
     private func seedStateIfRequested() {
-        // A trainee at the top of every ladder: band 4, six movements, 67
-        // minutes (the number moved with the v3 ladders). The
+        // A trainee at the top of every ladder: band 4, six movements. The
         // state the mid-workout skip exists for — a plan of three sets can
         // only ever give one of them away and still count as trained, so the
         // escape that takes the REST of a movement has nothing to show at the
@@ -70,9 +65,9 @@ extension AppStore {
         if CommandLine.arguments.contains("--uitest-long-session") {
             var seeded = EngineState.initial
             for p in Pattern.allCases {
-                // The top variation is the only place bands live (§40.5), so
-                // "four sets" is a position, not a number that can be set on
-                // its own.
+                // The top variation is the only place bands live, so "four
+                // sets" is a position, not a number that can be set on its
+                // own.
                 let top = Library.count(p)
                 seeded.vars[p] = top
                 seeded.doses[p] = Dose.grid(Library.unit(p, top)).max
@@ -110,9 +105,9 @@ extension AppStore {
     }
 
     /// A single workout `daysAgo`, every movement a couple of variations up —
-    /// the seed the three break-shaped UI-test states share; only the gap
-    /// differs. The journal is filled in so a descent has somewhere to land
-    /// (§40.6): without it a comeback would land every pattern on 3×4.
+    /// the seed the two break-shaped UI-test states share; only the gap
+    /// differs. The journal is filled in so a descent has somewhere to land:
+    /// without it a comeback would land every pattern on 3×4.
     private func seedLoneWorkout(daysAgo: Int) {
         var seeded = EngineState.initial
         seeded.counter = 11

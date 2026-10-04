@@ -230,7 +230,7 @@ struct NextTimeBlock: View {
                 .dredfitFont(11, weight: .heavy)
                 .tracking(0.6)
                 .textCase(.uppercase)
-                .foregroundStyle(Theme.accentText)
+                .foregroundStyle(steps > 0 ? Theme.ink : Theme.accentText)
                 .accessibilityIdentifier("summary-next-time")
             if let planned {
                 sentence(for: planned)
@@ -261,9 +261,9 @@ struct NextTimeBlock: View {
         // The accent goes on when the person has added something — and only
         // then. Off, the block is a panel with a hairline outline; on, it is
         // the one orange thing on the screen, and it is the person's own
-        // decision. `ink` for the sentence on the fill, never accentText:
-        // that pair is 4.20:1 in the dark scheme (I-21), under what 14 pt
-        // text needs.
+        // decision. Never accentText on the fill, the kicker included: that
+        // pair is 4.20:1 in the dark scheme and just under 4.5 in the light
+        // one (I-21), under what small text needs.
         .background(steps > 0 ? Theme.accentSoft : Theme.cardBG,
                     in: RoundedRectangle(cornerRadius: 16))
         .overlay(RoundedRectangle(cornerRadius: 16)
