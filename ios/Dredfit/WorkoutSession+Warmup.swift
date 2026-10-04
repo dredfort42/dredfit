@@ -33,6 +33,7 @@ extension WorkoutSession {
     /// on appear — nothing is persisted, exactly as before: there is no
     /// progress yet to survive anything.
     func beginWarmup() {
+        guard phase == .warmupIntro else { return }
         phase = .warmup
         warmupBeganAt = now()
         // The pair is per BLOCK, and this block starts here.
@@ -51,6 +52,7 @@ extension WorkoutSession {
     /// the same one taking every move in turn arrives at: straight to the
     /// work, with nothing recorded about the block either way.
     func declineWarmup() {
+        guard phase == .warmupIntro else { return }
         finishWarmup()
     }
 
@@ -136,6 +138,7 @@ extension WorkoutSession {
     }
 
     func finishWarmup() {
+        guard phase == .warmup || phase == .warmupIntro else { return }
         clearBlockPause()
         // Resolved here because every ending arrives here: declined, skipped
         // from the footer, or every move taken in turn. Written once — this
