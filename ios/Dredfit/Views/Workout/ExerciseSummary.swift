@@ -45,12 +45,13 @@ struct HeldSet: Identifiable {
 /// only just cleared it would fail the moment somebody turned text up (R18).
 struct HeldSetCard: View {
     let held: HeldSet
-    /// Only the last set of the movement: nothing followed it, so what it
-    /// ran is the person's to correct in both directions. Every earlier set
-    /// ended on its signal or under a thumb and stands as it ran — the
-    /// card is inert, without the outline that says "tap me" and without
-    /// the hint that promises a change. It stays a button in the tree so
-    /// the tests that read the cards by identifier keep reading them.
+    /// Only the last working set of the movement: what it ran is the
+    /// person's to correct — down always, up as far as nothing stopped it
+    /// (`SetFacts.correctionRange`). Every earlier set ended on its signal
+    /// or under a thumb and stands as it ran — the card is inert, without
+    /// the outline that says "tap me" and without the hint that promises a
+    /// change. It stays a button in the tree so the tests that read the
+    /// cards by identifier keep reading them.
     let correctable: Bool
     let action: () -> Void
 

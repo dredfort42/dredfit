@@ -253,13 +253,22 @@ nonisolated enum SetFacts {
     /// The range a hold's recorded seconds may be corrected within on the
     /// movement's summary.
     ///
-    /// ONLY THE LAST SET IS CORRECTED. It has nothing after it — no rest
-    /// starts on its signal, and the person may have kept holding — so both
-    /// directions stay open there, up to the corridor: the "Went differently"
-    /// of the last hold, on its card. Every earlier set ended on its signal
-    /// or under a thumb and stands as it ran: its range is the number itself,
-    /// and its card opens no panel — one with both ends dead reads as a
-    /// broken control.
+    /// ONLY THE LAST WORKING SET IS CORRECTED. Every earlier set ended on its
+    /// signal or under a thumb and stands as it ran: its range is the number
+    /// itself, and its card opens no panel — one with both ends dead reads as
+    /// a broken control.
+    ///
+    /// The last one goes down to the corridor's floor, and up as far as
+    /// nothing stopped it. With nothing after it — no rest starts on its
+    /// signal, and the person may have kept holding — the corridor is the
+    /// ceiling: the "Went differently" of the last hold, on its card. A set a
+    /// REST followed — the last working set of a probing hold, whose signal
+    /// starts the rest before the probe — ended where the clock says it did,
+    /// and the ceiling is what the clock ran: its seconds when the clock ended
+    /// it, and when a thumb did, the estimate plus the reach allowance it paid
+    /// (`holdReachSeconds`), which is the clock's own reading at the tap.
+    /// More would be seconds nobody could have held, and on a probing hold one
+    /// step of them can decide whether the probe counts at all.
     ///
     /// What is wanted next time is a different channel (`raisedSteps`): a
     /// number entered on a card is written down as HELD (`recordingSet`), so
@@ -267,13 +276,17 @@ nonisolated enum SetFacts {
     ///
     /// `measured` is what the clock recorded for the set (`summaryMeasured`),
     /// or what the card shows when no clock ran for it. For a set ended by tap
-    /// that is already the clock less the reach allowance, and the allowance
-    /// is not handed back: it is a guess about a walk to the phone either way.
-    static func correctionRange(measured: Int, isLastSet: Bool) -> ClosedRange<Int> {
+    /// that is already the clock less the reach allowance, and an earlier set
+    /// stands at it: the allowance is a guess about a walk to the phone either
+    /// way.
+    static func correctionRange(measured: Int, isLastSet: Bool,
+                                restFollowed: Bool, endedByTap: Bool) -> ClosedRange<Int> {
         let corridor = corridor(for: .hold)
-        guard !isLastSet else { return corridor }
         let fixed = min(max(measured, corridor.lowerBound), corridor.upperBound)
-        return fixed...fixed
+        guard isLastSet else { return fixed...fixed }
+        guard restFollowed else { return corridor }
+        let ran = endedByTap ? measured + holdReachSeconds : measured
+        return corridor.lowerBound...min(max(ran, corridor.lowerBound), corridor.upperBound)
     }
 
     // MARK: - What a hold is worth when a thumb ends it

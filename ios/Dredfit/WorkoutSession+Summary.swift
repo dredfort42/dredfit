@@ -70,15 +70,24 @@ extension WorkoutSession {
             && SetFacts.inForce(actuals, exercise, set: index) == summaryMeasured(set: index)
     }
 
+    /// The last WORKING set: the card the line under the row names, whether
+    /// or not a probe came after it — the probe is a set of another movement
+    /// and has no card here.
     func isLastSummarySet(_ index: Int) -> Bool { index == exercise.sets - 1 }
 
     /// The rule is `SetFacts.correctionRange`, where a test can reach it;
     /// what is measured is the CLOCK's number, not the card's — a card
     /// corrected downwards must be correctable back up to what was counted.
     /// Only the last set reaches this from the screen.
+    ///
+    /// A rest started on the signal of every set but the movement's very
+    /// last one, its probe counted — so on this screen, on the last working
+    /// set of a probing hold.
     func summaryRange(set index: Int) -> ClosedRange<Int> {
         SetFacts.correctionRange(measured: summaryMeasured(set: index),
-                                 isLastSet: isLastSummarySet(index))
+                                 isLastSet: isLastSummarySet(index),
+                                 restFollowed: index < totalSets - 1,
+                                 endedByTap: holdApproxSets.contains(index))
     }
 
     /// The plan this movement will get with `steps` additions — the engine's

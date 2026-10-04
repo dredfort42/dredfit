@@ -18,18 +18,46 @@ final class NextTimeTests: AppStoreTestCase {
     // MARK: - The clock is the ceiling
 
     /// Every set but the last stands as it ran — its range is the number
-    /// itself. The last: the whole corridor — nothing follows it, and the
-    /// person may have kept holding.
+    /// itself, a rest after it or not. The last: the whole corridor when
+    /// nothing follows it, and the person may have kept holding.
     func testOnlyTheLastSetOpensARange() {
         let corridor = SetFacts.corridor(for: .hold)
-        XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: false), 30...30)
-        XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: true), corridor)
+        for restFollowed in [false, true] {
+            for endedByTap in [false, true] {
+                XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: false,
+                                                        restFollowed: restFollowed,
+                                                        endedByTap: endedByTap), 30...30)
+            }
+        }
+        XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: true,
+                                                restFollowed: false, endedByTap: false), corridor)
+        XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: true,
+                                                restFollowed: false, endedByTap: true), corridor)
         // Off the corridor either way, the number is still one the panel
         // could stand on.
-        XCTAssertEqual(SetFacts.correctionRange(measured: 2, isLastSet: false),
+        XCTAssertEqual(SetFacts.correctionRange(measured: 2, isLastSet: false,
+                                                restFollowed: true, endedByTap: false),
                        corridor.lowerBound...corridor.lowerBound)
-        XCTAssertEqual(SetFacts.correctionRange(measured: 500, isLastSet: false),
+        XCTAssertEqual(SetFacts.correctionRange(measured: 500, isLastSet: false,
+                                                restFollowed: true, endedByTap: false),
                        corridor.upperBound...corridor.upperBound)
+    }
+
+    /// The last set with a rest after it — the one before a probe — goes
+    /// down to the floor and up to what the clock ran: its seconds, or the
+    /// thumb's estimate plus the allowance the estimate took off.
+    func testALastSetARestFollowedGoesNoHigherThanTheClockRan() {
+        let corridor = SetFacts.corridor(for: .hold)
+        XCTAssertEqual(SetFacts.correctionRange(measured: 45, isLastSet: true,
+                                                restFollowed: true, endedByTap: false),
+                       corridor.lowerBound...45)
+        XCTAssertEqual(SetFacts.correctionRange(measured: 41, isLastSet: true,
+                                                restFollowed: true, endedByTap: true),
+                       corridor.lowerBound...(41 + SetFacts.holdReachSeconds))
+        // Still a range the panel can stand on at the corridor's top.
+        XCTAssertEqual(SetFacts.correctionRange(measured: 89, isLastSet: true,
+                                                restFollowed: true, endedByTap: true),
+                       corridor)
     }
 
     // MARK: - The addition through the store

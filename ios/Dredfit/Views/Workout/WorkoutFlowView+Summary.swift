@@ -87,11 +87,13 @@ extension WorkoutFlowView {
             // to read at a time, the rule of every message slot in the flow.
             if case .summaryCard(let index) = flow.editing {
                 // Which set and what was recorded for it, said above the
-                // panel. ONLY THE LAST SET OPENS THE PANEL: nothing followed
-                // it and the person may have kept holding, so both directions
-                // are theirs. Every earlier card is inert (`HeldSetCard`): a
-                // panel whose "+" and "−" are both dead reads as a broken
-                // control.
+                // panel. ONLY THE LAST SET OPENS THE PANEL. Down is always
+                // the person's; up goes as far as nothing stopped the set —
+                // the corridor when nothing followed it and they may have
+                // kept holding, what the clock ran when the rest before a
+                // probe started on its signal (`summaryRange`). Every earlier
+                // card is inert (`HeldSetCard`): a panel whose "+" and "−"
+                // are both dead reads as a broken control.
                 Text(flow.summaryPanelLine(set: index))
                     .dredfitFont(14)
                     .monospacedDigit()
