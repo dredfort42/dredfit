@@ -102,6 +102,9 @@ extension WorkoutSession {
         cooldownPositions = Cooldown.positions(performed: performedPatterns,
                                                hiding: store.settings.hiddenBlockMoveIDs)
         guard !cooldownPositions.isEmpty else {
+            // Never offered, so never begun: zero, for the reason `finishNow`
+            // gives.
+            cooldownSec = 0
             phase = .feedback
             liveActivity.end()
             persistProgress()

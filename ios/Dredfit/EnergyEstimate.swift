@@ -129,8 +129,8 @@ nonisolated enum EnergyEstimate {
     /// a while this function charged their full planned length regardless —
     /// nine minutes, 27 % of a median session, billed to a person who may have
     /// declined both. `nil` means a record written before the flow measured
-    /// them; zero means declined. Neither argument carries a default: an
-    /// omitted one would silently restore exactly that defect.
+    /// them; zero means declined or never reached. Neither argument carries a
+    /// default: an omitted one would silently restore exactly that defect.
     static func segments(exercises: [SessionExercise],
                          skipped: Set<Pattern>,
                          warmupSec: Int?,

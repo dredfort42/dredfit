@@ -97,10 +97,13 @@ extension WorkoutSession {
             + SetFacts.awayGained(savedAt: snap.savedAt,
                                   restEndDate: snap.restEndDate, now: now())
         interruptedPattern = snap.interrupted
-        // A restore lands past the warm-up either way, so a snapshot that
-        // carries no measurement is a session killed inside a block: the
-        // record falls back to the planned length rather than claiming a
-        // block was declined that may have been half done.
+        // Restored as they stand. A nil warm-up comes from a build that did
+        // not measure the blocks — this one writes its first snapshot once the
+        // warm-up is resolved — and a nil cool-down past the work was left
+        // inside, or on its offer: both fall back to the planned length rather
+        // than claiming a block was declined that may have been half done. A
+        // cool-down still ahead is nil as well, and is resolved where the
+        // workout ends.
         warmupSec = snap.warmupSec
         cooldownSec = snap.cooldownSec
         holdApproxSets = snap.approximateSets
@@ -208,6 +211,13 @@ extension WorkoutSession {
             probeActuals.removeValue(forKey: pattern)
             skippedPatterns.insert(pattern)
         }
+        // The cool-down is never reached from here, and a block never begun is
+        // zero, as a declined one is. Left nil, the record would read as one
+        // from before the blocks were measured and be billed the block's
+        // planned minutes. Set before the persist, so a process death on the
+        // rating keeps it; and only over nil, so no ordering of a tap and a
+        // tick can zero a block that ran.
+        if cooldownSec == nil { cooldownSec = 0 }
         restClock.stand(at: 0)
         phase = .feedback
         liveActivity.end()

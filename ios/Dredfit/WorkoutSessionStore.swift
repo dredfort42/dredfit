@@ -91,7 +91,13 @@ enum WorkoutSessionStore {
             // depending only on whether the process survived to the rating.
             durationSec: max(0, Int(snap.savedAt.timeIntervalSince(snap.workoutStart))
                                 - (snap.awaySec ?? 0)),
-            warmupSec: snap.warmupSec, cooldownSec: snap.cooldownSec,
+            warmupSec: snap.warmupSec,
+            // Short of the end of the work the cool-down was still ahead:
+            // never reached, so zero, as `finishNow` records the same
+            // interruption. Past it (`atFeedback`) a nil is a workout left on
+            // the block's offer or inside it, which the snapshot cannot tell
+            // apart, and it stays unknown.
+            cooldownSec: snap.atFeedback == true ? snap.cooldownSec : 0,
             interrupted: snap.interrupted ?? settled.interrupted,
             // Decided on the summaries of movements that are behind; a
             // movement the settlement skips cannot carry one — the summary

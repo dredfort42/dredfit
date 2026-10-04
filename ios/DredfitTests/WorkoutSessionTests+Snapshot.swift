@@ -231,6 +231,8 @@ extension WorkoutSessionTests {
         XCTAssertEqual(flow.cooldownSec, ran)
         XCTAssertEqual(signals.tones.last, .workoutDone)
         XCTAssertEqual(tile.ended, 1)
+        _ = flow.rate(.plan, overrides: [:])
+        XCTAssertEqual(store.records.last?.cooldownSec, ran, "the record keeps what the block ran")
     }
 
     func testDecliningTheCoolDownGoesStraightToTheRating() {
@@ -243,5 +245,103 @@ extension WorkoutSessionTests {
         flow.declineCooldown()
         XCTAssertEqual(flow.phase, .feedback)
         XCTAssertEqual(flow.cooldownSec, 0)
+        _ = flow.rate(.plan, overrides: [:])
+        XCTAssertEqual(store.records.last?.cooldownSec, 0)
+    }
+
+    // MARK: - A cool-down the workout never reached
+
+    /// A block never begun is zero, the same as a declined one. Left nil, the
+    /// record reads as one from before the blocks were measured, and both the
+    /// Health energy and the history's plan clock charge it the planned
+    /// minutes.
+    func testFinishNowFromTheWorkRecordsNoCoolDown() throws {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.declineWarmup()
+        flow.completeSet()
+        flow.skipRest()
+        flow.finishNow()
+        XCTAssertEqual(store.pendingWorkout?.cooldownSec, 0,
+                       "a process death on the rating must not bring the planned minutes back")
+        _ = flow.rate(.plan, overrides: [:])
+        try assertNoCoolDownBilled(XCTUnwrap(store.records.last))
+    }
+
+    /// The zero is written only over nil: whatever ends the workout once the
+    /// block has ended by itself must not turn what it ran into nothing.
+    func testFinishNowAfterTheCoolDownEndedKeepsWhatItRan() throws {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.declineWarmup()
+        flow.exIndex = flow.exercises.count - 1
+        flow.setIndex = 2
+        flow.completeSet()
+        flow.beginCooldown()
+        let ran = run(flow, until: { flow.phase == .feedback }, limit: 1_000)
+        flow.finishNow()
+        _ = flow.rate(.plan, overrides: [:])
+        XCTAssertEqual(try XCTUnwrap(store.records.last).cooldownSec, ran)
+    }
+
+    /// The same interruption recorded twelve hours later from the snapshot the
+    /// work wrote: whether the process survived must not decide the cool-down.
+    func testAWorkoutAbandonedInTheWorkSettlesWithNoCoolDown() throws {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.declineWarmup()
+        flow.completeSet()
+        flow.skipRest()
+        let snapshot = try XCTUnwrap(store.pendingWorkout)
+        XCTAssertNil(snapshot.restEndDate, "on the work screen, not in a rest")
+        XCTAssertNil(snapshot.cooldownSec, "the block is still ahead")
+
+        let relaunched = makeStore()
+        XCTAssertTrue(relaunched.settleAbandonedWorkout(now: clock + WorkoutSessionStore.forgottenAfter))
+        try assertNoCoolDownBilled(XCTUnwrap(relaunched.records.last))
+    }
+
+    /// Nothing performed, nothing to stretch: the flow goes to the rating
+    /// without offering the block.
+    func testAWorkoutOfPureSkipsRecordsNoCoolDown() throws {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.declineWarmup()
+        for _ in flow.exercises { flow.leaveExercise() }
+        XCTAssertEqual(flow.phase, .feedback)
+        _ = flow.rate(.plan, overrides: [:])
+        try assertNoCoolDownBilled(XCTUnwrap(store.records.last))
+    }
+
+    /// Where the zero stops: a snapshot taken inside the cool-down carries no
+    /// measurement either, and a block that may be half done stays unknown,
+    /// which falls back to its plan, rather than reading as declined.
+    func testAWorkoutAbandonedInsideTheCoolDownLeavesItUnmeasured() throws {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.declineWarmup()
+        flow.exIndex = flow.exercises.count - 1
+        flow.setIndex = 2
+        flow.completeSet()
+        flow.beginCooldown()
+        run(flow, for: 30)
+
+        let relaunched = makeStore()
+        XCTAssertTrue(relaunched.settleAbandonedWorkout(now: clock + WorkoutSessionStore.forgottenAfter))
+        XCTAssertNil(try XCTUnwrap(relaunched.records.last).cooldownSec)
+    }
+
+    /// The record, and what the call both of its readers price it through
+    /// makes of it: the Health export's energy and the history's plan clock.
+    private func assertNoCoolDownBilled(_ record: WorkoutRecord,
+                                        file: StaticString = #filePath,
+                                        line: UInt = #line) throws {
+        XCTAssertEqual(record.cooldownSec, 0, file: file, line: line)
+        let plan = try XCTUnwrap(EnergyEstimate.segments(exercises: XCTUnwrap(record.exercises),
+                                                          skipped: record.skipped ?? [],
+                                                          warmupSec: record.warmupSec,
+                                                          cooldownSec: record.cooldownSec),
+                                 file: file, line: line)
+        XCTAssertEqual(plan.cooldownSec, 0, "the planned minutes are not billed", file: file, line: line)
     }
 }
