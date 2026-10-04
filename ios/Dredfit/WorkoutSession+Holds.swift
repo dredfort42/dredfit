@@ -407,7 +407,8 @@ extension WorkoutSession {
     }
 
     /// What the set under way runs at: the number `startHold` sets the clock
-    /// from, and the one the work screen names before it (`workNumber`).
+    /// from, and the one the work screen names before it (`workNumber`) — on
+    /// a second side both cut it to what the first side ran.
     ///
     /// One reading for both, because the screen is the promise the clock
     /// keeps. A declared time stands in for the plan for the whole exercise
@@ -439,6 +440,10 @@ extension WorkoutSession {
         if holdCountingIn { return holdCountInClock.remaining }
         if holdSwitchPausing { return holdSwitchClock.remaining }
         if holding { return holdClock.remaining }
-        return targetInForce
+        // A second side handed back by a Stop inside the mis-tap grace still
+        // runs for what the first side ran, the way `startHold` re-arms it,
+        // so that is the number it names rather than the set's own.
+        return SetFacts.holdSideSeconds(planned: targetInForce,
+                                        firstSideHeld: holdSecondSide ? firstSideHeld : nil)
     }
 }

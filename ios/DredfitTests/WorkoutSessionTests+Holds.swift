@@ -316,4 +316,32 @@ extension WorkoutSessionTests {
         flow.startDeclaringHoldTime()
         XCTAssertEqual(flow.adjustValue, 45)
     }
+
+    /// A Stop inside the grace on the SECOND side hands that side back, and it
+    /// still runs for what the first side ran — so that is the number it
+    /// names, not the set's own: the plan's 15, or a declared 45.
+    func testASecondSideHandedBackNamesWhatTheFirstSideRan() throws {
+        // The time declared before the run, and the seconds the first side
+        // ran before the Stop that cut it short.
+        let cases: [(declared: Int?, held: Int)] = [(nil, 10), (45, 13)]
+        for (declared, held) in cases {
+            let (flow, _) = try holdFlow(.coreRot)
+            if let declared { declare(declared, on: flow) }
+            flow.startHoldExercise()
+            run(flow, for: GetReady.countInSeconds + held)
+            flow.stopHoldEarly()
+            let firstSide = SetFacts.holdEndedByTap(heldSeconds: held)
+            XCTAssertEqual(flow.firstSideHeld, firstSide)
+            run(flow, for: Cooldown.switchPauseSeconds + 2)
+            flow.stopHoldEarly()
+            XCTAssertTrue(flow.holdSecondSide, "the side is handed back, not the set")
+            XCTAssertFalse(flow.holding)
+
+            XCTAssertEqual(flow.workNumber, firstSide,
+                           "declared \(String(describing: declared)): the side names what the first side ran")
+            flow.startHold()
+            run(flow, for: GetReady.countInSeconds)
+            XCTAssertEqual(flow.holdClock.remaining, firstSide, "and the clock counts what the screen named")
+        }
+    }
 }
