@@ -296,7 +296,7 @@ extension DredfitUITests {
         coordinateTap(app.buttons[AX.holdStartExercise])
         let stop = app.buttons[AX.holdStop]
         XCTAssertTrue(stop.waitForExistence(timeout: 10), "no Stop during the count-in")
-        // Past the three-second mis-tap grace, so this is a real early stop.
+        // Past the mis-tap grace, which ends on the tick at four seconds, so this is a real early stop.
         Thread.sleep(forTimeInterval: 5)
         XCTAssertTrue(coordinateTap(stop), "the first side ended before the stop landed")
 

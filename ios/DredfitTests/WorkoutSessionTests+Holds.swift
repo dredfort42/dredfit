@@ -158,25 +158,30 @@ extension WorkoutSessionTests {
 
     /// `ticks` seconds of the running hold pass the way the view's timer runs
     /// them, then `plus` more with no tick — where a thumb lands — and Stop is
-    /// tapped. Returns the figure the button named at that moment.
+    /// tapped. Returns the figure the last tick put on the button, read before
+    /// the gap: the button is drawn on the tick, and a figure read at the tap
+    /// would agree with a record taken off the live clock by moving with it.
     private func tapStop(_ flow: WorkoutSession, afterTicks ticks: Int,
                          plus: TimeInterval) -> Int? {
         run(flow, for: ticks)
-        clock += plus
         let named = flow.holdStopRecords
+        clock += plus
         flow.stopHoldEarly()
         return named
     }
 
     /// The figure on the button moves only on a tick, and the clock does not
     /// wait for one: seven tenths past the tick it is nearer the next second
-    /// than the one the button names.
+    /// than the one the button names, and a tick that comes late leaves the
+    /// button more than a second behind it.
     func testAStopBetweenTwoTicksStoresTheFigureTheButtonNamed() throws {
-        let (flow, _) = try holdFlow(.coreAntiExt)
-        flow.startHold()
-        run(flow, for: GetReady.countInSeconds)
-        let named = try XCTUnwrap(tapStop(flow, afterTicks: 10, plus: 0.7))
-        XCTAssertEqual(flow.holdMeasured[0], named)
+        for gap in [0.7, 1.2] {
+            let (flow, _) = try holdFlow(.coreAntiExt)
+            flow.startHold()
+            run(flow, for: GetReady.countInSeconds)
+            let named = try XCTUnwrap(tapStop(flow, afterTicks: 10, plus: gap))
+            XCTAssertEqual(flow.holdMeasured[0], named, "\(gap) s past the tick")
+        }
     }
 
     /// On the tick itself: on the whole second, and on a tick the timer
