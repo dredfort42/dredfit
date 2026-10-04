@@ -86,4 +86,39 @@ final class StateFileReadTests: XCTestCase {
         XCTAssertEqual(try corruptCopies().map { try Data(contentsOf: $0) }, [original],
                        "the plan can still be recovered from the copy")
     }
+
+    // MARK: - When nothing can be put aside
+
+    /// A directory the copy cannot be written into: the move and the copy fail
+    /// there, and so would the write that follows them.
+    private func lockDirectory() throws {
+        try FileManager.default.setAttributes([.posixPermissions: 0o555], ofItemAtPath: dir.path)
+    }
+
+    private func unlockDirectory() {
+        try? FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: dir.path)
+    }
+
+    func testAFileThatCannotBeMovedAsideFreezesInsteadOfStartingOver() throws {
+        try XCTSkipIf(getuid() == 0, "root writes through 0o555")
+        try Data("not json".utf8).write(to: file.url)
+        try lockDirectory()
+        defer { unlockDirectory() }
+        guard case .unreadable = file.read(reload: false) else {
+            return XCTFail("with no copy aside, starting over would write over the only one")
+        }
+        XCTAssertEqual(try Data(contentsOf: file.url), Data("not json".utf8))
+    }
+
+    func testAPartlyReadableFileThatCannotBeCopiedAsideFreezes() throws {
+        try XCTSkipIf(getuid() == 0, "root writes through 0o555")
+        let json = #"{"engineState":{"from":"a future build"},"records":[]}"#
+        try Data(json.utf8).write(to: file.url)
+        try lockDirectory()
+        defer { unlockDirectory() }
+        guard case .unreadable = file.read(reload: false) else {
+            return XCTFail("the next write would rewrite the positions with nothing kept aside")
+        }
+        XCTAssertTrue(try corruptCopies().isEmpty)
+    }
 }

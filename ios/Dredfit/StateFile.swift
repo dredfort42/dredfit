@@ -25,8 +25,9 @@ struct StateFile {
         /// No file: a fresh install.
         case absent
         /// The file is there and cannot be read yet — data protection before
-        /// the first unlock, or I/O. Nothing is touched: it may be the only
-        /// copy of the journal, and perfectly fine.
+        /// the first unlock, or I/O — or it was read but could not be put
+        /// aside before a write would replace it. Nothing is touched: it may
+        /// be the only copy of the journal.
         case unreadable
         /// The file does not decode as a whole. It is moved aside, so the next
         /// write cannot overwrite the only copy of the journal.
@@ -50,7 +51,7 @@ struct StateFile {
         do {
             data = try JSONDecoder().decode(AppData.self, from: bytes)
         } catch {
-            quarantine(keepOriginal: false)
+            guard quarantine(keepOriginal: false) else { return .unreadable }
             Self.log.fault("state file failed to decode\(when), moved aside: \(error.localizedDescription)")
             return .undecodable
         }
@@ -58,11 +59,11 @@ struct StateFile {
             // A v2 state migrates (§41.7), so reaching here means the state was
             // neither v3 NOR v2 — a file from a future build, or one damaged
             // past reading. The journal beside it is whole.
-            quarantine(keepOriginal: true)
+            guard quarantine(keepOriginal: true) else { return .unreadable }
             Self.log.notice("engine state unreadable in both shapes\(when) — started clean, journal kept")
         }
         if data.droppedRecordCount > 0 {
-            quarantine(keepOriginal: true)
+            guard quarantine(keepOriginal: true) else { return .unreadable }
             Self.log.error("dropped \(data.droppedRecordCount) unreadable record(s)\(when), original kept aside")
         }
         return .loaded(data)
@@ -80,22 +81,34 @@ struct StateFile {
     /// the only copy of the journal the app started over from. A later one
     /// gets a unique name; the same bytes already kept aside are not kept
     /// twice.
-    private func quarantine(keepOriginal: Bool) {
+    ///
+    /// Returns whether the bytes are safe aside. When they are not, the read
+    /// reports the file unreadable, so the launch freezes rather than start
+    /// over and write on top of the only copy.
+    private func quarantine(keepOriginal: Bool) -> Bool {
         let fm = FileManager.default
         let name = url.deletingPathExtension().lastPathComponent
         var dest = url.deletingLastPathComponent().appendingPathComponent(name + ".corrupt.json")
         if fm.fileExists(atPath: dest.path) {
             if let kept = try? Data(contentsOf: dest), kept == (try? Data(contentsOf: url)) {
+                // Already kept: whether the original goes too only decides
+                // whether it is read again next launch.
                 if !keepOriginal { try? fm.removeItem(at: url) }
-                return
+                return true
             }
             dest = url.deletingLastPathComponent()
                 .appendingPathComponent(name + ".corrupt-\(UUID().uuidString).json")
         }
-        if keepOriginal {
-            try? fm.copyItem(at: url, to: dest)
-        } else {
-            try? fm.moveItem(at: url, to: dest)
+        do {
+            if keepOriginal {
+                try fm.copyItem(at: url, to: dest)
+            } else {
+                try fm.moveItem(at: url, to: dest)
+            }
+            return true
+        } catch {
+            Self.log.fault("state file could not be put aside: \(error.localizedDescription)")
+            return false
         }
     }
 }
