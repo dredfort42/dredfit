@@ -6,7 +6,7 @@ import DredfitCore
 /// and the summary a hold movement ends on.
 extension WorkoutSessionTests {
 
-    private func holdFlow(_ pattern: Pattern, in session: Session? = nil) throws -> (WorkoutSession, AppStore) {
+    func holdFlow(_ pattern: Pattern, in session: Session? = nil) throws -> (WorkoutSession, AppStore) {
         let store = makeStore()
         let flow = makeFlow(store, session: session ?? holdSession())
         flow.declineWarmup()
@@ -125,35 +125,6 @@ extension WorkoutSessionTests {
         XCTAssertEqual(signals.tones, [], "the summary's Done confirms numbers; the end already sounded")
     }
 
-    func testFinishNowOnTheSummaryCountsEverySetOfTheMovementDone() throws {
-        let (flow, _) = try holdFlow(.coreAntiExt)
-        flow.setIndex = 2
-        flow.startHold()
-        run(flow, for: GetReady.countInSeconds + 15)
-        XCTAssertEqual(flow.phase, .exerciseSummary)
-        flow.finishNow()
-        XCTAssertNil(flow.setsSkipped[.coreAntiExt],
-                     "every set is behind and on the screen — none of them was skipped")
-        XCTAssertFalse(flow.skippedPatterns.contains(.coreAntiExt))
-        XCTAssertNil(flow.interruptedPattern)
-    }
-
-    func testTheSummaryCorrectsOnlyTheCardThatWasTapped() throws {
-        let (flow, _) = try holdFlow(.coreAntiExt)
-        flow.setIndex = 2
-        flow.actuals[.coreAntiExt] = [15, 15]
-        flow.startHold()
-        run(flow, for: GetReady.countInSeconds + 15)
-        flow.startSummaryAdjusting(set: 0)
-        XCTAssertNil(flow.editing, "only the last card opens the panel")
-        flow.startSummaryAdjusting(set: 2)
-        XCTAssertEqual(flow.editing, .summaryCard(2))
-        flow.adjustValue = 20
-        flow.commitSummaryEdit(set: 2)
-        XCTAssertEqual(flow.actuals[.coreAntiExt], [15, 15, 20])
-        XCTAssertNil(flow.editing)
-    }
-
     /// On the plank the engine itself hands out with a probe, neither working
     /// set can be skipped on its own: the skip would leave fewer sets than
     /// the shared floor, so the work screen offers "Skip exercise" instead and
@@ -187,6 +158,35 @@ extension WorkoutSessionTests {
         XCTAssertTrue(flow.skippedPatterns.contains(.coreAntiExt), "the tap takes the whole movement")
         XCTAssertNotEqual(flow.exercise.pattern, .coreAntiExt,
                           "the flow is past the movement: its probe, and the summary the probe opens, never come")
+    }
+
+    func testFinishNowOnTheSummaryCountsEverySetOfTheMovementDone() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.setIndex = 2
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds + 15)
+        XCTAssertEqual(flow.phase, .exerciseSummary)
+        flow.finishNow()
+        XCTAssertNil(flow.setsSkipped[.coreAntiExt],
+                     "every set is behind and on the screen — none of them was skipped")
+        XCTAssertFalse(flow.skippedPatterns.contains(.coreAntiExt))
+        XCTAssertNil(flow.interruptedPattern)
+    }
+
+    func testTheSummaryCorrectsOnlyTheCardThatWasTapped() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.setIndex = 2
+        flow.actuals[.coreAntiExt] = [15, 15]
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds + 15)
+        flow.startSummaryAdjusting(set: 0)
+        XCTAssertNil(flow.editing, "only the last card opens the panel")
+        flow.startSummaryAdjusting(set: 2)
+        XCTAssertEqual(flow.editing, .summaryCard(2))
+        flow.adjustValue = 20
+        flow.commitSummaryEdit(set: 2)
+        XCTAssertEqual(flow.actuals[.coreAntiExt], [15, 15, 20])
+        XCTAssertNil(flow.editing)
     }
 
     // MARK: - The hands-free run
