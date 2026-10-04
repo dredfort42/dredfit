@@ -1,8 +1,7 @@
 //
-// The app half of the comeback wave (issues #127, #128): the accept guard, the
+// The app half of the comeback (issues #127, #128): the accept guard, the
 // sighted decline path and the numbered preview, as the user meets them
-// through AppStore. The "I was sick" lens the file is half-named after was
-// removed — its four tests, and why they went, are at the bottom.
+// through AppStore.
 //
 
 import XCTest
@@ -20,9 +19,8 @@ final class ComebackIllnessTests: AppStoreTestCase {
     /// (#172, DST); the 89/90 boundary below is exactly the kind of edge an
     /// elapsed-seconds seed would get wrong.
     ///
-    /// The journal of what was shown is seeded too: in v3 a descent lands in
-    /// it (§40.6), and a state without one would send every comeback to 3×4
-    /// whatever the gap.
+    /// The journal of what was shown is seeded too: the probe at the ceiling
+    /// is offered off it, and a descent out of a variation lands in it.
     private func returned(after days: Int) throws -> AppStore {
         var state = EngineState.initial
         state.counter = 11
@@ -44,9 +42,8 @@ final class ComebackIllnessTests: AppStoreTestCase {
             let engineState: EngineState
             let records: [WorkoutRecord]
         }
-        // Thrown, not swallowed into XCTFail: a failed write left the previous
-        // test's file in place and every assertion below then read a store
-        // nobody had seeded.
+        // Thrown, not swallowed into XCTFail: after a failed write every
+        // assertion below would read a store nobody had seeded.
         try JSONEncoder().encode(Seed(engineState: state, records: [record]))
             .write(to: tempURL)
         return makeStore()
@@ -91,16 +88,4 @@ final class ComebackIllnessTests: AppStoreTestCase {
         XCTAssertTrue(preview.was.contains("×"), "the old plan is numbers, not adjectives")
         XCTAssertTrue(preview.easier.contains("×"))
     }
-
-    // SNIPPED: the four tests of the "I was sick" lens. The lens made the plan
-    // HEAVIER in 76 cells out of 480 (finding S6-2, P0) — the opposite of what
-    // the tap offered — so the mechanism went rather than being fixed.
-    // `markIllness`, `illnessSessionsLeft` and the quiet offer in the blind
-    // window went with it.
-    //
-    // The comeback half of this suite is untouched: it never belonged to the
-    // lens, and are not part of this wave.
-    //
-    // The file keeps its name so the Xcode project does not have to move: the
-    // rename would be a change to project.pbxproj for no behaviour at all.
 }

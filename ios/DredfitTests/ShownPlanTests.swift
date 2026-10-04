@@ -1,12 +1,10 @@
 //
-//  The last accepted gap of the wave. The engine wrote
-//  its memory of "what was on screen" only from a COMPLETED session, so a
-//  plan a person looked at and did not train was invisible to it — and the
-//  guarantee "a descent never adds load" held between finished workouts and
-//  nowhere else. Measured against a merely-seen plan: a rise of up to ×1.47,
-//  in 16–22 % of the "showed, skipped a week, opened again" episodes on
-//  budgets of 30–35. The port exported `recordShown` for exactly one caller;
-//  this is the app layer becoming it.
+//  The engine's memory of "what was on screen" is written when a plan is
+//  SHOWN, not only when a session is completed: otherwise a plan a person
+//  looked at and did not train is invisible to it, and the guarantee "a
+//  descent never adds load" holds between finished workouts and nowhere else.
+//  The port exports `recordShown` for exactly one caller, and the app layer's
+//  `recordPlanShown` is it.
 //
 
 import XCTest
@@ -21,22 +19,19 @@ final class ShownPlanTests: AppStoreTestCase {
     /// A trainee well up the ladders, seeded through the state file the way
     /// the app itself loads one: every movement `variation` rungs up (capped
     /// by its own ladder), with the journal of what was shown filled in behind
-    /// it — a descent lands IN that journal (§40.6), and a state without one
-    /// would send every movement to the floor instead.
+    /// it — the journal a descent out of a variation lands in.
     ///
-    /// SEEDED IN THE v3 SHAPE — `vars`/`doses`/`shown`, never `levels`. This
-    /// factory wrote the retired v2 shape for a whole release cycle and
-    /// checked nothing afterwards: the state did not decode (§40.8), the store
-    /// started clean, and both sweeps below ran ONE state 28 and 12 times over
-    /// while their messages named a level and a budget. The guard after the
-    /// load is the other half of that fix, and it is the half that would have
-    /// caught it.
+    /// SEEDED IN THE v3 SHAPE — `vars`/`doses`/`shown`, never `levels`: a v2
+    /// shape would go through the migration instead of loading as written,
+    /// and the sweeps below would run states other than the ones their
+    /// messages name. The guard after the load is what catches a seed that
+    /// did not land.
     ///
     /// The dose sits one rung BELOW the ceiling deliberately. At the ceiling
-    /// §40.4 offers a probe; a probe takes a working set out of the plan, and
-    /// neither the showing memory nor the postcondition repair speaks about an
-    /// exercise carrying one (`Engine.recordShown`, `repairDescent`). That is
-    /// a different guarantee, and not this suite's.
+    /// the plan offers a probe; a probe takes a working set out of the plan,
+    /// its memory counts the slot it borrowed (`shownWorkOf`), and the
+    /// postcondition repair leaves an exercise carrying one alone
+    /// (`repairDescent`). That is a different guarantee, and not this suite's.
     private func advancedStore(variation: Int = 5) throws -> AppStore {
         func at(_ p: Pattern) -> Int { min(variation, Library.count(p)) }
         func dose(_ p: Pattern, _ v: Int) -> Int {
@@ -130,13 +125,6 @@ final class ShownPlanTests: AppStoreTestCase {
     /// STRICTLY above what was shown — so the next draw has nothing to trim
     /// and the plan is a fixed point. Without that the card would shrink under
     /// the reader's eyes, one set per render.
-    ///
-    /// RE-MARKED (test revision, 26.08.2026): the outer sweep was over a
-    /// `budget` the state has not carried since the time budget went
-    /// (`AppSettings.swift`). `JSONDecoder` ignores keys it does not know, so
-    /// `timeBudgetMin` and `timeBudgetChosen` landed nowhere and the four
-    /// values ran four IDENTICAL configurations while the message printed a
-    /// number as if the axis were live. What is left is the axis that exists.
     func testWritingAShowingDownDoesNotChangeThePlan() throws {
         for variation in 1...deepestVariation {
             let store = try advancedStore(variation: variation)
@@ -170,13 +158,8 @@ final class ShownPlanTests: AppStoreTestCase {
 
     /// The guarantee itself, against a plan that was only LOOKED at: a
     /// movement whose position did not rise may not come back heavier. The
-    /// week away is the case the measurement was taken on — showed, skipped a
-    /// week, opened again — and the silent decay is what redraws the plan
-    /// without a single tap.
-    ///
-    /// RE-MARKED (test revision, 26.08.2026): the dead `budget` sweep is gone
-    /// for the reason given on the test above it — three values, one
-    /// configuration — and the level axis is the ladder axis now.
+    /// case is a week away — showed, skipped a week, opened again — and the
+    /// silent decay is what redraws the plan without a single tap.
     func testAPlanThatWasOnlySeenIsNotBeatenAWeekLater() throws {
         for variation in 1...deepestVariation {
             let store = try advancedStore(variation: variation)
@@ -241,11 +224,10 @@ final class ShownPlanTests: AppStoreTestCase {
     /// zeroes all of them. What it must NOT take with them: the bar in the
     /// doorway.
     ///
-    /// The budget half of this test is gone with the budget, and the handle
-    /// half with the handle: the `cut` axis is written by the skip inside the
-    /// workout now. It IS one of the fields a reset clears, deliberately —
-    /// starting the ladders over is starting the plan over, and sets skipped
-    /// five rungs up have no meaning back on the first variation.
+    /// The `cut` axis is written by the skip inside the workout. It IS one of
+    /// the fields a reset clears, deliberately — starting the ladders over is
+    /// starting the plan over, and sets skipped five rungs up have no meaning
+    /// back on the first variation.
     func testResetClearsTheSetsAxisAndKeepsTheDoorway() throws {
         let store = try advancedStore()
         store.setHasBar(true)
@@ -263,9 +245,4 @@ final class ShownPlanTests: AppStoreTestCase {
         XCTAssertTrue(store.engineState.shownOrd.isEmpty)
         XCTAssertTrue(store.engineState.hasBar, "the bar did not leave the doorway")
     }
-
-    // SNIPPED: `testTheIllnessLensShowingIsNotWrittenDown`. The lens built a
-    // VIEW of the plan rather than moving the position, so its showing had to
-    // be kept out of the memory the postcondition repair reads. There is no
-    // lens, and no view: every plan on screen is the plan.
 }

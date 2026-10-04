@@ -1,24 +1,16 @@
 //
-//  §41.7: a state written before v3 is READ AND CARRIED OVER.
+//  A state written before v3 is READ AND CARRIED OVER.
 //
-//  RE-MARKED WHOLESALE (v3.1, 26.08.2026), class: reversal of an owner
-//  decision. This file used to pin the opposite — §40.8's "there is no
-//  migration", every movement back to its first rung at 3×4. The decision was
-//  reversed on 26.08.2026 because the way back it counted on never reached
-//  anyone: entering facts is explained by exactly one line in the app, and
-//  that line shows only when the journal is empty — which, by the same
-//  paragraph, an upgrading trainee's journal never is.
-//
-//  What did NOT change and is still pinned below: the workout journal survives
-//  untouched, an old exercise line keeps the movement it was written with, and
-//  a state that is neither v2 nor v3 still gives a clean start.
+//  Also pinned below: the workout journal survives untouched, an old exercise
+//  line keeps the movement it was written with, and a state that is neither
+//  v2 nor v3 still gives a clean start.
 //
 //  The migration's own arithmetic is pinned elsewhere: the 480-cell safety
 //  sweep in MigrationV2Tests, and the tier→variation table itself in
 //  MigrationV2Tests+Table, against a snapshot that does not come out of the
 //  table. This file reads its own expectations from that same snapshot
-//  (`V2FormatSnapshot`) and never from `Engine.v2TierToVariation`: it used to
-//  do the latter, which made the assertion below unfailable.
+//  (`V2FormatSnapshot`) and never from `Engine.v2TierToVariation`, which
+//  would make the assertion below unfailable.
 //
 import XCTest
 import DredfitCore
@@ -54,16 +46,15 @@ final class CleanStartTests: AppStoreTestCase {
 
     /// The engine keeps the place the person had earned. L=24 is tier 4 in v2
     /// at 4 reps, so every pattern lands on its tier-4 variation, not on its
-    /// first — and the journal records the dose, so the very first descent has
-    /// somewhere to land other than the floor.
+    /// first — and the journal records the dose they land on there.
     func testAV2StateIsCarriedOverNotReset() throws {
         let store = try storeFromBefore()
         for p in Pattern.allCases {
             // NOT `Engine.v2TierToVariation[p]?[3]`. Reading the expectation
-            // out of the table under test made this assertion a tautology: the
+            // out of the table under test makes this assertion a tautology: the
             // whole mapping could be replaced by `[1, 1, 1, 1]` — every
-            // upgrading trainee thrown back to the first rung — and it stayed
-            // green. `V2FormatSnapshot` is the second, independent copy.
+            // upgrading trainee thrown back to the first rung — and it would
+            // stay green. `V2FormatSnapshot` is the second, independent copy.
             let expected = try XCTUnwrap(V2FormatSnapshot.tierToVariation[p]?[3],
                                          "\(p.rawValue) has no tier-4 landing in the v2 snapshot")
             XCTAssertEqual(store.engineState.vars[p], expected, "\(p.rawValue): its own rung")
@@ -76,15 +67,10 @@ final class CleanStartTests: AppStoreTestCase {
 
     /// …and the plan it draws stands on the rung they earned.
     ///
-    /// REWRITTEN: every assertion here used to pin the BEGINNING — base sets,
-    /// the grid floor, no probe — which is exactly what §40.8's clean start
-    /// produced, directly under a sentence claiming the opposite. They survived
-    /// the reversal of §40.8 because L=24 makes them accidentally true, so the
-    /// file said "their own plan" while checking "the beginner's plan".
-    ///
-    /// What carries over is the RUNG. The dose sits at the floor here because
-    /// L=24 is the BOTTOM of v2's tier 4 (4 reps, a 10-second hold): 4 reps is
-    /// already v3's floor, and a hold below it comes UP to it (§41.6 item 4).
+    /// What carries over is the RUNG: base sets, the grid floor and no probe
+    /// would hold for a clean start too. The dose sits at the floor here
+    /// because L=24 is the BOTTOM of v2's tier 4 (4 reps, a 10-second hold):
+    /// 4 reps is already v3's floor, and a hold below it comes UP to it.
     func test_planAfterMigration_fromTheBottomOfV2sTopTier_standsOnTheEarnedRung() throws {
         let store = try storeFromBefore()
         let session = store.nextSession
@@ -109,8 +95,8 @@ final class CleanStartTests: AppStoreTestCase {
         }
     }
 
-    /// The history survives whole — that is the half of §40.8 the person cares
-    /// about, and the half a decode failure could most easily have taken.
+    /// The history survives whole — that is the half the person cares about,
+    /// and the half a decode failure could most easily take.
     func testTheWorkoutJournalSurvivesIntact() throws {
         let store = try storeFromBefore()
         XCTAssertEqual(store.records.count, 2, "both workouts are still there")
@@ -124,8 +110,8 @@ final class CleanStartTests: AppStoreTestCase {
 
     /// An exercise line from an old record still renders, and renders the
     /// movement it was actually done at. Its `tier` is NOT read as a v3
-    /// variation: the ladders of §40.1 put different movements at those
-    /// numbers, and re-resolving would rewrite the person's history.
+    /// variation: the v3 ladders put different movements at those numbers,
+    /// and re-resolving would rewrite the person's history.
     func testAnOldExerciseLineKeepsTheNameItWasWrittenWith() throws {
         let store = try storeFromBefore()
         let exercises = try XCTUnwrap(store.records.first?.exercises)
@@ -147,8 +133,8 @@ final class CleanStartTests: AppStoreTestCase {
         XCTAssertEqual(store.records.last?.sessionNumber, 41)
     }
 
-    /// A state that is neither v2 nor v3 still gives a clean start — that half
-    /// of §40.8 stands, and it is the only half that ever protected anything.
+    /// A state that is neither v2 nor v3 still gives a clean start: there is
+    /// nothing in it to carry over.
     func testGarbageStillGivesACleanStart() throws {
         try Data(#"{"engineState":{"nonsense":1},"records":[],"settings":null}"#.utf8)
             .write(to: tempURL)

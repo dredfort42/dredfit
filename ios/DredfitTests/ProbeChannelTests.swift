@@ -1,20 +1,18 @@
 //
-//  §40.4 — the probe channel, seen from above the engine.
+//  The probe channel, seen from above the engine.
 //
-//  The probe is the only door into a new variation, and until this suite it
-//  had no guard anywhere above `DredfitCore`. The engine's own fixtures cover
-//  `probeAllowed` and `resolveProbe`; what nothing reached was the SEAM the
-//  app owns — a plan that carries a probe, the number the flow hands back for
-//  it, and what the persisted state does with that number. The audit of
-//  26.08.2026 measured what a break in that seam costs: EIGHT LADDERS OUT OF
-//  TEN frozen for anyone who only taps.
+//  The probe is the only door into a new variation. The engine's own fixtures
+//  cover `probeAllowed` and `resolveProbe`; this suite covers the SEAM the app
+//  owns — a plan that carries a probe, the number the flow hands back for it,
+//  and what the persisted state does with that number. A break in that seam
+//  freezes the ladders of anyone who only taps.
 //
 //  Everything here is driven through `AppStore`, because the app layer is the
-//  unguarded one. The technique offered during the rest before a probe is
-//  `WorkoutSession`'s and is pinned in WorkoutSessionTests. The rule that
-//  stays out of reach — the probe caption's own wording — lives inside a
-//  SwiftUI view as a `private` member; see the note at the bottom of this
-//  file.
+//  one the engine's fixtures do not reach. The technique offered during the
+//  rest before a probe is `WorkoutSession`'s and is pinned in
+//  WorkoutSessionTests. The rule that stays out of reach — the probe
+//  caption's own wording — lives inside a SwiftUI view as a `private` member;
+//  see the note at the bottom of this file.
 //
 
 import XCTest
@@ -32,11 +30,11 @@ final class ProbeChannelTests: AppStoreTestCase {
     /// loads through, and the only one that catches a seed the store silently
     /// replaced with a clean start.
     ///
-    /// Every pattern stands ONE RUNG BELOW its grid's ceiling, which is the
-    /// position §40.4 offers no probe from, so a probe anywhere in these
+    /// Every pattern stands ONE RUNG BELOW its grid's ceiling, which is a
+    /// position the plan offers no probe from, so a probe anywhere in these
     /// sessions was asked for by name. `maxed` lifts the named patterns onto
     /// the ceiling; `journal` pins what the trainee actually SHOWED there when
-    /// that has to differ from the dose the plan climbed to (§41.4).
+    /// that has to differ from the dose the plan climbed to.
     private func seededStore(variation: [Pattern: Int] = [:],
                              maxed: Set<Pattern> = [],
                              journal: [Pattern: Int] = [:],
@@ -53,9 +51,9 @@ final class ProbeChannelTests: AppStoreTestCase {
             Pattern.allCases.map { "\"\($0.rawValue)\",\(value($0))" }.joined(separator: ",")
         }
         // Every rung below the current one is journalled at its own ceiling: a
-        // descent lands IN the journal (§40.6), and a state without one would
-        // send a movement to the floor of its ladder instead of to where it
-        // has actually been.
+        // descent out of a variation lands IN the journal of the one below,
+        // and without it would land on that variation's floor instead of
+        // where the movement has actually been.
         let rows = Pattern.allCases.map { p -> String in
             let cells = (1...rung(p)).map { v -> String in
                 let value = v == rung(p) ? shownHere(p) : Dose.grid(Library.unit(p, v)).max
@@ -192,11 +190,10 @@ final class ProbeChannelTests: AppStoreTestCase {
                        "and a short probe is not a \"hard\", or the gate would withhold the next probe too")
     }
 
-    /// The number reaches the JOURNAL too, and until this wave it did not: it
-    /// was handed to `applyFeedback` and dropped, so what a probe showed was
-    /// unrecoverable the moment the rating landed — and the history sheet,
-    /// reading a record that carried the probe in its own plan, could say
-    /// nothing about the outcome.
+    /// The number reaches the JOURNAL too, not only `applyFeedback`: without
+    /// it, what a probe showed would be unrecoverable the moment the rating
+    /// landed — and the history sheet, reading a record that carries the
+    /// probe in its own plan, could say nothing about the outcome.
     ///
     /// Both halves: the number that came back is written, and a session where
     /// none did writes no key at all rather than a zero that would read as
@@ -247,7 +244,7 @@ final class ProbeChannelTests: AppStoreTestCase {
         let pulling = try exercise(.pull, in: session)
         let probe = try XCTUnwrap(pulling.probe, "the fixture must carry a probe")
         // Exactly what the flow's completeSet() hands over when the probe set
-        // ends on a Done tap and nothing was typed into the adjuster (§41.2).
+        // ends on a Done tap and nothing was typed into the adjuster.
         let reported = SetFacts.recordingProbe([:], pulling.pattern,
                                                isProbe: true, target: probe.load)
 
@@ -258,7 +255,7 @@ final class ProbeChannelTests: AppStoreTestCase {
                        + "frozen forever for anyone who only taps")
     }
 
-    // MARK: - What a probing exercise remembers (§41.10, §41.11)
+    // MARK: - What a probing exercise remembers
 
     /// The plan WITHOUT its probe — the set the probe occupied counted back in.
     private func planWithoutTheProbe(_ ex: SessionExercise) -> Int {
@@ -273,14 +270,14 @@ final class ProbeChannelTests: AppStoreTestCase {
 
         store.recordPlanShown(session)
 
-        // §41.10 REVERSED the old rule, which wrote nothing here — with no
-        // memory the base stayed a showing two appearances old. §41.11 fixes
-        // what it wrote: the working sets alone are the position MINUS the set
-        // the probe borrowed for one session, so the postcondition read a plan
-        // that came back to three sets as a rise and cut one off. The memory is
-        // the plan the position implies, which is also the one the duration
-        // model already assumes — `estimatedMin` counts the probe as its own
-        // set because the session is no shorter for trying.
+        // A probing appearance writes a memory too — with none, the base
+        // would stay a showing two appearances old. And not the working sets
+        // alone: those are the position MINUS the set the probe borrowed for
+        // one session, so the postcondition would read a plan that came back
+        // to three sets as a rise and cut one off. The memory is the plan the
+        // position implies, which is also the one the duration model assumes
+        // — `estimatedMin` counts the probe as its own set because the session
+        // is no shorter for trying.
         XCTAssertEqual(store.engineState.shownWork[.pull], planWithoutTheProbe(pulling),
                        "a probing appearance is remembered as the plan without its probe")
         XCTAssertGreaterThan(planWithoutTheProbe(pulling),
@@ -303,7 +300,7 @@ final class ProbeChannelTests: AppStoreTestCase {
                        "the rating writes the same memory the showing does")
     }
 
-    /// An ordinary exercise is untouched by §41.11: its memory is its plan.
+    /// An ordinary exercise is untouched by that: its memory is its plan.
     func test_ordinaryExercise_isRememberedByItsPlanExactly() throws {
         let store = try seededStore(maxed: [.pull])
         let session = store.nextSession
@@ -317,10 +314,10 @@ final class ProbeChannelTests: AppStoreTestCase {
                        "no probe, no borrowed set, nothing added")
     }
 
-    /// The case the OLD rule was afraid of, pinned so the fear can be checked
-    /// rather than believed: a probe that is PASSED raises the position, and a
-    /// risen position is never trimmed — `repairDescent` keys on the position
-    /// ordinal, not on the work.
+    /// The case a probing memory could be feared for, pinned so the fear can
+    /// be checked rather than believed: a probe that is PASSED raises the
+    /// position, and a risen position is never trimmed — `repairDescent` keys
+    /// on the position ordinal, not on the work.
     func test_aPassedProbe_isNotTrimmedByTheMemoryTheProbingPlanLeft() throws {
         let store = try seededStore(maxed: [.pull])
         let session = store.nextSession
@@ -339,14 +336,14 @@ final class ProbeChannelTests: AppStoreTestCase {
         XCTAssertGreaterThan(remembered, 0, "the memory it could have been cut by exists")
     }
 
-    /// And the case §41.10 exists for, restated by §41.11 on the axis the
-    /// repair actually acts on.
+    /// And the case the probing memory exists for, on the axis the repair
+    /// actually acts on.
     ///
     /// "No more than the working sets" is deliberately NOT what is asserted:
-    /// under it a quiet week had to come back as two sets, which is how the
-    /// borrowed set was being kept. What a descent may not do is ask more than
-    /// the plan the POSITION holds, or raise the dose — and it must give the
-    /// slot back, because the probe only borrowed it.
+    /// under it a quiet week would have to come back as two sets, keeping the
+    /// borrowed set for good. What a descent may not do is ask more than the
+    /// plan the POSITION holds, or raise the dose — and it must give the slot
+    /// back, because the probe only borrowed it.
     func test_aDescentOffTheCeiling_staysUnderThePlanThePositionHolds() throws {
         let store = try seededStore(maxed: [.pull])
         let session = store.nextSession
@@ -369,7 +366,7 @@ final class ProbeChannelTests: AppStoreTestCase {
 
     func test_techniqueTarget_forAProbe_pointsAtTheOfferedMovementInItsOwnUnit() throws {
         // pull_bar 2 → 3 is the one boundary in the whole library where the
-        // unit changes (§40.1): seconds below it, reps above. A target that
+        // unit changes: seconds below it, reps above. A target that
         // took its unit from the planned exercise would read "seconds" over a
         // set of negatives, and no other rung in the library would show it.
         let store = try seededStore(variation: [.pullBar: 2], maxed: [.pullBar],
@@ -411,7 +408,7 @@ final class ProbeChannelTests: AppStoreTestCase {
 // NOT COVERED HERE, and not coverable from a unit test as the code stands:
 //
 //  * `WorkoutFlowView.probeCaption` — the three things the probe set says
-//    under its number ("one set to try it", "next time: X", "we'll stay").
+//    under its number ("one set to try it", "next time: X", "not this time").
 //
 // It is a `private` member of a SwiftUI view, so `@testable import` does not
 // reach it, and it has no value-returning form. Making it an internal

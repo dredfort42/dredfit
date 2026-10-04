@@ -5,9 +5,9 @@ import DredfitCore
 /// The calorie half of the Health export: what makes a number appear, what
 /// makes it stay away, and where the weight behind it comes from.
 ///
-/// An extension rather than more of `HealthExportTests` — the class was
-/// already within a hundred lines of the linter's body ceiling, which is a CI
-/// error and not a style opinion.
+/// An extension rather than more of `HealthExportTests`: the class body
+/// counts against the linter's body ceiling, which is a CI error and not a
+/// style opinion, and an extension is a body of its own.
 @MainActor
 extension HealthExportTests {
 
@@ -30,9 +30,7 @@ extension HealthExportTests {
     /// The two sweeps are not run while there is no weight to divide by: they
     /// would be questions asked for an answer nobody uses. The WEIGHT read is
     /// not one of them — it happens every run, because the number is on the
-    /// settings screen whether or not a calorie is ever computed from it. The
-    /// test used to claim "nothing is read" and could not have noticed the
-    /// difference: the spy did not count that read at all.
+    /// settings screen whether or not a calorie is ever computed from it.
     func testWithoutABodyMassTheTwoSweepsAreSkipped() async {
         let spy = HealthSpy()
         let store = makeStore(health: spy)
@@ -158,9 +156,8 @@ extension HealthExportTests {
 
     /// The LATER statement wins, on enabling as on every activation: a scale
     /// stood on after the number was typed outranks it; one stood on before
-    /// does not. "Health is the truth about the owner's weight" was the
-    /// earlier rule, and it is what let a month-old reading overwrite a
-    /// weight typed this morning on the owner's own phone (13.09.2026).
+    /// does not. "Health is the truth about the weight" would let a month-old
+    /// reading overwrite a weight typed this morning.
     func testOnEnablingANewerHealthReadingReplacesTheTypedWeightAndAnOlderOneDoesNot() async {
         let newer = HealthSpy()
         newer.bodyMassKg = 72.5
@@ -183,8 +180,8 @@ extension HealthExportTests {
         XCTAssertEqual(older.massQueries, 1, "Health was asked, and its answer ranked lower")
     }
 
-    /// The defect of 13.09.2026 in one walk: Health's last reading is a
-    /// month old, the person corrects the weight by hand, and every later
+    /// The stale reading in one walk: Health's last reading is a month
+    /// old, the person corrects the weight by hand, and every later
     /// activation finds the same old sample — it must not win, however many
     /// times it is read. The moment the scale is stood on again, it does.
     func testAStaleHealthReadingDoesNotOverwriteATypedWeightUntilANewerOneArrives() async {
@@ -226,10 +223,9 @@ extension HealthExportTests {
                                              statedAt: Date(timeIntervalSince1970: 1_001)))
     }
 
-    /// The defect this whole change exists for: the weight used to be copied
-    /// once and then frozen, so a person who weighed themselves again kept
-    /// getting calories computed from the number they had on the day they
-    /// switched Health on.
+    /// The weight is not copied once and frozen: a person who weighs
+    /// themselves again must not keep getting calories computed from the
+    /// number they had on the day they switched Health on.
     func testANewHealthWeightIsPickedUpOnActivation() async {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
@@ -259,8 +255,8 @@ extension HealthExportTests {
 
     /// Health going quiet later — the record deleted, the read revoked —
     /// keeps the last known number, and keeps saying where it came from: the
-    /// row is editable either way now, and a nil reading is not a statement
-    /// about the number's origin.
+    /// row is editable either way, and a nil reading is not a statement about
+    /// the number's origin.
     func testHealthGoingQuietKeepsTheLastReadingAndItsOrigin() async {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
@@ -381,8 +377,7 @@ extension HealthExportTests {
 
     /// A backup cannot prove that THIS device's Health supplied the weight —
     /// the same rule the export mark lives by. Inherited, a restore onto a new
-    /// phone showed an imported number under "Taken from Health" in a row that
-    /// would not open to be corrected.
+    /// phone would show an imported number as taken from Health.
     func testARestoredBackupDoesNotInheritTheHealthOrigin() async throws {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
@@ -404,12 +399,11 @@ extension HealthExportTests {
                        "the claim about where it came from does not")
     }
 
-    /// The second half of the owner's defect: a backup restored with the
-    /// right weight was reset to the stale scale reading on the next
-    /// activation. The restored number carries its date and outranks an
-    /// older sample; a backup from before the date was kept is dated by the
-    /// newest workout in it, which is at least as late as the number was in
-    /// force — and both outrank a month-old sample.
+    /// A backup restored with the right weight must not be reset to a stale
+    /// scale reading on the next activation. The restored number carries its
+    /// date and outranks an older sample; a backup from before the date was
+    /// kept is dated by the newest workout in it, which is at least as late
+    /// as the number was in force — and both outrank a month-old sample.
     func testARestoredWeightOutranksAnOlderHealthReading() async throws {
         let donor = makeStore(health: HealthSpy())
         donor.completeWorkout(session: donor.nextSession, result: .plan)
@@ -451,8 +445,7 @@ extension HealthExportTests {
     }
 
     /// "From Health" is a claim about a number, so without the number it is a
-    /// lie the file can tell: the row went read-only at "Not set" — calories
-    /// off, and no field left to turn them back on.
+    /// lie the file can tell, and the decode drops it.
     func testAFileClaimingHealthWithoutAWeightDecodesAsTyped() throws {
         let seed = makeStore(health: HealthSpy())
         var settings = seed.settings
@@ -485,8 +478,8 @@ extension HealthExportTests {
         XCTAssertNil(store.settings.bodyMassDate, "clearing is not a claim about a number")
     }
 
-    /// Where the number came from survives a relaunch: the row must not come
-    /// up editable for a moment on every launch, before the async read lands.
+    /// Where the number came from survives a relaunch: the caption must not
+    /// name the wrong origin on every launch, before the async read lands.
     func testTheHealthOriginOfTheWeightPersists() async {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
@@ -561,8 +554,8 @@ extension HealthExportTests {
     // MARK: - Blocks that did not happen
 
     /// The warm-up and the cool-down each end on one tap. Charging their
-    /// planned minutes regardless billed nine minutes of stretching to a
-    /// person who declined both.
+    /// planned minutes regardless would bill ten minutes to a person who
+    /// declined both.
     func testDecliningBothBlocksLowersTheCalorie() async throws {
         let withBlocks = HealthSpy()
         let a = makeStore(health: withBlocks)

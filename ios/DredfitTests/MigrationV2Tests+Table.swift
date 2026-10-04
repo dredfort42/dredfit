@@ -1,24 +1,21 @@
 //
-//  §41.7: the two baked tables the v2 → v3 migration is made of, checked
-//  against values that do NOT come out of those tables.
+//  The two baked tables the v2 → v3 migration is made of, checked against
+//  values that do NOT come out of those tables.
 //
 //  DO NOT "SIMPLIFY" THIS FILE by reading the expectations back from
-//  `Engine.v2TierToVariation` / `Engine.v2LevelTable`. Taking the expectation
-//  from the thing under test is the exact defect this file exists to remove:
-//  until it was written, the only test that touched the mapping read its
-//  expectation out of the mapping (`CleanStartTests` did
-//  `Engine.v2TierToVariation[p]?[3]`), so it could not fail. `GoldenTests`
-//  does not close the gap either — `make_golden.js` seeds the `migration_v2`
-//  scenario with the OUTPUT of the reference `migrateFromV2`, and `seedState`
-//  replays that output field by field instead of calling
-//  `Engine.migrateFromV2`. Rewriting every row of `v2TierToVariation` to
-//  `[1, 1, 1, 1]` — every upgrading trainee thrown back to the first rung of
-//  every movement — left the whole suite green.
+//  `Engine.v2TierToVariation` / `Engine.v2LevelTable`. A test that takes its
+//  expectation from the thing under test cannot fail: rewriting every row of
+//  `v2TierToVariation` to `[1, 1, 1, 1]` — every upgrading trainee thrown back
+//  to the first rung of every movement — is exactly what it cannot see.
+//  `GoldenTests` does not close the gap either — `make_golden.js` seeds the
+//  `migration_v2` scenario with the OUTPUT of the reference `migrateFromV2`,
+//  and `seedState` replays that output field by field instead of calling
+//  `Engine.migrateFromV2`.
 //
 //  The values below were transcribed by hand from the local reference
-//  sources: `V2_TIER_TO_VAR` and `V2_LEVEL_TABLE` in `adaptive_engine.js`
-//  (§41.7), and `LIBRARY` in `adaptive_engine.v2.27-baseline.js` for what v2
-//  itself did at each (pattern, tier).
+//  sources: `V2_TIER_TO_VAR` and `V2_LEVEL_TABLE` in `adaptive_engine.js`,
+//  and `LIBRARY` in `adaptive_engine.v2.27-baseline.js` for what v2 itself
+//  did at each (pattern, tier).
 //
 
 import XCTest
@@ -186,11 +183,11 @@ final class MigrationV2TableTests: XCTestCase {
         }
     }
 
-    /// The cascade §41.7 promises: a higher v2 tier never lands below a lower
-    /// one, and no cell points past the end of its ladder. `Library.index`
-    /// CLAMPS rather than traps, so an out-of-range cell would be swallowed in
-    /// silence and land the trainee on the top rung of a movement they never
-    /// did.
+    /// The cascade the migration promises: a higher v2 tier never lands
+    /// below a lower one, and no cell points past the end of its ladder.
+    /// `Library.index` CLAMPS rather than traps, so an out-of-range cell would
+    /// be swallowed in silence and land the trainee on the top rung of a
+    /// movement they never did.
     func test_v2TierToVariation_everyRow_risesStrictlyAndStaysInsideItsLadder() throws {
         for pattern in Pattern.allCases {
             let row = try XCTUnwrap(Engine.v2TierToVariation[pattern],
@@ -229,11 +226,10 @@ final class MigrationV2TableTests: XCTestCase {
         }
     }
 
-    /// §40.5: bands of 4 and 5 sets exist ONLY on the top rung of a ladder.
-    /// v2 had them above tier 4 regardless, so the band may only ride along
-    /// where the landing rung happens to be the top — carrying one lower
-    /// builds a state the engine can never reach again, and the trainee would
-    /// be stuck with sets no handle can give back.
+    /// Bands of 4 and 5 sets exist ONLY on the top rung of a ladder. v2 had
+    /// them above tier 4 regardless, so the band may only ride along where the
+    /// landing rung happens to be the top — carrying one lower builds a state
+    /// the engine can never reach.
     func test_migration_whenAV2BandLandsBelowTheTopRung_dropsTheBandInsteadOfBuildingAnUnreachableState() throws {
         for pattern in Pattern.allCases {
             let row = try XCTUnwrap(V2FormatSnapshot.tierToVariation[pattern],

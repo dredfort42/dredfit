@@ -5,10 +5,10 @@ import DredfitCore
 @MainActor
 final class GetReadyTests: XCTestCase {
 
-    /// The block composes six moves out of nine now (§40.1), so a stage
-    /// machine cannot be asked about "the moves" — it has to be asked about a
-    /// COMPOSITION. Session one's, throughout; the reserve tests in
-    /// BlockReserveTests walk all of them.
+    /// The block composes six moves out of nine, so a stage machine cannot be
+    /// asked about "the moves" — it has to be asked about a COMPOSITION.
+    /// Session one's, throughout; the reserve tests in BlockReserveTests walk
+    /// all of them.
     private let warmupMoves = Warmup.moves(sessionNumber: 1)
 
     /// The index of the one move that pays the transition supplement — the
@@ -16,9 +16,9 @@ final class GetReadyTests: XCTestCase {
     private var floorIndex: Int { warmupMoves.firstIndex { $0.needsSetup } ?? 0 }
 
     /// The dearest composition: the one the rotation fills with the most split
-    /// moves (§41.12) — three of the four the pool has. Found, not named by
-    /// session number: the rotation decides who appears, and a hard-coded 2
-    /// goes stale the first time the pool changes.
+    /// moves — three of the four the pool has. Found, not named by session
+    /// number: the rotation decides who appears, and a hard-coded 2 goes stale
+    /// the first time the pool changes.
     private var dearestComposition: [WarmupMove] {
         (1...Warmup.compositionCount)
             .map(Warmup.moves(sessionNumber:))
@@ -27,8 +27,8 @@ final class GetReadyTests: XCTestCase {
 
     /// What one warm-up move costs uninterrupted: the transition, then the
     /// slot — two halves and the switch pause when the move has a boundary.
-    /// Hand-rolled on purpose, like the cool-down twin above: this file's job
-    /// is to state the arithmetic independently of the production formula.
+    /// Hand-rolled on purpose: this file's job is to state the arithmetic
+    /// independently of the production formula.
     private func cost(of move: WarmupMove) -> Int {
         let slot = move.isSplit
             ? Warmup.halfSeconds * 2 + Cooldown.sideSwitchPauseSec
@@ -40,20 +40,14 @@ final class GetReadyTests: XCTestCase {
 
     // MARK: - The transition itself
 
-    /// RE-MARKED, and the claim is now the OPPOSITE one.
-    ///
-    /// The two lengths used to be identical, and the test said so: #35 counts
-    /// the switch inside a position, #52 the switch between positions, and one
-    /// base served both. The transition doubled to ten seconds and the pause
-    /// did NOT follow it, because they are not the same thing — travelling to
-    /// another position takes time, turning over inside one does not. So what
-    /// is pinned now is the split, in both directions, and its arithmetic
-    /// counts the pause as five. The transition moved again on 06.09.2026
-    /// (10 → 8) and the pause still did not follow: they part on WHAT they
-    /// are, not on how long they happen to be.
+    /// The transition and the side-switch pause are two different things: #35
+    /// counts the switch inside a position, #52 the switch between positions.
+    /// Travelling to another position takes time, turning over inside one does
+    /// not — so they part on WHAT they are, not on how long they happen to be,
+    /// and the split is pinned in both directions.
     func testTheTransitionAndTheSideSwitchPauseAreNoLongerTheSame() {
         XCTAssertEqual(GetReady.seconds, 8)
-        XCTAssertEqual(Cooldown.sideSwitchPauseSec, 4)   // on trial, 06.09.2026
+        XCTAssertEqual(Cooldown.sideSwitchPauseSec, 4)   // on trial
         XCTAssertNotEqual(GetReady.seconds, Cooldown.sideSwitchPauseSec,
                           "the two lengths parted in v2.26 and must stay apart")
         XCTAssertEqual(GetReady.stageSeconds(needsSetup: false), GetReady.seconds)
@@ -80,8 +74,8 @@ final class GetReadyTests: XCTestCase {
         // pinned: in the warm-up only cat-cow leaves standing; in the
         // cool-down only forward fold, the lat stretch and the wrists stay
         // upright with no wall to walk to.
-        // The warm-up composes six of nine now (§40.1), and three of the nine
-        // are on the floor — so "who pays the supplement" is a property of the
+        // The warm-up composes six of nine, and three of the nine are on the
+        // floor — so "who pays the supplement" is a property of the
         // COMPOSITION, not of a move. Exactly one per session, always the trip
         // down to the floor, in every composition there is.
         for session in 1...Warmup.compositionCount {
@@ -107,12 +101,11 @@ final class GetReadyTests: XCTestCase {
     /// What one position costs uninterrupted, supplement and sides included.
     ///
     /// Routes through `GetReady.stageSeconds(needsSetup:)` rather than
-    /// re-deriving `seconds + setupSupplementSec` by hand — the hand-rolled
-    /// version here and `BlockReserveTests.cost(_:CooldownPosition)` used to
-    /// state the same formula two different ways, which stays correct only
-    /// as long as nobody changes the production one without noticing the
-    /// copy. Calling the real function makes that impossible instead of
-    /// merely unlikely.
+    /// re-deriving `seconds + setupSupplementSec` by hand, as
+    /// `BlockReserveTests.cost(_:CooldownPosition)` does too: two spellings of
+    /// one formula stay correct only as long as nobody changes the production
+    /// one without noticing the copy. Calling the real function makes that
+    /// impossible instead of merely unlikely.
     private func cost(of position: CooldownPosition) -> Int {
         let hold = position.perSide
             ? Cooldown.sideSeconds * 2 + Cooldown.sideSwitchPauseSec
@@ -121,15 +114,13 @@ final class GetReadyTests: XCTestCase {
     }
 
     /// The decision this feature rests on: the transitions — supplements
-    /// included since #83 — ride on top of the minutes the engine reserves for
+    /// included (#83) — ride on top of the minutes the engine reserves for
     /// the two blocks. The worst case is exact: the dearest warm-up plus the
     /// fixed three positions plus the costliest three the mapping can draw.
     ///
-    /// What is no longer exact is the FIT. §41.12 gave the warm-up the counted
-    /// switch, the pair went from 540 s to 555, and a reserve is whole minutes
-    /// — so 10:00 carries 45 s of slack. Under a minute, which is the property
-    /// that replaced the equality: one minute of slack and the engine would be
-    /// holding a minute the blocks do not use.
+    /// The FIT is not exact: a reserve is whole minutes, so it carries slack.
+    /// What is guarded is that the slack stays under two minutes — more, and
+    /// the engine would be holding minutes the blocks do not use.
     func testBothBlocksFitInsideTheReservedWarmupAndCooldownMinutes() {
         let warmup = dearestComposition.map(cost(of:)).reduce(0, +)
 
@@ -143,22 +134,18 @@ final class GetReadyTests: XCTestCase {
             + cost(of: anyComposition[5])
         let reserved = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
 
-        // 215 → 245 → 260 → 247, and 265 → 295 → 277 on the cool-down side:
-        // the base transition doubled (§37.7а), the dearest composition took
-        // three switch pauses (§41.12), and then the transition shortened to
-        // eight (owner, 06.09.2026). Lengthening it is what makes the reserve
-        // an engine constraint; shortening only ever leaves slack.
+        // Lengthening the transition is what makes the reserve an engine
+        // constraint; shortening it only ever leaves slack.
         XCTAssertEqual(warmup, 244)
         XCTAssertEqual(fixed + worstMapped, 272)
         XCTAssertLessThanOrEqual(warmup + fixed + worstMapped, reserved,
                                  "the worst case overruns the reserved minutes")
-        // Ten minutes stopped being the smallest whole minute that fits when
-        // the transition shortened, and the owner kept it (06.09.2026): giving
-        // the minute back is `cooldownMin` 4 → 3 through the reference chain,
-        // and it would take a minute off every announced duration to reclaim
-        // slack nobody is short of. What is guarded is drift, not tightness —
-        // `BlockReserveTests` holds the same floor and ceiling over the axis
-        // the app actually composes on.
+        // Ten minutes is not the smallest whole minute that fits, and the
+        // owner keeps it: giving the minute back is `cooldownMin` 4 → 3
+        // through the reference chain, and it would take a minute off every
+        // announced duration to reclaim slack nobody is short of. What is
+        // guarded is drift, not tightness — `BlockReserveTests` holds the same
+        // floor and ceiling over the axis the app actually composes on.
         XCTAssertLessThan(reserved - (warmup + fixed + worstMapped), 120,
                           "two whole minutes of slack: the reserve is no longer "
                           + "sized against the blocks it exists for")
@@ -206,13 +193,11 @@ final class GetReadyTests: XCTestCase {
     func testWarmupAdvanceAbsorbsBackgroundedTime() throws {
         // Past a move's end by the whole next transition plus two seconds: the
         // transition is consumed whole and the landing is 2 s into the move it
-        // announced. This is written from the constant rather than from "7",
-        // which was the base of five plus two and silently became wrong when
-        // the base doubled.
+        // announced. Written from the constant rather than from a literal,
+        // which would silently go wrong the next time the transition moves.
         //
         // WHICH stage that move opens on is asked of the machine, not assumed:
-        // this line meant "the whole slot" until arm circles became a split
-        // move (§41.12) and the second move of the block stopped having one.
+        // a split move opens on its first half, not on the whole slot.
         let opening = try XCTUnwrap(GuidedBlock.step(after: (1, .getReady),
                                                 positions: warmupMoves)?.stage)
         let landing = GuidedBlock.warmup.advance(from: (0, .whole), overshoot: GetReady.seconds + 2,
@@ -228,8 +213,8 @@ final class GetReadyTests: XCTestCase {
     func testWarmupOvershootLandsOnAWholeMoveBoundary() {
         // A full move-plus-transition of absence advances by exactly one move
         // and lands at the top of the next transition, not mid-anything. The
-        // cycle is the move's OWN: 35 s where the slot has a switch pause in
-        // it (§41.12), 30 where it runs straight through.
+        // cycle is the move's OWN: a split move's slot carries the switch
+        // pause, a whole one runs straight through.
         let cycle = GuidedBlock.warmup.stageSeconds(.getReady, of: warmupMoves[1])
             + Warmup.slotSeconds(of: warmupMoves[1])
         let landing = GuidedBlock.warmup.advance(from: (0, .whole), overshoot: cycle, positions: warmupMoves)
@@ -245,9 +230,9 @@ final class GetReadyTests: XCTestCase {
         // the move itself, written from the constants so the supplement is
         // what the test is actually about.
         //
-        // The block has three floor moves in its pool now (§40.1) and still
-        // exactly ONE supplement: it is the trip DOWN that is paid for, not
-        // each position on the floor.
+        // The block has three floor moves in its pool and still exactly ONE
+        // supplement: it is the trip DOWN that is paid for, not each position
+        // on the floor.
         let onto = floorIndex
         XCTAssertGreaterThan(onto, 0, "the floor is never the first move")
         let supplemented = GetReady.seconds + GetReady.setupSupplementSec
@@ -259,7 +244,7 @@ final class GetReadyTests: XCTestCase {
         XCTAssertEqual(landing?.remaining, Warmup.moveSeconds - 2)
     }
 
-    // MARK: - The warm-up's two halves (§41.12)
+    // MARK: - The warm-up's two halves
 
     func testASplitWarmupMoveWalksTheTwoHalvesAroundThePause() throws {
         let moves = dearestComposition

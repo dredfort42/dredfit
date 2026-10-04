@@ -1,6 +1,6 @@
 //
 //  The trainee's own rhythm is not a break,
-//  and the training day changes at 4 a.m., not midnight.
+//  and a training day is a calendar day in the local zone.
 //
 
 import XCTest
@@ -29,21 +29,19 @@ final class CadenceTests: AppStoreTestCase {
         return cal.date(from: comps)!
     }
 
-    /// A store whose journal holds one workout per given date, with every
-    /// pattern parked at `level`.
-    /// The dose every seeded movement stands at: the ceiling of its second
-    /// variation. One rung below it is what a silent decay costs, and that
-    /// single rung is what every assertion in this file is actually about.
+    /// The dose every seeded movement stands at: the ceiling of `pull`'s
+    /// second variation. One rung below it is what a silent decay costs, and
+    /// the dose assertions in this file count those rungs.
     static let seededDose = 15
 
     /// A store seeded through the storage file, the same door the real app
     /// loads through.
     ///
     /// The state is written in the v3 shape — `vars` and `doses`, no `levels`
-    /// — because a v2 state does not decode at all any more (§40.8), and a
-    /// seed the store silently replaced with a clean start would make every
-    /// assertion below true for the wrong reason. The journal of what was
-    /// shown is filled in too: a descent lands in it (§40.6).
+    /// — so it loads as written rather than through the v2 migration: a seed
+    /// the store silently replaced would make every assertion below true for
+    /// the wrong reason. The journal of what was shown is filled in too: a
+    /// descent out of a variation lands in it.
     private func store(workoutsAt dates: [Date]) throws -> AppStore {
         let vars = Pattern.allCases
             .map { "\"\($0.rawValue)\",2" }.joined(separator: ",")
@@ -75,12 +73,11 @@ final class CadenceTests: AppStoreTestCase {
 
     // MARK: - The training day (#147)
 
-    /// RE-MARKED from whole elapsed 24-hour periods to CALENDAR days in the
-    /// local zone, with the cause. Everything about rhythm is calendar- shaped
-    /// in the trainee's head — "yesterday", "every Sunday", "two weeks off" —
-    /// and elapsed-hours arithmetic disagreed with all of it: Monday 23:00 →
-    /// Tuesday 01:00 was ZERO days. The thresholds themselves did not move;
-    /// what a day IS did.
+    /// CALENDAR days in the local zone, not whole elapsed 24-hour periods.
+    /// Everything about rhythm is calendar-shaped in the trainee's head —
+    /// "yesterday", "every Sunday", "two weeks off" — and elapsed-hours
+    /// arithmetic disagrees with all of it: it reads Monday 23:00 → Tuesday
+    /// 01:00 as ZERO days.
     func testTrainingDaysAreCalendarDays() {
         let start = date(day: 0, hour: 23)
         XCTAssertEqual(AppStore.trainingDays(from: start, to: start.addingTimeInterval(2 * 3600)), 1,
@@ -97,8 +94,8 @@ final class CadenceTests: AppStoreTestCase {
     }
 
     /// The autumn clock change makes one day 25 hours long. Elapsed-hours
-    /// arithmetic read that as 1 day only by luck and read the 23-hour spring
-    /// day as 0; `startOfDay` is right about both. The zone is named
+    /// arithmetic reads that as 1 day only by luck and reads the 23-hour
+    /// spring day as 0; `startOfDay` is right about both. The zone is named
     /// explicitly — the test must not depend on where the runner sits.
     func testTheClockChangeNeitherAddsNorEatsADay() throws {
         var cal = Calendar(identifier: .gregorian)
@@ -149,12 +146,11 @@ final class CadenceTests: AppStoreTestCase {
 
     func testShiftWorkerRitualIsCarriedByTheRhythmNotByTheDayCount() throws {
         // True 6.0-day cadence with the hour drifting 23:00 <-> 01:00 across
-        // midnight. The expected gaps were RE-MARKED from [5, 6, 5] to
-        // [5, 7, 5], with the cause below.
-        // Under calendar days the drift genuinely straddles midnights, so the
-        // ritual reads 7/5 rather than 6/5 — and the thing that keeps it out
-        // of the decay is the rhythm detector, not the definition of a day: a
-        // 7 that matches an earlier 7 within ±1 is this trainee's own rhythm.
+        // midnight. Under calendar days the drift genuinely straddles
+        // midnights, so the ritual reads 7/5 rather than 6/5 — and the thing
+        // that keeps it out of the decay is the rhythm detector, not the
+        // definition of a day: a 7 that matches an earlier 7 within ±1 is this
+        // trainee's own rhythm.
         // The price is one decay on the FIRST such gap, before there is any
         // rhythm to recognise — named outright, not hidden.
         var dates = [date(day: 0, hour: 23)]
@@ -163,11 +159,9 @@ final class CadenceTests: AppStoreTestCase {
             dates.append(dates[dates.count - 1].addingTimeInterval(6 * 86400 + drift))
         }
         let s = try store(workoutsAt: dates)
-        // RE-MARKED §41.5 (v3.1, 26.08.2026), class: semantics changed. The
-        // window went from three gaps to eight, and this seed lays down five
-        // records — four gaps, not three. The subject here is the 5-7-5 ritual
-        // itself, not how far back the memory reaches, so the last three gaps
-        // are what it checks. `testALifeCycleLongerThanThreeGapsIsARhythm`
+        // The window holds eight gaps, and this seed lays down five records —
+        // four gaps. The subject here is the 5-7-5 ritual itself, not how far
+        // back the memory reaches, so the last three gaps are what it checks. `testALifeCycleLongerThanThreeGapsIsARhythm`
         // below is the one that owns the window's length.
         XCTAssertEqual(Array(s.recentGaps.suffix(3)), [5, 7, 5])
         let next = try XCTUnwrap(dates.last).addingTimeInterval(6 * 86400 + 2 * 3600)
@@ -176,16 +170,13 @@ final class CadenceTests: AppStoreTestCase {
                       "a 7 among 7s is the ritual, not a break in it")
     }
 
-    /// The window's length, which nothing used to assert (§41.5).
+    /// The window's length.
     ///
     /// A life cycle does not have to repeat every three sessions. "Two
     /// workouts close together, then ten days of nothing" is perfectly
-    /// regular and never looked it inside a three-gap window: the last three
+    /// regular and never looks it inside a three-gap window: the last three
     /// gaps at the moment of the long silence are the SHORT ones, so the ten
-    /// days matched nothing and every cycle paid a silent decay. The audit of
-    /// 26.08.2026 measured what that cost at the same MEAN interval — 80
-    /// decays over 80 sessions, finishing at Σ posOrd −4, against Σ 470 for a
-    /// rhythm the window did recognise.
+    /// days would match nothing and every cycle would pay a silent decay.
     func testALifeCycleLongerThanThreeGapsIsARhythm() throws {
         // Gaps, oldest first: 10, 2, 2, 2, 10, 2, 2, 2 — nine records, eight
         // gaps, and the ten-day silence is in the window twice.
@@ -212,7 +203,7 @@ final class CadenceTests: AppStoreTestCase {
     /// `trainingDays` counts midnights, which is right for the decay, the
     /// comeback and the rhythm — and wrong for the one argument the engine's
     /// weekly window reads. `gapFraction` keeps the fraction of real elapsed
-    /// time; the two must not be confused, and did not touch the second one.
+    /// time; the two must not be confused.
     func testTheFractionalGapKeepsWhatTheTrainingDayThrowsAway() throws {
         let s = try store(workoutsAt: [date(day: 0, hour: 8)])
         let sameEvening = date(day: 0, hour: 20)
@@ -229,9 +220,9 @@ final class CadenceTests: AppStoreTestCase {
         XCTAssertNil(fresh.gapFraction(), "nothing to measure from")
     }
 
-    /// The defect end to end: two workouts in one day used to hand the engine
-    /// a gap of zero, so the weekly window never aged and its growth budget
-    /// was spent once for good.
+    /// End to end: two workouts in one day must not hand the engine a gap of
+    /// zero — the weekly window would never age, and its growth budget would
+    /// be spent once for good.
     func testTwoWorkoutsInOneDayStillAgeTheWeeklyWindow() throws {
         let s = try store(workoutsAt: [date(day: 0, hour: 8)])
         _ = s.completeWorkout(session: s.nextSession, result: .plan,
@@ -262,7 +253,7 @@ final class CadenceTests: AppStoreTestCase {
 
     func testRhythmIsRememberedThroughAnOutlier() throws {
         // The matching gap is NOT the most recent one — a rule that consulted
-        // only the last gap would decay here (the review's surviving mutation).
+        // only the last gap would decay here.
         let s = try store(workoutsAt: [0, 7, 14, 24].map { date(day: $0) })
         XCTAssertEqual(s.recentGaps, [7, 7, 10])
         s.applySilentDecayIfNeeded(now: date(day: 31))
@@ -284,7 +275,7 @@ final class CadenceTests: AppStoreTestCase {
 
     func testMidCycleOpenDoesNotSummonTheCard() throws {
         // An every-three-weeks ritual: opening the app on days 14-19 of the
-        // cycle must not show the card whose primary button drops levels.
+        // cycle must not show the card whose primary button lowers the plan.
         let s = try store(workoutsAt: [0, 21, 42, 63].map { date(day: $0) })
         XCTAssertFalse(s.shouldOfferComeback(now: date(day: 77)), "day 14 of the cycle")
         XCTAssertFalse(s.shouldOfferComeback(now: date(day: 82)), "day 19 of the cycle")
@@ -344,17 +335,10 @@ final class CadenceTests: AppStoreTestCase {
         let s = try store(workoutsAt: [0, 7, 14, 21].map { date(day: $0) })
         s.applySilentDecayIfNeeded(now: date(day: 29))
         XCTAssertEqual(s.engineState.doses[.pull], Self.seededDose, "the decay was skipped")
-        // `comebackDrop` went with the level it counted (§40.7). The claim it
-        // made is unchanged and is now read where it actually lands: no decay
-        // was taken for this break, so the comeback subtracts the FULL table
-        // amount — two rungs of dose (§40.3: one old level = one rep per set).
+        // No decay was taken for this break, so the comeback subtracts the
+        // FULL amount — two rungs of dose, read where they land.
         s.acceptComeback(now: date(day: 36))
         XCTAssertEqual(s.engineState.doses[.pull], Self.seededDose - 2,
                        "no silent decay was taken, so the comeback is the full table amount")
     }
-
-    // SNIPPED: `testIllnessTapStaysForRhythmBreaks`. The quiet "I was sick"
-    // offer is gone with the lens it armed. The rhythm-break rule it leaned on
-    // — a 14+ day gap that is the person's own rhythm carries no comeback card
-    // — is asserted by the comeback tests in this same file.
 }
