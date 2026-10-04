@@ -244,7 +244,7 @@ struct WorkoutDriver {
         let sawCooldown: Bool
     }
 
-    /// Requires --uitest-fast on the launch. Every control it taps now goes by
+    /// Requires --uitest-fast on the launch. Every control it taps goes by
     /// identifier, so the walk is the same in any language and the release
     /// smoke's S7 row needs no English twins to pass in — only the rating
     /// HEADLINE is still a label, because that screen carries no identifier of

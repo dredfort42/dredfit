@@ -6,9 +6,9 @@
 //  taken mid-session (SetSkipUITests); the one handle that changes the
 //  movement itself lives in the technique sheet the plan row opens. So the
 //  tests below check that there is no control under a row, that the sheet
-//  carries it instead — opened from Today, never inside a running workout —
-//  and that the one grey line paying for its discoverability is spent by the
-//  first visit and stays spent across a relaunch.
+//  carries it instead — opened from Today's plan row, never inside a running
+//  workout — and that the one grey line paying for its discoverability is
+//  spent by the first visit and stays spent across a relaunch.
 //
 
 import XCTest
@@ -85,7 +85,7 @@ final class HandlesUITests: XCTestCase {
             "the way back from the sets handle is still on the plan")
     }
 
-    // MARK: - The handle, where it lives now
+    // MARK: - The handle, in the technique sheet
 
     /// What the block promises is that this sheet becomes the movement it
     /// names, and that the plan follows. Both halves are asserted without
@@ -176,8 +176,8 @@ final class HandlesUITests: XCTestCase {
                          + "there is nothing below it to offer")
     }
 
-    /// And it is offered on the screen that shows the UPCOMING workout, never
-    /// inside a running one.
+    /// And it is offered from Today's plan row, the screen that shows the
+    /// upcoming workout, never inside a running one.
     ///
     /// Not a matter of taste: the session is snapshotted at Start, so a switch
     /// taken mid-workout moves the state under a plan already in flight, and
@@ -203,8 +203,10 @@ final class HandlesUITests: XCTestCase {
     // MARK: - The line that pays for it
 
     /// One grey line is the whole price the plan pays for a handle that is
-    /// not visible on it, and it is spent by going through the door once —
-    /// from any screen. Gated on that rather than on an empty journal, because
+    /// not visible on it, and it is spent by going through the door once: from
+    /// the plan row always, from any other screen only while the line promises
+    /// no step below (only the plan row's sheet carries one). Gated on that
+    /// rather than on an empty journal, because
     /// the person carried over from v2 has a full one and is exactly who the
     /// sentence is for.
     ///

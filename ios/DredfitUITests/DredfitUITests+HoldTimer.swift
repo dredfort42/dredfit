@@ -480,10 +480,12 @@ extension DredfitUITests {
     /// number nobody asked of that movement (the side plank's own plan is the
     /// bottom of the hold grid, 15 s per side).
     ///
-    /// The observation is the pre-effort entry, which opens on the number the
-    /// clock would run from (`SetFacts.holdTarget`; the length seed moves the
-    /// clock alone) — no waiting on a countdown to read a value that is
-    /// already decided.
+    /// The observation is the pre-effort entry, which opens on
+    /// `SetFacts.holdTarget` — the declared time while one stands, the plan
+    /// otherwise — so nothing waits on a countdown to read a value that is
+    /// already decided. The length seed is not in it: under
+    /// `--uitest-hold-short` the clock would run 5 s, while the entry reads
+    /// the plan's 15.
     func testADeclaredTimeDoesNotFollowTheMovementItWasSetFor() {
         launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
         declareHoldTime(20)

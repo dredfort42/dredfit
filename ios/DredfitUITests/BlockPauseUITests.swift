@@ -124,7 +124,7 @@ final class BlockPauseUITests: XCTestCase {
             _ = resume.waitForExistence(timeout: 1)
         }
         // Which way the loop ended, said out loud. Under --uitest-fast every
-        // stage lasts one second and the whole block ~15, while this project
+        // stage lasts one second and the whole block ~16–22, while this project
         // has measured a single XCUITest answer at 9.5 s (nightly run
         // 30875292377): a runner slow enough to outlive the block fails on the
         // pause and reads as a broken pause. It is not one, and the sentence

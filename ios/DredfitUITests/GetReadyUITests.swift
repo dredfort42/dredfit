@@ -60,10 +60,11 @@ final class GetReadyUITests: XCTestCase {
         // Single-snapshot checks FIRST and the timed one last, deliberately:
         // every claim here is only true while that count-in runs, and a
         // negative `waitForExistence(timeout: 2)` opening the walk would spend
-        // two of its seconds before the other two checks are even asked. At a
-        // five-second count-in the margin measured on a healthy runner was
-        // 2.89 s — the narrowest in the suite — against the 9.5 s this project
-        // has seen one XCUITest answer take (nightly run 30875292377).
+        // two of its seconds before the other two checks are even asked. The
+        // margin measured on a healthy runner was 2.89 s, at the five-second
+        // count-in it was measured under; at today's four, expect about a
+        // second less, against the 9.5 s this project has seen one XCUITest
+        // answer take (nightly run 30875292377).
         let tappedAt = Date.now
         app.buttons[AX.getReadyStart].tap()
         XCTAssertTrue(transition.exists, "the count-in runs on the transition's own screen")
