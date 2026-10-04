@@ -128,11 +128,11 @@ nonisolated enum EnergyEstimate {
     /// ran. Both have a footer button that ends the block on one tap, so
     /// charging their full planned length would bill a person who declined
     /// both for minutes they never spent. `nil` means not measured — a record
-    /// written before the flow measured them, a block a process death cut
-    /// off, or a cool-down the workout never reached ("Finish now" from the
-    /// work goes straight to the rating) — and falls back to the plan; zero
-    /// means declined. Neither argument carries a default: an omitted one
-    /// would silently charge the plan again.
+    /// written before the flow measured them, or a block a process death cut
+    /// off — and falls back to the plan; zero means declined or never reached
+    /// ("Finish now" from the work goes straight to the rating). Neither
+    /// argument carries a default: an omitted one would silently charge the
+    /// plan again.
     static func segments(exercises: [SessionExercise],
                          skipped: Set<Pattern>,
                          warmupSec: Int?,
