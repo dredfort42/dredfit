@@ -83,24 +83,21 @@ struct WorkoutFlowView: View {
     @State var setIndex = 0          // 0-based
     @State var phase: Phase = .warmupIntro
     @State var warmupIndex = 0
-    @State var warmupRemaining = 0
-    @State var warmupEndDate: Date?
+    @State var warmupClock = Countdown()
     // Shares the block's countdown state — one timer, two stages — so
     // nothing new has to survive backgrounding.
     @State var warmupStage: Warmup.Stage = .getReady
     // Computed once on entry: the composition depends on what was performed.
     @State var cooldownPositions: [CooldownPosition] = []
     @State var cooldownIndex = 0
-    @State var cooldownRemaining = 0
-    @State var cooldownEndDate: Date?
+    @State var cooldownClock = Countdown()
     @State var cooldownStage: Cooldown.Stage = Cooldown.openingStage
     // The pause of the guided blocks (issue #61). One for both, like the
-    // stage/remaining pairs above: the two blocks never run at once. Held, the
-    // frozen seconds sit in warmupRemaining / cooldownRemaining and no end
-    // date exists anywhere; re-entering, only this moves.
+    // stage/clock pairs above: the two blocks never run at once. Held, the
+    // frozen seconds stand in warmupClock / cooldownClock and no end date
+    // exists anywhere; re-entering, only this moves.
     @State var blockPause = BlockPause.State()
-    @State var restRemaining = 0
-    @State var restEndDate: Date?
+    @State var restClock = Countdown()
     /// What this transition planned, kept because the phase carries the
     /// current total and the extension cap is twice the PLANNED one.
     @State var restPlanned = 0
@@ -179,20 +176,17 @@ struct WorkoutFlowView: View {
 
     // Per-side holds run the countdown twice; the actual is the smaller of
     // the two — the honest bottleneck.
-    @State var holdEndDate: Date?
-    @State var holdRemaining = 0
+    @State var holdClock = Countdown()
     @State var holdTotal = 0
     @State var holdSecondSide = false
     @State var firstSideHeld: Int?
     // The second side starts itself — no tap, with hands busy in a plank.
-    @State var holdPauseEndDate: Date?
-    @State var holdPauseRemaining = 0
+    @State var holdSwitchClock = Countdown()
     // The count-in "Start hold" earns before the clock runs
-    // (GetReady.countInSeconds). Its own pair rather than a stage flag on the
+    // (GetReady.countInSeconds). Its own clock rather than a stage flag on the
     // hold's: the hold's total must already stand while this counts, so that
     // the go can start it without recomputing anything.
-    @State var holdCountInEndDate: Date?
-    @State var holdCountInRemaining = 0
+    @State var holdCountInClock = Countdown()
     /// The LAST hold of a movement is over and its seconds are recorded, but
     /// the set is not closed yet — `finishHold` stops there and the primary
     /// button finishes the job. A hold ends itself, so before this flag the
@@ -314,9 +308,9 @@ struct WorkoutFlowView: View {
                                planned: exercise.plannedLoad(set: setIndex), isProbe: false,
                                target: TechniqueTarget(exercise))
     }
-    var holding: Bool { holdEndDate != nil }
-    var holdSwitchPausing: Bool { holdPauseEndDate != nil }
-    var holdCountingIn: Bool { holdCountInEndDate != nil }
+    var holding: Bool { holdClock.isRunning }
+    var holdSwitchPausing: Bool { holdSwitchClock.isRunning }
+    var holdCountingIn: Bool { holdCountInClock.isRunning }
 
     /// The digit roll every countdown in the flow shares, and nothing at all
     /// under Reduce Motion — `withAnimation(nil)` is how a transaction is told
@@ -655,8 +649,8 @@ struct WorkoutFlowView: View {
     /// back into position either.
     func openPositionTechnique(_ technique: PositionTechnique) {
         positionTechnique = technique
-        warmupEndDate = nil
-        cooldownEndDate = nil
+        warmupClock.freeze()
+        cooldownClock.freeze()
         blockPause.freezeForSheet()
         // And the block stops costing time while it is read: reading is not
         // stretching either, and the block's own length is wall clock
@@ -676,9 +670,9 @@ struct WorkoutFlowView: View {
         endBlockFreeze()
         switch phase {
         case .warmup:
-            warmupEndDate = Date.now.addingTimeInterval(TimeInterval(warmupRemaining))
+            warmupClock.resume(now: .now)
         case .cooldown:
-            cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
+            cooldownClock.resume(now: .now)
         default:
             break
         }
@@ -732,7 +726,7 @@ struct WorkoutFlowView: View {
     /// make the workout longer.
     private func openRestTechnique() {
         if restStartsTheNextSet {
-            restEndDate = nil
+            restClock.freeze()
             // The tile counts down to a DATE, so a frozen rest has to take the
             // date away — the same reason `pauseBlock` does.
             liveActivity.update(.init(phase: .rest, title: nextLabel,
@@ -749,16 +743,15 @@ struct WorkoutFlowView: View {
     /// held — the person's own stop outranks the sheet's, the same order
     /// `resumePositionCountdown` keeps.
     private func resumeRestCountdown() {
-        guard case .rest = phase, restEndDate == nil, !blockPause.isPaused else { return }
-        let end = Date.now.addingTimeInterval(TimeInterval(max(restRemaining, 1)))
-        restEndDate = end
+        guard case .rest = phase, !restClock.isRunning, !blockPause.isPaused else { return }
+        restClock.resume(now: .now, atLeast: 1)
         liveActivity.update(.init(phase: .rest, title: nextLabel,
-                                  detail: restActivityDetail, restEndDate: end))
+                                  detail: restActivityDetail, restEndDate: restClock.endDate))
         persistProgress()
     }
 
     private var restView: some View {
-        RestRing(remaining: restRemaining,
+        RestRing(remaining: restClock.remaining,
                  fraction: progressFraction,
                  ringSize: restRingSize,
                  nextLabel: nextLabel,
@@ -777,8 +770,7 @@ struct WorkoutFlowView: View {
                  onExtend: extendRest,
                  onSkip: {
                      clearBlockPause()
-                     restEndDate = nil
-                     restRemaining = 0
+                     restClock.stand(at: 0)
                      advanceAfterRest(countIn: true)
                  })
     }
@@ -790,28 +782,27 @@ struct WorkoutFlowView: View {
         return total + Self.restExtensionSeconds <= restPlanned * 2
     }
 
-    /// Moves the end date, not a counter: restRemaining keeps deriving from
-    /// the date, so a backgrounded phone comes back to the right number. The
-    /// new total goes into the phase because the ring divides by it —
+    /// Moves the end date, not a counter: the second on screen keeps deriving
+    /// from the date, so a backgrounded phone comes back to the right number.
+    /// The new total goes into the phase because the ring divides by it —
     /// otherwise the arc would run past 100%.
     ///
     /// The last-seconds signal needs no "already played" flag to reset: it
-    /// fires on `newRemaining < restRemaining`, and an extension raises
-    /// restRemaining, so the new countdown signals again on its own way down.
+    /// fires on a second below the one shown (`Countdown.signals`), and an
+    /// extension raises the one shown, so the new countdown signals again on
+    /// its own way down.
     private func extendRest() {
-        guard case .rest(let total) = phase, let end = restEndDate, canExtendRest else { return }
-        let newEnd = end.addingTimeInterval(TimeInterval(Self.restExtensionSeconds))
-        restEndDate = newEnd
-        restRemaining = max(0, Int(newEnd.timeIntervalSinceNow.rounded()))
+        guard case .rest(let total) = phase, restClock.isRunning, canExtendRest else { return }
+        restClock.extend(by: Self.restExtensionSeconds, now: .now)
         phase = .rest(seconds: total + Self.restExtensionSeconds)
         liveActivity.update(.init(phase: .rest, title: nextLabel,
-                                  detail: restActivityDetail, restEndDate: newEnd))
+                                  detail: restActivityDetail, restEndDate: restClock.endDate))
         persistProgress()
     }
 
     private var progressFraction: CGFloat {
         guard case .rest(let total) = phase, total > 0 else { return 0 }
-        return CGFloat(restRemaining) / CGFloat(total)
+        return CGFloat(restClock.remaining) / CGFloat(total)
     }
 
     var nextLabel: String {
@@ -936,8 +927,8 @@ extension WorkoutFlowView {
         adjusting = false
         holdSecondSide = false
         firstSideHeld = nil
-        holdPauseEndDate = nil
-        holdCountInEndDate = nil
+        holdSwitchClock.freeze()
+        holdCountInClock.freeze()
         actuals.removeValue(forKey: exercise.pattern)   // a skip wins over an actual
         // …and over the probe: a movement that was not trained resolves nothing.
         probeActuals.removeValue(forKey: exercise.pattern)
@@ -1019,23 +1010,20 @@ extension WorkoutFlowView {
         // tapping Skip in time. Production untouched; DEBUG builds only.
         let seconds = CommandLine.arguments.contains("--uitest-fast") ? 1 : seconds
         #endif
-        restRemaining = seconds
-        restEndDate = Date.now.addingTimeInterval(TimeInterval(seconds))
+        restClock.start(seconds, now: .now)
         restPlanned = seconds
         phase = .rest(seconds: seconds)
         liveActivity.update(.init(phase: .rest, title: nextLabel,
-                                  detail: restActivityDetail, restEndDate: restEndDate))
+                                  detail: restActivityDetail, restEndDate: restClock.endDate))
         persistProgress()
     }
 
     private func tickRest() {
-        guard let end = restEndDate else { return }
-        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
-        guard newRemaining != restRemaining else { return }
-        if newRemaining == 0 {
-            restEndDate = nil
-            restRemaining = 0
-            let overshoot = -end.timeIntervalSinceNow
+        switch restClock.read(now: .now) {
+        case .unchanged:
+            return
+        case .ended(let overshoot):
+            restClock.stand(at: 0)
             // A suspended app comes back to a rest that ended while it could
             // sound nothing; the beat is still owed then (R32).
             let countIn = SetFacts.restHandsOverWithCountIn(endedByTap: false,
@@ -1066,19 +1054,19 @@ extension WorkoutFlowView {
             // cannot see it — and the tone is behind the sounds switch.
             announce(nextLabel)
             advanceAfterRest(countIn: countIn)
-        } else {
+        case .second(let second):
             // no tick spam after backgrounding
-            if newRemaining <= Self.countdownSignalSeconds && newRemaining < restRemaining {
+            if restClock.signals(second, within: Self.countdownSignalSeconds) {
                 playTick()
             }
             // A second or two BEFORE the signalling window, which is what the
             // generator's `prepare()` is worth: primed at the top of a
             // two-minute rest it has long gone cold by the 3 (UX review
             // 05.09.2026).
-            if newRemaining == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
+            if second == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
                 WorkoutSignals.prime()
             }
-            withAnimation(countdownAnimation) { restRemaining = newRemaining }
+            withAnimation(countdownAnimation) { restClock.show(second) }
         }
     }
 }

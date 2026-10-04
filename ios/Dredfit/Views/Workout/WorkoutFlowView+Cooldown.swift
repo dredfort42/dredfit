@@ -115,13 +115,13 @@ extension WorkoutFlowView {
         Group {
             if reentering || cooldownStage == .getReady {
                 GetReadyScreen(name: cooldownPositions[cooldownIndex].name,
-                               remaining: reentering ? blockPause.reentryRemaining : cooldownRemaining,
+                               remaining: reentering ? blockPause.reentryRemaining : cooldownClock.remaining,
                                index: cooldownIndex, count: cooldownPositions.count,
                                countdownIdentifier: countdownIdentifier(reentering: reentering),
                                block: .cooldown,
                                paused: blockPause.isHeld,
                                countingIn: !reentering
-                                   && cooldownRemaining <= GetReady.countInSeconds,
+                                   && cooldownClock.remaining <= GetReady.countInSeconds,
                                onTechnique: { openCooldownTechnique() },
                                onStart: { reentering ? endBlockReentry() : countInCooldownPosition() },
                                onPauseToggle: { toggleBlockPause() },
@@ -175,12 +175,10 @@ extension WorkoutFlowView {
         cooldownPositions = recomposed
         cooldownIndex = index
         cooldownStage = Cooldown.openingStage
-        cooldownRemaining = Cooldown.stageSeconds(Cooldown.openingStage, of: recomposed[index])
-        // Not through `enterCooldownStage`, and the date only if one was
-        // running — `rebaseWarmupOnComposition` carries the reasoning.
-        if cooldownEndDate != nil {
-            cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
-        }
+        // Not through `enterCooldownStage`, and the clock runs on only if it
+        // was running — `rebaseWarmupOnComposition` carries the reasoning.
+        cooldownClock.reset(to: Cooldown.stageSeconds(Cooldown.openingStage, of: recomposed[index]),
+                            now: .now)
         persistProgress()
     }
 
@@ -195,7 +193,7 @@ extension WorkoutFlowView {
     var cooldownPositionView: some View {
         CooldownPositionScreen(position: cooldownPositions[cooldownIndex],
                                stage: cooldownStage,
-                               remaining: cooldownRemaining,
+                               remaining: cooldownClock.remaining,
                                index: cooldownIndex, count: cooldownPositions.count,
                                paused: blockPause.isHeld,
                                onTechnique: { openCooldownTechnique() },
@@ -264,34 +262,34 @@ extension WorkoutFlowView {
     /// the transition its ten seconds straight back.
     func countInCooldownPosition() {
         clearBlockPause()
-        cooldownRemaining = min(cooldownRemaining, GetReady.countInSeconds)
-        cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
+        cooldownClock.start(min(cooldownClock.remaining, GetReady.countInSeconds), now: .now)
     }
 
     func enterCooldownStage(index: Int, stage: Cooldown.Stage) {
         clearBlockPause()   // a new stage is never entered still frozen
         cooldownIndex = index
         cooldownStage = stage
-        cooldownRemaining = Cooldown.stageSeconds(stage, of: cooldownPositions[index])
-        cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
+        cooldownClock.start(Cooldown.stageSeconds(stage, of: cooldownPositions[index]), now: .now)
     }
 
     func tickCooldown() {
-        guard let end = cooldownEndDate else { return }
-        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
-        guard newRemaining != cooldownRemaining else { return }
-        if newRemaining > 0 {
+        let overshoot: Int
+        switch cooldownClock.read(now: .now) {
+        case .unchanged:
+            return
+        case .second(let second):
             // No 3-2-1 inside the switch pause: ticks would bury the tone it
             // opened with. The transition is the opposite — the 3-2-1 IS its
             // signal.
             if cooldownStage != .switchPause,
-               newRemaining <= Self.countdownSignalSeconds && newRemaining < cooldownRemaining {
+               cooldownClock.signals(second, within: Self.countdownSignalSeconds) {
                 playTick()
             }
-            withAnimation(countdownAnimation) { cooldownRemaining = newRemaining }
+            withAnimation(countdownAnimation) { cooldownClock.show(second) }
             return
+        case .ended(let late):
+            overshoot = Int(max(0, late))
         }
-        let overshoot = Int(max(0, -end.timeIntervalSinceNow))
         // The warm-up's rule, mirrored (UX review 05.09.2026): a boundary
         // crossed while the phone was elsewhere is not one the person was at,
         // so the block freezes on the stage that was running instead of
@@ -341,8 +339,7 @@ extension WorkoutFlowView {
         }
         cooldownIndex = next.index
         cooldownStage = next.stage
-        cooldownRemaining = next.remaining
-        cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(next.remaining))
+        cooldownClock.start(next.remaining, now: .now)
         // Re-stamp so a long cool-down keeps the session resumable — it
         // restores onto the rating, never into a stretch.
         if next.entered == .getReady { persistProgress() }
@@ -356,7 +353,7 @@ extension WorkoutFlowView {
             cooldownSec = max(0, BlockRun.seconds(began: cooldownBeganAt, ended: .now)
                               - blockPausedSec)
         }
-        cooldownEndDate = nil
+        cooldownClock.freeze()
         phase = .feedback
         liveActivity.end()
         persistProgress()

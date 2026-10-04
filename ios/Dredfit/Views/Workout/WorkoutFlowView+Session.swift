@@ -111,20 +111,16 @@ extension WorkoutFlowView {
         // second side the full length again and undid the rule in silence.
         holdTotal = SetFacts.holdSideSeconds(
             planned: planned, firstSideHeld: holdSecondSide ? firstSideHeld : nil)
-        holdRemaining = holdTotal
+        holdClock.show(holdTotal)
         guard !autoContinued else {
             // Straight into the hold on the rest's own go, exactly as the
             // second side starts on the switch pause's (`tickHoldSwitchPause`).
-            holdCountInRemaining = 0
-            holdCountInEndDate = nil
-            let end = Date.now.addingTimeInterval(TimeInterval(holdTotal))
-            holdEndDate = end
+            holdCountInClock.stand(at: 0)
+            let end = holdClock.start(holdTotal, now: .now)
             showHoldActivity(until: end, detail: holdActivityDetail)
             return
         }
-        holdCountInRemaining = GetReady.countInSeconds
-        let countInEnd = Date.now.addingTimeInterval(TimeInterval(holdCountInRemaining))
-        holdCountInEndDate = countInEnd
+        let countInEnd = holdCountInClock.start(GetReady.countInSeconds, now: .now)
         // The count-in goes to the tile too — it is the beat that ends on the
         // go, and a phone already on the floor shows it where the eye is.
         showHoldActivity(until: countInEnd, detail: String(localized: "Get ready"))
@@ -134,10 +130,10 @@ extension WorkoutFlowView {
     /// here the ticks are wanted, unlike inside the switch pause: the count-in
     /// IS the signal rather than something laid over one.
     func tickHoldCountIn() {
-        guard let end = holdCountInEndDate else { return }
-        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
-        guard newRemaining != holdCountInRemaining else { return }
-        if newRemaining == 0 {
+        switch holdCountInClock.read(now: .now) {
+        case .unchanged:
+            return
+        case .ended(let overshoot):
             // The rest applies this rule and says it in words: "a signal
             // nobody could hear cannot be what started a plank". The count-in
             // did not apply it to ITSELF — the comment beside it only covered
@@ -146,16 +142,12 @@ extension WorkoutFlowView {
             // already started (UX review 05.09.2026). Same rule, same
             // constant: count them in again rather than start under a signal
             // played to a suspended app.
-            let overshoot = -end.timeIntervalSinceNow
             guard overshoot <= SetFacts.restGoHeardWithinSec else {
-                holdCountInRemaining = GetReady.countInSeconds
-                let again = Date.now
-                    .addingTimeInterval(TimeInterval(GetReady.countInSeconds))
-                holdCountInEndDate = again
+                let again = holdCountInClock.start(GetReady.countInSeconds, now: .now)
                 showHoldActivity(until: again, detail: String(localized: "Get ready"))
                 return
             }
-            holdCountInEndDate = nil
+            holdCountInClock.freeze()
             playGo()
             // …and said, for the reason the two blocks say their boundaries
             // out loud: VoiceOver stays where it was while the screen turns
@@ -166,12 +158,10 @@ extension WorkoutFlowView {
             // The hold's own total was fixed at the tap, so a long absence
             // during the count-in still starts a FULL set rather than the
             // remains of one.
-            holdRemaining = holdTotal
-            let holdEnd = Date.now.addingTimeInterval(TimeInterval(holdTotal))
-            holdEndDate = holdEnd
+            let holdEnd = holdClock.start(holdTotal, now: .now)
             showHoldActivity(until: holdEnd, detail: holdActivityDetail)
-        } else {
-            if newRemaining <= Self.countdownSignalSeconds && newRemaining < holdCountInRemaining {
+        case .second(let second):
+            if holdCountInClock.signals(second, within: Self.countdownSignalSeconds) {
                 playTick()
             }
             // A second before the signalling window, exactly as the rest does
@@ -183,26 +173,28 @@ extension WorkoutFlowView {
             // the haptic is the whole channel, the 3-2-1 is heard as "2-1-go"
             // (review 06.09.2026). Here rather than at the tap, so the restart
             // above is warmed too.
-            if newRemaining == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
+            if second == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
                 WorkoutSignals.prime()
             }
-            withAnimation(countdownAnimation) { holdCountInRemaining = newRemaining }
+            withAnimation(countdownAnimation) { holdCountInClock.show(second) }
         }
     }
 
+    /// A hold that ran to the end of its clock is credited in full, however
+    /// late the tick that noticed it — the overshoot is not read here.
     func tickHold() {
-        guard let end = holdEndDate else { return }
-        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
-        guard newRemaining != holdRemaining else { return }
-        if newRemaining == 0 {
+        switch holdClock.read(now: .now) {
+        case .unchanged:
+            return
+        case .ended:
             // Silent: completeSet() owns the end-of-set signal now, whatever
             // ended it (#186). Sounding a done here would double it.
             finishHold(heldSeconds: holdTotal)
-        } else {
-            if newRemaining <= Self.countdownSignalSeconds && newRemaining < holdRemaining {
+        case .second(let second):
+            if holdClock.signals(second, within: Self.countdownSignalSeconds) {
                 playTick()
             }
-            withAnimation(countdownAnimation) { holdRemaining = newRemaining }
+            withAnimation(countdownAnimation) { holdClock.show(second) }
         }
     }
 
@@ -218,12 +210,11 @@ extension WorkoutFlowView {
     /// has stopped, and the number the button already named is the number
     /// this records.
     func stopHoldEarly() {
-        guard let end = holdEndDate else { return }
+        guard let end = holdClock.endDate else { return }
         let remaining = max(0, end.timeIntervalSinceNow)
         let held = Double(holdTotal) - remaining
         if held < Self.holdMistapSeconds {
-            holdEndDate = nil
-            holdRemaining = holdTotal
+            holdClock.stand(at: holdTotal)
             // The set is handed back, so the tile stops counting to a date
             // nothing is running to any more (see `showHoldActivity`).
             liveActivity.update(activityWorkState())
@@ -240,7 +231,7 @@ extension WorkoutFlowView {
     /// Per-side holds run the pause and the second side by themselves; the
     /// recorded actual is the smaller of the two sides.
     func finishHold(heldSeconds: Int) {
-        holdEndDate = nil
+        holdClock.freeze()
         if current.perSide && !holdSecondSide {
             firstSideHeld = heldSeconds
             holdSecondSide = true
@@ -304,9 +295,7 @@ extension WorkoutFlowView {
 
     func startHoldSwitchPause() {
         playSwitch()
-        holdPauseRemaining = Cooldown.switchPauseSeconds
-        let end = Date.now.addingTimeInterval(TimeInterval(holdPauseRemaining))
-        holdPauseEndDate = end
+        let end = holdSwitchClock.start(Cooldown.switchPauseSeconds, now: .now)
         // The one instruction of this whole exercise that is not "keep still",
         // and the phone is on the floor by then: the tile counts the five
         // seconds and names them (UX review 05.09.2026).
@@ -315,10 +304,10 @@ extension WorkoutFlowView {
 
     /// No 3-2-1 inside the pause: ticks would bury the switch tone.
     func tickHoldSwitchPause() {
-        guard let end = holdPauseEndDate else { return }
-        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
-        guard newRemaining != holdPauseRemaining else { return }
-        if newRemaining == 0 {
+        switch holdSwitchClock.read(now: .now) {
+        case .unchanged:
+            return
+        case .ended(let overshoot):
             // The same rule the count-in applies to itself, and the same
             // constant: a signal nobody could hear cannot be what started the
             // second side. Two five-second pauses forty lines apart, and only
@@ -326,12 +315,8 @@ extension WorkoutFlowView {
             // inside this one used to start the second side while the phone
             // was still in the athlete's hand, and `finishHold` then recorded
             // min(side one, side two) as a full set nobody held.
-            let overshoot = -end.timeIntervalSinceNow
             guard overshoot <= SetFacts.restGoHeardWithinSec else {
-                holdPauseRemaining = Cooldown.switchPauseSeconds
-                let again = Date.now
-                    .addingTimeInterval(TimeInterval(Cooldown.switchPauseSeconds))
-                holdPauseEndDate = again
+                let again = holdSwitchClock.start(Cooldown.switchPauseSeconds, now: .now)
                 // The pause's OWN words, the way the count-in's restart
                 // repeats "Get ready". This branch named the stage that comes
                 // NEXT, so a phone on the floor said "second side" while the
@@ -341,7 +326,7 @@ extension WorkoutFlowView {
                 showHoldActivity(until: again, detail: String(localized: "Switch sides"))
                 return
             }
-            holdPauseEndDate = nil
+            holdSwitchClock.freeze()
             playGo()
             // Spoken as well, like every other go in the flow: the switch is
             // the moment nobody can afford to miss, and the tone is behind the
@@ -361,13 +346,11 @@ extension WorkoutFlowView {
             // early stop on the SECOND side report more than was held.
             holdTotal = SetFacts.holdSideSeconds(planned: holdTotal,
                                                  firstSideHeld: firstSideHeld)
-            holdRemaining = holdTotal
-            let holdEnd = Date.now.addingTimeInterval(TimeInterval(holdTotal))
-            holdEndDate = holdEnd
+            let holdEnd = holdClock.start(holdTotal, now: .now)
             showHoldActivity(until: holdEnd,
                              detail: SplitStageWords(halves: .sides).secondHalf)
-        } else {
-            withAnimation(countdownAnimation) { holdPauseRemaining = newRemaining }
+        case .second(let second):
+            withAnimation(countdownAnimation) { holdSwitchClock.show(second) }
         }
     }
 
@@ -466,7 +449,7 @@ extension WorkoutFlowView {
     /// absence twice, and a kill while away is `restore`'s to measure.
     func sceneMoved(to scene: ScenePhase) {
         switch scene {
-        case .background: absence.leave(now: .now, restEndDate: restEndDate)
+        case .background: absence.leave(now: .now, restEndDate: restClock.endDate)
         case .active: awaySec += absence.comeBack(now: .now)
         default: break
         }
@@ -484,8 +467,8 @@ extension WorkoutFlowView {
             // finished a second time. What is persisted instead is the rest
             // this will be the moment the pause ends — the seconds it froze
             // with, counted from now. A process death outlives no pause.
-            restEnd = restEndDate
-                ?? Date.now.addingTimeInterval(TimeInterval(max(restRemaining, 1)))
+            restEnd = restClock.endDate
+                ?? Date.now.addingTimeInterval(TimeInterval(max(restClock.remaining, 1)))
             restTotal = total
             restPlan = restPlanned
         }
@@ -570,8 +553,7 @@ extension WorkoutFlowView {
             return
         }
         if let end = snap.restEndDate, let total = snap.restTotalSec, end > .now {
-            restEndDate = end
-            restRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
+            restClock.run(until: end, now: .now)
             // An older snapshot has no planned value; the total it carries is
             // the closest honest stand-in, and it keeps the button live.
             restPlanned = snap.restPlannedSec ?? total
@@ -603,7 +585,7 @@ extension WorkoutFlowView {
         }
         if case .rest = phase {
             return .init(phase: .rest, title: nextLabel,
-                         detail: restActivityDetail, restEndDate: restEndDate)
+                         detail: restActivityDetail, restEndDate: restClock.endDate)
         }
         return activityWorkState()
     }
@@ -628,11 +610,11 @@ extension WorkoutFlowView {
         }
         adjusting = false
         clearBlockPause()
-        holdEndDate = nil
-        holdCountInEndDate = nil
+        holdClock.freeze()
+        holdCountInClock.freeze()
         holdSecondSide = false
         firstSideHeld = nil
-        holdPauseEndDate = nil
+        holdSwitchClock.freeze()
         holdSettled = false
         holdAutoRun = false
         holdDeclared = nil
@@ -671,8 +653,7 @@ extension WorkoutFlowView {
             probeActuals.removeValue(forKey: pattern)
             skippedPatterns.insert(pattern)
         }
-        restEndDate = nil
-        restRemaining = 0
+        restClock.stand(at: 0)
         phase = .feedback
         liveActivity.end()
         persistProgress()

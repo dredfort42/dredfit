@@ -157,7 +157,7 @@ extension WorkoutFlowView {
         Group {
             if reentering || warmupStage == .getReady {
                 GetReadyScreen(name: warmupMove.name,
-                               remaining: reentering ? blockPause.reentryRemaining : warmupRemaining,
+                               remaining: reentering ? blockPause.reentryRemaining : warmupClock.remaining,
                                index: warmupIndex, count: warmupMoves.count,
                                countdownIdentifier: countdownIdentifier(reentering: reentering),
                                block: .warmup,
@@ -165,7 +165,7 @@ extension WorkoutFlowView {
                                // The way back in is not a transition to cut: its
                                // "I'm ready" ends it outright, so it keeps one.
                                countingIn: !reentering
-                                   && warmupRemaining <= GetReady.countInSeconds,
+                                   && warmupClock.remaining <= GetReady.countInSeconds,
                                onTechnique: { openWarmupTechnique() },
                                onStart: { reentering ? endBlockReentry() : countInWarmupMove() },
                                onPauseToggle: { toggleBlockPause() },
@@ -218,15 +218,12 @@ extension WorkoutFlowView {
         }
         warmupIndex = index
         warmupStage = .getReady
-        warmupRemaining = Warmup.stageSeconds(.getReady, of: moves[index])
         // NOT through `enterWarmupStage`: that clears the pause and closes the
         // freeze, and the sheet that got us here is still open with both held.
-        // The date is rebuilt only if one was running — `resumePositionCountdown`
+        // The clock runs on only if it was running — `resumePositionCountdown`
         // puts it back from these seconds when the sheet closes, and a paused
         // block waits for Resume. Either order of the two is safe.
-        if warmupEndDate != nil {
-            warmupEndDate = Date.now.addingTimeInterval(TimeInterval(warmupRemaining))
-        }
+        warmupClock.reset(to: Warmup.stageSeconds(.getReady, of: moves[index]), now: .now)
     }
 
     /// Where a recomposed block picks up — the rule for BOTH of them.
@@ -263,7 +260,7 @@ extension WorkoutFlowView {
     var warmupMoveView: some View {
         WarmupMoveScreen(move: warmupMove,
                          stage: warmupStage,
-                         remaining: warmupRemaining,
+                         remaining: warmupClock.remaining,
                          index: warmupIndex, count: warmupMoves.count,
                          paused: blockPause.isHeld,
                          onTechnique: { openWarmupTechnique() },
@@ -309,34 +306,35 @@ extension WorkoutFlowView {
     /// the count-in left, it changes nothing — there was no jump to soften.
     func countInWarmupMove() {
         enterWarmupStage(index: warmupIndex, stage: .getReady,
-                         remaining: min(warmupRemaining, GetReady.countInSeconds))
+                         remaining: min(warmupClock.remaining, GetReady.countInSeconds))
     }
 
     func enterWarmupStage(index: Int, stage: Warmup.Stage, remaining: Int) {
         clearBlockPause()   // a new stage is never entered still frozen
         warmupIndex = index
         warmupStage = stage
-        warmupRemaining = remaining
-        warmupEndDate = Date.now.addingTimeInterval(TimeInterval(remaining))
+        warmupClock.start(remaining, now: .now)
     }
 
     func tickWarmup() {
-        guard let end = warmupEndDate else { return }
-        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
-        guard newRemaining != warmupRemaining else { return }
-        if newRemaining > 0 {
+        let overshoot: Int
+        switch warmupClock.read(now: .now) {
+        case .unchanged:
+            return
+        case .second(let second):
             // No 3-2-1 inside the switch pause, for the reason `tickCooldown`
             // gives: the ticks would bury the tone the pause opened with.
             if warmupStage != .switchPause,
-               newRemaining <= Self.countdownSignalSeconds && newRemaining < warmupRemaining {
+               warmupClock.signals(second, within: Self.countdownSignalSeconds) {
                 playTick()
             }
             // Animated so contentTransition(.numericText) rolls the digits —
             // a bare mutation swaps them with no transaction.
-            withAnimation(countdownAnimation) { warmupRemaining = newRemaining }
+            withAnimation(countdownAnimation) { warmupClock.show(second) }
             return
+        case .ended(let late):
+            overshoot = Int(max(0, late))
         }
-        let overshoot = Int(max(0, -end.timeIntervalSinceNow))
         // A boundary crossed while the phone was elsewhere is not a boundary
         // the person was at (UX review 05.09.2026). The block used to swallow
         // whole stages here, and an absence long enough to cover the rest of
@@ -414,7 +412,7 @@ extension WorkoutFlowView {
             warmupSec = max(0, BlockRun.seconds(began: warmupBeganAt, ended: .now)
                             - blockPausedSec)
         }
-        warmupEndDate = nil
+        warmupClock.freeze()
         phase = .work
         liveActivity.update(activityWorkState())
         persistProgress()
