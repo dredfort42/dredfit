@@ -41,7 +41,10 @@ jobs:
 
       - name: Run tests
         working-directory: ios/DredfitCore
-        run: swift test --parallel
+        # A compiler warning is an error here and in every xcodebuild step
+        # below, so a new Xcode's deprecations turn the build red on purpose
+        # (WORKFLOWS.md, "Compiler warnings are errors in CI").
+        run: swift test --parallel -Xswiftc -warnings-as-errors
 
   gate-contract:
     name: Engine gate contract
@@ -127,6 +130,7 @@ jobs:
             -maximum-test-execution-time-allowance 600 \
             -enableCodeCoverage YES \
             CODE_SIGNING_ALLOWED=NO \
+            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES GCC_TREAT_WARNINGS_AS_ERRORS=YES \
             | xcbeautify --renderer github-actions
 
       - name: Coverage summary
@@ -225,6 +229,7 @@ jobs:
             -default-test-execution-time-allowance 300 \
             -maximum-test-execution-time-allowance 600 \
             CODE_SIGNING_ALLOWED=NO \
+            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES GCC_TREAT_WARNINGS_AS_ERRORS=YES \
             | xcbeautify --renderer github-actions
 
       - name: Upload test results on failure
@@ -261,4 +266,5 @@ jobs:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             CODE_SIGNING_ALLOWED=NO \
+            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES GCC_TREAT_WARNINGS_AS_ERRORS=YES \
             | xcbeautify --renderer github-actions
