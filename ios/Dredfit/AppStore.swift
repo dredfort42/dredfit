@@ -644,7 +644,7 @@ final class AppStore {
         guard on else { return rescheduleReminders() }
         reminderAuthTask = Task { [weak self] in
             guard let self else { return }
-            if await self.notifications.requestAuthorization() {
+            if await self.reminderScheduler.requestAuthorization() {
                 self.rescheduleReminders()
             } else {
                 // the system said no — reflect reality in the toggle
