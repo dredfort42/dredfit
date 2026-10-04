@@ -230,7 +230,7 @@ extension WorkoutSessionTests {
         XCTAssertEqual(flow.holdTotal, 15)
     }
 
-    // MARK: - The number a set the run does not open shows
+    // MARK: - The number the screen names, and the clock then counts
 
     /// The rest ran out with nobody there, so the run stopped and set 2 waits
     /// on its own button — showing the number its clock will count.
@@ -244,7 +244,7 @@ extension WorkoutSessionTests {
         XCTAssertFalse(flow.holdAutoRun)
         XCTAssertEqual(flow.setIndex, 1)
 
-        XCTAssertEqual(flow.targetInForce, 45, "the screen names the declared time, not the plan of 15")
+        XCTAssertEqual(flow.workNumber, 45, "the screen names the declared time, not the plan of 15")
         flow.startHoldExercise()
         run(flow, for: GetReady.countInSeconds)
         XCTAssertEqual(flow.holdClock.remaining, 45, "and the clock counts what the screen named")
@@ -261,7 +261,7 @@ extension WorkoutSessionTests {
         flow.stopHoldEarly()
         XCTAssertFalse(flow.holding)
 
-        XCTAssertEqual(flow.targetInForce, 45, "the set handed back names the declared time, not the plan of 15")
+        XCTAssertEqual(flow.workNumber, 45, "the set handed back names the declared time, not the plan of 15")
         flow.startHold()
         run(flow, for: GetReady.countInSeconds)
         XCTAssertEqual(flow.holdClock.remaining, 45, "and the clock counts what the screen named")
@@ -275,7 +275,7 @@ extension WorkoutSessionTests {
         flow.skipSet()
         XCTAssertEqual(flow.setIndex, 1)
 
-        XCTAssertEqual(flow.targetInForce, 10, "the screen names the declared time, not the plan of 15")
+        XCTAssertEqual(flow.workNumber, 10, "the screen names the declared time, not the plan of 15")
         flow.startHoldExercise()
         run(flow, for: GetReady.countInSeconds)
         XCTAssertEqual(flow.holdClock.remaining, 10, "and the clock counts what the screen named")
@@ -288,6 +288,32 @@ extension WorkoutSessionTests {
         flow.declineWarmup()
         XCTAssertEqual(flow.exercise.unit, .reps)
         flow.holdDeclared = 45
-        XCTAssertEqual(flow.targetInForce, flow.exercise.plannedLoad(set: 0))
+        XCTAssertEqual(flow.workNumber, flow.exercise.plannedLoad(set: 0))
+    }
+
+    /// The probe is one set of another movement: it names the probe's own
+    /// target, then the number entered for it — never the working sets'.
+    func testTheProbeSetNamesTheProbesOwnNumber() throws {
+        let flow = makeFlow(makeStore(), session: try probeSession())
+        flow.declineWarmup()
+        flow.setIndex = flow.exercise.sets
+        let probe = try XCTUnwrap(flow.exercise.probe)
+        XCTAssertNotEqual(probe.load, flow.exercise.plannedLoad(set: flow.setIndex),
+                          "the probe and the working sets must ask for different numbers to be told apart")
+        XCTAssertEqual(flow.workNumber, probe.load)
+
+        flow.startAdjusting()
+        flow.adjustValue = probe.load + 1
+        flow.commitSetEdit()
+        XCTAssertEqual(flow.workNumber, probe.load + 1, "the number entered for the probe is the one it names")
+    }
+
+    /// The panel reopens on the time already declared — what the clock would
+    /// run now — not on the plan.
+    func testTheDeclarationReopensOnTheTimeTheClockWouldRun() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        declare(45, on: flow)
+        flow.startDeclaringHoldTime()
+        XCTAssertEqual(flow.adjustValue, 45)
     }
 }

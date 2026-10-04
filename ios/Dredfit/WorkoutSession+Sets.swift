@@ -298,8 +298,7 @@ extension WorkoutSession {
     /// rather than on a set's record. Seeded with what the clock would use
     /// right now, so the person is nudging a real number, not typing one.
     func startDeclaringHoldTime() {
-        adjustValue = SetFacts.holdTarget(actuals, exercise, set: setIndex,
-                                          declared: holdDeclared)
+        adjustValue = targetInForce
         editing = .holdTime
     }
 

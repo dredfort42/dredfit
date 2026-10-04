@@ -118,13 +118,10 @@ nonisolated enum SessionAhead {
                         // named `set` as the accessor keyword and the file
                         // stops compiling (R23).
                         loads: ((ex.sets - sets)..<ex.sets).map { index in
-                            // A declaration governs a HOLD only; reps have no
-                            // control that sets a target before the effort,
-                            // and their shortfall carries forward through the
-                            // very same `inForce` the work screen reads.
-                            ex.unit == .hold
-                                ? SetFacts.holdTarget(facts, ex, set: index, declared: declared)
-                                : SetFacts.inForce(facts, ex, set: index)
+                            // The reading the work screen and the clock take,
+                            // reps included — `holdTarget` says why a
+                            // declaration governs a hold only.
+                            SetFacts.holdTarget(facts, ex, set: index, declared: declared)
                         },
                         // The probe is the LAST set of the exercise, so it is
                         // still ahead for as long as any of the exercise is.

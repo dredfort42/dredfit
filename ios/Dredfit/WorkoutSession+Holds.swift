@@ -58,16 +58,10 @@ extension WorkoutSession {
     func startHold(autoContinued: Bool = false) {
         guard phase == .work else { return }
         editing = nil
-        // On the probe set the countdown is the PROBE's target — a different
-        // movement, and possibly a different unit (§40.1, `pull_bar` 2→3).
-        // The declaration stands in for the plan while this exercise lasts —
-        // `SetFacts.holdTarget` says how, and why a set cut short still
-        // governs the sets after it. The PROBE is outside it: it is one set of
-        // another movement, and a time declared for this one says nothing
-        // about that one (§40.4).
-        var planned = current.isProbe
-            ? (probeActuals[exercise.pattern] ?? current.planned)
-            : targetInForce
+        // Read where the screen reads it, so the number named before the tap
+        // is the one counted — `targetInForce` says what that is on the probe
+        // set and under a declared time.
+        var planned = targetInForce
         #if DEBUG
         // The UI suite used to set a hold's length through the adjuster on
         // this screen, which R23 removed: nothing is entered before the
@@ -412,8 +406,8 @@ extension WorkoutSession {
         return SetFacts.holdEndedByTap(heldSeconds: held)
     }
 
-    /// What the set under way runs at: the number the work screen shows while
-    /// nothing is running, and the one `startHold` sets the clock from.
+    /// What the set under way runs at: the number `startHold` sets the clock
+    /// from, and the one the work screen names before it (`workNumber`).
     ///
     /// One reading for both, because the screen is the promise the clock
     /// keeps. A declared time stands in for the plan for the whole exercise
@@ -424,12 +418,27 @@ extension WorkoutSession {
     /// where a screen reading the plan would name 15 and the clock would then
     /// count the declared 45.
     ///
-    /// Reps read `inForce` whatever a snapshot carries: a declaration governs
-    /// a hold only, the same rule the header prices the sets by
-    /// (`SessionAhead`).
+    /// The PROBE set runs at the probe's own number, entered or not: it is one
+    /// set of another movement, possibly in another unit, and a time declared
+    /// for this movement says nothing about that one.
     var targetInForce: Int {
-        exercise.unit == .hold
-            ? SetFacts.holdTarget(actuals, exercise, set: setIndex, declared: holdDeclared)
-            : SetFacts.inForce(actuals, exercise, set: setIndex)
+        current.isProbe
+            ? (probeActuals[exercise.pattern] ?? current.planned)
+            : SetFacts.holdTarget(actuals, exercise, set: setIndex, declared: holdDeclared)
+    }
+
+    /// The big number on the work screen, in order of precedence: the
+    /// count-in, the pause between sides and a running hold each show the
+    /// seconds they have left, and with nothing running it is what the set
+    /// asks for — on a hold, the number the next Start puts on the clock.
+    ///
+    /// Here and not in the view because it is a promise the clock is held to,
+    /// and a rule stated inside a SwiftUI view is a rule no gating test can
+    /// reach.
+    var workNumber: Int {
+        if holdCountingIn { return holdCountInClock.remaining }
+        if holdSwitchPausing { return holdSwitchClock.remaining }
+        if holding { return holdClock.remaining }
+        return targetInForce
     }
 }

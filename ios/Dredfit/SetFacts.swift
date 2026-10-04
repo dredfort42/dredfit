@@ -373,9 +373,17 @@ nonisolated enum SetFacts {
     /// A declaration BELOW the plan is allowed and means what it says. Doing
     /// less than planned is a decision the person is entitled to take, and it
     /// reaches the engine as the honest number it is.
+    ///
+    /// A declaration governs a HOLD only. Reps have no control that sets a
+    /// target before the effort, so one found beside them came off a snapshot
+    /// and they read `inForce`, the number their shortfall carries forward
+    /// through. The gate is here and not at the callers because the work
+    /// screen, the clock, the declaration's own seed and the header's price
+    /// all ask this, and a caller that left the gate out would answer
+    /// differently from the rest.
     static func holdTarget(_ facts: PerSet, _ ex: SessionExercise,
                            set index: Int, declared: Int?) -> Int {
-        guard let declared else { return inForce(facts, ex, set: index) }
+        guard ex.unit == .hold, let declared else { return inForce(facts, ex, set: index) }
         // Clamped where it is READ, like everything else that can come back
         // off disk: the declaration is carried in the workout snapshot.
         let ceiling = min(max(declared, corridor(for: .hold).lowerBound),
