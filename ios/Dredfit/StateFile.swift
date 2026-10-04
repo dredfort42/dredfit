@@ -41,7 +41,8 @@ struct StateFile {
     /// the journal without the unreadable entries. An unreadable settings block
     /// or a snapshot from a newer build is not copied: it costs only itself.
     /// `reload` only labels the log lines, so a launch and a reload can be told
-    /// apart in Console.
+    /// apart in Console — public, because a dynamic string is redacted there
+    /// by default and the label is no one's data.
     func read(reload: Bool) -> Read {
         let when = reload ? " on reload" : ""
         guard let bytes = try? Data(contentsOf: url) else {
@@ -51,7 +52,7 @@ struct StateFile {
         do {
             data = try JSONDecoder().decode(AppData.self, from: bytes)
         } catch {
-            Self.log.fault("state file failed to decode\(when): \(error.localizedDescription)")
+            Self.log.fault("state file failed to decode\(when, privacy: .public): \(error.localizedDescription)")
             guard quarantine(bytes, keepOriginal: false, when: when) else { return .unreadable }
             return .undecodable
         }
@@ -59,11 +60,11 @@ struct StateFile {
             // A v2 state migrates (§41.7), so reaching here means the state was
             // neither v3 NOR v2 — a file from a future build, or one damaged
             // past reading. The journal beside it is whole.
-            Self.log.notice("engine state unreadable in both shapes\(when), journal whole")
+            Self.log.notice("engine state unreadable in both shapes\(when, privacy: .public), journal whole")
             guard quarantine(bytes, keepOriginal: true, when: when) else { return .unreadable }
         }
         if data.droppedRecordCount > 0 {
-            Self.log.error("\(data.droppedRecordCount) unreadable record(s)\(when)")
+            Self.log.error("\(data.droppedRecordCount) unreadable record(s)\(when, privacy: .public)")
             guard quarantine(bytes, keepOriginal: true, when: when) else { return .unreadable }
         }
         return .loaded(data)
@@ -97,7 +98,7 @@ struct StateFile {
             // Already kept: whether the original goes too only decides
             // whether it is read again next launch.
             if !keepOriginal { try? fm.removeItem(at: url) }
-            Self.log.notice("state file already kept aside\(when)")
+            Self.log.notice("state file already kept aside\(when, privacy: .public)")
             return true
         }
         var dest = dir.appendingPathComponent(name + ".corrupt.json")
@@ -110,10 +111,10 @@ struct StateFile {
             } else {
                 try fm.moveItem(at: url, to: dest)
             }
-            Self.log.notice("state file put aside\(when)")
+            Self.log.notice("state file put aside\(when, privacy: .public)")
             return true
         } catch {
-            Self.log.fault("state file could not be put aside\(when), left in place: \(error.localizedDescription)")
+            Self.log.fault("state file not put aside\(when, privacy: .public): \(error.localizedDescription)")
             return false
         }
     }
