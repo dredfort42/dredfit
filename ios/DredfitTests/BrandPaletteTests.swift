@@ -82,14 +82,13 @@ final class BrandPaletteTests: XCTestCase {
     // in that wave was authorised to move a token.
     //
     // It is gone because the finding is closed from the other side: no view
-    // draws accentText on accentSoft any more. The probe badge, the held-set
-    // card, the maximum note, Today's "day N in a row" card and the
-    // onboarding chip moved to `ink` first, and `Theme.badgePillColors` — the
-    // last of the six, and the only one that could not be fixed at its call
-    // site because the pill is a bitmap — followed in this wave (UX review
-    // 05.09.2026, finding 16). Nothing was repainted: accentText keeps its
-    // four values, and every pair still on it (accentText on bg) keeps its
-    // floors above.
+    // draws accentText on accentSoft any more. Every word on that fill takes
+    // `ink` — the probe badge, the held-set card, the maximum note, Today's
+    // "day N in a row" card, the onboarding chip, the summary's "Next time"
+    // kicker — and `Theme.badgePillColors` does the same for the pill, the
+    // one place that is a bitmap and cannot be fixed at its call site.
+    // Nothing was repainted: accentText keeps its four values, and every
+    // pair still on it (accentText on bg) keeps its floors above.
     //
     // A pin on a pair nobody draws gates nothing, so what replaces it is the
     // floor for the pair that is now drawn everywhere — see `lightTextFloors`
