@@ -1,14 +1,11 @@
 //
 //  The plan state of Today: the six rows and everything that asks about them.
 //
-//  Three controls have stood beside this row and none of them is left.
-//  `handleRow` — "fewer sets in every movement" and "fewer movements" — asked
-//  the person to predict, before the workout, how much of it they had in them;
-//  that answer moved to the work screen, where it is known. `exerciseHandles`
-//  offered the variation one step below; it moved into the sheet this row
-//  opens (R30), for the same reason and one more: after the v2 → v3 carry-over
-//  every movement sat above the first variation, so the offer stood under all
-//  six rows at once.
+//  No control stands beside a plan row. How much of the workout the person
+//  has in them is answered on the work screen, where it is known, rather than
+//  predicted here. The variation one step below lives in the technique sheet
+//  the row opens: beside the rows it would stand under every movement with a
+//  rung below it — all six at once for someone well up every ladder.
 //
 
 import SwiftUI
@@ -38,23 +35,21 @@ struct PlanView: View {
                     // The token, not the inherited default: a Text with no
                     // foregroundStyle draws in `.primary`, which is #FFFFFF in
                     // the dark scheme against ink's #F2F2F4 — so the loudest
-                    // word on the screen was one of the few outside the
-                    // palette (UX review 05.09.2026, finding 15).
+                    // word on the screen would be one of the few outside the
+                    // palette.
                     .foregroundStyle(Theme.ink)
                 // A RANGE, and it is the whole of what this screen says
                 // about length: the full plan, and the shortest the session
-                // can be made from inside it. The question the two handles
-                // used to answer — "will this fit today" — is answered here
-                // without asking anyone to decide anything first. One number
-                // only when the plan is already on the floor and the two ends
-                // have met.
+                // can be made from inside it. "Will this fit today" is
+                // answered here without asking anyone to decide anything
+                // first. One number only when the plan is already on the
+                // floor and the two ends have met.
                 //
-                // "Why this plan?" stood beside it and is gone. It read as an
-                // answer about THIS plan — these six movements, these numbers
-                // — and opened a static explainer that names none of them and
-                // does not know what today's plan is. The explainer itself is
-                // untouched and still reachable, from the one door that
-                // describes it honestly: Settings → "How it works".
+                // No "Why this plan?" beside it: that reads as an answer about
+                // THIS plan — these six movements, these numbers — while the
+                // explainer names none of them and does not know what today's
+                // plan is. Its door is the one that describes it honestly:
+                // Settings → "How it works".
                 PlanLength(floor: length.floor, full: length.full, count: count)
                     .accessibilityIdentifier("plan-length")
                     .dredfitFont(15)
@@ -67,10 +62,8 @@ struct PlanView: View {
             }
             .padding(.top, 18)
 
-            // Six rows, all of them the plan. The dimmed ones came with the
-            // short version — the app choosing three movements of six for the
-            // person — and nothing on this screen sets a movement aside any
-            // more.
+            // Six rows, all of them the plan: nothing on this screen sets a
+            // movement aside.
             List(session.exercises) { ex in
                 planRow(ex, debuts: debuts)
                     .listRowSeparatorTint(Theme.hairline)
@@ -81,11 +74,9 @@ struct PlanView: View {
 
             planNotes
 
-            // The "not getting harder" block is gone with the freeze it
-            // described. Nothing rests any more — a movement the person finds
-            // too hard stays in the plan and gets an easier variation, or
-            // fewer sets inside the workout: the channel that took movements
-            // out took them out for weeks.
+            // Nothing rests: a movement the person finds too hard stays in
+            // the plan and gets an easier variation, or fewer sets inside the
+            // workout — the app never takes a movement out for weeks.
 
             // Ahead of the comeback card deliberately: that card asks for a
             // decision about the plan, and this one explains what the plan IS
@@ -102,40 +93,38 @@ struct PlanView: View {
 
             // The journal keeps finding the same movement under an unnamed
             // "tough". One contextual question — never a questionnaire — and
-            // where it lands has changed: it used to route into the pain path;
-            // it now routes into the handle, which changes the thing the
-            // person is complaining about instead of taking it away.
+            // it routes into the handle, which changes the thing the person
+            // is complaining about instead of taking it away.
             // Asked only when there IS a variation below: `makeSuspectEasier`
             // goes through `Engine.easierVariation`, which returns the state
             // unchanged on the bottom rung — so on a movement already at the
-            // floor the question offered a tap that dismissed the card and
+            // floor the question would offer a tap that dismissed the card and
             // changed nothing, silently. The technique sheet simply does not
-            // draw its block in that case (UX review 05.09.2026).
+            // draw its block in that case.
             if store.shouldAskAboutSuspect(), let suspect = store.unnamedLessSuspect(),
                let step = store.easierStep(suspect) {
                 suspectPrompt(suspect, step: step)
             }
 
-            // The price the plan pays for the handle that left it (R30): the
-            // variation one step below now lives behind the technique sheet,
+            // The variation one step below lives behind the technique sheet,
             // and a row that opens one is not self-evidently a door. One grey
             // line, above the primary control and below the rows it is about
-            // — and spent the first time anybody goes through that door, from
-            // any screen. Not per row: six copies of this sentence would be
-            // the very pattern the handle was moved off the plan to end.
+            // — and spent by the first visit to a sheet that keeps what it
+            // promises (`TechniqueSheet` decides). Not per row: six copies of
+            // this sentence would bring back an offer under every row.
             if store.showsTechniqueHint {
                 // Set exactly like the hints above "Went differently" and
                 // "Set the time" on the work screen: the three lines that
                 // stand above a primary control are one voice, and a
-                // left-set 13.5 pt here read as a different kind of text
-                // (owner, 02.09.2026).
+                // left-set 13.5 pt here would read as a different kind of
+                // text.
                 //
                 // Two sentences, because the second half of the long one is
                 // a promise about the plan under it: on a first workout every
                 // pattern stands on variation 1, `easierPosition` returns nil
                 // there, and the step below is ABSENT from all six sheets —
-                // so the one line the app spends on this door was spent
-                // saying what that door does not have (UX review 05.09.2026).
+                // so the one line the app spends on this door would be spent
+                // saying what that door does not have.
                 Text(session.exercises.contains { store.canMakeEasier($0.pattern) }
                      ? String(localized: "plan.techniqueHint",
                               defaultValue: "Tap a movement for how it's done — and for the version one step below it.")
@@ -161,8 +150,8 @@ struct PlanView: View {
                     .padding(.top, 10)
                     .padding(.bottom, 14)
             } else if let pending = store.pendingWorkoutCard {
-                // The card replaces Start — its own two actions already are
-                // "continue" and "start over".
+                // The card replaces Start: its own buttons are the ways into
+                // this workout.
                 ResumeCard(snap: pending.snapshot, awaitingAnswer: pending.awaitingAnswer,
                            activeWorkout: $activeWorkout,
                            startOverConfirmShown: $startOverConfirmShown)
@@ -174,13 +163,12 @@ struct PlanView: View {
                 //
                 // Quiet while the comeback card is up, and only then: that
                 // card is a question with two answers, neither of which is
-                // "start now", and its filled "Start easier" sat ABOVE a
-                // larger filled Start in the same column. The bigger, lower,
-                // more familiar fill won a question about the plan by
-                // geometry, and the wrong answer costs a return session at
-                // pre-break load plus the step down its rating earns
-                // (UX review 05.09.2026). It blocks nothing: one tap, same
-                // place, same word.
+                // "start now", and its filled "Start easier" sits ABOVE the
+                // Start in the same column. A larger filled Start below it —
+                // bigger, lower, more familiar — would win a question about
+                // the plan by geometry, and the wrong answer costs a return
+                // session at pre-break load plus the step down its rating
+                // earns. It blocks nothing: one tap, same place, same word.
                 startButton(quiet: store.shouldOfferComeback())
                     .padding(.top, 10)
             }
@@ -192,13 +180,12 @@ struct PlanView: View {
     /// asks for a decision.
     @ViewBuilder
     private var planNotes: some View {
-        // The one surface the silent decay has. A week off takes a step off
-        // every pattern at once — sub-steps first, then the dose — and until
-        // now nothing said so anywhere before the next workout: the line on
-        // Progress appears only AFTER it, and loses its causal half if that
-        // session was rated tough. An unexplained drop reads as a verdict,
-        // which is the opposite of what a quiet catch-up is
-        // (UX review 05.09.2026).
+        // Where the silent decay is said before the next workout. A week off
+        // takes a step off every pattern at once — sub-steps first, then the
+        // dose — and the line on Progress appears only AFTER that workout,
+        // and loses its causal half if it was rated tough. An unexplained
+        // drop reads as a verdict, which is the opposite of what a quiet
+        // catch-up is.
         //
         // A fact, not a warning: no accent fill, nothing to answer, and it
         // goes out by itself with the next completed workout, which moves the
@@ -206,12 +193,12 @@ struct PlanView: View {
         //
         // And said ONCE. The comeback card below takes the same boolean and
         // names the same drop in its own sentence (`ComebackCard.alreadyDecayed`),
-        // so a break of two weeks that had already decayed on day 9 stacked
-        // three sentences about one fact — two of them near-identical —
-        // directly above the decision the card is asking for (review
-        // 06.09.2026). The card wins because it is the one that needs the fact
-        // to make its offer readable, and it is the only surface of the two on
-        // a rest day, where `planNotes` is not drawn at all.
+        // so with both, a break of two weeks that had already decayed on day 9
+        // would stack three sentences about one fact — two of them
+        // near-identical — directly above the decision the card is asking
+        // for. The card wins because it is the one that needs the fact to
+        // make its offer readable, and it is the only surface of the two on a
+        // rest day, where `planNotes` is not drawn at all.
         if store.silentDecayAppliedForCurrentBreak, !store.shouldOfferComeback() {
             Text("A week without training — the plan starts a step lower. It catches up quickly.")
                 .dredfitFont(14.5)
@@ -228,15 +215,15 @@ struct PlanView: View {
         if store.todayWouldExtendALongRun {
             // The same accent card the work screen gives the maximum note,
             // and for the same reason: worth reading, blocks nothing. Grey
-            // 13.5 pt under the plan was the one place nobody looks.
+            // 13.5 pt under the plan would be the one place nobody looks.
             // `ink` on the accentSoft fill, and neither accent: accentText
             // on accentSoft comes to 4.20:1 in the dark scheme (I-21), under
             // what this 14 pt sentence needs, while accent itself is 2.91:1
-            // on that fill. ink on accentSoft is gated at 4.5 dark and 7 in
-            // Increased Contrast (BrandPaletteTests). The same move the probe
-            // badge, the held-set card and the maximum note already made: the
-            // accent is the fill, and the words are words (UX review
-            // 05.09.2026, finding 16).
+            // on that fill in the light scheme. ink on accentSoft is gated at
+            // 7 in light, 4.5 in dark and 7 under Increased Contrast
+            // (BrandPaletteTests). The same move the probe badge, the
+            // held-set card and the maximum note make: the accent is the
+            // fill, and the words are words.
             Text("A workout today would be training day \(store.wouldBeConsecutiveDay) in a row — a rest day lets the load settle.")
                 .dredfitFont(14, weight: .medium)
                 .foregroundStyle(Theme.ink)
@@ -257,19 +244,16 @@ struct PlanView: View {
     // MARK: - The plan row
 
     /// `.plain` because a List row with several default-styled buttons in it is
-    /// one button as far as the row is concerned: measured, a single tap on the
-    /// empty strip beside the handle that used to sit here pulled it — the
-    /// announced duration went 35 min to 33 and the control vanished under the
-    /// finger. The handle is gone (R30), so the row is the only control on
-    /// itself and the trap is closed by construction; the style stays because
-    /// it is also what keeps a List row from tinting the card. It changes how
-    /// nothing looks.
+    /// one button as far as the row is concerned. The row is the only control
+    /// on itself, so that trap is closed by construction; the style stays
+    /// because it is also what keeps a List row from tinting the card. It
+    /// changes how nothing looks.
     ///
-    /// `contentShape` is the other half of that fix and is still load-bearing:
-    /// a `.plain` button answers only where it DRAWS, and this row draws a name
-    /// on the left and a load on the right with a wide gap between. Without the
-    /// shape a tap into the gap reaches nothing — which now costs the whole
-    /// handle, not just a sheet, because the sheet is where the handle lives.
+    /// `contentShape` is load-bearing: a `.plain` button answers only where it
+    /// DRAWS, and this row draws a name on the left and a load on the right
+    /// with a wide gap between. Without the shape a tap into the gap reaches
+    /// nothing — which costs the whole handle, not just a sheet, because the
+    /// sheet is where the handle lives.
     func planRow(_ ex: SessionExercise, debuts: Set<Pattern>) -> some View {
         // Hoisted out of the label so the four facts fit a line each. The
         // easier-variation pair is asked in the order the row answers it: the
@@ -298,10 +282,10 @@ struct PlanView: View {
         .accessibilityIdentifier("plan-row-\(ex.pattern.rawValue)")
     }
 
-    /// The plan's primary, in the two weights it now has. `quiet` borrows the
-    /// bordered idiom "Train anyway" uses — same size, same place, same word,
-    /// one fill less — so that while the comeback card is up the only filled
-    /// control on the screen is the card's own answer.
+    /// The plan's primary, in its two weights. `quiet` borrows the bordered
+    /// idiom "Train anyway" uses — same size, same place, same word, one fill
+    /// less — so that while the comeback card is up the only filled control on
+    /// the screen is the card's own answer.
     @ViewBuilder
     private func startButton(quiet: Bool) -> some View {
         if quiet {
@@ -331,16 +315,15 @@ struct PlanView: View {
                 .dredfitFont(13.5)
                 .foregroundStyle(Theme.ink2)
                 .fixedSize(horizontal: false, vertical: true)
-            // 24 pt apart, and each answer 44 pt tall: these two were the only
-            // controls on Today with no target of their own — a bare 13.5 pt
-            // word is about 16 pt of hit area — and the left one is the
-            // irreversible of the pair (#193's floor).
+            // 24 pt apart, and each answer 44 pt tall: a bare 13.5 pt word is
+            // about 16 pt of hit area, and the left one is the irreversible of
+            // the pair (#193's floor).
             HStack(spacing: 24) {
                 suspectAnswer(String(localized: "Make it easier")) {
                     pendingSuspect = SuspectStepDown(pattern: suspect, name: step.name)
                 }
-                // The third answer — "just hard" — armed a hold, and the hold
-                // is cancelled. The case it served is exactly what the
+                // No third "just hard" answer: the case it would serve — a
+                // plan that ran ahead of the person — is exactly what the
                 // sub-step fixes without asking anyone anything.
                 suspectAnswer(String(localized: "It's fine")) {
                     store.dismissSuspectPrompt()
@@ -350,10 +333,9 @@ struct PlanView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 6)
         // The same alert the technique sheet raises before the SAME engine
-        // call (owner, 01.09.2026), reusing its two translated keys. Here the
-        // call had no guard at all, and its control was a 13.5 pt word with a
-        // second word beside it: this plan has no undo, and the way back up is
-        // a probe several appearances away (UX review 05.09.2026).
+        // call, reusing its translated keys. The control is a 13.5 pt word
+        // with a second word beside it, this plan has no undo, and the way
+        // back up is a probe several appearances away.
         .alert(pendingSuspect.map(suspectConfirmTitle) ?? "",
                isPresented: Binding(get: { pendingSuspect != nil },
                                     set: { if !$0 { pendingSuspect = nil } }),
@@ -372,8 +354,8 @@ struct PlanView: View {
     }
 
     /// accentText, not accent: accent is 3.58:1 on the light ground and this is
-    /// small text, which the palette holds to 4.5:1 (owner, 05.09.2026). The
-    /// fourteen other text controls in the app already use accentText.
+    /// small text, which the palette holds to 4.5:1. The app's other accented
+    /// text controls use accentText too.
     private func suspectAnswer(_ title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)

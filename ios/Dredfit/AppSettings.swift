@@ -1,7 +1,6 @@
 //
 //  The user's own choices, stored beside the engine state and the journal
-//  in the same file. Split out of AppStore.swift, which had grown to within
-//  fifty lines of the lint's hard ceiling; the type is unchanged.
+//  in the same file.
 //
 
 import Foundation
@@ -15,18 +14,18 @@ struct AppSettings: Codable, Equatable {
     ///
     /// THREE rest days, not two. Each of the eight rotating patterns stands in
     /// 5 of every 8 sessions, so N workouts a week are 0.625 × N appearances
-    /// per pattern against an evidence corridor of 2–3 (ACSM 2011, the source
-    /// §28.5 already rests on): four workouts land at 2.5, the five the old
-    /// default shipped landed at 3.1. The engine says the same from its own
-    /// side — the pull slot stands in EVERY session against a weekly budget of
-    /// three (`weeklyRiseSlow`), so a fifth session inside one week cannot
-    /// grow it at all. And the app already said it in words on two screens:
-    /// "3–4 workouts a week" in How it works and "3–4 rest days a week" under
-    /// the chips overlap in exactly one place, and this is it.
+    /// per pattern against an evidence corridor of 2–3 (ACSM 2011): four
+    /// workouts land at 2.5, five would land at 3.1. The engine says the same
+    /// from its own side — the pull slot stands in EVERY session against a
+    /// weekly budget of three (`weeklyRiseSlow`), so a fifth session inside
+    /// one week cannot grow it at all. And the app says it in words on two
+    /// screens: "3–4 workouts a week" in How it works and "3–4 rest days a
+    /// week" under the chips overlap in exactly one place, and this is it.
     ///
-    /// Spread, never adjacent: the gaps come out 1-2-2-2, so no day is ever
-    /// the third training day in a row — the point where the plan starts
-    /// offering rest instead (`todayWouldExtendALongRun`).
+    /// Spread, never adjacent: the gaps come out 1-2-2-2, so no run of
+    /// training days is longer than two — well short of the fourth day in a
+    /// row, where the plan starts offering rest instead
+    /// (`todayWouldExtendALongRun`).
     ///
     /// Fresh installs only — the decode below keeps whatever an older file
     /// holds (#36: an upgrade must not add a rest day the person never chose).
@@ -43,20 +42,9 @@ struct AppSettings: Codable, Equatable {
     /// built on a guessed 75 kg is indistinguishable in Health from a true one.
     var bodyMassKg: Double?
     /// True while the weight above came from Health rather than from the
-    /// field. The phone has ONE owner, so Health is the truth about their
-    /// weight and it is re-read on every activation — which makes an editable
-    /// row a lie: a number typed into it would be silently replaced by the
-    /// next foreground. So the row goes read-only exactly while this is set,
-    /// and the field comes back for the case that needs it — Health holding no
-    /// weight, or the read refused (HealthKit will not say which).
-    ///
-    /// Persisted rather than held in memory because the async read lands
-    /// AFTER the first render: without a remembered answer the row would come
-    /// up editable on every launch and turn read-only a moment later.
-    ///
-    /// Since 13.09.2026 the row is never read-only: this flag only names the
-    /// number's origin in the caption. What decides who wins is the date
-    /// below.
+    /// field. It names the number's origin in the caption and nothing more:
+    /// the row stays editable either way, and what decides which number wins
+    /// is the date below.
     var bodyMassFromHealth = false
     /// When the number in force was STATED: the sample's date when it came
     /// from Health, the moment of typing when it was typed. The rule that
@@ -64,22 +52,22 @@ struct AppSettings: Codable, Equatable {
     /// this replaces the number, an older one does not, however many times
     /// the app comes to the foreground. Nil for a file written before the
     /// key and for a cleared weight, and nil ranks below any dated sample,
-    /// which is exactly what those files got before. Found on the owner's
-    /// own phone: the last scale reading was a month old, the app took it on
-    /// every activation and gave no way to correct it, and a restored backup
-    /// with the right weight was overwritten by it again (13.09.2026).
-    /// Optional with a nil default like every field added to a persisted
-    /// type.
+    /// so those files keep the behaviour they always had. Without the date a
+    /// month-old scale reading would replace a typed weight on every
+    /// activation, and a restored backup with the right weight would be
+    /// overwritten by it again. Optional with a nil default like every field
+    /// added to a persisted type.
     var bodyMassDate: Date?
     /// The escape hatch behind the overlap sweep. HealthKit never says whether
     /// a read was granted, so a refusal looks exactly like "no other workout
     /// found" — and that is precisely the person whose watch is recording the
     /// same session. This is how they can say so themselves.
     ///
-    /// A second job since the weight started following Health: this is the one
-    /// switch that says "write no estimate at all", because clearing the
-    /// weight can no longer say it. The NAME is the wire key in every saved
-    /// file and does not move; the label on screen names the effect.
+    /// A second job, because the weight follows Health: this is the one
+    /// switch that says "write no estimate at all" — a cleared weight is
+    /// filled again from Health on the next activation. The NAME is the wire
+    /// key in every saved file and does not move; the label on screen names
+    /// the effect.
     var watchRecordsWorkouts = false
     var onboardingCompleted = false
     /// When the care card's checklist was acknowledged (#101). A fact, not a
@@ -95,45 +83,44 @@ struct AppSettings: Codable, Equatable {
     /// per session, never a campaign.
     var weakLinkPromptAnsweredFor: Int?
     var silentDecayAppliedFor: Date?
-    /// Set once, when a state written before v3 is carried over (§41.7), and
-    /// cleared by the tap that closes the card on Today. It lives in the
-    /// SETTINGS rather than in memory on purpose: the migration is announced
-    /// exactly once, and a launch killed before the person read the card must
-    /// not be the launch that spent it.
+    /// Set once, when a state written before v3 is carried over, and cleared
+    /// by the tap that closes the card on Today. It lives in the SETTINGS
+    /// rather than in memory on purpose: the migration is announced exactly
+    /// once, and a launch killed before the person read the card must not be
+    /// the launch that spent it.
     var migrationNoticePending: Bool?
-    /// Whether a technique sheet has ever been opened, from any of the three
-    /// doors that lead to one. It gates ONE line on Today — the sentence that
-    /// says a plan row opens the sheet, and that the variation one step below
-    /// lives in there (R30). A flag rather than `records.isEmpty`, because the
-    /// person who most needs the sentence is the one carried over from v2:
-    /// their journal is full, and a gate on history would never show it to
-    /// them at all. Once they have been through the door, the sentence has no
-    /// job left.
+    /// Whether a technique sheet has been opened that kept the promise of ONE
+    /// line on Today — the sentence that says a plan row opens the sheet, and
+    /// that the variation one step below lives in there; `TechniqueSheet`
+    /// decides when a visit counts. A flag rather than `records.isEmpty`,
+    /// because the person who most needs the sentence is the one carried over
+    /// from v2: their journal is full, and a gate on history would never show
+    /// it to them at all. Once they have been through the door, the sentence
+    /// has no job left.
     var hasOpenedTechnique = false
     /// Whether the athlete has ever reported a number of their own — used the
     /// adjuster on the work screen, once, in any workout. It gates ONE hint,
     /// the line that says the plan's number is an offer and both directions
-    /// are allowed (UX review 05.09.2026, finding 11). A flag rather than a
-    /// count: the hint answers "is this control here", and that question is
-    /// answered forever by the first use.
+    /// are allowed. A flag rather than a count: the hint answers "is this
+    /// control here", and that question is answered forever by the first use.
     var hasReportedOwnNumber = false
     /// Warm-up moves and cool-down positions the athlete asked not to see
-    /// again, by `WarmupMove.id` / `CooldownPosition.id` (finding 49). The
-    /// SETTINGS remember the choice; the two composers do the filtering, and
-    /// they — not this list — owe the guarantee that a block is never empty.
+    /// again, by `WarmupMove.id` / `CooldownPosition.id`. The SETTINGS
+    /// remember the choice; the two composers do the filtering, and they —
+    /// not this list — owe the guarantee that a block is never empty.
     /// `AppStore.maxHiddenBlockMoves` caps it for the same reason.
     var hiddenBlockMoveIDs: Set<String> = []
     /// Whether the countdown tones are allowed to play while the ringer
-    /// switch is off (finding 53). Off by default: a phone silenced in a gym
-    /// is silenced on purpose, and this is the athlete saying otherwise.
+    /// switch is off. Off by default: a phone silenced in a gym is silenced
+    /// on purpose, and this is the athlete saying otherwise.
     ///
     /// Read by `RootView`, which pushes it into `CountdownSounds` — the audio
     /// category is process state, so the stored answer has to be re-applied
     /// once per launch as well as on the tap that changes it.
     var playsTonesInSilentMode = false
-    /// The theme the app runs in (finding 54). Applied in exactly ONE place —
-    /// `RootView`'s `.preferredColorScheme` — because only from there does it
-    /// also cover the workout's full-screen cover and every sheet.
+    /// The theme the app runs in. Applied in exactly ONE place — `RootView`'s
+    /// `.preferredColorScheme` — because only from there does it also cover
+    /// the workout's full-screen cover and every sheet.
     var appearance: AppearanceChoice = .system
     /// The gap, in training days, the comeback question was answered at. The
     /// date above says WHICH break was answered; this says how long it was at
@@ -145,21 +132,19 @@ struct AppSettings: Codable, Equatable {
     var planMoves: PlanMoves?
     /// The same facts for the workout BEHIND — the last rated session. Its own
     /// slot because the two are stamped one session apart and a single one
-    /// held whichever was written last: pulling a handle for the next plan
-    /// built a fresh record and erased what the rating had just named, so the
-    /// history line the athlete was invited to check against the plan fell
-    /// back to the generic wording, for good and without saying so
-    /// (review 06.09.2026).
+    /// would hold whichever was written last: pulling a handle for the next
+    /// plan would build a fresh record and erase what the rating had just
+    /// named, and the history line the athlete is invited to check against
+    /// the plan would fall back to the generic wording, for good and without
+    /// saying so.
     var ratingMoves: PlanMoves?
     /// What it takes to change the last rating — see `RatingUndo`.
     var lastRatingUndo: RatingUndo?
-    // `pendingDiscomfort` went with the pain channel and `timeBudgetChosen` /
-    // `budgetDefaultNoticeClosedAt` went with the time budget — the two flags
-    // existed only to remember whether a person had ever picked a session
-    // length and been told about the default, and there is no length to pick.
-    // A settings file written before this wave still carries all three keys;
-    // they decode away silently, because this type lists what it reads rather
-    // than refusing what it does not know.
+    // A settings file written by an older build may still carry
+    // `pendingDiscomfort`, `timeBudgetChosen` and `budgetDefaultNoticeClosedAt`,
+    // keys of features this build does not have. They decode away silently,
+    // because this type lists what it reads rather than refusing what it does
+    // not know.
 
     init() {}
 
@@ -190,12 +175,11 @@ struct AppSettings: Codable, Equatable {
         healthExportedThrough = (try? c.decodeIfPresent(Int.self, forKey: .healthExportedThrough)) ?? 0
         bodyMassKg = try? c.decodeIfPresent(Double.self, forKey: .bodyMassKg)
         // Absent reads as "typed by hand", which is what every file written
-        // before this key holds: the row stays editable until Health answers.
+        // before this key holds.
         //
         // AND never true without a weight to be true ABOUT. The pair is an
         // invariant of the code that writes it, not of the file: a backup is
-        // a JSON a person can edit, and `true` with no weight left the row
-        // read-only at "Not set" — calories off, no field to fix it in.
+        // a JSON a person can edit.
         bodyMassFromHealth = ((try? c.decodeIfPresent(Bool.self, forKey: .bodyMassFromHealth)) ?? false)
             && bodyMassKg != nil
         // A date with no number is no statement — same invariant as the flag.
@@ -211,18 +195,18 @@ struct AppSettings: Codable, Equatable {
         // nothing to migrate and nothing to clean up.
         silentDecayAppliedFor = try? c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)
         migrationNoticePending = try? c.decodeIfPresent(Bool.self, forKey: .migrationNoticePending)
-        // Absent means "never opened one", which is exactly right for a file
-        // written before this key existed: the sentence is shown once and
-        // spent by the first visit to the sheet.
+        // Absent means "not spent yet", which is exactly right for a file
+        // written before this key existed: the sentence shows until a visit
+        // to the sheet spends it.
         hasOpenedTechnique = (try? c.decodeIfPresent(Bool.self, forKey: .hasOpenedTechnique)) ?? false
         hasReportedOwnNumber = (try? c.decodeIfPresent(Bool.self, forKey: .hasReportedOwnNumber)) ?? false
         hiddenBlockMoveIDs = (try? c.decodeIfPresent(Set<String>.self, forKey: .hiddenBlockMoveIDs)) ?? []
         playsTonesInSilentMode = (try? c
             .decodeIfPresent(Bool.self, forKey: .playsTonesInSilentMode)) ?? false
         // Every field is `try?`: a value of a shape this build does not know
-        // THROWS, and one throw used to fail the whole settings block — and,
-        // through AppData, send the journal to quarantine. Now it costs that
-        // one field its default: a fourth appearance choice opens on the
+        // THROWS, and one throw would cost the whole settings block its
+        // defaults — and make an import refuse the file. This way it costs
+        // that one field its default: a fourth appearance choice opens on the
         // system theme, a malformed undo costs one button.
         appearance = (try? c.decodeIfPresent(AppearanceChoice.self, forKey: .appearance)) ?? .system
         comebackDecidedAtGap = try? c.decodeIfPresent(Int.self, forKey: .comebackDecidedAtGap)
@@ -247,13 +231,13 @@ enum AppearanceChoice: String, Codable, CaseIterable {
 /// It cannot be read back out of the journal afterwards: between two entries
 /// the state is also moved by the silent decay and by an accepted comeback, so
 /// the difference of two records credits the workout with a descent that was
-/// not its doing (UX review 05.09.2026, findings 27 and 64 — the skeptic's
-/// objection to "(+3)" in finding 56 is the same one). So the two movers that
-/// CAN name themselves do, in the moment: the handle and the rating.
+/// not its doing. So the two movers that CAN name themselves do, in the
+/// moment: the handle and the rating.
 ///
 /// TWO slots hold this shape, one session apart — `planMoves` for the plan
 /// ahead and `ratingMoves` for the workout just rated. One slot could not: the
-/// stamps differ by one, so whichever was written last threw the other away.
+/// stamps differ by one, so whichever was written last would throw the other
+/// away.
 struct PlanMoves: Codable, Equatable {
     /// The session these facts belong to — the `sessionNumber` of the workout,
     /// which is `engineState.counter + 1` while the plan is still ahead and
@@ -270,10 +254,10 @@ struct PlanMoves: Codable, Equatable {
 /// BEFORE `applyFeedback` and the session it was applied to. Everything else
 /// the redo needs is in the journal entry itself.
 ///
-/// In the settings rather than in memory because the workout that most needs
-/// correcting is the one nobody rated: since owner decision 1 (05.09.2026) it
-/// is settled as "on plan" while the app is not even running, and the person
-/// meets it only on the next launch.
+/// In the settings rather than in memory because a rating can be taken back
+/// in a later launch than the one that gave it — above all the rating nobody
+/// gave: a workout nobody rated is settled as "on plan" on the athlete's
+/// behalf, and the person meets it only afterwards.
 struct RatingUndo: Codable, Equatable {
     var state: EngineState
     var session: Session
@@ -292,7 +276,7 @@ extension AppStore {
     /// `RootView`, which observes this field — deliberately not from here, so
     /// that the third writer of the settings block gets the same treatment:
     /// importing a backup replaces `settings` wholesale and calls none of
-    /// these setters (UX review 05.09.2026, finding 53).
+    /// these setters.
     func setPlaysTonesInSilentMode(_ on: Bool) {
         update { $0.settings.playsTonesInSilentMode = on }
     }

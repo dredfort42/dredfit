@@ -12,8 +12,7 @@ struct HistorySheet: View {
     /// The neighbour walked to with the chevrons, if any. The sheet is opened
     /// with ONE record from three different screens, and none of them can be
     /// asked to hand over the journal around it — so the walk is state here,
-    /// and every call site keeps the initialiser it always had (UX review
-    /// 05.09.2026, finding 34).
+    /// and every call site passes the record alone.
     @State private var walked: WorkoutRecord?
     @State private var changeRatingShown = false
 
@@ -30,8 +29,7 @@ struct HistorySheet: View {
                         .tracking(-0.5)
                         // Named, not inherited: `.primary` is pure white in
                         // dark and pure black in light, and both stand outside
-                        // the palette the rest of this sheet is drawn in
-                        // (UX review 05.09.2026).
+                        // the palette the rest of this sheet is drawn in.
                         .foregroundStyle(Theme.ink)
                     Spacer(minLength: 0)
                     neighbourControls
@@ -70,8 +68,8 @@ struct HistorySheet: View {
                 Spacer()
             }
 
-            // A record written before v3 carries a number on a scale that no
-            // longer exists, so the line is simply absent for it rather than
+            // A record written before v3 carries its number on the retired
+            // level scale, so the line is simply absent for it rather than
             // stated in the wrong unit.
             if let steps = shown.totalProgressAfter {
                 HStack {
@@ -96,20 +94,16 @@ struct HistorySheet: View {
                 .padding(.bottom, 10)
             }
 
-            // Its own name — see TechniqueSheet: four sheets close on the same
-            // two words.
+            // Its own name — see TechniqueSheet: several sheets close on the
+            // same two words.
             PrimaryButton(title: String(localized: "Got it")) { dismiss() }
                 .accessibilityIdentifier("history-done")
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
         }
-        // `.large` alone, like the app's four other sheets: SwiftUI opens on
-        // the SMALLEST detent, so medium meant a record opened showing two of
-        // its six movements. It used to fit three — this wave's own additions
-        // to the screen, the "Took N min" line in the header and the "Change
-        // rating" button in the footer, took the third (nightly 06.09.2026).
-        // A record is opened to be read, and a scroll to reach the third row
-        // is not reading.
+        // `.large` alone: SwiftUI opens on the SMALLEST detent, and at medium
+        // a record opens on only the first few of its six movements. A record
+        // is opened to be read, and a scroll to reach the rest is not reading.
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Theme.bg)
@@ -136,26 +130,27 @@ struct HistorySheet: View {
     /// value says.
     ///
     /// Cut to the sets that actually RAN. `SetFacts.allSets` walks the plan,
-    /// carrying the last reported number forward over the sets ahead — which
-    /// is right on the work screen, where those sets are still coming, and a
-    /// claim in a record where they never happened: a hold stopped after
-    /// three sets of five read "40 · 40 · 38 · 38 · 38" in the one place
-    /// anybody checks whether the app is telling the truth (UX review
-    /// 05.09.2026, finding 33). The prefix is applied here rather than inside
-    /// `allSets`, which the work and rating screens share for the live case.
+    /// carrying a lower last number forward over the sets ahead — which is
+    /// right on the work screen, where those sets are still coming, and a
+    /// claim in a record where they never happened: uncut, a hold stopped
+    /// after three sets of five would read "40 · 40 · 38 · 38 · 38" in the one
+    /// place anybody checks whether the app is telling the truth. The prefix
+    /// is applied here rather than inside `allSets`, which the work and
+    /// rating screens share for the live case.
     ///
     /// And never cut below what was actually RECORDED. `setsSkipped` counts
-    /// the sets that did not run; it does not say WHERE they were, and only
-    /// the settlement of an abandoned workout drops a trailing block. A skip
-    /// taken in the MIDDLE of a movement (`skipSet`) increments the same
-    /// counter and then goes on to the next set, so cutting to `performed`
-    /// threw away the tail that did run: plan 3×10, set 2 skipped, set 3
-    /// reported as 7 printed "3 × 10" — the untouched plan — while the engine
-    /// had already been handed the shortfall and the next plan came down for
-    /// it (review 06.09.2026). Taking the longer of the two keeps the reported
-    /// number on screen, and the "Sets skipped: N of M" line under the row
-    /// says one of the printed sets is not one that ran. Without a mid-skip
-    /// `known <= performed` and finding 33's cut is exactly as it was.
+    /// the sets that did not run; it does not say WHERE they were. "Skip the
+    /// remaining sets" and the settlement of an abandoned workout drop a
+    /// trailing block, but a skip taken in the MIDDLE of a movement
+    /// (`skipSet`) increments the same counter and then goes on to the next
+    /// set, so cutting to `performed` alone would throw away the tail that
+    /// did run: plan 3×10, set 2 skipped, set 3 reported as 7 would print no
+    /// fact under "plan 3×10" — the untouched plan — while the engine is
+    /// handed the shortfall and the next plan comes down for it. Taking the
+    /// longer of the two keeps the reported number on screen, and the "Sets
+    /// skipped: N of M" line under the row says one of the printed sets is
+    /// not one that ran. Without a mid-skip `known <= performed`, and the cut
+    /// to the sets that ran is all that applies.
     ///
     /// Static and taking the record for the same reason `probeLine` is: a rule
     /// written as a private member of a SwiftUI view is a rule no unit test
@@ -179,24 +174,23 @@ struct HistorySheet: View {
 
     /// What the last set of this exercise was, when it was not a working set.
     ///
-    /// The plan carried the probe all along — `SessionExercise.probe` is in the
-    /// record's own CodingKeys — and this screen printed nothing about it, so a
-    /// session of "2 × 15 plus a probe" read in history exactly like a session
-    /// of two sets. What it could not say until now is the OUTCOME, and half of
-    /// that is still an inference rather than a fact: the number comes from
-    /// `record.probes`, which only exists from this wave on.
+    /// The plan carries the probe — `SessionExercise.probe` is in the record's
+    /// own CodingKeys — and without this line a session of "2 × 15 plus a
+    /// probe" reads in history exactly like a session of two sets. Half of the
+    /// OUTCOME is an inference rather than a fact: the number comes from
+    /// `record.probes`, which older records do not carry.
     ///
-    /// The verdict does not re-implement §40.4. It is read off what actually
-    /// happened — the position the session ended on, against the variation the
-    /// probe offered — because a second copy of the pass rule in the app is a
-    /// copy that can disagree with the engine.
+    /// The verdict does not re-implement the engine's pass rule. It is read off
+    /// what actually happened — the position the session ended on, against the
+    /// variation the probe offered — because a second copy of the pass rule in
+    /// the app is a copy that can disagree with the engine.
     ///
     /// A missing number is deliberately NOT read as "skipped". A record written
-    /// before this wave has no numbers either, and the two are indistinguishable
-    /// from the file; "not this time" is true of both, and it is the sentence
-    /// the work screen already gives an unresolved probe.
-    /// Static, and taking the record rather than reading `self`, for the one
-    /// reason the two rules named at the bottom of `ProbeChannelTests` are NOT
+    /// before `probes` existed has no numbers either, and the two are
+    /// indistinguishable from the file; "not this time" is true of both, and it
+    /// is the sentence the work screen gives a probe that did not pass.
+    /// Static, and taking the record rather than reading `self`, for the reason
+    /// the probe caption named at the bottom of `ProbeChannelTests` is NOT
     /// covered: a policy written as a `private` member of a SwiftUI view is a
     /// policy no unit test can reach. This one is a pure function of a record
     /// and an exercise, so it is written as one.
@@ -214,7 +208,7 @@ struct HistorySheet: View {
                 : String(localized: "history.probeUnresolved",
                          defaultValue: "Probe: \(name) — not this time")
         }
-        // The probe's own unit, which is not always the exercise's (§40.1).
+        // The probe's own unit, which is not always the exercise's.
         let did = SessionProbe(variation: probe.variation, name: name, unit: probe.unit,
                                load: reported, perSide: probe.perSide).display
         return landed
@@ -226,11 +220,10 @@ struct HistorySheet: View {
 
     /// How much of a movement's plan was dropped mid-workout, when any was.
     ///
-    /// The number reached the journal and was read by nobody: the engine turns
-    /// it into a cut, so the NEXT plan is lower and the point on the chart
-    /// falls even under "on plan" — and the history sheet, the screen opened
-    /// to find out why, showed a plan carried out in full (UX review
-    /// 05.09.2026, finding 33).
+    /// The engine turns the number into a cut, so the NEXT plan is lower and
+    /// the point on the chart falls even under "on plan" — and without this
+    /// line the history sheet, the screen opened to find out why, shows a plan
+    /// carried out in full.
     ///
     /// "N of M" like the rating screen's own row, and for its reason: it says
     /// the loss and the size of the movement in one figure, with no plural to
@@ -259,13 +252,12 @@ struct HistorySheet: View {
     ///
     /// The movement a workout was cut short ON is inside `skipped` like any
     /// other, and calling an effort that was started and left half-done
-    /// "skipped" is exactly what `WorkoutRecord.interrupted` was added to stop
-    /// (owner, 05.09.2026 — the difference is worth seeing). The rating screen
-    /// already draws it; history is where it is looked up afterwards, and it
-    /// was the half of that field nothing read.
+    /// "skipped" is exactly what `WorkoutRecord.interrupted` exists to stop —
+    /// the difference is worth seeing. The rating screen draws it; history is
+    /// where it is looked up afterwards.
     ///
-    /// The rating screen's own two words, so the two screens cannot drift and
-    /// six translations are not written twice.
+    /// "not finished" is the rating screen's own key, so the two screens
+    /// cannot drift and six translations are not written twice.
     static func skipWord(_ ex: SessionExercise, in record: WorkoutRecord) -> String {
         record.interrupted == ex.pattern
             ? String(localized: "not finished")
@@ -275,15 +267,14 @@ struct HistorySheet: View {
     /// Where the movement stood once the answer had been applied.
     ///
     /// The load on the right of the row is the PLAN — the position as it was
-    /// BEFORE the rating landed — so "I said 'on plan' and the push-up became
-    /// 3×9" could only be recovered by finding the NEXT workout's record and
-    /// reading two sheets against each other (UX review, 05.09.2026). The
-    /// answer has been on disk since v3: `positionsAfter` carries all six
-    /// coordinates, and this file already read it — once, to judge a probe.
+    /// BEFORE the rating landed — so without this line "I said 'on plan' and
+    /// the push-up became 3×9" could only be recovered by finding the NEXT
+    /// workout's record and reading two sheets against each other. The answer
+    /// is on disk: `positionsAfter` carries the position, and `probeLine`
+    /// reads the same field to judge a probe.
     ///
-    /// Silent when the position is the one the row above already prints, which
-    /// is most movements of most sessions: a second line restating the first is
-    /// how a screen stops being read at all.
+    /// Silent when the position is the one the row above already prints: a
+    /// second line restating the first is how a screen stops being read at all.
     ///
     /// Static and taking the record for the same reason `probeLine` is: a rule
     /// written as a private member of a SwiftUI view is a rule no unit test can
@@ -307,9 +298,9 @@ struct HistorySheet: View {
             line = String(localized: "history.afterVariation",
                           defaultValue: "After: \(name) · \(stood.display)")
         }
-        // The part of the step that was the person's own (§41.13). Two weeks
-        // on, the chart shows a rise and nothing else on this sheet would say
-        // who took it. The share that LANDED, not the taps: parked on the
+        // The part of the step that was the person's own. Two weeks on, the
+        // chart shows a rise and nothing else on this sheet would say who
+        // took it. The share that LANDED, not the taps: parked on the
         // ceiling, a raise the fact or the rating already took is nobody's
         // addition.
         let steps = record.raisedShare(ex.pattern)
@@ -343,9 +334,9 @@ struct HistorySheet: View {
     /// Whether the one thing separating a position from the plan that ran is
     /// that the plan showed FEWER sets of it.
     ///
-    /// The plan's set count is not the position's: §40.4 gives one of the
-    /// working sets to the probe, and the pull slot caps the push of the same
-    /// session. Both lower what the row prints without moving the position, so
+    /// The plan's set count is not the position's: the probe takes one of the
+    /// working sets, and the pull slot caps the push of the same session.
+    /// Both lower what the row prints without moving the position, so
     /// a position standing on MORE sets than the row is the row's own
     /// arithmetic rather than news — and a session where the sets genuinely
     /// grew is indistinguishable from it in a record that keeps only the
@@ -367,20 +358,20 @@ struct HistorySheet: View {
     /// How long the workout occupied, and only while that clock can still be
     /// about the workout.
     ///
-    /// Today promises "≈ 26–32 min" before a session, and nothing in the app
-    /// let anyone hold that promise to their own sessions: `durationSec` is
-    /// written on every workout and read by the Health export alone, which is
-    /// off by default (UX review, 05.09.2026).
+    /// Today promises "≈ N–M min" before a session, and this line is where a
+    /// person can hold that promise to their own sessions: `durationSec` is
+    /// written on every workout, and the only other reader is the Health
+    /// export, which is off by default.
     ///
     /// It is a wall clock, not a measure of effort — `EnergyEstimate` calls it
     /// "a CEILING, never a source" and clamps it to the plan before pricing
-    /// calories, because it also holds a rest run out in the background, a
-    /// paused hold and, for a workout resumed inside `WorkoutSessionStore.resumeWindow`, the
-    /// whole gap between two visits. So the line names what it counts, and
-    /// stands down once the clock has run past twice the plan: past that the
-    /// number is about the day rather than the training, and "took 150 min" is
-    /// a worse answer than no answer. A record with no exercise snapshot has
-    /// no plan to be measured against and gets no line either.
+    /// calories. Time spent away from the app, past any rest still running, is
+    /// taken out of it (`awaySec`); a pause is not. So the line names what it
+    /// counts, and stands down once the clock has run past twice the plan:
+    /// past that the number is about the day rather than the training, and
+    /// "took 150 min" is a worse answer than no answer. A record with no
+    /// exercise snapshot has no plan to be measured against and gets no line
+    /// either.
     private var clockMinutes: Int? {
         guard let seconds = shown.durationSec, seconds > 0,
               let exercises = shown.exercises,
@@ -405,17 +396,17 @@ struct HistorySheet: View {
     /// movements it actually eased.
     ///
     /// An unnamed "tough" moves ONE movement of six until the third in a row
-    /// (`EngineConfig.lessRunToGlobal`), so "the next one will be easier" was a
-    /// promise about the whole workout that was kept for a sixth of it, and
-    /// the person who checked it the next morning found the other five
-    /// carrying the same numbers (UX review 05.09.2026, finding 27).
+    /// (`EngineConfig.lessRunToGlobal`), so "the next one will be easier" alone
+    /// is a promise about the whole workout that is kept for a sixth of it,
+    /// and the person who checks it the next morning finds the other five
+    /// carrying the same numbers.
     ///
     /// The list comes from the stamp taken when the rating was applied, not
     /// from the journal: between two entries the silent decay and an accepted
     /// comeback move positions too, so a difference of two records would
-    /// credit this workout with a descent that was not its doing. An older
-    /// record has no stamp, says nothing, and keeps the general sentence —
-    /// which is true of every "tough", just less useful.
+    /// credit this workout with a descent that was not its doing. A record
+    /// with no stamp — any record but the last — says nothing, and keeps the
+    /// general sentence, which is true of every "tough", just less useful.
     private var resultCaption: String {
         switch shown.result {
         case .less:
@@ -435,7 +426,7 @@ struct HistorySheet: View {
         }
     }
 
-    // MARK: - Walking the journal (UX review 05.09.2026, finding 34)
+    // MARK: - Walking the journal
 
     /// The entries either side of the one being read. The journal is
     /// oldest-first, so "previous" is the workout before this one in time.
@@ -454,10 +445,8 @@ struct HistorySheet: View {
     /// "‹ ›", in the 44 pt targets and the ink2 the calendar's month switcher
     /// already uses — the same gesture, the same size, the same tone.
     ///
-    /// Comparing two workouts is the whole reason this sheet is opened, and it
-    /// used to cost closing the sheet, paging the calendar back to the right
-    /// month and hunting for a black circle; from the chart, where the
-    /// question is actually asked, there was no route at all.
+    /// Comparing two workouts is the whole reason this sheet is opened, and
+    /// the walk does it without leaving the sheet.
     @ViewBuilder
     var neighbourControls: some View {
         HStack(spacing: 4) {
@@ -495,13 +484,12 @@ struct HistorySheet: View {
         .accessibilityIdentifier(identifier)
     }
 
-    // MARK: - Taking the rating back (UX review 05.09.2026, finding 25)
+    // MARK: - Taking the rating back
 
     /// The rating is the one act of the workout that cannot be undone — every
-    /// other irreversible step in the flow asks first — and since owner
-    /// decision 1 (05.09.2026) a workout nobody rated is settled as "on plan"
-    /// on the athlete's behalf, so the first rating a person ever meets may be
-    /// one they never gave.
+    /// other irreversible step in the flow asks first — and a workout nobody
+    /// rated is settled as "on plan" on the athlete's behalf, so the first
+    /// rating a person ever meets may be one they never gave.
     ///
     /// The whole guard is `AppStore.canChangeLastRating`, which also refuses
     /// once anything else has moved the state; this only adds that the record

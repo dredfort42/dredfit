@@ -34,9 +34,11 @@ struct StepsChart: View {
         /// break's to claim — someone who declined "start easier" and then
         /// had a hard session back would otherwise be told the plan met them
         /// lower when it met them exactly where they left it. "On plan" and
-        /// "easy" only ever raise a level, so under those a drop across the
-        /// gap is the silent decay or an accepted comeback, and saying so is
-        /// safe.
+        /// "easy" only ever raise a level, so under those — with no number of
+        /// the session's own and no set skipped (`StepPoint`) — a drop across
+        /// the gap is the silent decay or an accepted comeback, or an easier
+        /// variation the athlete chose by hand in between, which no record
+        /// carries and this flag cannot see.
         let costSteps: Bool
     }
 
@@ -54,9 +56,8 @@ struct StepsChart: View {
         let ownNumber: Bool
         /// …and the third way: sets skipped mid-workout land as a cut AFTER
         /// the rating, so even an "on plan" return can lower this point by
-        /// itself. Without this the line under the chart credited the break
-        /// for a drop the session's own skips caused (UI-truth audit,
-        /// 27.08.2026).
+        /// itself. Without this the line under the chart would credit the
+        /// break for a drop the session's own skips caused.
         let ownSkips: Bool
     }
 
@@ -105,10 +106,10 @@ struct StepsChart: View {
                         // a View, so `dredfitFont` cannot reach it — but what
                         // Charts takes is a `Font`, and `.caption2` scales
                         // with the reader's setting where `.system(size: 10)`
-                        // froze both axes of the only chart in the app: a
-                        // graph whose scale cannot be read is a picture. ink2,
-                        // not ink3: ink3 is a graphics tone (2.35:1 on bg in
-                        // light) and these are words (UX review, 05.09.2026).
+                        // would freeze both axes of the only chart in the
+                        // app: a graph whose scale cannot be read is a
+                        // picture. ink2, not ink3: ink3 is a graphics tone
+                        // (2.35:1 on bg in light) and these are words.
                         .font(.caption2)
                         .foregroundStyle(Theme.ink2)
                 }
@@ -134,13 +135,13 @@ struct StepsChart: View {
         // The band is a fraction of the axis; the label is not — it grows
         // with Dynamic Type, so the width it needs has to grow with it.
         //
-        // Both fractions moved by a tenth with the label, 0.14 → 0.155 and
-        // 0.30 → 0.33, because they were measured against a 10 pt label and
-        // it is 11 pt now. The language that decides this is Italian: "14
-        // giorni" is 41.6 pt at 10 and 45.2 at 11, against the 42.4 pt that
-        // 0.14 of the plot buys on the narrowest screen. Left alone, the one
-        // band narrow enough to be interesting would have its label spill
-        // over the line it is explaining.
+        // Both fractions are sized for the 11 pt label: 0.155 and 0.33 are
+        // the 0.14 and 0.30 measured against a 10 pt label, grown by the same
+        // tenth as the label. The language that decides them is Italian: "14
+        // giorni" is 45.2 pt at 11, against the 42.4 pt that 0.14 of the plot
+        // buys on the narrowest screen. Left at the 10 pt values, the one band
+        // narrow enough to be interesting would have its label spill over the
+        // line it is explaining.
         let needed = typeSize.isAccessibilitySize ? 0.33 : 0.155
         return band.to.timeIntervalSince(band.from) / last.timeIntervalSince(first) >= needed
     }
@@ -155,20 +156,17 @@ struct StepsChart: View {
             .foregroundStyle(Theme.restFill)
             .annotation(position: .overlay, alignment: .center) {
                 if labelFits(band, in: points) {
-                    // ink, not ink2, because the FILL changed under it. The
-                    // band used to be hairline at 55 % over bg, measured only
-                    // for the text on it: against the page that ground is
-                    // 1.09:1 light and 1.17:1 dark — fainter than the very
-                    // hairline this project calls too faint for a 13 pt legend
-                    // dot, so the line "Others are marked too." pointed at
-                    // marks nobody could see, and a narrow band (the
-                    // interesting kind, since its label is dropped) showed
-                    // nothing at all. restFill is the token for exactly this
-                    // role — quiet but visible, 1.28:1 light and 1.64:1 dark —
-                    // and the calendar's rest day already uses it. On it ink2
-                    // would read 3.84:1, under the 4.5:1 this label was moved
-                    // to ink2 for in the first place; ink gives 14.6:1 light
-                    // and 10.8:1 dark (UX review, 05.09.2026).
+                    // ink, not ink2, because of the FILL. restFill is the
+                    // token for exactly this role — quiet but visible, 1.28:1
+                    // light and 1.64:1 dark — and the calendar's rest day
+                    // already uses it. A fainter band (hairline at 55 % over
+                    // bg is 1.09:1 light and 1.17:1 dark) would leave the line
+                    // "Others are marked too." pointing at marks nobody can
+                    // see, and a narrow band (the interesting kind, since its
+                    // label is dropped) showing nothing at all. On restFill
+                    // ink2 reads 3.86:1 light and 4.24:1 dark, under the 4.5:1
+                    // this label needs; ink gives 14.6:1 light and 10.8:1
+                    // dark.
                     //
                     // 11, not 10: nothing else in the interface is smaller
                     // than 11, and the calendar's weekday header — the other
@@ -185,12 +183,10 @@ struct StepsChart: View {
             }
     }
 
-    /// The chart is where "why did it drop" gets asked, and until now it had
-    /// no gesture at all: the only door into a session was its circle in the
-    /// calendar grid, three taps of "‹" away for a workout three months back.
-    /// The band and the line under it explain a break; a drop the athlete's
-    /// own answer caused has no prose anywhere, and only the record can
-    /// answer it (UX review, 05.09.2026).
+    /// The chart is where "why did it drop" gets asked, so a tap on it opens
+    /// the record of the session nearest the tap. The band and the line under
+    /// it explain a break; a drop the athlete's own answer caused has no prose
+    /// anywhere, and only the record can answer it.
     ///
     /// Nearest point in x rather than a hit box on the mark: the line is 2 pt
     /// wide and dates crowd towards the right of a long history.

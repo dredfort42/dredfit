@@ -65,16 +65,12 @@ struct TodayView: View {
             } else if store.restAppliesToday {
                 // `restApplies`, not `isRestDay`: rest is rest FROM something,
                 // and an install whose onboarding happened to end on a marked
-                // weekday met "come back on Tuesday" as its very first screen
-                // (UX review 05.09.2026, finding 7). `WidgetBridge`'s
-                // `widgetStatus` must — and now does — branch on the same
-                // predicate for TODAY, or the two disagree on day one: this
-                // note stated the guarantee as a fact while the snapshot writer
-                // still asked `isRestDay`, so the widget answered "Rest day"
-                // to the person Today was telling to train (review 06.09.2026).
-                // `isRestDay` keeps the marked weekdays for the settings rows,
-                // the calendar grid and nextTrainingDate, which ask a different
-                // question.
+                // weekday would meet "come back on Tuesday" as its very first
+                // screen. `WidgetBridge`'s `widgetStatus` branches on the same
+                // predicate for TODAY, or the widget would answer "Rest day"
+                // to the person Today is telling to train. `isRestDay` keeps
+                // the marked weekdays for the calendar grid, the reminders and
+                // every day after today, which ask a different question.
                 RestView(activeWorkout: $activeWorkout,
                          destination: $destination,
                          freshStartConfirmShown: $freshStartConfirmShown,
@@ -98,17 +94,14 @@ struct TodayView: View {
             switch destination {
             case .technique(let ex):
                 // `planned: true` — these six movements are the workout about to be
-                // done, so the sheet carries the step below each of them. It is the
-                // handle that used to stand under this very row (R30).
+                // done, so the sheet carries the step below each of them.
                 TechniqueSheet(target: ex, planned: true)
             case .nextWorkout:
                 NextWorkoutSheet()
             case .history(let record):
-                // Today's own record, from the screen that is about today. It was
-                // drawn, complete, and reachable only through the Calendar tab and an
-                // unmarked black circle — while both prominent controls of both
-                // screens answered "what is next" and neither answered "what did I
-                // just do" (UX review 05.09.2026).
+                // Today's own record, from the screen that is about today: the
+                // done state's other prominent control answers "what is next",
+                // and this one answers "what did I just do".
                 HistorySheet(record: record)
             }
         }
@@ -120,14 +113,13 @@ struct TodayView: View {
             // An alert has no anchor — every one of these is the same window,
             // centred, whatever it was raised from.
             //
-            // And the workaround the popover forced is gone with it. A popover
-            // suppresses its cancel action, because tapping outside IS the
-            // cancel, so the escape had to be a SECOND, role-less button. An
-            // alert does not: measured on iPhone 17 Pro / iOS 26.5, the node is
-            // `Alert` with no `Popover` beside it, and all four buttons stood in
-            // the accessibility tree — the `.cancel` one included. So the escape
-            // is one button again, carrying the role AND the name that says what
-            // it does. "Cancel" answers "cancel what?"; this one does not.
+            // An alert also keeps its cancel action, which a popover suppresses
+            // because tapping outside IS the cancel: measured on iPhone 17
+            // Pro / iOS 26.5, the node is `Alert` with no `Popover` beside it,
+            // and the `.cancel` button stands in the accessibility tree. So
+            // the escape is one button, carrying the role AND the name that
+            // says what it does. "Cancel" answers "cancel what?"; this one
+            // does not.
             Button(String(localized: "Keep my progress"), role: .cancel) { }
             Button(String(localized: "Reset progress"), role: .destructive) {
                 store.resetProgress()
@@ -138,22 +130,20 @@ struct TodayView: View {
         // The plan reached a pair of eyes — the engine is told. Keyed on the
         // showing, so a scroll, a rotation or a Dynamic Type change is the
         // same showing and costs nothing, while a plan that changed under the
-        // reader (a budget moved in Settings, an "I was sick" tap, a finished
-        // workout) is the new showing it is.
+        // reader (a handle pulled, a comeback accepted, a finished workout) is
+        // the new showing it is.
         .task(id: planShowing) {
             guard let showing = planShowing else { return }
             store.recordPlanShown(showing.session)
         }
     }
 
-    /// What makes a showing a showing: the plan on screen.
-    ///
-    /// The budget it was drawn under used to be part of the identity, because
-    /// a budget could move WITHOUT moving the plan and still lift the repair's
-    /// cap for one transition. Nothing on this screen writes `cut` any more,
-    /// and what does — the skip inside the workout — lands with the rating,
-    /// which regenerates the session anyway. `nil` on the two days the plan is
-    /// not on screen at all.
+    /// What makes a showing a showing: the plan on screen, and nothing else.
+    /// Whatever this screen does to `cut` it does as part of a new position —
+    /// an easier variation, a comeback — which changes the plan, and the skip
+    /// inside the workout lands its cut with the rating, which regenerates
+    /// the session anyway. `nil` on the two days the plan is not on screen at
+    /// all.
     private var planShowing: PlanShowing? {
         guard !store.doneToday, !store.restAppliesToday else { return nil }
         return PlanShowing(session: store.nextSession)
