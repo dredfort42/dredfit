@@ -112,8 +112,8 @@ enum BlockPause {
             reentry.stand(at: 0)
         }
 
-        /// A zero-length way back in would leave an end date the tick can
-        /// never retire — held, with a deadline nobody reads. Hold plainly.
+        /// A zero-length way back in would end on the next tick: a go with no
+        /// count before it. Hold plainly.
         mutating func beginReentry(seconds: Int, now: Date) {
             guard seconds > 0 else { return hold() }
             isPaused = true

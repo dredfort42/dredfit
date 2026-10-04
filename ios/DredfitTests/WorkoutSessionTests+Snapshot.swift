@@ -22,6 +22,22 @@ extension WorkoutSessionTests {
         XCTAssertEqual(flow.awaySec, 0, "a rest running on schedule is training, not absence")
     }
 
+    func testARestRestoredInItsLastHalfSecondStillEnds() throws {
+        let store = makeStore()
+        let first = makeFlow(store)
+        first.declineWarmup()
+        first.completeSet()
+        let snapshot = try XCTUnwrap(store.pendingWorkout)
+
+        clock += 59.7
+        let flow = makeFlow(store, resume: snapshot)
+        XCTAssertEqual(flow.phase, .rest(seconds: 60))
+        XCTAssertEqual(flow.restClock.remaining, 0)
+        run(flow, for: 1)
+        XCTAssertEqual(flow.phase, .work, "the rest ends instead of hanging on 0")
+        XCTAssertEqual(flow.setIndex, 1)
+    }
+
     func testARestoreAfterTheRestRanOutLandsOnTheNextSetAndCountsTheAbsence() throws {
         let store = makeStore()
         let first = makeFlow(store)

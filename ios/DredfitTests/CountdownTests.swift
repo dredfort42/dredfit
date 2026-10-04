@@ -74,15 +74,24 @@ final class CountdownTests: XCTestCase {
         XCTAssertEqual(clock.read(now: start + 621), .ended(overshoot: 0))
     }
 
-    func testACountdownFrozenAtZeroNeedsTheFloorToEverEnd() {
-        // Resumed with no floor, its end date reads as the 0 already shown, so
-        // no tick ever reports the end — the clock would hang on the screen.
-        var stuck = Countdown()
-        stuck.start(0, now: start)
-        stuck.freeze()
-        stuck.resume(now: start)
-        XCTAssertEqual(stuck.read(now: start + 3_600), .unchanged)
+    func testACountdownThatAlreadyShowsZeroStillEnds() {
+        // Restored 0.3 s before its end: 0 is on screen with the date still
+        // set, and there is no new second to show.
+        var restored = Countdown()
+        restored.run(until: start + 0.3, now: start)
+        XCTAssertEqual(restored.remaining, 0)
+        XCTAssertTrue(restored.isRunning)
+        guard case .ended(let overshoot) = restored.read(now: start + 1) else {
+            return XCTFail("a countdown on 0 must end, not hang there")
+        }
+        XCTAssertEqual(overshoot, 0.7, accuracy: 0.000_1)
 
+        var empty = Countdown()
+        empty.start(0, now: start)
+        XCTAssertEqual(empty.read(now: start), .ended(overshoot: 0))
+    }
+
+    func testTheFloorGivesACountdownFrozenAtZeroOneLastSecond() {
         var floored = Countdown()
         floored.start(0, now: start)
         floored.freeze()
