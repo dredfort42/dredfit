@@ -99,8 +99,7 @@ extension Engine {
         // The pull branch that trained meets its weekly ceiling BEFORE the
         // cross-credit, so the credit repeats the gain the branch KEPT. Repeated
         // before the ceiling, the credit would grow the other branch for growth
-        // the trained one did not keep, and lift a logger's pull slot past the
-        // window.
+        // the ceiling took from the trained one.
         let pullEx = session.exercises.first { Pattern.pullSide.contains($0.pattern) }
         if window.haveGap, let trained = pullEx?.pattern {
             applyWeeklyCap(&next, [trained], entryPos: entryPos, adapted: adapted)
