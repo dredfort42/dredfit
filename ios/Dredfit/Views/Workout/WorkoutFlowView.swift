@@ -79,6 +79,20 @@ struct WorkoutFlowView: View {
         case milestone([Milestone])   // only when the workout earned one
     }
 
+    /// What the adjuster panel is open on. One value, set by whoever opens
+    /// the panel and cleared with it, so what OK writes depends neither on
+    /// what the screen looks like when it is tapped nor on a mode an earlier
+    /// panel left behind.
+    enum EditTarget: Equatable {
+        /// The set under way: its record, or the probe's number.
+        case set
+        /// How long this hold exercise will run — a target, not a record.
+        case holdTime
+        /// A card of the exercise summary: the set that was tapped, not the
+        /// set the flow is on.
+        case summaryCard(Int)
+    }
+
     @State var exIndex = 0
     @State var setIndex = 0          // 0-based
     @State var phase: Phase = .warmupIntro
@@ -130,9 +144,7 @@ struct WorkoutFlowView: View {
     /// without it would undo a choice already made on screen.
     @State var raisedSteps: [Pattern: Int] = [:]
     @State var skippedPatterns: Set<Pattern> = []
-    /// Kept apart from `skippedPatterns`: the engine treats both as skips for
-    /// the session, but the rating and the history say different things.
-    @State var adjusting = false
+    @State var editing: EditTarget?
     /// Movements this session has already been warned about. Once per exercise
     /// — a second copy of the same advice is nagging.
     @State private var maximumNoted: Set<Pattern> = []
@@ -168,7 +180,9 @@ struct WorkoutFlowView: View {
     @State var liveActivity = WorkoutActivityController()
     @State private var exitConfirmShown = false
     /// Labelled "not finished" on the rating screen; to the engine it is a
-    /// skip like any other.
+    /// skip like any other. Kept apart from `skippedPatterns`: the engine
+    /// treats both as skips for the session, but the rating and the history
+    /// say different things.
     @State var interruptedPattern: Pattern?
     /// One-shot guard: sheets presented over the flow can make onAppear fire
     /// more than once.
@@ -218,11 +232,6 @@ struct WorkoutFlowView: View {
     /// the plan's number after declaring more would silently undo the
     /// decision.
     @State var holdDeclared: Int?
-    /// The adjuster is open on the DECLARATION rather than on a set's record.
-    /// A flag rather than a condition derived from the screen, for the same
-    /// reason `summarySet` is one: what the panel writes must not depend on
-    /// what the screen happens to look like when OK is tapped.
-    @State var holdDeclaring = false
     /// Sets of the exercise in front of us whose number is an ESTIMATE rather
     /// than a measurement: the set ended under a thumb, which pays a guessed
     /// three-second reach allowance. Indices, because that is what the summary
@@ -237,9 +246,6 @@ struct WorkoutFlowView: View {
     /// clock actually counted (owner, 12.09.2026). Per exercise, like the
     /// estimate marks, and carried across a process death with them.
     @State var holdMeasured: [Int: Int] = [:]
-    /// Which card of the summary the adjuster is editing, so the panel writes
-    /// to the set that was tapped rather than to the set the flow is on.
-    @State var summarySet: Int?
     /// The exercise was started by ONE tap and continues itself: the rest
     /// after each set opens the next set's count-in with nobody touching the
     /// phone (R23). It belongs to the exercise it was started for, so it is
@@ -875,7 +881,7 @@ extension WorkoutFlowView {
         // which is a screen past the effort, not the end of one.
         if !holdSettled && phase != .exerciseSummary { playDone() }
         holdSettled = false
-        adjusting = false
+        editing = nil
         if isLastSet && isLastExercise {
             // "Finish now" deliberately does not run the cool-down.
             startCooldown()
@@ -924,9 +930,7 @@ extension WorkoutFlowView {
     /// too hard now reaches for a handle instead, which keeps the movement in
     /// the plan rather than taking it out for weeks.
     func leaveExercise() {
-        adjusting = false
-        holdSecondSide = false
-        firstSideHeld = nil
+        editing = nil
         holdSwitchClock.freeze()
         holdCountInClock.freeze()
         actuals.removeValue(forKey: exercise.pattern)   // a skip wins over an actual
@@ -951,37 +955,28 @@ extension WorkoutFlowView {
     func resetHoldSides() {
         holdSecondSide = false
         firstSideHeld = nil
-        summarySet = nil
+        editing = nil
         // The settled hold belongs to the set it was held in for exactly the
         // same reason and for exactly as long: carried into the next set it
         // would offer "Done" for an effort nobody made.
         holdSettled = false
-        // And the auto-run belongs to the exercise. Both call sites of this
-        // are a departure — a skipped set, or the walk past an exercise — and
-        // a skip is a person saying they want the phone, which is the one
-        // thing an auto-run takes away. Resetting it here rather than at the
+        // And the auto-run belongs to the exercise. Every call site of this
+        // is a departure — a skipped set, the walk past an exercise, the end
+        // of the workout — and a skip is a person saying they want the phone,
+        // which is the one thing an auto-run takes away. Resetting it here rather than at the
         // four skip paths is deliberate: an omitted reset was the defect
         // class this function was written for.
         holdAutoRun = false
     }
 
     /// What belongs to the EXERCISE rather than to the set: the time its clock
-    /// was set to, and which of its sets were ended by a thumb. Cleared where a
-    /// movement is left behind, and only there.
-    ///
-    /// It was folded into `resetHoldSides` and that was wrong in both
-    /// directions at once. A SET SKIP calls that reset — a stale second side
-    /// must not cross into the next set — and took the declaration down with
-    /// it: saying "hold 60" and then skipping one set silently put the sets
-    /// after it back on the plan, and dropped the "≈" marks off numbers the
-    /// app had guessed at. Meanwhile the ordinary way out of an exercise does
-    /// NOT go through that reset at all — the last set rests and
-    /// `advanceAfterRest` walks to the next movement — so a declaration made
-    /// for the plank set the side plank's clock to 60 s, a movement whose own
-    /// plan is 15. Two lifetimes, two functions.
+    /// was set to, which of its sets were ended by a thumb, and what the clock
+    /// measured for each. Apart from `resetHoldSides` because a SET skip
+    /// keeps them — saying "hold 60" and then skipping one set must not put
+    /// the sets after it back on the plan, nor drop the "≈" marks off numbers
+    /// the app guessed at. Two lifetimes, two functions.
     func resetHoldExercise() {
         holdDeclared = nil
-        holdDeclaring = false
         holdApproxSets.removeAll()
         holdMeasured.removeAll()
     }
@@ -990,18 +985,35 @@ extension WorkoutFlowView {
     /// or into the cool-down when there is none. `startCooldown` degrades to
     /// the rating when nothing was performed.
     func advancePastExercise() {
-        resetHoldSides()
-        resetHoldExercise()
         if isLastExercise {
+            leaveExerciseState()
             startCooldown()
         } else {
-            exIndex += 1
-            maximumWarning = nil   // the note belongs to the exercise it was about
-            setIndex = 0
+            enterNextExercise()
             phase = .work
             liveActivity.update(activityWorkState())
             persistProgress()
         }
+    }
+
+    /// Onto the next exercise — the one place the flow moves to it, whether by
+    /// a skip, by the rest after the last set, or by a restore past that rest.
+    func enterNextExercise() {
+        leaveExerciseState()
+        exIndex += 1
+        setIndex = 0
+    }
+
+    /// Everything scoped to the exercise in front of us: its sides, its
+    /// settled hold, its run, its declared time, its estimate marks and its
+    /// note. Cleared on the way into the next exercise (`enterNextExercise`)
+    /// and on the early ways out — a skip past the last one, "Finish now".
+    /// The last set's ordinary way into the cool-down leaves them standing;
+    /// nothing reads them once the work is behind.
+    func leaveExerciseState() {
+        resetHoldSides()
+        resetHoldExercise()
+        maximumWarning = nil
     }
 
     private func startRest(_ seconds: Int) {
