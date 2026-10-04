@@ -6,7 +6,7 @@ import DredfitCore
 /// and the summary a hold movement ends on.
 extension WorkoutSessionTests {
 
-    private func holdFlow(_ pattern: Pattern) throws -> (WorkoutSession, AppStore) {
+    func holdFlow(_ pattern: Pattern) throws -> (WorkoutSession, AppStore) {
         let store = makeStore()
         let flow = makeFlow(store, session: holdSession())
         flow.declineWarmup()

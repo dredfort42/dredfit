@@ -92,7 +92,7 @@ enum BlockPause {
 
     struct State: Equatable {
         private(set) var isPaused = false
-        private var reentry = Countdown()
+        private(set) var reentry = Countdown()
 
         var reentryRemaining: Int { reentry.remaining }
         var reentryEndDate: Date? { reentry.endDate }

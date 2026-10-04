@@ -20,6 +20,10 @@ extension WorkoutSession {
 
     func sceneCameBack() {
         awaySec += absence.comeBack(now: now())
+        // Time away is a silence too, usually longer than `prepare()` holds:
+        // a countdown that comes back with a signal less than a second off is
+        // primed here.
+        primeComingBack()
     }
 
     /// Called on every phase transition and whenever an actual changes.

@@ -182,6 +182,9 @@ extension WorkoutSession {
             if holdClock.signals(second, within: Self.countdownSignalSeconds) {
                 playTick()
             }
+            // The last impulse before the hold's own 3-2-1 is the go that
+            // started it, a whole set earlier.
+            primeBeforeTheCount(showing: second)
             animate(.countdown) { holdClock.show(second) }
         }
     }
@@ -352,24 +355,6 @@ extension WorkoutSession {
     }
 
     static let countdownSignalSeconds = 3
-
-    /// Wakes the haptics one second before a 3-2-1. `prepare()` holds the
-    /// Taptic Engine for a few seconds only, and a countdown reaches its last
-    /// seconds after a silence long enough to let it go cold: unprimed, the
-    /// first tick pays the engine's wake-up and lands late — in silent mode,
-    /// where the haptic is the whole channel, the 3-2-1 is felt as "2-1-go".
-    ///
-    /// `second` is the one a countdown has just come to show, by a tick or by
-    /// a start: `Countdown.read` reports only a NEW second, so a countdown
-    /// started on this one never reports it, and a caller that asks from both
-    /// places primes it whichever way it got here. The count-in and the
-    /// hands-free rest ask from both. A rest paused on its four and resumed
-    /// is primed a second time, on purpose: the first has gone cold by then.
-    func primeBeforeTheCount(showing second: Int) {
-        if second == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
-            signals.prime()
-        }
-    }
 
     /// Thin wrappers: each signal's tone + haptic pair lives in
     /// WorkoutSignals, gated here by the one sounds toggle.

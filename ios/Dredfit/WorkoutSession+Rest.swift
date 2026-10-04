@@ -59,6 +59,9 @@ extension WorkoutSession {
     func resumeRestCountdown() {
         guard case .rest = phase, !restClock.isRunning, !blockPause.isPaused else { return }
         restClock.resume(now: now(), atLeast: 1)
+        // A page read for longer than `prepare()` holds lets the engine go
+        // cold, and a rest frozen in its last seconds comes back inside them.
+        primeComingBack()
         liveActivity.update(.init(phase: .rest, title: nextLabel,
                                   detail: restActivityDetail, restEndDate: restClock.endDate))
         persistProgress()

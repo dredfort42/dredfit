@@ -369,6 +369,74 @@ final class WorkoutSession {
         animator(reduceMotion ? nil : motion, change)
     }
 
+    // MARK: - The prime before a 3-2-1
+
+    /// Wakes the haptics one second before a 3-2-1. `prepare()` holds the
+    /// Taptic Engine for a few seconds only, and a countdown reaches its last
+    /// seconds after a silence long enough to let it go cold: unprimed, the
+    /// first tick pays the engine's wake-up and lands late — in silent mode,
+    /// where the haptic is the whole channel, the 3-2-1 is felt as "2-1-go".
+    ///
+    /// `second` is the one a countdown has just come to show, by a tick or by
+    /// a start: `Countdown.read` reports only a NEW second, so a countdown
+    /// started on this one never reports it, and a caller that asks from both
+    /// places primes it whichever way it got here. Every countdown that can
+    /// start on its four asks from both: the count-in, a block's stage, the
+    /// way back into a paused position, a rest resumed from a pause. A rest
+    /// paused on its four and resumed is primed a second time, on purpose:
+    /// the first has gone cold by then.
+    func primeBeforeTheCount(showing second: Int) {
+        if second == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
+            signals.prime()
+        }
+    }
+
+    /// …and for a countdown coming back from standing still — a sheet
+    /// closed, a pause ended, the app back from the background — by what its
+    /// NEXT tick will sound. One of its 3-2-1, or its go, less than a second
+    /// away is primed here: no tick on the way reports a four. Further out,
+    /// the four is still ahead, and its tick primes it.
+    func primeComingBack() {
+        guard store.settings.soundsEnabled, let clock = signallingCountdown else { return }
+        let next: Int
+        switch clock.read(now: now()) {
+        case .unchanged:
+            next = clock.remaining - 1
+        case .second(let second):
+            next = second
+        case .ended:
+            // It ran out while it stood: its 3-2-1 went unheard, and there is
+            // none left to prime for.
+            return
+        }
+        if next <= Self.countdownSignalSeconds { signals.prime() }
+    }
+
+    /// The countdown on screen that ends on a 3-2-1 — the one `tick` runs —
+    /// while it is running. Never a side-switch pause: its ticks would bury
+    /// the tone it opened with, so it has no 3-2-1 to prime for.
+    var signallingCountdown: Countdown? {
+        let clock: Countdown
+        switch phase {
+        case .warmup, .cooldown:
+            let run = phase == .warmup ? warmup : cooldown
+            if blockPause.isPaused {
+                clock = blockPause.reentry
+            } else if run.stage == .switchPause {
+                return nil
+            } else {
+                clock = run.clock
+            }
+        case .rest:
+            clock = restClock
+        case .work:
+            clock = holdCountingIn ? holdCountInClock : holdClock
+        default:
+            return nil
+        }
+        return clock.isRunning ? clock : nil
+    }
+
     // MARK: - What the view forwards
 
     /// One second of the flow: whichever countdown the phase is running.
