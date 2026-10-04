@@ -1,9 +1,9 @@
 //
-//  Settings persistence and the export/import backup round trip, moved out
-//  of AppStoreTests.swift to keep it under the linter's file and type-body
-//  ceilings. Grouped together because both are the same claim about the same
-//  data: the persisted settings survive a reload, and survive a full
-//  export/import intact too. The code moved unchanged.
+//  Settings persistence and the export/import backup round trip, in their
+//  own file to keep AppStoreTests.swift under the linter's file and
+//  type-body ceilings. Grouped together because both are the same claim about
+//  the same data: the persisted settings survive a reload, and survive a full
+//  export/import intact too.
 //
 
 import XCTest
@@ -95,7 +95,7 @@ extension AppStoreTests {
     }
 
     /// One setting of an unexpected shape costs that setting, never the
-    /// journal beside it (it used to fail the whole file into quarantine).
+    /// journal beside it.
     func testAMalformedSettingDoesNotCostTheJournal() throws {
         let store = makeStore()
         store.completeWorkout(session: store.nextSession, result: .plan)
@@ -114,7 +114,7 @@ extension AppStoreTests {
     }
 
     /// The lenient launch decode reads `{"records":[]}` as a clean start. As
-    /// an import it would have replaced a whole history with nothing.
+    /// an import it would replace a whole history with nothing.
     func testImportRefusesAFileItCannotReadInFull() throws {
         let otherURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-partial-\(UUID().uuidString).json")

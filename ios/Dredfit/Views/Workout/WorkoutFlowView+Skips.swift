@@ -15,7 +15,7 @@ extension WorkoutFlowView {
     /// then the escape beside it says so in its own label instead of doing it
     /// quietly under a word that promises less.
     var setSkipAction: (() -> Void)? {
-        // The probe can ALWAYS be skipped (§40.4): it is not a set of the
+        // The probe can ALWAYS be skipped: it is not a set of the
         // planned movement, so skipping it takes no volume off anything and
         // cannot leave the movement untrained. The outcome is "unresolved",
         // and the probe comes back on the next appearance.

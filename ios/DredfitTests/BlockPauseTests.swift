@@ -9,7 +9,7 @@ final class BlockPauseTests: XCTestCase {
 
     func testTheWayBackInIsTheCountIn() {
         // A third length would be a third thing to learn: the app counts you
-        // in over five seconds before a position (#52), between the sides of
+        // in over four seconds before a position (#52), between the sides of
         // one (#35), and after every start tap. The way back in is the same
         // beat — Resume is tapped by someone already standing in place, so
         // there is no travel to pay for. It followed the TRANSITION until
@@ -54,7 +54,7 @@ final class BlockPauseTests: XCTestCase {
         XCTAssertEqual(BlockPause.restAfterPause(remaining: 0, total: 60),
                        BlockPause.reentrySeconds)
         // …and the floor is capped by the rest itself, so a one-second rest
-        // (--uitest-fast collapses them) is not stretched to five.
+        // (--uitest-fast collapses them) is not stretched to four.
         XCTAssertEqual(BlockPause.restAfterPause(remaining: 0, total: 1), 1)
         XCTAssertEqual(BlockPause.restAfterPause(remaining: 1, total: 1), 1)
     }
@@ -74,6 +74,21 @@ final class BlockPauseTests: XCTestCase {
         for stage in [GuidedStage.whole, .firstHalf, .secondHalf] {
             XCTAssertTrue(BlockPause.needsReentry(stage),
                           "\(stage) drops the user into a position, so it has to count them in")
+        }
+    }
+
+    func testOnlyATransitionHasAFloorAfterAPause() {
+        // A transition is the way back in, so its count and its go must still
+        // be ahead of it; a position keeps its seconds, after a re-entry of its own.
+        for stage in [GuidedStage.getReady, .switchPause] {
+            XCTAssertEqual(BlockPause.stageAfterPause(remaining: 1, stage: stage), GetReady.countInSeconds)
+            XCTAssertEqual(BlockPause.stageAfterPause(remaining: 0, stage: stage), GetReady.countInSeconds)
+            XCTAssertEqual(BlockPause.stageAfterPause(remaining: 7, stage: stage), 7,
+                           "a pause must not lengthen a transition that has time left")
+        }
+        for stage in [GuidedStage.whole, .firstHalf, .secondHalf] {
+            XCTAssertEqual(BlockPause.stageAfterPause(remaining: 1, stage: stage), 1,
+                           "\(stage) picks up what it froze with")
         }
     }
 

@@ -32,29 +32,17 @@ struct GetReadyScreen: View {
 
     var body: some View {
         BlockLayout {
-            // "Get ready" is under the big number now, not over the name.
-            // It was a 12 pt kicker at the top of the screen, and it was the
-            // ONE thing telling this screen from a position already running —
-            // same name, same 112 pt countdown, same dots — read off a phone
-            // the block itself has just told the person to put on the floor.
-            // Under the digit is where the eye already is, which is where the
-            // work screen says exactly this word (`loadCaption`)
-            // (UX review, 05.09.2026).
+            // "Get ready" stands under the big number, not over the name: the
+            // transition and a running position share the name and the 112 pt
+            // countdown, and the transition is read by someone on the way into
+            // a position. Under the digit is where the eye already is, which
+            // is where the work screen says exactly this word (`loadCaption`).
             //
-            // This line used to claim VoiceOver still got the sentence ONCE,
-            // from the name below, and it does not. The kicker carried
-            // `.accessibilityHidden(true)`, which is what made that true; the
-            // caption does not, and `CountdownNumber` never merges it with the
-            // number the way the work screen merges its own pair — the number
-            // is pinned as an element of its own by its identifier and
-            // `.updatesFrequently`. So the reader hears the name's "Get ready:
-            // Cat-cow" and then a bare "Get ready" with nothing attached: once
-            // per transition, twelve times across the two blocks (review
-            // 06.09.2026, open). It closes in `CountdownNumber`'s `caption`
-            // branch and only there — the `paused` branch above it stays
-            // audible, because "Paused" is state the name does not carry, and
-            // combining the pair HERE would swallow the `getready-countdown`
-            // identifier three UI suites query.
+            // VoiceOver gets the sentence ONCE, from the name below:
+            // `CountdownNumber` hides its `caption` branch and only that one
+            // — the `paused` branch stays audible, because "Paused" is state
+            // the name does not carry. Combining the pair HERE instead would
+            // swallow the `getready-countdown` identifier the UI tests query.
             BlockPositionName(name: name)
                 .accessibilityLabel(Text("Get ready: \(name)"))
 
@@ -71,7 +59,7 @@ struct GetReadyScreen: View {
                 .padding(.top, 12)
 
             // `upcoming`: the position at `index` has not begun, and a
-            // filled accent dot said it had.
+            // filled accent dot would say it had.
             BlockDots(count: count, current: index, upcoming: true)
                 .padding(.top, 22)
 
@@ -84,8 +72,8 @@ struct GetReadyScreen: View {
             // makes is `min(remaining, countInSeconds)`, so once the
             // countdown is down there the tap can only return the same
             // number — a control that answers with nothing is worse than no
-            // control, and the last five seconds are the count-in whether a
-            // tap made them so or the transition ran down to them.
+            // control, and the last `countInSeconds` are the count-in whether
+            // a tap made them so or the transition ran down to them.
             //
             // hidden(), not removed: the escapes must not jump up under the
             // thumb. (Precedent: "Start hold" during the side-switch pause
@@ -98,14 +86,13 @@ struct GetReadyScreen: View {
                         .accessibilityIdentifier("get-ready-start")
                 }
             }
-            // 12 → 20 (UX review 05.09.2026). "I'm ready" is the tap of every
-            // transition, taken on the way down to the mat; 12 pt under it
-            // stands a button of the same full width and the same 56 pt that
-            // ends the whole block, and it fires on contact. That is the
-            // geometry `SkipConfirmation` was written for — at a LARGER gap
-            // (18 pt, under the button that logs a set) — so until the block
-            // escape gets its question too, the gap at least matches the one
-            // the guarded pair already keeps.
+            // 20, not less. "I'm ready" is the tap of every transition, taken
+            // on the way down to the mat; under it stands a button of the same
+            // full width and the same 56 pt that ends the whole block, and it
+            // fires on contact. That is the geometry `SkipConfirmation` was
+            // written for — at 18 pt, under the button that logs a set — so
+            // until the block escape gets its question too, the gap at least
+            // clears the one the guarded pair keeps.
             .padding(.bottom, 20)
 
             BlockSkipButton(title: block.skipTitle,
@@ -118,7 +105,7 @@ struct GetReadyScreen: View {
 
 struct WarmupMoveScreen: View {
     let move: WarmupMove
-    /// Which half of a split move is running (§41.12). A move with no halfway
+    /// Which half of a split move is running. A move with no halfway
     /// boundary has one stage and shows no line at all.
     let stage: GuidedStage
     let remaining: Int
@@ -208,12 +195,8 @@ struct CooldownPositionScreen: View {
 ///
 /// ONE definition per action, for the three places the escape appears: the
 /// offer screen, the transition's footer and the running position's footer.
-/// UX review 05.09.2026 found two English keys for one button — "Skip the
-/// warm-up" on the offer against "Skip warm-up" in the footers — which five
-/// languages had already collapsed into the same sentence typed twice, while
-/// Spanish had drifted apart ("Omitir el calentamiento" against "Omitir
-/// calentamiento"). A second key is a second thing to keep in step; the
-/// keeping-in-step is what failed.
+/// A second key for the same button is a second thing to keep in step in
+/// every language, and the keeping-in-step is what fails.
 extension GuidedBlock {
     var skipTitle: String {
         switch self {
@@ -243,8 +226,8 @@ extension GuidedBlock {
 ///
 /// The words come from what is switched, and only the words do: sides and
 /// directions run the same 15 + 4 + 15. Telling someone to switch SIDES on a
-/// circle they are about to reverse would be a lie of the same size as the
-/// silence §41.12 replaced.
+/// circle they are about to reverse would mislead as surely as saying
+/// nothing at the switch.
 private struct SplitStageLine: View {
     private enum Phase { case beforeTheSwitch, switching, secondHalf }
     private let phase: Phase
@@ -271,8 +254,7 @@ private struct SplitStageLine: View {
         // "second side" — a state, not an instruction — keeps 14. From the
         // 1.5-2 m this screen is read at, 17 pt is no more legible than 14
         // (both under the 5' a letter needs) and what carries is the colour;
-        // the size is what puts the line where it belongs in the hierarchy
-        // (UX review, 05.09.2026).
+        // the size is what puts the line where it belongs in the hierarchy.
         case .switching:       accent(words.switching, size: 17)
         case .secondHalf:      accent(words.secondHalf, size: 14)
         case .beforeTheSwitch: quiet(words.everyHalf)
@@ -338,7 +320,7 @@ struct SplitStageWords {
 /// It scrolls rather than clips: at the largest accessibility sizes a
 /// three-line position name plus the countdown outgrows the screen, and the
 /// escapes must never be pushed out from under the user. Below that size
-/// nothing scrolls and nothing moved.
+/// nothing scrolls.
 private struct BlockLayout<Content: View, Footer: View>: View {
     @ViewBuilder var content: Content
     @ViewBuilder var footer: Footer
@@ -369,10 +351,10 @@ private struct BlockPositionName: View {
     var body: some View {
         Text(name)
             .dredfitFont(23, weight: .bold)
-            // The token, not the inherited `.primary`: the biggest word on
-            // three screens of the flow was the one drawn in the system label
-            // colour, so in the dark scheme it was a shade the palette never
-            // measured against `bg` (UX review, 05.09.2026).
+            // The token, not the inherited `.primary`: otherwise the biggest
+            // word on three screens of the flow would be drawn in the system
+            // label colour — in the dark scheme a shade the palette never
+            // measured against `bg`.
             .foregroundStyle(Theme.ink)
             .multilineTextAlignment(.center)
             .frame(maxWidth: 300)

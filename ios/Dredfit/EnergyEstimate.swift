@@ -32,9 +32,9 @@ nonisolated enum BodySex: Equatable, Sendable { case female, male, other }
 /// The seconds a planned session spends in each state it can be in.
 ///
 /// Also the ONE home of the session-duration arithmetic: `HealthExporter.estimatedDurationSec`
-/// reads `totalSec` from here instead of spelling the sum out again. The two
-/// copies that used to exist disagreed about the cool-down by a minute, and
-/// that minute went to Apple Health unnoticed for a whole release.
+/// reads `totalSec` from here instead of spelling the sum out again. Two
+/// copies of one sum drift apart, and whatever they drift by goes to Apple
+/// Health unnoticed.
 nonisolated struct SessionSegments: Equatable, Sendable {
     var warmupSec: Double = 0
     var repWorkSec: Double = 0
@@ -125,12 +125,14 @@ nonisolated enum EnergyEstimate {
     /// priced from its rating alone.
     ///
     /// `warmupSec` and `cooldownSec` are what the two guided blocks ACTUALLY
-    /// ran. Both have a footer button that ends the block on one tap, and for
-    /// a while this function charged their full planned length regardless —
-    /// nine minutes, 27 % of a median session, billed to a person who may have
-    /// declined both. `nil` means a record written before the flow measured
-    /// them; zero means declined. Neither argument carries a default: an
-    /// omitted one would silently restore exactly that defect.
+    /// ran. Both have a footer button that ends the block on one tap, so
+    /// charging their full planned length would bill a person who declined
+    /// both for minutes they never spent. `nil` means not measured — a record
+    /// written before the flow measured them, a block a process death cut
+    /// off, or a cool-down the workout never reached ("Finish now" from the
+    /// work goes straight to the rating) — and falls back to the plan; zero
+    /// means declined. Neither argument carries a default: an omitted one
+    /// would silently charge the plan again.
     static func segments(exercises: [SessionExercise],
                          skipped: Set<Pattern>,
                          warmupSec: Int?,
@@ -159,10 +161,12 @@ nonisolated enum EnergyEstimate {
     }
 
     /// The plan is a CEILING here, the mirror of what the wall clock is for
-    /// the session as a whole. A block runs longer than planned for reasons
-    /// that are not effort — a get-ready screen, a technique sheet, a pause
-    /// for the doorbell — so the surplus is not charged. A block cut short
-    /// really was shorter, and a block never begun is zero.
+    /// the session as a whole. The seconds a block stood still — a pause, a
+    /// technique sheet — are already taken out of what the flow measures
+    /// (`blockPausedSec`), and whatever still runs past the plan is not effort
+    /// either, so the surplus is not charged. A block cut short really was
+    /// shorter, and a declined one is zero; an unmeasured one (`nil`) is
+    /// charged its plan.
     private static func performed(_ measured: Int?, planned: Int) -> Double {
         guard let measured else { return Double(planned) }
         return Double(min(max(measured, 0), planned))
@@ -232,11 +236,11 @@ nonisolated enum EnergyEstimate {
                            resting: RestingRate) -> Double? {
         guard bodyMassKg > 0, bodyMassKg.isFinite, segments.isPlausible,
               resting.kcalPerMin.isFinite, resting.kcalPerMin >= 0 else { return nil }
-        // No work, no calorie. A session whose every exercise was skipped used
-        // to be priced at its two guided blocks alone — 25 kcal at 80 kg, the
-        // lowest figure in the whole golden fixture, for a workout in which
-        // nothing was performed. Whatever those minutes cost, a WORKOUT entry
-        // claiming them is a claim about training that did not happen.
+        // No work, no calorie. Without this a session whose every exercise was
+        // skipped would be priced at its two guided blocks alone, for a
+        // workout in which nothing was performed. Whatever those minutes
+        // cost, a WORKOUT entry claiming them is a claim about training that
+        // did not happen.
         guard segments.repWorkSec + segments.holdWorkSec > 0 else { return nil }
         let perMETMinute = mlO2PerKgMinPerMET * bodyMassKg / kcalDivisor
         let metMinutes = segments.warmupSec / 60 * warmupMET
@@ -250,12 +254,12 @@ nonisolated enum EnergyEstimate {
         return net
     }
 
-    /// The wall clock is a CEILING, never a source. A workout paused, or left
-    /// in the background for twenty minutes, bills none of those minutes: its
-    /// `durationSec` runs past the plan and the plan wins. A session cut short
-    /// really did cost less, so a shorter actual duration scales the plan down
-    /// in proportion — gross and resting terms alike, which is why one factor
-    /// on the net is the whole correction.
+    /// The wall clock is a CEILING, never a source. A workout paused for
+    /// twenty minutes bills none of those minutes: its `durationSec` runs past
+    /// the plan and the plan wins. A session cut short really did cost less,
+    /// so a shorter actual duration scales the plan down in proportion — gross
+    /// and resting terms alike, which is why one factor on the net is the
+    /// whole correction.
     static func actualityFactor(planSec: Double, actualSec: Int?) -> Double {
         guard let actualSec, planSec > 0, planSec.isFinite else { return 1 }
         let actual = Double(actualSec)

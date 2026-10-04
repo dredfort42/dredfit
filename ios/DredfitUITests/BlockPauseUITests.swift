@@ -67,8 +67,9 @@ final class BlockPauseUITests: XCTestCase {
         app.buttons[AX.warmupStart].tap()
         XCTAssertTrue(app.staticTexts[AX.getReadyCountdown].waitForExistence(timeout: 5),
                       "the warm-up must open on the transition")
-        // …but that one is the offer's count-in, five seconds whatever the
-        // flag says. Onto the next position's, which the flag does hold open.
+        // …but that one is the offer's count-in, `GetReady.countInSeconds`
+        // whatever the flag says. Onto the next position's, which the flag
+        // does hold open.
         XCTAssertTrue(app.staticTexts[AX.warmupCountdown].waitForExistence(timeout: 10),
                       "the count-in must hand the first move over on its own")
         app.buttons["Skip this position"].tap()
@@ -97,10 +98,10 @@ final class BlockPauseUITests: XCTestCase {
         let pause = app.buttons[AX.blockPause]
         let resume = app.buttons[AX.blockResume]
         let cooldown = app.staticTexts["COOL-DOWN"]
-        // The driver owns this walk. A private copy of it stood here, in
-        // HandlesUITests and in DredfitUITests+Cooldown at once — three places
-        // to keep in step with one screen, which is the drift the driver's own
-        // header warns about and the nightly has already paid for once.
+        // The driver owns this walk. A private copy here, in HandlesUITests
+        // and in DredfitUITests+Cooldown would be three places to keep in step
+        // with one screen — the drift the driver's own header warns about, and
+        // the nightly has already paid for once.
         XCTAssertTrue(driver.walkToCooldownOffer(deadline: 420),
                       "the cool-down must follow the last exercise")
         XCTAssertTrue(cooldown.exists,
@@ -123,10 +124,11 @@ final class BlockPauseUITests: XCTestCase {
             _ = resume.waitForExistence(timeout: 1)
         }
         // Which way the loop ended, said out loud. Under --uitest-fast every
-        // stage lasts one second and the whole block ~15, while this project
-        // has measured a single XCUITest answer at 9.5 s (nightly 2026-08-04):
-        // a runner slow enough to outlive the block fails on the pause and
-        // reads as a broken pause. It is not one, and the sentence says so.
+        // stage lasts one second and the whole block ~16–22, while this project
+        // has measured a single XCUITest answer at 9.5 s (nightly run
+        // 30875292377): a runner slow enough to outlive the block fails on the
+        // pause and reads as a broken pause. It is not one, and the sentence
+        // says so.
         XCTAssertTrue(resume.exists,
                       cooldown.exists
                         ? "a cool-down stage must be pausable"
@@ -138,12 +140,12 @@ final class BlockPauseUITests: XCTestCase {
         driver.coordinateTap(resume)
         XCTAssertTrue(pause.waitForExistence(timeout: 10),
                       "resuming must put the block back on the clock")
-        // 5 s here was below this project's own measured worst case for a
-        // single XCUITest answer (9.5 s, nightly 2026-08-04), and it flaked:
-        // iteration 2 of 5 on 26.08.2026 reached this line with the pause and
-        // the resume both proven and still read no rating. The tap is also
-        // retried once — right after a resume the block can be mid-transition,
-        // and a tap spent on the outgoing screen leaves the button standing.
+        // 10 s, not 5: 5 s is below this project's own measured worst case
+        // for a single XCUITest answer (9.5 s), and it flaked — iteration
+        // 2 of 5 reached this line with the pause and the resume both proven
+        // and still read no rating. The tap is also retried once — right
+        // after a resume the block can be mid-transition, and a tap spent on
+        // the outgoing screen leaves the button standing.
         let rating = app.staticTexts["How did it go?"]
         let skip = app.buttons[AX.skipCooldown]
         XCTAssertTrue(skip.waitForExistence(timeout: 10),

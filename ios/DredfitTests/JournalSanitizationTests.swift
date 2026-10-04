@@ -2,9 +2,7 @@
 //  The journal is an input too. The engine heals the state
 //  it is handed, but its own snapshots come back out of the store file and go
 //  straight into arithmetic — and in Swift a subtraction or a product on a
-//  hand-edited number traps the process rather than saturating. Found by the
-//  adversarial review of the sanitization wave, which reproduced both crashes
-//  with a compiled probe (exit 133) before these were written.
+//  hand-edited number traps the process rather than saturating.
 //
 
 import XCTest
@@ -38,13 +36,13 @@ final class JournalSanitizationTests: AppStoreTestCase {
     /// coordinates, so a hand-edited variation of Int.max is a rung of the
     /// ladder rather than an index into nothing.
     ///
-    /// The DOSE is the coordinate that actually traps, and until 28.08.2026
-    /// this test carried 4 and 99 for it — both perfectly ordinary — so it
-    /// could not go red. `Library.index` clamps a variation and `fit` clamps
-    /// the sets before anything subtracts, but `Dose.snap` runs BEFORE
-    /// `Dose.clamped` and `Dose.rung` opens with `dose - grid.min`: an
-    /// `Int.min` there took the process down with SIGTRAP. Both ends of the
-    /// range are walked below, and `sub`/`cut` with them.
+    /// The DOSE is the coordinate that can trap. `Library.index` clamps a
+    /// variation and `fit` clamps the sets before anything subtracts, but
+    /// `Dose.snap` runs BEFORE `Dose.clamped`, and `Dose.rung` subtracts the
+    /// grid floor from the dose — so it clamps to the technical range first:
+    /// an `Int.min` subtracted as it came would take the process down with
+    /// SIGTRAP. Both ends of the range are walked below, and `sub`/`cut` with
+    /// them.
     func testAStoredPositionOutsideTheLaddersCannotTrapTheRetrospective() throws {
         let s = try store(records: """
         {"sessionNumber":1,"date":0,"result":"plan","totalProgressAfter":180,
@@ -66,7 +64,7 @@ final class JournalSanitizationTests: AppStoreTestCase {
         XCTAssertNotNil(recorded[.pull])
         // Measuring any of them answers a number rather than trapping — on the
         // SIX-coordinate form, which is what the chart and the retrospective
-        // both call now. On the short one `sub` and `cut` are never read, so
+        // both call. On the short one `sub` and `cut` are never read, so
         // the two that carry Int.min here would go untouched.
         for (p, position) in recorded {
             let steps = Engine.progress(p, variation: position.variation,
@@ -128,9 +126,9 @@ final class JournalSanitizationTests: AppStoreTestCase {
     /// A stand-in for the HealthKit writer. Not a convenience: pointed at the
     /// real one, this test asks a simulator's HealthKit to store a workout and
     /// waits for an answer that never comes — the whole process sits idle
-    /// until the runner gives up. That is what stopped CI finishing on any
-    /// branch from 2026-08-17 (#164). Nothing here is under test; what is
-    /// under test is the estimate the backfill computes before it calls this.
+    /// until the runner gives up, which is the CI hang of #164. Nothing here
+    /// is under test; what is under test is the estimate the backfill
+    /// computes before it calls this.
     private struct AcceptingHealth: WorkoutHealthWriting {
         var isAvailable: Bool { true }
         func requestAuthorization() async -> Bool { true }
@@ -216,7 +214,7 @@ final class JournalSanitizationTests: AppStoreTestCase {
         XCTAssertEqual(try JSONDecoder().decode(WorkoutRecord.self, from: data), original)
     }
 
-    /// The field the wave added, from both sides. A file written before it
+    /// The `probes` field, from both sides. A file written before it
     /// carries no key at all and must keep reading true — the whole reason
     /// every field added to a persisted type is optional with a nil default —
     /// and a hand-edited number is clamped like every other one in this file,

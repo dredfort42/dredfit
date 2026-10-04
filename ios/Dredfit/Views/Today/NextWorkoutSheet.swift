@@ -73,8 +73,8 @@ struct NextWorkoutSheet: View {
         .presentationDragIndicator(.visible)
         .presentationBackground(Theme.bg)
         // Without `planned:` — this preview looks at a session rather than
-        // deciding about one, so the step below stays off it (R30). One
-        // boolean if that is ever reconsidered.
+        // deciding about one, so the step below stays off it. One boolean if
+        // that is ever reconsidered.
         .sheet(item: $techniqueFor) { ex in
             TechniqueSheet(target: ex)
         }

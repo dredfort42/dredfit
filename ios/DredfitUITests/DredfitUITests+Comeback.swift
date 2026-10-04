@@ -1,10 +1,9 @@
 //
-//  The comeback-card walks after a break, moved out of DredfitUITests.swift
-//  to keep it under the linter's file and type-body ceilings. Kept together
-//  because all four share the `launchOnTheComebackCard` arrange and pin the
-//  same offer from different angles: accepted, declined, and — past the
-//  long-break threshold — replaced by "start from scratch". The code moved
-//  unchanged.
+//  The comeback-card walks after a break, in a file of their own to keep
+//  DredfitUITests.swift under the linter's file and type-body ceilings. Kept
+//  together because all four share the `launchOnTheComebackCard` arrange and
+//  pin the same offer from different angles: accepted, declined, and — past
+//  the long-break threshold — joined by "start from scratch".
 //
 
 import XCTest
@@ -24,7 +23,7 @@ extension DredfitUITests {
     func testComebackCardStartsEasier() {
         launchOnTheComebackCard()
         // The seed stands on variation 3 at the top of its grid, so the plan
-        // is 2 × 15 with the third set a probe (§40.4); 20 days lands on 3×13.
+        // is 2 × 15 with the third set a probe; 20 days lands on 3×13.
         XCTAssertTrue(app.staticTexts["2 × 15"].exists, "plan before the comeback")
 
         app.buttons[AX.comebackAccept].tap()

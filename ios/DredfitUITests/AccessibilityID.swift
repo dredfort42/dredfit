@@ -2,13 +2,12 @@
 //  Every accessibility identifier the UI suite reaches for, in one place, and
 //  the two named ways it is allowed to set launch arguments.
 //
-//  Both halves answer the same defect. Identifiers exist so a test does not
-//  depend on an English string, but the suite reached for the string anyway in
-//  most places — "Went differently" went by label in five of six call sites
-//  and "Skip exercise" in seven of ten, while `exercise-adjust` and
-//  `exercise-skip` sat in the production code unused. Nothing catches that
-//  drift: a renamed identifier lights up no compiler error inside a string
-//  literal, and the only guard was a grep somebody had to remember to run.
+//  Both halves answer the same defect: what each call site spells for itself
+//  drifts. Identifiers exist so a test does not depend on an English string,
+//  and a test that reaches for the string anyway is drift nothing catches — a
+//  renamed identifier lights up no compiler error inside a string literal,
+//  and without one place for the names the only guard is a grep somebody has
+//  to remember to run.
 //
 //  A constant is not a stronger guard than a literal by itself — it is
 //  stronger because there is exactly ONE of it, so the grep is a rename and
@@ -34,9 +33,9 @@ enum AX {
     /// prefix is what a test that does not care WHICH movement asks for.
     static let planRowPrefix = "plan-row-"
     /// The ONE name here that matches nothing in production, and deliberately:
-    /// the per-movement handle left the plan for the technique sheet (R30), and
-    /// the test that proves it asks for this prefix precisely so a handle that
-    /// comes back is a red test rather than a silently restored row.
+    /// the per-movement handle lives in the technique sheet, not on the plan,
+    /// and the test that proves it asks for this prefix precisely so a handle
+    /// that comes back is a red test rather than a silently restored row.
     static let easierHandlePrefix = "easier-"
     static let techniqueHint = "technique-hint"
     static let nextWorkoutDone = "next-workout-done"
@@ -54,8 +53,8 @@ enum AX {
     // MARK: - Work screen
 
     /// The exit control, and the hidden twin that only balances the header.
-    /// Both are named so a query cannot pick the placeholder — before they
-    /// were, every exit tap carried `.firstMatch` to survive the ambiguity.
+    /// Both are named so a query cannot pick the placeholder — a name is a
+    /// stronger guard than `.firstMatch` and an ordering assumption.
     static let workoutExit = "workout-exit"
     static let workoutExitSpacer = "workout-exit-spacer"
     static let exerciseDone = "exercise-done"
@@ -78,10 +77,10 @@ enum AX {
     static func summarySet(_ number: Int) -> String { "summary-set-\(number)" }
     /// The one sentence under the cards, about the past.
     static let summaryCounted = "summary-counted"
-    /// The "next time" block (§41.13): the sentence that names the plan the
-    /// engine will set, and the stepper that raises it. The sentence is what
-    /// a test reads — it changes with every tap on the stepper, which is the
-    /// whole promise of the block.
+    /// The "next time" block: the sentence that names the plan the engine
+    /// will set, and the stepper that raises it. The sentence is what a test
+    /// reads — it changes with every tap on the stepper, which is the whole
+    /// promise of the block.
     static let summaryNextPlan = "summary-next-plan"
     static let raisePlus = "raise-plus"
     static let raiseMinus = "raise-minus"
@@ -99,7 +98,7 @@ enum AX {
     static let techniqueDone = "technique-done"
     static let techniqueLife = "technique-life"
     /// The sheet's own headline, and the block under the variation tag that
-    /// offers the rung below it (R30). The headline is identified because the
+    /// offers the rung below it. The headline is identified because the
     /// step-down test reads it: what the block promises is that this title
     /// becomes the movement it named.
     static let techniqueTitle = "technique-title"
@@ -147,8 +146,8 @@ enum AX {
     static let historyDone = "history-done"
     /// The first group's kicker — the anchor for "Settings opened". By
     /// identifier: the words are localized and uppercased by `Kicker`, and
-    /// the group was renamed once already (Rest days → Weekly rhythm,
-    /// 13.09.2026), which turned four tests red for a label.
+    /// the group has been renamed before (Rest days → Weekly rhythm), which
+    /// turned four tests red for a label.
     static let settingsRhythm = "settings-rhythm"
     static let howItWorks = "how-it-works"
     static let howItWorksDone = "how-it-works-done"
@@ -177,14 +176,13 @@ extension XCUIApplication {
 
     /// The ONE way this suite starts from a clean state. `--uitest-reset` and
     /// the locale are added here rather than spelled at the call site, because
-    /// spelling them is how they got lost: two tests assigned
-    /// `launchArguments` outright to add `--uitest-session2` and dropped the
-    /// reset with it, so they ran on whatever the previous test in
-    /// alphabetical order had left behind — and the test right before them
-    /// ends mid-workout. It stayed green only through two side effects of the
-    /// seed that are invisible from the test (the hook clears the engine state
-    /// and the journal), which is exactly the kind of accident that survives
-    /// until the day somebody touches settings.
+    /// spelling them is how they get lost: a test that assigns
+    /// `launchArguments` outright to add a seed drops the reset with it and
+    /// runs on whatever the previous test left behind. A seed such as
+    /// `--uitest-session2` can keep it green regardless — its hook clears the
+    /// engine state and the journal, side effects invisible from the test —
+    /// which is exactly the kind of accident that survives until the day
+    /// somebody touches settings.
     func seedLaunchArguments(_ seeds: String..., locale: UILocale = .english) {
         seedLaunchArguments(seeds, locale: locale)
     }
@@ -205,8 +203,8 @@ extension XCUIApplication {
     }
 
     /// A second app object on the state the first one wrote. `terminate()`
-    /// first: `launch()` alone relaunches a running app, and the callers that
-    /// spelled the terminate out were asserting about a COLD start.
+    /// first: `launch()` alone relaunches a running app, and the callers
+    /// assert about a COLD start.
     @MainActor
     static func launchedOnStoredState(_ seeds: String...,
                                       locale: UILocale = .english) -> XCUIApplication {
@@ -221,9 +219,9 @@ extension XCUIApplication {
     }
 
     /// The rating cards are custom-labelled buttons whose title also stands in
-    /// the tree as a static text of its own, which is why the suite used to
-    /// tap `staticTexts["On plan"]`. Asked for by identifier across every
-    /// element type, the query resolves whichever of the two carries the
+    /// the tree as a static text of its own, so a query by element type has
+    /// to guess which of the two to ask for. Asked for by identifier across
+    /// every element type, the query resolves whichever of the two carries the
     /// identifier, so it cannot go stale on a SwiftUI change of that detail.
     func element(withIdentifier identifier: String) -> XCUIElement {
         descendants(matching: .any).matching(identifier: identifier).firstMatch

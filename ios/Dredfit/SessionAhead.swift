@@ -116,7 +116,7 @@ nonisolated enum SessionAhead {
                         restSetSec: ex.restSetSec, restExerciseSec: ex.restExerciseSec,
                         // `index`, never `set`: the parser reads a binding
                         // named `set` as the accessor keyword and the file
-                        // stops compiling (R23).
+                        // stops compiling.
                         loads: ((ex.sets - sets)..<ex.sets).map { index in
                             // The reading the work screen and the clock take,
                             // reps included — `holdTarget` says why a
