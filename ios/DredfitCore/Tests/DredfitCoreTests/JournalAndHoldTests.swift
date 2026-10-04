@@ -220,9 +220,9 @@ final class JournalAndHoldTests: XCTestCase {
                        "a return that stands keeps its hold, cut or no cut")
     }
 
-    /// The ceiling also trims a cross-credit, but a credit arms no hold, so
-    /// there is nothing to undo: the other branch's hold ticks only with its
-    /// own appearances.
+    /// The ceiling also trims a cross-credit. Under a running hold the credit
+    /// returns no set, so the rollback has nothing to take back: the other
+    /// branch's hold ticks only with its own appearances.
     func testTheCeilingLeavesTheOtherBranchHoldAlone() throws {
         var s = placed(.pullBar, variation: 5, dose: 8, cut: 1, journal: 15)
         s.hasBar = true

@@ -16,6 +16,9 @@ extension Engine {
     private struct Step {
         var position: Position
         var wantedDown: Bool
+        /// Fast adaptation: the dose is what the person did. The one rise the
+        /// weekly ceiling leaves alone.
+        var adapted = false
     }
 
     /// The weekly window, aged by the gap.
@@ -79,14 +82,17 @@ extension Engine {
         // one" is a statement about one movement, not about the plan.
         next.lessRun = unnamedLess ? state.lessRun + 1 : 0
 
-        // Patterns whose number fell in the "plan met" window: their rise is the
-        // engine's +1, as a tap's is, and the weekly ceiling below governs it.
-        var metFacts: Set<Pattern> = []
+        // Patterns that adapted fast by their numbers — the one rise the weekly
+        // ceiling below leaves alone. Keyed on what the loop did, not on a
+        // number being there: a number for a movement outside the session is
+        // discarded, and must not lift the ceiling off the credit that
+        // movement receives.
+        var adapted: Set<Pattern> = []
         for ex in session.exercises where !skipped.contains(ex.pattern) {
             if advance(&next, ex: ex, old: entryPos[ex.pattern]!, state: state,
                        result: result, overrides: overrides, probes: probes,
                        targeted: targeted, chronic: chronic, rampLeft: state.rampWindow) {
-                metFacts.insert(ex.pattern)
+                adapted.insert(ex.pattern)
             }
         }
 
@@ -102,15 +108,15 @@ extension Engine {
             next.shownOrd[ex.pattern] = posOrd(ex.pattern, entryPos[ex.pattern]!)
         }
         if window.haveGap {
-            applyWeeklyCap(&next, entryPos: entryPos, overrides: overrides, metFacts: metFacts)
+            applyWeeklyCap(&next, entryPos: entryPos, adapted: adapted)
         }
         return next
     }
 
     // MARK: - One exercise
 
-    // One exercise of the session. Answers whether its number fell in the
-    // "plan met" window — the one fact-driven rise the engine assigns itself.
+    // One exercise of the session. Answers whether it adapted fast by its
+    // number — the one rise the weekly ceiling leaves alone.
     // swiftlint:disable:next function_parameter_count
     private static func advance(_ next: inout EngineState, ex: SessionExercise,
                                 old: Position, state: EngineState, result: FeedbackResult,
@@ -195,7 +201,7 @@ extension Engine {
             next.setsHold[p] = held > 0 ? held : nil
         }
         setPosition(&next, p, fitted)
-        return metPlan
+        return step.adapted
     }
 
     /// What a completed appearance writes into the journal of its variation.
@@ -246,7 +252,7 @@ extension Engine {
             var pos = old
             pos.dose = min(g.max, actual)
             pos.sub = 0
-            return Step(position: fit(p, pos), wantedDown: false)
+            return Step(position: fit(p, pos), wantedDown: false, adapted: true)
         }
         if actual < g.min {
             // A fact below the floor of the variation: a variation down,
@@ -406,7 +412,9 @@ extension Engine {
     /// slot. The applied gain is repeated to the other branch, bounded by ITS
     /// OWN growth cell and BY ITS OWN JOURNAL: repeated unbounded, someone
     /// else's gain would lift that branch's base dose past anything the person
-    /// has shown in it.
+    /// has shown in it. The gain is the trained branch's BEFORE its weekly
+    /// ceiling: the ceiling runs once, after the credit, and trims each branch
+    /// by its own budget.
     private static func crossCredit(_ next: inout EngineState, session: Session,
                                     result: FeedbackResult, overrides: [Pattern: Double],
                                     entryPos: [Pattern: Position]) {
@@ -452,13 +460,15 @@ extension Engine {
     /// rise of this session — the cross-credit included, which would otherwise
     /// walk around the budget.
     ///
-    /// Fast adaptation by facts is NOT subject to it: there the dose equals
-    /// what was shown rather than what was assigned, and trimming it would be
-    /// telling the person they did not do what they did. A number that merely
-    /// met the plan is: its +1 is the engine's, as a tap's is, and exempting
-    /// it let a daily logger outgrow the window on the slow tissues by half
-    /// again. A RESOLVED PROBE is
-    /// exempt for the same reason — and rebuilding through `riseBy` would
+    /// Fast adaptation by facts is the one rise NOT subject to it: there the
+    /// dose equals what was shown rather than what was assigned, and trimming
+    /// it would be telling the person they did not do what they did. A number
+    /// that merely met the plan is subject to it: its +1 is the engine's, as a
+    /// tap's is, and exempting it let a daily logger outgrow the window on the
+    /// slow tissues by half again.
+    ///
+    /// A RESOLVED PROBE is left alone too — the person showed the new
+    /// variation themselves — and rebuilding through `riseBy` would
     /// additionally DESTROY the transition, since growth never crosses a
     /// variation and the position would snap back to the old ceiling.
     ///
@@ -475,10 +485,9 @@ extension Engine {
     /// charged all the same.
     private static func applyWeeklyCap(_ next: inout EngineState,
                                        entryPos: [Pattern: Position],
-                                       overrides: [Pattern: Double],
-                                       metFacts: Set<Pattern>) {
+                                       adapted: Set<Pattern>) {
         for p in Pattern.allCases {
-            if overrides[p] != nil, !metFacts.contains(p) { continue }
+            if adapted.contains(p) { continue }
             let entry = entryPos[p]!
             if next.vars[p] != entry.variation { continue }
             let rise = max(0, posOrd(p, next.position(p)) - posOrd(p, entry))

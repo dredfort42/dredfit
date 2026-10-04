@@ -113,8 +113,9 @@ extension Engine {
     /// SCREEN: the cut went down and the plan shows more sets than before. One
     /// rule for both places a set comes back — the appearance and the
     /// cross-credit. A variation change that carries the cut along (a descent
-    /// off a band) shows no more sets and arms nothing; it used to, and the
-    /// next growth event was lost to the hold's corner.
+    /// off a band) shows no more sets and arms nothing: a hold there spaces no
+    /// return, it only parks the next growth event in the hold's corner, where
+    /// a hidden set swallows it.
     static func setsCameBack(from old: Position, to new: Position) -> Bool {
         new.cut < old.cut
             && setsAfterCut(sets: new.sets, cut: new.cut) > setsAfterCut(sets: old.sets, cut: old.cut)
