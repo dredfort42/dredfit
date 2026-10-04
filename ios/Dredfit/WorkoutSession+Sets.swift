@@ -197,9 +197,10 @@ extension WorkoutSession {
         }
     }
 
-    /// Leaving an exercise early: a skip, never a diagnosis. A person who
-    /// finds the movement too hard reaches for a handle instead, which keeps
-    /// the movement in the plan rather than taking it out for weeks.
+    /// Leaving an exercise early is a skip and nothing more: the engine does
+    /// not advance a skipped movement, so its position stays where it was.
+    /// Someone who finds the movement too hard reaches for a handle instead,
+    /// which makes it easier rather than leaving it out.
     func leaveExercise() {
         guard phase == .work else { return }
         editing = nil

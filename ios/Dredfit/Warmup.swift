@@ -21,7 +21,9 @@
 //  four split moves. Nothing here is derived: `BlockReserveTests` computes the
 //  same figures from the constants and is what actually fails. Past the
 //  engine's reserve, a longer block is an ENGINE change (`warmupMin`), made
-//  through the reference chain.
+//  through the reference chain: the sixth minute of `warmupMin` was added for
+//  the counted switch (#233), though at the eight-second transition the two
+//  blocks would now fit in nine minutes (`GetReady.setupSupplementSec`).
 //
 //  Torso rotations and cat-cow are NOT split, and the distinction is the steps,
 //  not the shape of the movement: both alternate continuously — every rep, every

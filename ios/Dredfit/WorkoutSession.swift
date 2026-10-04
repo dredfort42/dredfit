@@ -204,7 +204,7 @@ final class WorkoutSession {
     /// `cooldownSec` are wall clock (`BlockRun.seconds`), so without this a
     /// warm-up paused for a phone call would bill the call to the warm-up and
     /// tell Health the person stretched through it. One pair for both blocks:
-    /// they never run at once, and each block resets it when it begins.
+    /// they never run at once, and each block resets the pair when it begins.
     var blockPausedSec = 0
 
     var blockFrozenAt: Date?

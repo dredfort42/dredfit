@@ -18,12 +18,12 @@ import SwiftUI
 /// twice.
 struct WorkStatusCaption: View {
     let secondSide: Bool
-    /// A hold is behind and its seconds are recorded, but the set is not
-    /// closed yet (`WorkoutSession.holdSettled`). It outranks the actual
-    /// below deliberately: in this state the big number above IS what was
-    /// held, so "actual 25" would repeat it while saying less — and what the
-    /// screen has to say instead is that the effort is over and the number is
-    /// still editable.
+    /// The probe's hold is behind and its seconds are recorded, but the set
+    /// is not closed yet (`WorkoutSession.holdSettled`). It outranks the
+    /// actual below deliberately: in this state the big number above IS what
+    /// was held, so "actual 25" would repeat it while saying less — and what
+    /// the screen has to say instead is that the effort is over and the number
+    /// is still editable.
     var settled: Bool = false
     /// nil when the exercise is running to plan.
     let actual: Int?

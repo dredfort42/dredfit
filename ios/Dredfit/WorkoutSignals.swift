@@ -18,7 +18,8 @@ enum WorkoutSignals {
     // wake-up on its first impulse, so the first tick of a countdown would
     // arrive after its second. The tone half of each pair buys that cost
     // ahead of time (`CountdownSounds.prime()`, #84); the haptic half, which
-    // is the whole channel in silent mode, has to as well.
+    // is the whole channel in silent mode unless tones are let through, has
+    // to as well.
     private static let light = UIImpactFeedbackGenerator(style: .light)
     private static let medium = UIImpactFeedbackGenerator(style: .medium)
     private static let rigid = UIImpactFeedbackGenerator(style: .rigid)

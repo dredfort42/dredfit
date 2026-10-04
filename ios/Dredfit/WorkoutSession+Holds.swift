@@ -35,9 +35,11 @@ extension WorkoutSession {
     /// under the thumb, a hold is not only a jolt: the seconds spent getting
     /// down into the plank would come off the number the engine measures.
     ///
-    /// A SET THE RUN OPENS HAS NO COUNT-IN OF ITS OWN. The rest before it is
-    /// the lead-in: it counts its own last three seconds down and ends on the
-    /// go, and that go is this hold's start signal — the same shape the
+    /// A SET THE RUN OPENS HAS NO COUNT-IN OF ITS OWN, unless a tap cut the
+    /// rest short or its go came too late to be heard
+    /// (`SetFacts.restHandsOverWithCountIn`). The rest before it is the
+    /// lead-in: it counts its own last three seconds down and ends on the go,
+    /// and that go is this hold's start signal — the same shape the
     /// side-switch pause has.
     ///
     /// Nothing is laid on top of that rest. The rest IS the travel time: a

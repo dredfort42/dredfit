@@ -32,13 +32,11 @@ struct GetReadyScreen: View {
 
     var body: some View {
         BlockLayout {
-            // "Get ready" stands under the big number, not over the name: it
-            // is the ONE thing telling this screen from a position already
-            // running — same name, same 112 pt countdown, same dots — read
-            // off a phone the block itself has just told the person to put
-            // on the floor. Under the digit is where the eye already is,
-            // which is where the work screen says exactly this word
-            // (`loadCaption`).
+            // "Get ready" stands under the big number, not over the name: the
+            // transition and a running position share the name and the 112 pt
+            // countdown, and the transition is read by someone on the way into
+            // a position. Under the digit is where the eye already is, which
+            // is where the work screen says exactly this word (`loadCaption`).
             //
             // VoiceOver gets the sentence ONCE, from the name below:
             // `CountdownNumber` hides its `caption` branch and only that one

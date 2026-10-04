@@ -42,9 +42,8 @@ extension WorkoutSession {
         // "Start the warm-up" is a start tap like "I'm ready", so the block
         // opens on the count-in, not on the full travel time between two
         // positions: the person is standing at their mat with a thumb on the
-        // glass, not walking to the next one. Only the AUTOMATIC transitions
-        // — the ones no tap opened — keep their full length
-        // (`GetReady.stageSeconds`).
+        // glass, not walking to the next one. Only transitions no start tap
+        // cut keep their full length (`GetReady.stageSeconds`).
         countIn(.warmup)
     }
 

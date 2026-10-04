@@ -11,8 +11,9 @@ import DredfitCore
 /// "Went differently" and a hold stopped early both speak about the set under
 /// way, never about the exercise. One number per pattern would record 10
 /// entered on the third set of 3×15 as 10 for all three, and two sets done
-/// exactly on plan would reach `applyFeedback` as a full shortfall — and a
-/// `failStreak` tick toward a deload nobody earned.
+/// exactly on plan would reach `applyFeedback` as a full shortfall: the next
+/// plan would start from 10 instead of 13 — the 13⅓ the three sets average,
+/// snapped down to the grid.
 ///
 /// The engine's contract is one honest number per pattern per session, so
 /// the collapse lives here: the mean per set, which is the volume actually
@@ -26,7 +27,8 @@ nonisolated enum SetFacts {
     /// performed, and shorter for good afterwards when nothing more was said:
     /// a set past the end reads `inForce` — the last value when it is below
     /// that set's plan, the plan otherwise — which is what the screen then
-    /// shows and what the hold then counts down.
+    /// shows and, unless a time was declared (`holdTarget`), what the hold
+    /// then counts down.
     typealias PerSet = [Pattern: [Int]]
 
     /// Sets SKIPPED during the session, per movement.
@@ -48,10 +50,9 @@ nonisolated enum SetFacts {
         unit == .hold ? 5...90 : 0...30
     }
 
-    /// `value` snapped to the unit's grid and held inside its corridor. One
-    /// definition for all three roundings — the manual adjuster, a hold
-    /// stopped early, and the mean below — so the number shown is always a
-    /// number that can be stored.
+    /// `value` snapped to the unit's grid and held inside its corridor. Every
+    /// hold the clock records goes through it, so a recorded number is always
+    /// one that can be stored — and so does the guard on the mean below.
     static func snap(_ value: Double, unit: LoadUnit) -> Int {
         let corridor = self.corridor(for: unit)
         guard value.isFinite else { return corridor.lowerBound }
@@ -451,9 +452,10 @@ nonisolated enum SetFacts {
         // Summed as Doubles: the values are sanitized, but this is the one
         // place their total is taken and an Int overflow would trap.
         let raw = values.reduce(0.0) { $0 + Double($1) } / Double(values.count)
-        // The guard: a mean genuinely below the plan's base must not be
-        // lifted onto it by rounding, and reporting nothing is how that is
-        // said — the pattern falls back to the session's rating.
+        // The guard: a mean below the plan's base that would round onto it
+        // reports nothing, and the pattern falls back to the session's
+        // rating. The engine snaps a fact DOWN to its grid, so a near miss
+        // would otherwise cost a whole rung (44⅔ s of 3×45 s lands on 40).
         if raw < Double(ex.load) && snap(raw, unit: ex.unit) >= ex.load { return nil }
         return raw
     }

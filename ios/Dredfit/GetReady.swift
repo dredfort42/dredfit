@@ -64,10 +64,10 @@ enum GetReady {
     /// last two are the same act from the athlete's side, so they take the
     /// same time.
     ///
-    /// Four holds the 3-2-1 (`countdownSignalSeconds` is 3) with one beat to
-    /// spare. Three would put the first tick under the thumb that asked for
-    /// it, which is the whole reason this beat exists — so four is the floor,
-    /// not a waypoint.
+    /// Four holds the 3-2-1 (`countdownSignalSeconds` is 3) and nothing
+    /// shorter does: a countdown never sounds the second it starts on
+    /// (`Countdown.signals`), so from three the 3-2-1 would be heard as 2-1.
+    /// Four is the floor, not a waypoint.
     static var countInSeconds: Int {
         #if DEBUG
         if CommandLine.arguments.contains("--uitest-fast") { return 1 }
