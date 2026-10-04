@@ -71,11 +71,53 @@ extension AppStore {
     /// the position holds, and a line about a set the card does not show
     /// would simply be false. So the journal has the last word — what the
     /// card carried the last time this movement came round.
+    ///
+    /// A push gets sets back a second way no hold ever sees: the pull slot's
+    /// cap lifting, while the push's own position stands still. The record
+    /// behind the last card says whether that card was held below the push's
+    /// own sets (`WorkoutRecord.heldBack`); more sets after such a card are
+    /// the held set returning. Only on the same variation — another one is
+    /// another movement, and its own line says so — and only when the sets
+    /// grew with a probe's slot counted: a probe leaving hands its slot to a
+    /// working set and gives nothing back. A record without the stamp claims
+    /// nothing.
     func aSetJustCameBack(in exercise: SessionExercise) -> Bool {
         let pattern = exercise.pattern
-        guard engineState.setsHold[pattern] == EngineConfig.setsBackHold,
-              let before = lastShownSets(pattern) else { return false }
-        return exercise.sets > before
+        guard let last = lastCard(pattern), exercise.sets > last.card.sets else { return false }
+        if engineState.setsHold[pattern] == EngineConfig.setsBackHold { return true }
+        return exercise.variation == last.card.variation
+            && exercise.totalSets > last.card.totalSets
+            && last.record.heldBack?.contains(pattern) == true
+    }
+
+    /// True when a push shows fewer sets than its last card because the pull
+    /// slot's cap binds it right now: the weaker pull branch stands on fewer
+    /// sets than the push's own position. A fact, not a line: `ExerciseRow`
+    /// owns the words. With the bar on, the branch that caps is usually the
+    /// one not in today's plan, so nothing else on screen accounts for it.
+    ///
+    /// A drop the push made itself — its own skipped set — leaves the cap at
+    /// or above its own sets, and is not put down to the pulls. Nor is a
+    /// working set a probe has taken: counted with the probe's slot, those
+    /// sets did not drop, and the probe's own line says what the last set is.
+    func setsJustHeldBackByThePulls(in exercise: SessionExercise) -> Bool {
+        guard let gate = Engine.pullCap(on: exercise.pattern, in: engineState),
+              gate.cap < gate.own,
+              let last = lastCard(exercise.pattern) else { return false }
+        return exercise.sets < last.card.sets && exercise.totalSets < last.card.totalSets
+    }
+
+    /// The push rows of a session that showed fewer sets than their own
+    /// positions stood on — the stamp `completeWorkout` writes into the
+    /// record. Read against the state the session was BUILT from: after the
+    /// rating a push can stand on other sets than its card was cut from. Nil
+    /// when nothing was held back, so such a record keeps its old shape.
+    static func pushesHeldBack(in session: Session, builtFrom state: EngineState) -> Set<Pattern>? {
+        let held = session.exercises.filter { ex in
+            guard let gate = Engine.pullCap(on: ex.pattern, in: state) else { return false }
+            return ex.totalSets < gate.own
+        }
+        return held.isEmpty ? nil : Set(held.map(\.pattern))
     }
 
     /// True when this movement stands on an EASIER variation than the one the
@@ -95,19 +137,26 @@ extension AppStore {
         return exercise.variation < before.variation
     }
 
-    /// The set count this movement's card carried at its last appearance.
-    /// Read from the journal rather than the state because it is what the
-    /// person actually saw. A record too old to know its exercises ends the
-    /// walk rather than being skipped over: a gap in the journal is not
-    /// evidence of anything, and reading past it would compare two sessions
-    /// with an unknown number in between.
-    private func lastShownSets(_ pattern: Pattern) -> Int? {
+    /// The card this movement carried at its last appearance, and the record
+    /// that carried it. Read from the journal rather than the state because
+    /// it is what the person actually saw. A record too old to know its
+    /// exercises ends the walk rather than being skipped over: a gap in the
+    /// journal is not evidence of anything, and reading past it would compare
+    /// two sessions with an unknown number in between.
+    private func lastCard(_ pattern: Pattern) -> (card: SessionExercise, record: WorkoutRecord)? {
         for record in records.reversed() {
             guard let exercises = record.exercises else { return nil }
-            if let was = exercises.first(where: { $0.pattern == pattern }) { return was.sets }
+            if let was = exercises.first(where: { $0.pattern == pattern }) { return (was, record) }
         }
         return nil
     }
+}
+
+extension SessionExercise {
+    /// The sets a row takes, a probe's among them: the probe occupies the
+    /// slot of the working set it replaces rather than adding one, so this is
+    /// what the pull slot's cap and a push's own sets are measured against.
+    var totalSets: Int { sets + (probe == nil ? 0 : 1) }
 }
 
 // MARK: - The weak link the trainee never names (#135)

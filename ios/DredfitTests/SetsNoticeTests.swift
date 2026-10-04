@@ -178,6 +178,8 @@ final class SetsNoticeTests: AppStoreTestCase {
             "technique.stepDown.confirmBody",
             "plan.techniqueHint",
             "plan.probeNote",
+            // A push row the pull slot's cap took sets from.
+            "plan.heldBackByPulls",
             "%lld positions · about %lld min",
             "Going all out on one set weakens the ones after it. What counts is the whole exercise.",
             "Cool-down",

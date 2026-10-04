@@ -255,7 +255,7 @@ struct PlanView: View {
     /// nothing — which costs the whole handle, not just a sheet, because the
     /// sheet is where the handle lives.
     func planRow(_ ex: SessionExercise, debuts: Set<Pattern>) -> some View {
-        // Hoisted out of the label so the four facts fit a line each. The
+        // Hoisted out of the label so the five facts fit a line each. The
         // easier-variation pair is asked in the order the row answers it: the
         // handle names itself, and everything else that moved the plan after
         // the last record only says that it moved (ExerciseRow.variationNote).
@@ -264,7 +264,8 @@ struct PlanView: View {
             setCameBack: store.aSetJustCameBack(in: ex),
             easedByHand: store.easedByHandAhead.contains(ex.pattern),
             variationDropped: store.aVariationJustDropped(in: ex),
-            raisedSteps: store.raisedForNextPlan(ex.pattern))
+            raisedSteps: store.raisedForNextPlan(ex.pattern),
+            heldBackByPulls: store.setsJustHeldBackByThePulls(in: ex))
         return Button {
             destination = .technique(TechniqueTarget(ex))
         } label: {

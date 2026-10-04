@@ -65,6 +65,18 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     var totalProgressAfter: Int?
     // Optional so older records still decode.
     var exercises: [SessionExercise]?
+    /// The push rows of `exercises` that showed fewer sets than the push's
+    /// own position stood on when the plan was built — the pull slot's cap,
+    /// or the repair that keeps a lifted cap's work until the push rises. A
+    /// probe's slot counts as a set: it borrows one, it does not take one.
+    ///
+    /// Stamped when the workout is recorded because the journal cannot
+    /// answer it afterwards: a card keeps the sets it showed, never the sets
+    /// the position stood on. Without it a set the pulls give back reaches
+    /// the push row as an unexplained rise. Optional with a nil default like
+    /// every field added to a persisted type; nil — no push held back, or a
+    /// record from before the stamp — claims nothing.
+    var heldBack: Set<Pattern>?
     /// The number the ENGINE was given for each adjusted pattern — the mean
     /// of its sets (`SetFacts.override`), rounded: the journal keeps
     /// integers. Kept under its old name and shape so records written by any
@@ -170,6 +182,7 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         totalProgressAfter = try c.decodeIfPresent(Int.self, forKey: .totalProgressAfter)
             .map { clamp($0, 0, EngineConfig.countMax) }
         exercises = try c.decodeIfPresent([SessionExercise].self, forKey: .exercises)
+        heldBack = try c.decodeIfPresent(Set<Pattern>.self, forKey: .heldBack)
         actuals = try c.decodeIfPresent([Pattern: Int].self, forKey: .actuals)?
             .mapValues { clamp($0, 0, EngineConfig.countMax) }
         // No exercise has more sets than the scale has bands, so a longer
