@@ -73,6 +73,19 @@ final class JournalAndHoldTests: XCTestCase {
         XCTAssertEqual(logged.shownDose(.squat, variation: 2), tapped.shownDose(.squat, variation: 2))
     }
 
+    /// A met number journals no more than the plan's top. 3×9 done as 10, 9,
+    /// 9 is inside the window (9.33), and the mean rounded up says 10 — but
+    /// "met" means the plan was done, and the plan's top here is its base, so
+    /// a uniform plan journals exactly what it did before the rule existed.
+    func testAMetFactNeverJournalsAboveThePlansTop() throws {
+        let a = try appearance(placed(.squat, variation: 2, dose: 9, journal: 9), .squat)
+        XCTAssertNil(a.exercise.loads, "a uniform plan")
+        let logged = a.feedback(.plan, [.squat: 28.0 / 3.0])
+        XCTAssertEqual(logged.shownDose(.squat, variation: 2), 9)
+        XCTAssertEqual(logged.shownDose(.squat, variation: 2),
+                       a.feedback(.plan).shownDose(.squat, variation: 2), "as a tap")
+    }
+
     /// The probe reads the journal (§41.4). 15-15-14 done as 16, 14, 14 met
     /// the plan and reached 3×15; with the fold journalled the probe would
     /// wait an appearance the tapper does not wait.
@@ -177,6 +190,34 @@ final class JournalAndHoldTests: XCTestCase {
         let free = a.feedback(.plan)
         XCTAssertNil(free.cut[.squat], "control: without the window the set comes back")
         XCTAssertEqual(free.setsHold[.squat], EngineConfig.setsBackHold, "control: and the hold is armed")
+
+        var roomy = a.state
+        roomy.weekGain[.squat] = EngineConfig.weeklyRiseFast - 1
+        let kept = Engine.applyFeedback(state: roomy, session: a.session, result: .plan, gapDays: 1)
+        XCTAssertNil(kept.cut[.squat], "control: with budget to spare the return stands")
+        XCTAssertEqual(kept.setsHold[.squat], EngineConfig.setsBackHold, "control: and so does the hold")
+    }
+
+    /// The same on a band of the top variation, where a return leaves a cut
+    /// behind: the rule is "no return happened", not "some cut is left".
+    func testOnABandTheCeilingUndoesTheHoldOnlyWithTheReturn() throws {
+        var band = placed(.squat, variation: Library.count(.squat), dose: 4, cut: 3, journal: 4)
+        band.sets[.squat] = EngineConfig.setsMax
+        band.weekGain[.squat] = EngineConfig.weeklyRiseFast
+        band.weekAgeDays = 1
+        let a = try appearance(band, .squat)
+        XCTAssertEqual(a.exercise.sets, 2, "five sets, three taken off")
+
+        let capped = a.feedback(.plan, gapDays: 1)
+        XCTAssertEqual(capped.cut[.squat], 3)
+        XCTAssertNil(capped.setsHold[.squat])
+
+        var roomy = a.state
+        roomy.weekGain[.squat] = EngineConfig.weeklyRiseFast - 1
+        let kept = Engine.applyFeedback(state: roomy, session: a.session, result: .plan, gapDays: 1)
+        XCTAssertEqual(kept.cut[.squat], 2, "one set back, two still off")
+        XCTAssertEqual(kept.setsHold[.squat], EngineConfig.setsBackHold,
+                       "a return that stands keeps its hold, cut or no cut")
     }
 
     /// The ceiling also trims a cross-credit, but a credit arms no hold, so

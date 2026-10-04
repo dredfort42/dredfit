@@ -94266,7 +94266,9 @@
       }
      ],
      "result": "plan",
-     "overrides": {},
+     "overrides": {
+      "squat": 9.333333333333334
+     },
      "skipped": [],
      "hasBar": true,
      "gapDays": 2.3333333333333335,
@@ -94417,7 +94419,7 @@
      ],
      "rampWindowAfter": 0,
      "weekGainAfter": [
-      1,
+      0,
       0,
       1,
       1,
@@ -94697,7 +94699,7 @@
      ],
      "rampWindowAfter": 0,
      "weekGainAfter": [
-      1,
+      0,
       0,
       2,
       2,
@@ -94970,7 +94972,7 @@
      ],
      "rampWindowAfter": 0,
      "weekGainAfter": [
-      2,
+      1,
       0,
       2,
       3,
