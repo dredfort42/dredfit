@@ -181,6 +181,12 @@ final class AppStore {
 
     private static let log = Logger(subsystem: "app.dredfit", category: "store")
 
+    /// Nonisolated for the reason `WorkoutSession`'s deinit gives: the store
+    /// is the class whose isolated deinit crashed on the iOS 26.2 simulator.
+    /// The app keeps one store for its whole life, but every unit test frees
+    /// one. Nothing here needs the main actor to be torn down.
+    nonisolated deinit {}
+
     init(storageURL: URL = StateFile.defaultURL,
          health: WorkoutHealthWriting = HealthKitWorkoutWriter(),
          notifications: NotificationScheduling = UserNotificationScheduler(),
