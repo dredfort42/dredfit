@@ -229,6 +229,7 @@ extension WorkoutSessionTests {
         XCTAssertEqual(flow.phase, .cooldown)
         let ran = run(flow, until: { flow.phase == .feedback }, limit: 1_000)
         XCTAssertEqual(flow.cooldownSec, ran)
+        XCTAssertEqual(store.pendingWorkout?.cooldownSec, ran, "a process death on the rating keeps it")
         XCTAssertEqual(signals.tones.last, .workoutDone)
         XCTAssertEqual(tile.ended, 1)
         _ = flow.rate(.plan, overrides: [:])
@@ -311,6 +312,41 @@ extension WorkoutSessionTests {
         XCTAssertEqual(flow.phase, .feedback)
         _ = flow.rate(.plan, overrides: [:])
         try assertNoCoolDownBilled(XCTUnwrap(store.records.last))
+    }
+
+    /// A restore from the offer lands on the rating, where the block can no
+    /// longer begin. Left there, by "Finish later" or a process death, and
+    /// rated from Today's "Rate the workout", it was never begun.
+    func testAWorkoutLeftOnTheCoolDownsOfferIsRatedWithNoCoolDown() throws {
+        let store = makeStore()
+        let first = makeFlow(store)
+        first.declineWarmup()
+        first.exIndex = first.exercises.count - 1
+        first.setIndex = 2
+        first.completeSet()
+        XCTAssertEqual(first.phase, .cooldownIntro)
+        let snapshot = try XCTUnwrap(store.pendingWorkout)
+        XCTAssertEqual(snapshot.cooldownSec, 0, "what a restore from the offer will record")
+
+        let flow = makeFlow(store, resume: snapshot)
+        XCTAssertEqual(flow.phase, .feedback)
+        _ = flow.rate(.plan, overrides: [:])
+        try assertNoCoolDownBilled(XCTUnwrap(store.records.last))
+    }
+
+    /// The same offer, recorded by the store twelve hours later.
+    func testAWorkoutAbandonedOnTheCoolDownsOfferSettlesWithNoCoolDown() throws {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.declineWarmup()
+        flow.exIndex = flow.exercises.count - 1
+        flow.setIndex = 2
+        flow.completeSet()
+        XCTAssertEqual(flow.phase, .cooldownIntro)
+
+        let relaunched = makeStore()
+        XCTAssertTrue(relaunched.settleAbandonedWorkout(now: clock + WorkoutSessionStore.forgottenAfter))
+        try assertNoCoolDownBilled(XCTUnwrap(relaunched.records.last))
     }
 
     /// Where the zero stops: a snapshot taken inside the cool-down carries no

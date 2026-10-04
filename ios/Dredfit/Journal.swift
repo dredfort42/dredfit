@@ -328,11 +328,12 @@ struct WorkoutSnapshot: Codable, Equatable {
     var holdMeasuredSec: [Int: Int]?
     var interrupted: Pattern?
     /// The two blocks as measured so far, carried across a process death so a
-    /// declined warm-up is not silently restored as a performed one. A kill
-    /// DURING a block leaves its field nil — the block never reached its own
-    /// ending — and the record then falls back to the planned length. That is
-    /// the one case this does not rescue, and it is the old behaviour rather
-    /// than a new claim.
+    /// declined warm-up is not silently restored as a performed one. The
+    /// cool-down's offer carries zero: a restore from it lands on the rating,
+    /// where the block can no longer begin. A kill DURING a block leaves its
+    /// field nil — the block never reached its own ending — and the record
+    /// then falls back to the planned length. That is the one case this does
+    /// not rescue, and it is the old behaviour rather than a new claim.
     var warmupSec: Int?
     var cooldownSec: Int?
     /// Seconds the athlete spent AWAY across resumes, accumulated.
