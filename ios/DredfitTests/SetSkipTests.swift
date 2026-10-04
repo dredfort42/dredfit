@@ -162,6 +162,64 @@ final class SetSkipTests: AppStoreTestCase {
                        "a single set performed is not a trained movement")
     }
 
+    /// A probing exercise never has more working sets than the shared floor,
+    /// so none of them can be skipped on its own and the work screen offers
+    /// "Skip exercise" in place of "Skip this set". That is what keeps the one
+    /// card a hold summary lets a person correct, the last working set, a set
+    /// the clock ran: the probe still ends on that summary, and a working set
+    /// skipped before it would stand on the card under a line saying what the
+    /// clock saw.
+    ///
+    /// The engine holds it by construction — a probe needs a variation below
+    /// the top, where the sets stay at the base band, the probe takes one of
+    /// them, and the pull slot's set count may only lower the push it caps —
+    /// so it is swept rather than taken on trust: every rung of every ladder
+    /// on its ceiling, every band asked for and one past the last, every cut,
+    /// a full turn of the rotation, both branches of the pull slot, and that
+    /// slot also on the top of its own ladder, in a band above any push that
+    /// can probe.
+    func testTheEngineNeverGivesAProbingExerciseThreeWorkingSets() {
+        // Every movement on the ceiling of `rung` and journalled there; the
+        // pull slot on the top of its own ladder instead when `pullOnTop`.
+        func onTheCeiling(rung: Int, sets: Int, cut: Int, pullOnTop: Bool) -> EngineState {
+            var state = EngineState.initial
+            for p in Pattern.allCases {
+                let v = pullOnTop && Pattern.pullSide.contains(p) ? Library.count(p) : min(rung, Library.count(p))
+                let ceiling = Dose.grid(Library.unit(p, v)).max
+                state.vars[p] = v
+                state.doses[p] = ceiling
+                state.sets[p] = sets
+                state.cut[p] = cut
+                state.shown[p] = [v: ceiling]
+            }
+            return state
+        }
+        let longestLadder = Pattern.allCases.map { Library.count($0) }.max() ?? 1
+        var probing: [SessionExercise] = []
+        for rung in 1...longestLadder {
+            for sets in 1...EngineConfig.setsMax + 1 {
+                for cut in 0...EngineConfig.setsMax - EngineConfig.setsFloor {
+                    for pullOnTop in [false, true] {
+                        var state = onTheCeiling(rung: rung, sets: sets, cut: cut, pullOnTop: pullOnTop)
+                        for counter in 0..<8 {   // eight sessions is one full turn of the rotation
+                            state.counter = counter
+                            for hasBar in [false, true] {
+                                state.hasBar = hasBar
+                                probing += Engine.generateSession(state).exercises.filter { $0.probe != nil }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        XCTAssertTrue(probing.contains { $0.unit == .hold },
+                      "the sweep met no probing hold, so it says nothing about the summary")
+        let widest = probing.max { $0.sets < $1.sets }
+        XCTAssertLessThanOrEqual(widest?.sets ?? 0, EngineConfig.setsFloor,
+                                 "\(widest?.pattern.rawValue ?? "?") v\(widest?.variation ?? 0) has "
+                                 + "\(widest?.sets ?? 0) working sets beside its probe: one can be skipped alone")
+    }
+
     /// What the app does instead, and the reason rule 2 exists: the movement
     /// travels as an ordinary skipped exercise, and NOT as a dose of 0. The
     /// engine costs one of them nothing and the other a whole tier.

@@ -6,9 +6,9 @@ import DredfitCore
 /// and the summary a hold movement ends on.
 extension WorkoutSessionTests {
 
-    private func holdFlow(_ pattern: Pattern) throws -> (WorkoutSession, AppStore) {
+    private func holdFlow(_ pattern: Pattern, in session: Session? = nil) throws -> (WorkoutSession, AppStore) {
         let store = makeStore()
-        let flow = makeFlow(store, session: holdSession())
+        let flow = makeFlow(store, session: session ?? holdSession())
         flow.declineWarmup()
         flow.exIndex = try index(of: pattern, in: flow)
         signals.events.removeAll()
@@ -152,6 +152,41 @@ extension WorkoutSessionTests {
         flow.commitSummaryEdit(set: 2)
         XCTAssertEqual(flow.actuals[.coreAntiExt], [15, 15, 20])
         XCTAssertNil(flow.editing)
+    }
+
+    /// On the plank the engine itself hands out with a probe, neither working
+    /// set can be skipped on its own: the skip would leave fewer sets than
+    /// the shared floor, so the work screen offers "Skip exercise" instead and
+    /// the tap takes the whole movement. The probe's Done opens the movement's
+    /// summary, whose last card is the one a person may correct, under a line
+    /// saying what the clock saw — a lone skip of the last working set would
+    /// put a set no clock ran on that card.
+    ///
+    /// The engine's own floor for this exercise is one, the probe holding the
+    /// slot's other set. The skip rule reads the shared floor of two; read
+    /// from the exercise, it would offer exactly that skip.
+    func testTheEnginesProbingPlankOffersNoSkipOfALastWorkingSet() throws {
+        // Session 2 carries the plank. On its ceiling, journalled there and
+        // below the top of its ladder, it is offered a probe.
+        var state = EngineState.initial
+        state.counter = 1
+        state.doses[.coreAntiExt] = Dose.hold.max
+        state.shown[.coreAntiExt] = [1: Dose.hold.max]
+        let (flow, _) = try holdFlow(.coreAntiExt, in: Engine.generateSession(state))
+        XCTAssertEqual(flow.exercise.sets, 2)
+        XCTAssertEqual(flow.totalSets, 3)
+        XCTAssertEqual(flow.exercise.setsFloor, 1, "the engine's floor, which the skip rule must not read")
+
+        XCTAssertFalse(flow.skipsLeaveAMovement(1), "set one: \"Skip this set\" is not offered")
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds + Dose.hold.max)
+        flow.skipRest()
+        XCTAssertEqual(flow.setIndex, 1)
+        XCTAssertFalse(flow.skipsLeaveAMovement(1), "set two: \"Skip this set\" is not offered")
+        flow.skipSet()
+        XCTAssertTrue(flow.skippedPatterns.contains(.coreAntiExt), "the tap takes the whole movement")
+        XCTAssertNotEqual(flow.exercise.pattern, .coreAntiExt,
+                          "the flow is past the movement: its probe, and the summary the probe opens, never come")
     }
 
     // MARK: - The hands-free run
