@@ -80,10 +80,15 @@ final class BlockPauseTests: XCTestCase {
     func testOnlyATransitionHasAFloorAfterAPause() {
         // Its 3-2-1 and its go are the way back in, so they must still be
         // ahead of it; a position keeps its seconds, after a re-entry of its own.
-        XCTAssertEqual(BlockPause.floorAfterPause(.getReady), GetReady.countInSeconds)
-        XCTAssertEqual(BlockPause.floorAfterPause(.switchPause), GetReady.countInSeconds)
+        for stage in [GuidedStage.getReady, .switchPause] {
+            XCTAssertEqual(BlockPause.stageAfterPause(remaining: 1, stage: stage), GetReady.countInSeconds)
+            XCTAssertEqual(BlockPause.stageAfterPause(remaining: 0, stage: stage), GetReady.countInSeconds)
+            XCTAssertEqual(BlockPause.stageAfterPause(remaining: 7, stage: stage), 7,
+                           "a pause must not lengthen a transition that has time left")
+        }
         for stage in [GuidedStage.whole, .firstHalf, .secondHalf] {
-            XCTAssertEqual(BlockPause.floorAfterPause(stage), 0, "\(stage) picks up what it froze with")
+            XCTAssertEqual(BlockPause.stageAfterPause(remaining: 1, stage: stage), 1,
+                           "\(stage) picks up what it froze with")
         }
     }
 

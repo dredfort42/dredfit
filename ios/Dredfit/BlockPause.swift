@@ -66,7 +66,7 @@ enum BlockPause {
         max(remaining, min(reentrySeconds, total))
     }
 
-    /// The least a frozen guided stage runs for when the pause ends.
+    /// The seconds a frozen guided stage picks up when the pause ends.
     ///
     /// A transition is its own way back in (`needsReentry`), so it never picks
     /// up less than the count-in: its 3-2-1 and its go are what someone who
@@ -74,8 +74,8 @@ enum BlockPause {
     /// by a tap or by an absence — would otherwise drop them into the position
     /// with no count at all. A position takes the re-entry instead and keeps
     /// exactly the seconds it froze with.
-    static func floorAfterPause(_ stage: GuidedStage) -> Int {
-        needsReentry(stage) ? 0 : reentrySeconds
+    static func stageAfterPause(remaining: Int, stage: GuidedStage) -> Int {
+        needsReentry(stage) ? remaining : max(remaining, reentrySeconds)
     }
 
     /// A frozen transition resumes straight into itself: it already IS the way
