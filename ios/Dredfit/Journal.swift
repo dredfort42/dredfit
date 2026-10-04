@@ -304,9 +304,9 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// before doing it. Restored so that coming back after a process death
     /// does not quietly put the plan's number back on the clock.
     var holdDeclaredSec: Int?
-    /// Sets of the exercise in front of us whose number is an ESTIMATE — the
-    /// set ended under a thumb, so it carries a guessed reach allowance. An
-    /// array
+    /// Sets of the exercise in front of us that a thumb ended, so what they
+    /// recorded carries a guessed reach allowance, whatever a correction put
+    /// on the card since (`WorkoutSession.holdApproxSets`). An array
     /// because a `Set<Int>` is one on the wire anyway; read back as a set.
     var approxSets: [Int]?
     /// What the clock wrote for each set of the exercise in front of us, by
