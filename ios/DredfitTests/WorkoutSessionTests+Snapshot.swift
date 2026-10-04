@@ -217,6 +217,61 @@ extension WorkoutSessionTests {
         XCTAssertEqual(flow.blockPausedSec, 50, "the way back in is the block again")
     }
 
+    func testATransitionFrozenByAnAbsenceNearItsEndGetsItsWholeCountBack() {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.beginWarmup()
+        run(flow, for: GetReady.countInSeconds - 2)
+        XCTAssertEqual(flow.warmup.clock.remaining, 2)
+        clock += 60
+        flow.tick()
+        XCTAssertTrue(flow.blockPause.isHeld)
+        XCTAssertEqual(flow.warmup.stage, .getReady)
+
+        flow.toggleBlockPause()
+        XCTAssertFalse(flow.blockPause.isPaused, "a frozen transition is its own way back in")
+        XCTAssertEqual(flow.warmup.clock.endDate, clock + TimeInterval(GetReady.countInSeconds),
+                       "two seconds would put someone who has just come back into the move with no count")
+        signals.events.removeAll()
+        run(flow, for: GetReady.countInSeconds)
+        XCTAssertNotEqual(flow.warmup.stage, .getReady)
+        XCTAssertEqual(signals.tones, [.tick, .tick, .tick, .go])
+    }
+
+    func testASideSwitchPausedNearItsEndGetsTheCountInBack() {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.beginWarmup()
+        run(flow, until: { flow.warmup.stage == .switchPause }, limit: 1_000)
+        run(flow, until: { flow.warmup.clock.remaining == 1 })
+        flow.toggleBlockPause()
+        clock += 30
+        flow.toggleBlockPause()
+        XCTAssertFalse(flow.blockPause.isPaused, "the switch is a transition too")
+        XCTAssertEqual(flow.warmup.clock.endDate, clock + TimeInterval(GetReady.countInSeconds))
+        signals.events.removeAll()
+        run(flow, for: GetReady.countInSeconds)
+        XCTAssertEqual(flow.warmup.stage, .secondHalf)
+        XCTAssertEqual(signals.tones, [.go], "no 3-2-1 inside the switch: its go is its signal")
+    }
+
+    func testACoolDownTransitionPausedNearItsEndGetsTheCountInBack() {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.declineWarmup()
+        flow.exIndex = flow.exercises.count - 1
+        flow.setIndex = 2
+        flow.completeSet()
+        flow.beginCooldown()
+        run(flow, until: { flow.cooldown.clock.remaining == 1 })
+        XCTAssertEqual(flow.cooldown.stage, .getReady)
+        flow.toggleBlockPause()
+        clock += 30
+        flow.toggleBlockPause()
+        XCTAssertFalse(flow.blockPause.isPaused)
+        XCTAssertEqual(flow.cooldown.clock.endDate, clock + TimeInterval(GetReady.countInSeconds))
+    }
+
     func testTheCoolDownIsOfferedAfterTheLastSetAndEndsOnTheRating() {
         let store = makeStore()
         let flow = makeFlow(store)

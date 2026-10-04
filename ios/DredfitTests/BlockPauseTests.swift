@@ -77,6 +77,16 @@ final class BlockPauseTests: XCTestCase {
         }
     }
 
+    func testOnlyATransitionHasAFloorAfterAPause() {
+        // Its 3-2-1 and its go are the way back in, so they must still be
+        // ahead of it; a position keeps its seconds, after a re-entry of its own.
+        XCTAssertEqual(BlockPause.floorAfterPause(.getReady), GetReady.countInSeconds)
+        XCTAssertEqual(BlockPause.floorAfterPause(.switchPause), GetReady.countInSeconds)
+        for stage in [GuidedStage.whole, .firstHalf, .secondHalf] {
+            XCTAssertEqual(BlockPause.floorAfterPause(stage), 0, "\(stage) picks up what it froze with")
+        }
+    }
+
     func testAZeroLengthWayBackInJustHolds() {
         // It would otherwise end on the next tick, with a go and no count.
         var state = BlockPause.State()
