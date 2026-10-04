@@ -25,7 +25,7 @@ struct BodyMassReading: Equatable {
 protocol WorkoutHealthWriting {
     var isAvailable: Bool { get }
     /// True only when the user actually granted the WORKOUT share. Every other
-    /// type — energy sharing, and all four reads — may be refused on its own,
+    /// type — energy sharing, and every read — may be refused on its own,
     /// and each refusal only costs the feature that needs it.
     func requestAuthorization() async -> Bool
     /// The same answer, read now and without asking: whether THIS device lets
@@ -38,7 +38,7 @@ protocol WorkoutHealthWriting {
     /// HealthKit does not distinguish the two. The date is what decides
     /// whether the reading outranks a number typed into the app: whichever
     /// was stated later wins, and a scale not stepped on for a month must
-    /// not keep overwriting a weight typed this morning (owner, 13.09.2026).
+    /// not keep overwriting a weight typed this morning.
     func latestBodyMass() async -> BodyMassReading?
     /// Height, age and sex in one snapshot; every field independently absent.
     func profile() async -> BodyProfile
@@ -109,8 +109,8 @@ struct HealthKitWorkoutWriter: WorkoutHealthWriting {
         // is the same throw as "never filled in" — one catch covers both, and
         // it has to, because HealthKit will not say which happened.
         // Gregorian, not `Calendar.current`: HealthKit hands the birthday over
-        // in the Gregorian calendar, and a Buddhist or Japanese calendar read
-        // 1990 as a different year — an age the bound below then dropped.
+        // in the Gregorian calendar, and a Buddhist or Japanese calendar would
+        // read 1990 as a different year — an age the bound below would drop.
         let gregorian = Calendar(identifier: .gregorian)
         if let components = try? store.dateOfBirthComponents(),
            let birth = gregorian.date(from: components) {
@@ -183,9 +183,10 @@ struct HealthKitWorkoutWriter: WorkoutHealthWriting {
         // The journal flag is written AFTER Health confirms, so a save can
         // land while its flag never reaches disk (the process reclaimed right
         // after, a failed journal write, a backup from before the export), and
-        // a retry wrote a second workout the app cannot tidy. Health is asked
-        // first; a lookup that fails answers "not found" — today's behaviour.
-        // Workouts from builds before the tag below carry nothing to find.
+        // a retry would write a second workout the app cannot tidy. So Health
+        // is asked first; a lookup that fails answers "not found" and the save
+        // goes ahead. Workouts written without the tag below carry nothing to
+        // find.
         if await ownWorkoutExists(journalID: journalID) { return true }
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = .functionalStrengthTraining
@@ -194,9 +195,9 @@ struct HealthKitWorkoutWriter: WorkoutHealthWriting {
                                        device: .local())
         do {
             try await builder.beginCollection(at: start)
-            // What the lookup above finds. Best-effort: an untagged workout is
-            // what every earlier build wrote, and a failed save would stop the
-            // whole backfill tail.
+            // What the lookup above finds. Best-effort: an untagged workout
+            // only loses that lookup, while a failed save would stop the whole
+            // backfill tail.
             try? await builder.addMetadata([HKMetadataKeyExternalUUID: journalID])
             if let sample = energySample(activeKcal, start: start, end: end,
                                          journalID: journalID) {

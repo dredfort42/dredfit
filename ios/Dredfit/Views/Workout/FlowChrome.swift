@@ -19,21 +19,17 @@ struct FlowHeader: View {
     let steps: Int
     /// How many exercises are BEHIND: the capsules before this index are
     /// done, the one AT it is the movement under way, and the rest are ahead.
-    /// The name predates the three-state fill below, and "the exercise under
-    /// way" is only what it means while one IS under way.
+    /// "The movement under way" is only what it means while one IS under way.
     ///
     /// So `steps` itself is the honest value for a phase where none is —
-    /// every capsule then reads done, which is what the old `i <= doneIndex`
-    /// fill did by accident. The cool-down is that phase: neither
-    /// `completeSet` nor `advancePastExercise` moves `exIndex` past the last
-    /// exercise on the way into it, so a caller passing `exIndex` there paints
-    /// the last capsule accent — the colour every other screen uses for the
-    /// movement running now — for the several minutes a cool-down lasts
-    /// (review 06.09.2026).
+    /// every capsule then reads done. The cool-down is that phase: `exIndex`
+    /// stays on the last exercise on the way into it, so a caller passing
+    /// `exIndex` there would paint the last capsule accent — the colour used
+    /// for the movement running now — for the whole cool-down.
     let doneIndex: Int
     /// What is left of the session, or nil on the screens that carry a
     /// countdown of their own. The decision about the length of the workout is
-    /// taken inside it now, so the number has to follow the decision: it drops
+    /// taken inside it, so the number has to follow the decision: it drops
     /// the moment a set is skipped.
     var minutesLeft: Int?
     var onExit: () -> Void
@@ -52,33 +48,28 @@ struct FlowHeader: View {
                 // Symmetry: the title is centred by two equal ends, so the
                 // right one has to measure the same — including the 44 pt.
                 // Its OWN identifier, because it is a second control reading
-                // "Exit": the suite carried `.firstMatch` on every exit tap to
-                // survive that ambiguity, and a name is a stronger guard than
-                // an ordering assumption.
+                // "Exit": a name is a stronger guard than `.firstMatch` and an
+                // ordering assumption.
                 exitButton(identifier: "workout-exit-spacer", action: { }).hidden()
             }
             if steps > 0 {
                 HStack(spacing: 5) {
                     ForEach(0..<steps, id: \.self) { i in
-                        // Three states, exactly as `BlockDots` below already
-                        // draws the warm-up and the cool-down. Filling the
-                        // CURRENT exercise as done overstated the bar by a
-                        // whole movement: the first set of the first exercise
-                        // opened with a capsule already black, and the last
-                        // exercise saturated the row with three sets and the
-                        // cool-down still ahead, so "nearly there" was a state
-                        // it could not show (UX review, 05.09.2026).
+                        // Three states, as `BlockDots` below draws the
+                        // warm-up and the cool-down. Filling the CURRENT
+                        // exercise as done would overstate the bar by a whole
+                        // movement: the first set would open with a capsule
+                        // already filled, and "nearly there" would be a state
+                        // the row could not show.
                         //
                         // The capsules still AHEAD take ink2, not hairline.
                         // hairline is 1.17:1 on `bg` in the light scheme, so
                         // the track the finished capsules are measured against
-                        // was not on the screen at all and the bar read as a
-                        // row of loose marks with no length. ink2 is the only
-                        // token clearing the 3:1 graphics floor in both
-                        // schemes (4.96 / 6.97) and still reads a long way
-                        // lighter than the ink of a finished exercise (18.7),
-                        // so the three states stay three (UX review,
-                        // 05.09.2026).
+                        // would not be on the screen at all. ink2 is the
+                        // quietest neutral clearing the 3:1 graphics floor in
+                        // both schemes (4.96 / 6.97) and still reads a long
+                        // way lighter than the ink of a finished exercise
+                        // (18.7), so the three states stay three.
                         Capsule()
                             .fill(i < doneIndex
                                   ? Theme.ink
@@ -136,12 +127,11 @@ struct CountdownNumber: View {
     /// already localized by the caller, which is why it prints verbatim.
     ///
     /// nil is the ordinary case. The transition passes "Get ready", because
-    /// without it the transition and a running move were the same picture: the
-    /// same name, the same big number, the same dots, and the one word telling
-    /// them apart was a 12 pt kicker at the top of the screen — off the phone
-    /// that the block itself told the person to put on the floor. The work
-    /// screen already solved this the same way, under the digit where the eye
-    /// is (`WorkoutFlowView.loadCaption`) (UX review, 05.09.2026).
+    /// without it the transition and a running move would be the same
+    /// picture — the same name, the same big number, the same dots — on a
+    /// phone the block has told the person to put on the floor. The word goes
+    /// under the digit, where the eye is, as the work screen's own caption
+    /// does (`WorkoutFlowView.loadCaption`).
     var caption: String?
 
     var body: some View {
@@ -164,19 +154,16 @@ struct CountdownNumber: View {
                     .dredfitFont(15, weight: .semibold)
                     .foregroundStyle(Theme.accentText)
             } else if let caption {
-                // Accented like every other state in this slot across the
-                // flow, and never ink3: this is the screen saying something
-                // beyond the ordinary.
+                // Accented like "Paused" above, and never ink3: this is the
+                // screen saying something beyond the ordinary.
                 Text(verbatim: caption)
                     .dredfitFont(15, weight: .semibold)
                     .foregroundStyle(Theme.accentText)
-                    // The kicker this replaced carried the same trait, and for
-                    // the same reason: on the block screens the phrase already
-                    // stands under the number as the position's own name, so
-                    // without this VoiceOver says "Get ready" twice in a row
-                    // (review 06.09.2026). Hiding the CAPTION and not the
-                    // number keeps `getready-countdown` in the tree, which
-                    // three UI suites query by identifier.
+                    // On the block screens the position's name already
+                    // speaks the phrase ("Get ready: <name>"), so without this
+                    // VoiceOver says "Get ready" twice in a row. Hiding the
+                    // CAPTION and not the number keeps `getready-countdown` in
+                    // the tree, which the UI tests query by identifier.
                     .accessibilityHidden(true)
             } else {
                 Text("sec")
@@ -198,8 +185,7 @@ struct BlockDots: View {
 
     /// 10 pt at the default text size, and it grows with the text. The dots
     /// are the whole of what this row says, and somebody who has turned text
-    /// up has already told the phone they cannot read what it draws at 10
-    /// (UX review, 05.09.2026).
+    /// up has already told the phone they cannot read what it draws at 10.
     @ScaledMetric(relativeTo: .caption) private var dotSize: CGFloat = 10
 
     var body: some View {
@@ -214,14 +200,13 @@ struct BlockDots: View {
     private func dot(_ i: Int) -> some View {
         if upcoming && i == current {
             // Outlined rather than filled, and only here: on the transition
-            // this position has not started. A solid accent dot said it had,
-            // which is the same overstatement `FlowHeader` above stopped
-            // making about the exercise under way (UX review, 05.09.2026).
+            // this position has not started, and a solid accent dot would say
+            // it had.
             Circle().strokeBorder(Theme.accent, lineWidth: 2)
         } else {
             // The dots still ahead take ink2 for the reason the header
             // capsules do: hairline is 1.17:1 on `bg` in the light scheme, so
-            // "three of nine" was drawn as three dots and nothing.
+            // "three of nine" would be drawn as three dots and nothing.
             Circle().fill(i < current
                           ? Theme.ink
                           : (i == current ? Theme.accent : Theme.ink2))
@@ -242,8 +227,8 @@ struct TechniqueButton: View {
                 // 44 pt, like the two escapes in FlowChrome+Controls — and
                 // for a harder reason. This one is offered on five screens,
                 // three of them mid-effort, where the hand that reaches for it
-                // is the hand that just did the set. The bare label came to
-                // about 17 pt.
+                // is the hand that just did the set. The bare label is about
+                // 17 pt tall.
                 .frame(minHeight: 44)
                 .contentShape(Rectangle())
         }

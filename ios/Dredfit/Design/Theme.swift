@@ -9,8 +9,8 @@ import UIKit
 ///
 /// The table is the source of truth for the tools that cannot read an asset
 /// catalog — the landing CSS (`sitegen/build.py`) and the store frame
-/// composer (`store/appstore/tools/compose.py`). Without it the palette audit has
-/// nothing to compare against.
+/// composer (`store/appstore/tools/compose.py`); `BrandPaletteTests`
+/// mirrors it.
 ///
 ///     token       light     light HC  dark      dark HC
 ///     bg          #FFFFFF   #FFFFFF   #090A0C   #090A0C
@@ -24,9 +24,8 @@ import UIKit
 ///     accentText  #B44504   #993B04   #E8590C   #FF7526
 ///     accentSoft  #FBE3D6   #FBE3D6   #3A2013   #3A2013
 ///
-/// Dark `bg` and `cardBG` sit one step off the first candidates
-/// (#0E0F11 / #1A1B1E): the wave's floors ink3-on-bg ≥ 3:1 and
-/// cardBG-on-bg ≥ 1.2:1 only clear at #090A0C / #1E1F23 (3.02 and 1.20).
+/// Dark `bg` and `cardBG` are chosen against two floors, ink3-on-bg ≥ 3:1 and
+/// cardBG-on-bg ≥ 1.2:1, which #090A0C / #1E1F23 clear at 3.02 and 1.20.
 ///
 /// The HC columns step every floor up one tier (ink2 ≥ 7:1 on bg, ink3
 /// ≥ 4.5:1, quiet graphics ≥ 1.5:1, cards ≥ 1.3:1) with one deliberate
@@ -35,8 +34,7 @@ import UIKit
 /// accent darkens (light) or brightens `accentText` (dark) only as far as
 /// the floors demand — the brand hue stays.
 enum Theme {
-    /// The ground everything sits on. The light scheme kept it implicit
-    /// (system white); dark needs it named, because every other token is
+    /// The ground everything sits on, named because every other token is
     /// measured against it.
     static let bg = Color("bg", bundle: .main)
     static let ink = Color("ink", bundle: .main)
@@ -44,16 +42,14 @@ enum Theme {
     /// The quiet tone, and a GRAPHICS one: measured inside a single scheme it
     /// is 2.35:1 on `bg` in light and 3.02:1 in dark (4.68 / 4.76 under
     /// Increased Contrast, which is off by default). Both are under the 4.5:1
-    /// small text needs, so words take `ink2` — the low-contrast ink3 text
-    /// found across the app was an oversight, not a quiet-by-design choice
-    /// (owner's call, UX review 05.09.2026).
+    /// small text needs, so words take `ink2`.
     static let ink3 = Color("ink3", bundle: .main)
     static let hairline = Color("hairline", bundle: .main)
     static let accent = Color("accent", bundle: .main)
     /// Accent for TEXT, not graphics: #E8590C is 3.58:1 on white — fine for
     /// rings and chart lines (3:1), short of the 4.5:1 small text needs.
     /// Its dark value equals `accent` on purpose, not by a copy-paste slip:
-    /// #E8590C reads 5.5:1 on the dark ground, where #B44504 drops under it.
+    /// #E8590C reads 5.5:1 on the dark ground, where #B44504 reads 3.58:1.
     static let accentText = Color("accentText", bundle: .main)
     static let accentSoft = Color("accentSoft", bundle: .main)
     static let cardBG = Color("cardBG", bundle: .main)
@@ -61,25 +57,22 @@ enum Theme {
     /// not lighter: meaningful graphics near 1.4:1 are invisible on real
     /// screens.
     static let planned = ink3
-    /// Grid AND legend. hairline (1.17:1) is too faint for a 13pt legend dot;
-    /// this half-step (≈1.35:1) reads at dot size without shouting at cell size.
+    /// Grid AND legend. hairline (1.17:1 on `bg` in light) is too faint for a
+    /// 13 pt legend dot; this one step stronger reads at dot size without
+    /// shouting at cell size.
     static let restFill = Color("restFill", bundle: .main)
     /// The boundary of a TARGET — the outline that is the only thing saying
     /// "this is a control" where no fill says it. 1.4.11 asks 3:1 of exactly
-    /// that line, and the two tones the app reached for are not there:
-    /// `hairline` is 1.17:1 on `bg` in light and `ink3` 2.35:1, so the border
-    /// a person is supposed to aim at is missing rather than quiet
-    /// (finding 31, UX review 05.09.2026).
+    /// that line, and the quieter tones are not there: `hairline` is 1.17:1
+    /// on `bg` in light and `ink3` 2.35:1, so a border drawn in them is
+    /// missing rather than quiet.
     ///
-    /// An alias, not an eleventh colorset: `ink2` is the only token that
-    /// clears 3:1 in all four environments (4.96:1 light, 6.97:1 dark, both
-    /// higher under Increased Contrast) and `BrandPaletteTests` already gates
-    /// every one of those numbers, while a new colorset would need four
-    /// appearances, its own pin, and a palette decision that is the owner's —
-    /// and moving a token invalidates the whole store screenshot set. Naming
-    /// the ROLE is what lets the remaining hairline targets (FlowChrome, the
-    /// two technique sheets, AdjustPanel, SettingsSheet) come here one file at
-    /// a time without a second opinion about the value.
+    /// An alias, not an eleventh colorset: `ink2` clears 3:1 on `bg` in all
+    /// four environments (4.96:1 light, 6.97:1 dark, higher under Increased
+    /// Contrast) and `BrandPaletteTests` already gates it there, while a new
+    /// colorset would need four appearances and its own pin. Naming the ROLE
+    /// lets the remaining hairline targets come here one file at a time
+    /// without a second opinion about the value.
     static let targetStroke = ink2
 }
 
@@ -104,19 +97,15 @@ extension Theme {
     static func badgePillColors(colorScheme: ColorScheme,
                                 contrast: ColorSchemeContrast) -> (text: Color, fill: Color) {
         // `init(mutations:)`: `init(traitsFrom:)` is deprecated from iOS 17,
-        // the app's floor, and the build said so on every compile.
+        // the app's floor.
         let traits = UITraitCollection { mutable in
             mutable.userInterfaceStyle = colorScheme == .dark ? .dark : .light
             mutable.accessibilityContrast = contrast == .increased ? .high : .normal
         }
         // `ink`, not accentText: on the accentSoft fill accentText measures
         // 4.20:1 in the dark scheme, under the 4.5 an 11 pt semibold pill owes
-        // (I-21). This was the LAST of the six sites drawing that pair — the
-        // probe badge, the held-set card, the maximum note, Today's
-        // "day N in a row" card and the onboarding chip moved to `ink` before
-        // it, where `BrandPaletteTests` gates the pair at 4.5 dark and 7 under
-        // Increased Contrast and it actually measures 15.23:1 light / 13.46:1
-        // dark (UX review 05.09.2026, finding 16).
+        // (I-21). ink-on-accentSoft measures 15.23:1 light / 13.46:1 dark,
+        // and `BrandPaletteTests` gates it in every appearance.
         //
         // The traits keep carrying the contrast, and `BadgePill` keeps keying
         // its cache on it, even though neither `ink` nor `accentSoft` has a
@@ -129,8 +118,8 @@ extension Theme {
 
     /// `resolvedColor`, not the `compatibleWith:` initializer: that one hands
     /// back a colour that is still dynamic, and SwiftUI then resolves it a
-    /// second time in the renderer's own environment — which is how a dark
-    /// pill came out light. This flattens it to one value before SwiftUI ever
+    /// second time in the renderer's own environment — so a dark pill would
+    /// come out light. This flattens it to one value before SwiftUI ever
     /// sees it.
     ///
     /// clear on a miss, not a plausible stand-in: `BrandPaletteTests` pins
@@ -219,7 +208,7 @@ struct PrimaryButton: View {
 /// above, which is the single full-width action of a screen.
 ///
 /// Applied to the Button's LABEL, not to the Button, so the call sites keep
-/// their own actions and accessibility identifiers exactly as they were.
+/// their own actions and accessibility identifiers.
 extension View {
     func pairedPrimaryLabel() -> some View {
         dredfitFont(15.5, weight: .semibold)
@@ -233,16 +222,15 @@ extension View {
             .foregroundStyle(Theme.ink2)
             .frame(maxWidth: .infinity, minHeight: 46)
             // The outline IS the button here — there is no fill behind it, so
-            // it owes 1.4.11's 3:1 and `hairline` gave 1.17:1 in light
-            // (finding 31, UX review 05.09.2026).
+            // it owes 1.4.11's 3:1, and `hairline` is 1.17:1 in light.
             .background(RoundedRectangle(cornerRadius: 14)
                 .strokeBorder(Theme.targetStroke, lineWidth: 1.5))
     }
 }
 
-/// The date line every screen puts above the day's card: weekday, day,
-/// month. One spelling in one place, so Today, the history sheet and the
-/// calendar cannot drift apart.
+/// The date line above the day's card: weekday, day, month. One spelling
+/// in one place, so Today, the history sheet and the calendar cannot drift
+/// apart.
 ///
 /// Deliberately uncapitalised. `Kicker` uppercases whatever it is handed,
 /// and the calendar's accessibility line wants the date spelled the way the
@@ -255,15 +243,11 @@ extension Date {
 
 struct Kicker: View {
     let text: String
-    /// ink2, not ink3. The rule this default used to carry — ink3 for a
-    /// SECTION heading, ink2 only for a kicker over the one actionable thing —
-    /// was justified as "4.96:1 against 3.02:1", and those two numbers come
-    /// from DIFFERENT schemes: 4.96 is light ink2 on light `bg`, 3.02 is dark
-    /// ink3 on dark `bg`. Read inside one scheme, ink3 is 2.35:1 light /
-    /// 3.02:1 dark, and 12 pt semibold is small text, where the floor is 4.5
-    /// (R16–R21). ink2 clears it in both — 4.96:1 / 6.97:1 — so every kicker
-    /// takes it (UX review 05.09.2026). `color` stays for the rare kicker that
-    /// wants another tone; nothing in the app may hand it ink3 back.
+    /// ink2, not ink3. On `bg` ink3 is 2.35:1 light / 3.02:1 dark, and 12 pt
+    /// semibold is small text, where the floor is 4.5. ink2 clears it in
+    /// both — 4.96:1 / 6.97:1 — so every kicker takes it (R16–R21). `color` stays for
+    /// the rare kicker that wants another tone; nothing in the app may hand
+    /// it ink3 back.
     var color: Color = Theme.ink2
     var body: some View {
         Text(text.uppercased())

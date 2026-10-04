@@ -20,7 +20,7 @@ enum LifeBenefit {
     // MARK: - Base lines (one per movement)
 
     /// Keyed, not literal: a key stops a future short literal from silently
-    /// reusing this translation (the "Done"/"Next" collision of wave 4).
+    /// reusing this translation.
     static func baseText(for pattern: Pattern) -> String {
         switch pattern {
         case .squat:
@@ -60,10 +60,9 @@ enum LifeBenefit {
 
     /// The indices are pinned to the library, so a reshuffle of a ladder must
     /// revisit these pairs — and the KEYS name the movement rather than its
-    /// index, precisely so the next reshuffle moves a case label and not a
-    /// translation. (They used to be `life.override.squat-3` and friends, and
-    /// §40.1 moved every one of those numbers.) LifeBenefitTests cross-checks
-    /// the pairs against the library by name.
+    /// index, precisely so a reshuffle moves a case label and not a
+    /// translation. LifeBenefitTests cross-checks the pairs against the
+    /// library by name.
     static func overrideText(for pattern: Pattern, variation: Int) -> String? {
         switch (pattern, variation) {
         case (.squat, 5):      // Pistol squat

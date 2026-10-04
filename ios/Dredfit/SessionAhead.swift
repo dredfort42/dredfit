@@ -35,22 +35,21 @@ nonisolated enum SessionAhead {
     /// two 8s ahead of them.
     ///
     /// `facts` and `declared` are the two things the work screen itself lives
-    /// on: the clock counts down from `SetFacts.holdTarget`, and the header
-    /// counted the plan — so declaring 45 s against a plan of 30 moved every
-    /// remaining set of that movement and moved the number not at all, and a
-    /// hold stopped at 22 of 40 went on promising 40 for the sets after it
-    /// (UX review 05.09.2026). The two disagree exactly when the person has
-    /// deviated, which is when "am I going to make it" is asked.
+    /// on: the clock counts down from `SetFacts.holdTarget`. A header counting
+    /// the plan alone would not move when 45 s is declared against a plan of
+    /// 30, and would go on promising 40 for the sets after a hold stopped at
+    /// 22 of 40. Plan and clock disagree exactly when the person has deviated,
+    /// which is when "am I going to make it" is asked.
     ///
     /// ONLY the exercise under way takes them. The movements after it have
     /// had nothing said about them yet, so their plan is the honest answer,
     /// and a declaration belongs to the exercise it was made for — it is
     /// cleared on the way out of one (`resetHoldExercise`).
     ///
-    /// The number can therefore go UP mid-exercise, which it never could
-    /// before: declaring more than the plan makes the workout longer, and
-    /// saying so is the whole point of a number that recalculates. What it
-    /// must never do is move without the person having moved it.
+    /// The number can therefore go UP mid-exercise: declaring more than the
+    /// plan makes the workout longer, and saying so is the whole point of a
+    /// number that recalculates. What it must never do is move without the
+    /// person having moved it.
     static func remaining(_ exercises: [SessionExercise], exIndex: Int,
                           setsBehind: Int,
                           facts: SetFacts.PerSet, declared: Int?) -> [SessionExercise] {
@@ -61,13 +60,12 @@ nonisolated enum SessionAhead {
         if left > 0 {
             ahead.append(trimmed(current, to: left, facts: facts, declared: declared))
         } else if current.probe != nil {
-            // The probe is a set of its own (§40.4) and it is the LAST one, so
-            // it is still ahead when every working set is behind — which is
-            // exactly the rest screen that announces it by name. Dropping the
-            // exercise on `left == 0` took the probe and the rest after it off
-            // the number, understating what is left by a minute or two at the
-            // moment the person is deciding whether to try an unfamiliar
-            // movement (UX review 05.09.2026).
+            // The probe is a set of its own and it is the LAST one, so it is
+            // still ahead when every working set is behind — which is exactly
+            // the rest screen that announces it by name. Dropping the exercise
+            // on `left == 0` would take the probe and the rest after it off the
+            // number at the moment the person is deciding whether to try an
+            // unfamiliar movement.
             ahead.append(trimmed(current, to: 0, facts: facts, declared: declared))
         }
         ahead.append(contentsOf: exercises[(exIndex + 1)...])
@@ -109,7 +107,7 @@ nonisolated enum SessionAhead {
     /// Each remaining set is priced at what its clock will be set to, which
     /// with no facts and no declaration IS `plannedLoad` — `holdTarget` falls
     /// through to `inForce`, and `inForce` falls through to the plan — so the
-    /// plan-only entry points above are unchanged to the bit.
+    /// plan-only entry points above price exactly the plan.
     private static func trimmed(_ ex: SessionExercise, to sets: Int,
                                 facts: SetFacts.PerSet, declared: Int?) -> SessionExercise {
         SessionExercise(pattern: ex.pattern, name: ex.name, variation: ex.variation,
@@ -118,7 +116,7 @@ nonisolated enum SessionAhead {
                         restSetSec: ex.restSetSec, restExerciseSec: ex.restExerciseSec,
                         // `index`, never `set`: the parser reads a binding
                         // named `set` as the accessor keyword and the file
-                        // stops compiling (R23 paid for this once already).
+                        // stops compiling (R23).
                         loads: ((ex.sets - sets)..<ex.sets).map { index in
                             // A declaration governs a HOLD only; reps have no
                             // control that sets a target before the effort,
@@ -132,7 +130,7 @@ nonisolated enum SessionAhead {
                         // still ahead for as long as any of the exercise is.
                         // Its own number is untouched: a time declared for
                         // THIS movement says nothing about the one the probe
-                        // offers (§40.4).
+                        // offers.
                         probe: ex.probe)
     }
 }

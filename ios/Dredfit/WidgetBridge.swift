@@ -46,8 +46,8 @@ extension AppStore {
         let summary = weekSummary(for: today)
         // Both ends out of one call: the widget prints the same length range
         // as Today does (PlanLength), and two numbers resolved at different
-        // moments could disagree about which end is which. `full` here is the
-        // same `nextSession.estimatedTotalMin` the line carried before.
+        // moments could disagree about which end is which. `full` is
+        // `nextSession.estimatedTotalMin`.
         let length = sessionLengthRange()
         let snapshot = WidgetSnapshot(
             days: days,
@@ -70,14 +70,13 @@ extension AppStore {
     /// — the Calendar leaves those unshamed and the widget follows.
     private func widgetStatus(of day: Date, today: Date) -> WidgetSnapshot.DayStatus {
         if record(on: day) != nil { return .done }
-        // TODAY follows `restApplies`, the rest of the grid `isRestDay`.
-        // Finding 7 (rest is rest FROM something) was applied to Today and not
-        // here, so a fresh install whose onboarding ended on a marked weekday
-        // saw the plan on Today and "Rest day — next workout tomorrow" on the
-        // widget, which is the exact sentence the finding removed and the
-        // exact person it was removed for (review 06.09.2026). Only today,
-        // though: the marked weekdays still describe the thirteen days ahead,
-        // and a blanket swap would paint the whole fortnight as workouts.
+        // TODAY follows `restApplies`, the rest of the grid `isRestDay`
+        // (`planRests`). Rest is rest FROM something: a fresh install whose
+        // onboarding ended on a marked weekday sees the plan on Today, and the
+        // widget must not tell that person "Rest day — next workout tomorrow".
+        // Only today, though: the marked weekdays still describe the days
+        // ahead, and a blanket swap would paint the whole fortnight as
+        // workouts.
         if planRests(on: day, today: today) { return .rest }
         return day < today ? .unmarked : .workout
     }

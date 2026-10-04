@@ -1,6 +1,7 @@
 //
 //  The reduced technique sheet for warm-up and cool-down positions: name,
-//  block capsule, 2–3 steps. The flow freezes the countdown while it is open.
+//  block capsule, steps, and the way to set a position aside. The flow
+//  freezes the countdown while it is open.
 //
 
 import SwiftUI
@@ -16,10 +17,9 @@ struct PositionTechnique: Identifiable, Equatable {
 
 extension PositionTechnique {
     init(warmup move: WarmupMove) {
-        // A split move says the length of ONE half, the way the cool-down twin
-        // below always has: since §41.12 its slot is two halves with the switch
-        // pause between them, and "warm-up · 30 s" would be the number of
-        // neither half.
+        // A split move says the length of ONE half, as the cool-down twin
+        // below does: its slot is two halves with the switch pause between
+        // them, and "warm-up · 30 s" would be the number of neither half.
         let capsule: String
         switch move.halves {
         case .sides:
@@ -51,7 +51,7 @@ struct PositionTechniqueSheet: View {
     @Environment(\.dismiss) private var dismiss
     /// Reached through the environment rather than through the initializer:
     /// the sheet is presented by `WorkoutFlowView` with the technique alone,
-    /// and the way in for finding 49 must not change that call.
+    /// and the set-aside control below must not change that call.
     @Environment(AppStore.self) private var store
 
     var body: some View {
@@ -92,8 +92,8 @@ struct PositionTechniqueSheet: View {
                 .padding(.horizontal, 24)
             }
 
-            // Its own name — see TechniqueSheet: four sheets close on the same
-            // two words, and this one opens OVER a running block, so a test
+            // Its own name — see TechniqueSheet: several sheets close on the
+            // same two words, and this one opens OVER a running block, so a test
             // that closed the wrong sheet would leave the block running.
             PrimaryButton(title: String(localized: "Got it")) { dismiss() }
                 .accessibilityIdentifier("position-technique-done")
@@ -107,17 +107,16 @@ struct PositionTechniqueSheet: View {
         .presentationBackground(Theme.bg)
     }
 
-    // MARK: - "Not this one" (UX review 05.09.2026, finding 49)
+    // MARK: - "Not this one"
 
     /// The one place in the app where a warm-up move or a cool-down position
     /// can be refused for good.
     ///
-    /// Before this, "not this one" cost the same tap on the same position in
-    /// every single workout — cat-cow fell in 100 % of warm-ups and the wall
-    /// stretch stood second in every cool-down — and the cheap way out of that
-    /// was already on screen: skip the whole block. So the block loses one
-    /// position and composes another in its place; the pool is nine against
-    /// six shown, which is exactly what pays for it.
+    /// Without it, "not this one" would cost the same tap on the same
+    /// position in every workout that draws it, and the cheap way out would
+    /// be to skip the whole block. So the block loses one position and
+    /// composes another in its place; the pool is nine against six shown,
+    /// which is what pays for it.
     ///
     /// The tap closes the sheet, because the answer to "don't show me this"
     /// is not to go on showing it: the block restarts the slot on its own

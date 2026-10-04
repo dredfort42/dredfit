@@ -52,10 +52,10 @@ final class CountdownSounds {
     /// prepareToPlay); calling this early means the first tick pays none of it.
     func prime() {}
 
-    /// The half of "Play tones in Silent mode" that makes the switch true
-    /// (finding 53, UX review 05.09.2026). A phone silenced in a gym is
-    /// silenced on purpose, so this is off until the athlete says otherwise —
-    /// and a Settings row without this call is a control that lies.
+    /// The half of "Play tones in Silent mode" that makes the switch true.
+    /// A phone silenced in a gym is silenced on purpose, so this is off until
+    /// the athlete says otherwise — and a Settings row without this call is a
+    /// control that lies.
     ///
     /// Called from ONE place, `RootView`'s observer of
     /// `AppSettings.playsTonesInSilentMode`, and that is what covers all three
@@ -127,10 +127,10 @@ enum SignalTone {
                          (start: 0.095, samples: note(hz: g6, seconds: 0.45, tau: 0.128))],
                         total: 0.55, peak: 0.80)
 
-    /// Switch sides: two fast taps on one pitch — G6, G6, 75 ms apart
-    /// against the 95–110 ms of the melodic pairs. A rhythmic identity, not
-    /// a contour: the mirrored go it replaces was still a two-note melody
-    /// and, eyes closed mid-stretch, read as either a start or a release.
+    /// Switch sides: two fast taps on one pitch — G6, G6, 75 ms apart,
+    /// closer than any melodic pair. A rhythmic identity, not a contour:
+    /// another two-note melody, heard eyes closed mid-stretch, reads as
+    /// either a start or a release.
     static let switchSides = mix([(start: 0, samples: note(hz: g6, seconds: 0.18, tau: 0.060)),
                                   (start: 0.075, samples: note(hz: g6, seconds: 0.40, tau: 0.130))],
                                  total: 0.48, peak: 0.66)
@@ -159,14 +159,15 @@ enum SignalTone {
                                total: 1.35, peak: 0.88)
 
     /// The reminder: the go's motif slowed down and softened. Not played
-    /// in-app — it exists for the notification channel (stage C of #84).
+    /// in-app — it exists for the notification channel (`ReminderSoundFile`,
+    /// #84).
     static let reminder = mix([(start: 0, samples: note(hz: c6, seconds: 0.50, tau: 0.144)),
                                (start: 0.140, samples: note(hz: g6, seconds: 0.90, tau: 0.240))],
                               total: 1.05, peak: 0.50)
 
     /// One additive note: fundamental + 15% octave harmonic under an
     /// exponential decay. A 4 ms half-cosine ramp opens it and a 5 ms one
-    /// closes it — the tail has decayed to 2–3% of the peak by the cut, but
+    /// closes it — the tail has decayed to a few percent by the cut, but
     /// the last note of a sound has no successor to mask even that.
     static func note(hz: Double, seconds: Double, tau: Double,
                      amp: Double = 1.0) -> [Double] {
