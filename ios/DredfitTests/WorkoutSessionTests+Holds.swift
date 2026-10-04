@@ -63,6 +63,19 @@ extension WorkoutSessionTests {
         XCTAssertFalse(flow.holding)
     }
 
+    func testACountInThatStartsOverIsPrimedAgain() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.startHold()
+        clock += 30
+        signals.primes = 0
+        flow.tick()
+        XCTAssertTrue(flow.holdCountingIn, "the premise")
+        XCTAssertEqual(signals.primes, 1, "the absence that ended the first count-in let the engine go cold")
+        run(flow, for: GetReady.countInSeconds)
+        XCTAssertEqual(signals.tones, [.tick, .tick, .tick, .go])
+        XCTAssertEqual(signals.primes, 1, "one prime per 3-2-1")
+    }
+
     func testAStopInsideTheMisTapGraceHandsTheSetBack() throws {
         let (flow, _) = try holdFlow(.coreAntiExt)
         flow.startHold()
@@ -209,6 +222,80 @@ extension WorkoutSessionTests {
         flow.skipRest()
         XCTAssertTrue(flow.holdCountingIn)
         XCTAssertEqual(flow.holdCountInClock.remaining, GetReady.countInSeconds)
+    }
+
+    func testTheCountInAfterSkipRestIsPrimedOnceASecondBeforeItsFirstTick() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        signals.primes = 0
+        flow.startHoldExercise()
+        XCTAssertEqual(signals.primes, 1, "a tap on Start opens the same count-in")
+        run(flow, for: GetReady.countInSeconds + 15)
+        XCTAssertTrue(flow.restStartsTheNextSet, "the premise")
+        signals.primes = 0
+        signals.events.removeAll()
+
+        flow.skipRest()
+        XCTAssertTrue(flow.holdCountingIn, "the premise")
+        XCTAssertEqual(signals.primes, 1, "Skip rest sounds nothing, and the count-in opens on the second before its 3")
+        run(flow, for: 1)
+        XCTAssertEqual(signals.tones, [.tick])
+        run(flow, for: GetReady.countInSeconds - 1)
+        XCTAssertEqual(signals.tones, [.tick, .tick, .tick, .go])
+        XCTAssertEqual(signals.primes, 1, "one prime per 3-2-1")
+    }
+
+    func testARunsRestResumedInItsLastSecondsIsPrimedOnceASecondBeforeItsFirstTick() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.startHoldExercise()
+        run(flow, for: GetReady.countInSeconds + 15)
+        XCTAssertTrue(flow.restStartsTheNextSet, "the premise")
+        run(flow, until: { flow.restClock.remaining == 2 })
+        flow.toggleBlockPause()
+        clock += 120
+        signals.primes = 0
+        signals.events.removeAll()
+
+        flow.toggleBlockPause()
+        XCTAssertEqual(flow.restClock.remaining, BlockPause.reentrySeconds,
+                       "the premise: a resumed rest picks up at no less than the count-in")
+        XCTAssertEqual(signals.primes, 1, "two minutes paused let the engine go cold")
+        run(flow, for: 1)
+        XCTAssertEqual(signals.tones, [.tick])
+        run(flow, for: BlockPause.reentrySeconds - 1)
+        XCTAssertEqual(signals.tones, [.tick, .tick, .tick, .go])
+        XCTAssertEqual(signals.primes, 1, "one prime per 3-2-1")
+    }
+
+    func testARunsRestResumedWithTimeLeftIsPrimedOnlyAtItsFour() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.startHoldExercise()
+        run(flow, for: GetReady.countInSeconds + 15)
+        XCTAssertTrue(flow.restStartsTheNextSet, "the premise")
+        run(flow, until: { flow.restClock.remaining == 30 })
+        flow.toggleBlockPause()
+        clock += 120
+        signals.primes = 0
+
+        flow.toggleBlockPause()
+        XCTAssertEqual(flow.restClock.remaining, 30, "the premise: a rest with time left keeps it")
+        XCTAssertEqual(signals.primes, 0, "thirty seconds out, a prime would be cold again by the 3")
+        run(flow, until: { flow.restClock.remaining == BlockPause.reentrySeconds })
+        XCTAssertEqual(signals.primes, 1)
+        run(flow, for: BlockPause.reentrySeconds)
+        XCTAssertEqual(signals.primes, 1, "one prime per 3-2-1")
+    }
+
+    func testNothingIsPrimedWithTheSoundsOff() throws {
+        let (flow, store) = try holdFlow(.coreAntiExt)
+        store.update(refreshWidget: false) { $0.settings.soundsEnabled = false }
+        signals.primes = 0
+        flow.startHoldExercise()
+        run(flow, for: GetReady.countInSeconds + 15)
+        XCTAssertTrue(flow.restStartsTheNextSet, "the premise")
+        flow.skipRest()
+        XCTAssertTrue(flow.holdCountingIn, "the premise")
+        run(flow, for: GetReady.countInSeconds)
+        XCTAssertEqual(signals.primes, 0, "the haptic is half of a signal the switch has turned off")
     }
 
     func testReadingTheTechniqueFreezesOnlyTheRestThatStartsASet() throws {

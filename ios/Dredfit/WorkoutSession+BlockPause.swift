@@ -136,6 +136,9 @@ extension WorkoutSession {
             let end = restClock.start(BlockPause.restAfterPause(remaining: restClock.remaining,
                                                                 total: total),
                                       now: now())
+            // Paused in its last seconds, a rest comes back on its floor, the
+            // count-in: the second before its 3-2-1, which it never ticks onto.
+            primeBeforeTheCount(showing: restClock.remaining)
             liveActivity.update(.init(phase: .rest, title: nextLabel,
                                       detail: restActivityDetail,
                                       restEndDate: end))
