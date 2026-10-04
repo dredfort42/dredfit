@@ -1,7 +1,7 @@
 //
-//  What the next plan will be for one movement, read before the rating lands
-//  (§41.13). Read-only: the summary of a finished hold asks, the store
-//  answers by DRY-RUNNING the engine, and nothing is written.
+//  What the next plan will be for one movement, read before the rating
+//  lands. Read-only: the summary of a finished hold asks, the store answers
+//  by DRY-RUNNING the engine, and nothing is written.
 //
 
 import Foundation
@@ -10,8 +10,9 @@ import DredfitCore
 extension AppStore {
 
     /// The position a movement will stand on after this session, computed
-    /// exactly the way `completeWorkout` will compute it — the same entry
-    /// point, the same arguments — with the rating assumed to be "on plan".
+    /// the way `completeWorkout` will compute it — the same entry point and
+    /// arguments, with the rating assumed to be "on plan" and the gap
+    /// measured now.
     ///
     /// The assumption is a promise only where it cannot break. With a fact
     /// entered for the movement the step is taken from the fact
@@ -42,8 +43,10 @@ extension AppStore {
     /// easier variation by hand, a decay): the note names a rise that is
     /// still standing, not one that was.
     ///
-    /// The LANDED share, not the taps: on the grid's ceiling the engine
-    /// parks a raise, and the note is about the rise that stood.
+    /// The landed share the record keeps (`raisedShare`, as `landed` counted
+    /// it; a record written before that share was kept falls back to the
+    /// taps): on the grid's ceiling the engine parks a raise, and the note is
+    /// about the rise that stood.
     func raisedForNextPlan(_ pattern: Pattern) -> Int {
         guard let last = records.last,
               last.sessionNumber == engineState.counter,
@@ -51,16 +54,20 @@ extension AppStore {
         return min(max(last.raisedShare(pattern), 0), EngineConfig.raiseStepsMax)
     }
 
-    /// The share of `raised` that moved a position: the growth events
-    /// between the state the rating alone would have left and the one it
-    /// left with the raise on top. One step of `raiseDose` is exactly one
-    /// event along the ladder's measure — a sub-step, or the rung a full
-    /// band of sub-steps turns into — so the difference of the two
-    /// ordinals counts the steps that landed, and the engine's own
-    /// parking on the ceiling (§41.13) shows up here as steps that did
-    /// not. Bounded by the taps: nothing else moves between the two
-    /// states, but a count the journal will print should not be able to
-    /// exceed the decision it describes even if that changes.
+    /// The share of `raised` the journal records as having moved a
+    /// position, per movement: the growth events between the state the rating
+    /// alone would have left and the one it left with the raise on top,
+    /// capped at the taps. Only the raise differs between the two states, so
+    /// a raise parked on the grid's ceiling shows up here as steps that did
+    /// not land.
+    ///
+    /// It counts events, not steps. Without a cut the two agree step for
+    /// step; under a cut the step that rolls the sub-step into the next rung
+    /// is worth more than one event: squat 3×10 with cut 1 moves +1 after one
+    /// step of `raiseDose` and +3 after two, which the cap brings back to 2.
+    /// A step burned on the ceiling after such a step is still counted: at
+    /// 3×14, sub 1, cut 1, two steps land where one does, the ordinals move
+    /// +2, and this returns 2.
     static func landed(_ raised: [Pattern: Int],
                        from unraised: EngineState, to next: EngineState) -> [Pattern: Int] {
         var out: [Pattern: Int] = [:]

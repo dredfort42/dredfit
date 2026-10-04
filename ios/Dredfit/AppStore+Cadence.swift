@@ -1,6 +1,6 @@
 //
 // The trainee's own rhythm and the training day (#134, #147). A steady cadence
-// is not a break: when a new gap lands within ±1 day of any of the last three
+// is not a break: when a new gap lands within ±1 day of any of the last eight
 // gaps between workouts, the silent decay and the comeback card both stand
 // down — the plan simply waits as it is. Everything here is read-only; the
 // callers in AppStore proper make the mutating decisions.
@@ -14,22 +14,21 @@ extension AppStore {
     /// CALENDAR days in the local zone — the number of midnights between the
     /// two workouts, not the number of whole 24-hour periods. Everything about
     /// rhythm is calendar-shaped in the trainee's head: "yesterday", "every
-    /// Sunday", "two weeks off". Counting elapsed hours instead put Monday
-    /// 23:00 → Tuesday 01:00 at ZERO days, which is a gap the decay, the
-    /// comeback card, the cadence detector and the frequency guard all read —
-    /// and it made a clock change or a flight into a phantom day in either
-    /// direction. The autumn DST day is 25 hours long and the spring one 23,
-    /// and `startOfDay` is right about both.
+    /// Sunday", "two weeks off". Counting elapsed hours would put Monday
+    /// 23:00 → Tuesday 01:00 at ZERO days — a gap the decay, the comeback
+    /// card and the cadence detector all read — and would turn a clock
+    /// change or a flight into a phantom day in either direction. The autumn
+    /// DST day is 25 hours long and the spring one 23, and `startOfDay` is
+    /// right about both.
     ///
-    /// The thresholds themselves (7–13 decay, ≥14 comeback, ≥90 fresh start,
-    /// 2–14 illness) are untouched: this changes what a day IS, not how many
-    /// of them mean what.
+    /// The thresholds (7–13 decay, ≥14 comeback, ≥90 fresh start) count
+    /// these days.
     ///
     /// The weekly window keeps its own fractional gap (`gapFraction`) — the
     /// engine's weekly window ages in fractions of a day and must not be
-    /// rounded to midnights. The calendar is a parameter only so the DST
-    /// boundary can be pinned by a test in a zone that actually has one —
-    /// production always passes `.current`, which is the trainee's own zone.
+    /// rounded to midnights. The calendar is a parameter so tests can pin the
+    /// DST boundary in a zone that actually has one; the production callers
+    /// leave it at `.current`, the trainee's own zone.
     static func trainingDays(from start: Date, to end: Date,
                              calendar cal: Calendar = .current) -> Int {
         let days = cal.dateComponents([.day],
@@ -37,29 +36,27 @@ extension AppStore {
                                       to: cal.startOfDay(for: end)).day
         // Clamped at zero: the phone's timezone can move between sessions (and
         // its clock can be set backwards), which would otherwise hand the
-        // engine a negative gap. Capped at countMax for the same reason the
-        // old arithmetic was — a corrupt journal date must not overflow.
+        // engine a negative gap. Capped at countMax: a corrupt journal date
+        // must not overflow.
         guard let days else { return 0 }
         return min(max(days, 0), EngineConfig.countMax)
     }
 
-    /// Training days since the last workout — the one number the engine's
-    /// time functions read. Nil while the journal is empty. Measured to the
-    /// real clock, not the `today` anchor: `today` freezes at the day's first
-    /// activation, which was harmless under midnight math but would hold the
-    /// card and the quiet offers up to a day behind the decay path now.
+    /// Training days since the last workout — the gap the engine's break
+    /// functions (`applySilentDecay`, `applyComeback`) read. Nil while the
+    /// journal is empty. Measured to the real clock, not the `today` anchor,
+    /// which can trail it by a day: the silent decay measures to the real
+    /// clock, and the comeback card must not read a different gap.
     func gapDays(now: Date? = nil) -> Int? {
         guard let last = records.last else { return nil }
         return Self.trainingDays(from: last.date, to: now ?? Date())
     }
 
     /// The same elapsed time, NOT floored — the fraction of a day the engine's
-    /// weekly window needs. `trainingDays` throws it away, so two workouts
-    /// inside one day handed the engine a zero, the window never aged, and the
-    /// weekly growth budget was spent once for a lifetime (48 levels against
-    /// 423 over 120 sessions). This feeds `applyFeedback` and nothing else:
-    /// the decay, the comeback and the cadence keep counting whole training
-    /// days.
+    /// weekly window needs. `trainingDays` throws it away: two workouts
+    /// inside one day are zero training days apart, but not zero time. This
+    /// feeds `applyFeedback` and nothing else: the decay, the comeback and
+    /// the cadence keep counting whole training days.
     func gapFraction(now: Date? = nil) -> Double? {
         guard let last = records.last else { return nil }
         let days = (now ?? Date()).timeIntervalSince(last.date) / 86_400
@@ -70,26 +67,22 @@ extension AppStore {
     /// The last up-to-eight gaps between consecutive journal entries — the
     /// memory a new break is compared against.
     ///
-    /// Three was too short (§41.5). A life cycle repeats over more than three
-    /// sessions — "three workouts in a week, then ten days of nothing, then
-    /// two, then five" is perfectly regular and never looks it inside a
-    /// three-gap window. The audit measured what that costs: at the SAME mean
-    /// interval, an irregular-looking rhythm took 80 silent decays over 80
-    /// sessions and finished at Σ −4, while a rhythm the window did recognise
-    /// finished at Σ 470. Eight recovers Σ 440–451 and still lets two to four
-    /// decays through, so the mechanism keeps working for real absences;
-    /// twelve was measured too and adds nothing over eight.
+    /// Eight, not three: a life cycle repeats over more than three sessions
+    /// — "three workouts in a week, then ten days of nothing, then two, then
+    /// five" is perfectly regular and never looks it inside a three-gap
+    /// window, where its long gaps decay as if they were absences. Eight was
+    /// chosen by measurement: real absences still decay, and twelve measured
+    /// no better.
     var recentGaps: [Int] {
         let dates = records.suffix(9).map(\.date)
         guard dates.count >= 2 else { return [] }
         return zip(dates, dates.dropFirst()).map { Self.trainingDays(from: $0, to: $1) }
     }
 
-    /// Owner decisions 16.08.2026, window widened to eight by §41.5
-    /// (26.08.2026): a break is the trainee's own rhythm when
-    /// it lands within ±1 day of any of the last eight gaps — with no upper
-    /// cap, so any consistent ritual is respected. A real one-off break falls
-    /// outside the window and is treated as before.
+    /// A break is the trainee's own rhythm when it lands within ±1 day of
+    /// any of the last eight gaps — with no upper cap, so any consistent
+    /// ritual is respected. A real one-off break falls outside the window and
+    /// is not shielded.
     ///
     /// The second clause covers mid-cycle opens: reminders fire on every
     /// non-rest day, so a 10-day-cadence trainee routinely opens the app on

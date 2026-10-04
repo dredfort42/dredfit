@@ -1,13 +1,9 @@
 //
-//  Quiet safety signals derived from the journal (issues #100, #98): a run of
-//  training days, and the movement the journal keeps finding under an unnamed
-//  "tough". Nothing here is persisted — the same journal always produces the
-//  same lines, backups included — and nothing blocks, colors, or counts toward
-//  an achievement.
-//
-//  The per-movement PAIN TREND is gone with the channel it read. Both of its
-//  rungs — "it hurt again" and "time to see a specialist" — counted pain
-//  reports, and there are none to count.
+//  Read-only signals behind the quiet lines on Today and in the history.
+//  Two are safety signals derived from the journal: a run of training days
+//  (#98), and the movement the journal keeps finding under an unnamed
+//  "tough" (#135). Nothing here writes, and neither safety signal blocks the
+//  workout or counts toward an achievement.
 //
 
 import Foundation
@@ -21,13 +17,8 @@ extension AppStore {
 
     /// Consecutive calendar days with a completed workout, counting back from
     /// (and including) the given day. Local-midnight day math — the SAME day
-    /// math `gapDays` uses. This sentence used to end "deliberately unlike
-    /// `gapDays`, which counts whole elapsed 24h periods", and it outlived the
-    /// change it described: #172 (v2.24) moved `gapDays` onto `startOfDay` too,
-    /// because Monday 23:00 → Tuesday 01:00 was a zero-day gap to the decay and
-    /// the comeback card. Nothing here is "unlike" anything any more, and a
-    /// reader who trusted the old note would seed a test in elapsed seconds.
-    /// Two workouts on one day still count once.
+    /// math `gapDays` uses (`trainingDays`), so a test seeds both in calendar
+    /// days, not elapsed seconds. Two workouts on one day count once.
     func consecutiveTrainingDays(endingOn day: Date) -> Int {
         let cal = Calendar.current
         let trained = Set(records.map { cal.startOfDay(for: $0.date) })
@@ -62,25 +53,24 @@ extension AppStore {
 extension AppStore {
 
     /// The one thing an exercise card has to explain about its own set count.
-    /// Sets move without levels — a movement half of whose sets were skipped
-    /// last time comes back as `2×4 /side` under a name that carried
-    /// `4×4 /side` — and a plan that quietly got easier reads as a bug exactly
-    /// the way a plan that quietly got harder does.
+    /// Sets can move while the name and the dose stand still — a movement
+    /// half of whose sets were skipped last time comes back as `2×4 /side`
+    /// under a name that carried `4×4 /side` — and a plan that quietly got
+    /// easier reads as a bug exactly the way a plan that quietly got harder
+    /// does.
     ///
     /// A fact, not a line: this says WHETHER there is something to explain,
-    /// and `ExerciseRow` owns the words for it. The "pain is holding the
-    /// volume down" rung is gone with the episode, which is what took the type
-    /// here down from an enum to a Bool — and what is left matters more now,
-    /// not less: sets come off because the person skipped them, so the card
-    /// has to say when the engine gives one back on its own.
+    /// and `ExerciseRow` owns the words for it. Sets come off for several
+    /// reasons — a skip, a descent on the dose floor, the deload, a break —
+    /// so the card has to say when the engine gives one back on its own.
     ///
     /// The hold is armed by the very transition that handed a set back and
-    /// spends a tick on each appearance after it, so "full" means the returned
-    /// set is in THIS plan. That alone is not enough to say so out loud: the
-    /// gate and the postcondition repair both cut AFTER the handle, and a line
-    /// about a set the card does not show would simply be false. So the
-    /// journal has the last word — what the card carried the last time this
-    /// movement came round.
+    /// spends a tick each time the movement is trained after it, so "full"
+    /// means the returned set is in THIS plan. That alone is not enough to
+    /// say so out loud: the session generator can still show fewer sets than
+    /// the position holds, and a line about a set the card does not show
+    /// would simply be false. So the journal has the last word — what the
+    /// card carried the last time this movement came round.
     func aSetJustCameBack(in exercise: SessionExercise) -> Bool {
         let pattern = exercise.pattern
         guard engineState.setsHold[pattern] == EngineConfig.setsBackHold,
@@ -91,14 +81,14 @@ extension AppStore {
     /// True when this movement stands on an EASIER variation than the one the
     /// last workout left it on — the plan quietly changed under a name the
     /// person recognises, and a row that got easier by itself reads as a bug
-    /// exactly the way one that got harder does (UX review 05.09.2026,
-    /// finding 3). A fact, not a line: `ExerciseRow` owns the words.
+    /// exactly the way one that got harder does. A fact, not a line:
+    /// `ExerciseRow` owns the words.
     ///
     /// Measured against the last record's `positionsAfter`, which is the state
     /// the journal vouches for. Everything the rating itself did is already
-    /// inside that snapshot, so what is left for this to catch is exactly what
-    /// moved the plan AFTERWARDS and without a word: the handle, the
-    /// blind-zone decay, an accepted comeback. A pattern the snapshot does not
+    /// inside that snapshot, so what is left for this to catch is what moved
+    /// the plan AFTERWARDS and without a word — the handle, the blind-zone
+    /// decay, an accepted comeback among them. A pattern the snapshot does not
     /// carry (a record written before v3) claims nothing.
     func aVariationJustDropped(in exercise: SessionExercise) -> Bool {
         guard let before = records.last?.positionsAfter?[exercise.pattern] else { return false }
@@ -125,22 +115,18 @@ extension AppStore {
 extension AppStore {
 
     /// A movement the journal keeps finding under an unnamed "tough" — the
-    /// same threshold the engine's chronic signal uses (3 of the last 4 of its
-    /// appearances), so the app and the model agree on what "keeps failing"
-    /// means.
+    /// same threshold the engine's chronic signal uses (`chronicHits` of the
+    /// last `chronicWindow` appearances: 3 of 4).
     ///
-    /// The audit's shoulder persona is the case: someone who only knows the
-    /// one-tap gesture rates "tough" whenever the pushes come up. Because the
-    /// pushes are in most sessions, that reads to the model as "the whole
-    /// programme is too hard", and nine weeks later the programme is gone —
-    /// while the movement that is actually the problem is still in every plan.
+    /// The case it exists for: someone who only knows the one-tap gesture
+    /// rates "tough" whenever the pushes come up. Because the pushes are in
+    /// most sessions, that reads to the model as "the whole programme is too
+    /// hard", while the movement that is actually the problem keeps its
+    /// place in the rotation.
     ///
-    /// The prompt used to route to "Something hurt", and that button no longer
-    /// exists. It routes to the easier VARIATION instead, which is the better
-    /// destination anyway: the pain report took the movement's volume away and
-    /// gave nothing back for weeks, while a lighter variation changes exactly
-    /// the thing the person is complaining about, immediately, and keeps the
-    /// movement in the plan.
+    /// The prompt routes to the easier VARIATION: a lighter variation changes
+    /// exactly the thing the person is complaining about, immediately, and
+    /// keeps the movement in the plan.
     func unnamedLessSuspect() -> Pattern? {
         var best: Pattern?
         var bestHits = 0
@@ -154,25 +140,21 @@ extension AppStore {
                 if seen == EngineConfig.chronicWindow { break }
             }
             guard seen == EngineConfig.chronicWindow, hits >= EngineConfig.chronicHits else { continue }
-            // A tie goes to the movement that failed more often, then to the
-            // one the rotation shows first — the same order the engine walks.
+            // The movement that failed more often wins; a tie goes to the one
+            // first in `Pattern.allCases`.
             if hits > bestHits { bestHits = hits; best = pattern }
         }
         // Nothing to suggest when the one handle the prompt offers would do
         // nothing: the movement is already in its easiest variation, so the
-        // question would route into a dead control. The sets half of this
-        // guard went with the handle it named — volume is answered inside the
-        // workout now, and a prompt on the plan cannot offer it.
+        // question would route into a dead control.
         guard let best else { return nil }
         guard Engine.easierPosition(pattern: best, position: engineState.position(best),
                                     shown: engineState.shown) != nil else { return nil }
         return best
     }
 
-    /// A session where the trainee said "tough" and pointed at nothing. Two
-    /// earlier waves cancelled the hold request and then the pain report — so
-    /// "naming something" is down to ONE signal, exact numbers, and the check
-    /// says so rather than listing an empty set.
+    /// A session where the trainee said "tough" and pointed at nothing — no
+    /// number entered for any movement.
     private static func namesNothing(_ record: WorkoutRecord) -> Bool {
         (record.actuals ?? [:]).isEmpty
     }
@@ -184,7 +166,7 @@ extension AppStore {
     }
 }
 
-// MARK: - Who moved the plan (UX review 05.09.2026, findings 27 and 64)
+// MARK: - Who moved the plan
 
 /// The read side of `PlanMoves`. Everything here is stamped at the moment the
 /// plan moves — see the type — because the journal cannot be asked afterwards:
@@ -202,9 +184,9 @@ extension AppStore {
     }
 
     /// The same question of the slot the rating owns. Separate from the one
-    /// above because the two are stamped one session apart: while a single
-    /// slot held both, a handle pulled on the next plan overwrote what the
-    /// last rating had named (review 06.09.2026).
+    /// above because the two are stamped one session apart: in a single slot,
+    /// a handle pulled on the next plan would overwrite what the last rating
+    /// had named.
     func ratingMoves(for session: Int) -> PlanMoves? {
         guard let moves = settings.ratingMoves, moves.session == session else { return nil }
         return moves

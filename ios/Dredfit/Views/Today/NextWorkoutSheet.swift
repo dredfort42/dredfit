@@ -24,8 +24,7 @@ struct NextWorkoutSheet: View {
                     // The palette, not the inherited `.primary` (#FFFFFF
                     // against ink's #F2F2F4 in the dark scheme) — the same
                     // heading as Today's, and it must not read differently
-                    // from the screen it is opened over (UX review
-                    // 05.09.2026, finding 15).
+                    // from the screen it is opened over.
                     .foregroundStyle(Theme.ink)
                 PlanLength(floor: length.floor, full: length.full,
                            count: session.exercises.count)
@@ -47,12 +46,11 @@ struct NextWorkoutSheet: View {
                 Button {
                     techniqueFor = TechniqueTarget(ex)
                 } label: {
-                    // The same card as Today's, so it carries the same one
-                    // line about why the set count is what it is — and the
-                    // same pill. The badge was simply not passed here, and a
-                    // preview that hides which movement is NEW is missing one
-                    // of the two facts it is opened for; `debutPatterns` is
-                    // computed over this very session (UX review 05.09.2026).
+                    // The same card as Today's, so it carries the same notes
+                    // about why the number is what it is — and the same pill:
+                    // a preview that hides which movement is NEW is missing
+                    // one of the two facts it is opened for. `debutPatterns`
+                    // is computed over this very session.
                     ExerciseRow(exercise: ex,
                                 badge: debuts.contains(ex.pattern)
                                     ? String(localized: "new variation") : nil,
@@ -64,8 +62,8 @@ struct NextWorkoutSheet: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
 
-            // Its own name — see TechniqueSheet: four sheets close on the same
-            // two words.
+            // Its own identifier — see TechniqueSheet: several sheets close
+            // on the same two words.
             PrimaryButton(title: String(localized: "Got it")) { dismiss() }
                 .accessibilityIdentifier("next-workout-done")
                 .padding(.horizontal, 24)
@@ -75,7 +73,7 @@ struct NextWorkoutSheet: View {
         .presentationDragIndicator(.visible)
         .presentationBackground(Theme.bg)
         // Without `planned:` — this preview looks at a session rather than
-        // deciding about one, so the step below stays off it (owner, R30). One
+        // deciding about one, so the step below stays off it (R30). One
         // boolean if that is ever reconsidered.
         .sheet(item: $techniqueFor) { ex in
             TechniqueSheet(target: ex)

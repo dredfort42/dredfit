@@ -20,10 +20,11 @@ struct ExerciseRow: View {
     /// number and not beside it — the sentence is longer than the column, and
     /// the load must keep its place.
     ///
-    /// A LIST because all three can be true at once: an easier variation is
-    /// about the name on the left, a set that came back is about the number on
-    /// the right, and a probe is about a set the number does not count at all.
-    /// Joined into one sentence they would read as one fact with three halves.
+    /// A LIST because several can be true at once: an easier variation is
+    /// about the name on the left, a set that came back or an addition of the
+    /// person's own is about the number on the right, and a probe is about a
+    /// set the number does not count at all. Joined into one sentence they
+    /// would read as one fact in several halves.
     var notes: [String] = []
     @Environment(\.displayScale) private var displayScale
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -56,55 +57,50 @@ struct ExerciseRow: View {
         .padding(.vertical, 4)
     }
 
-    /// The words for the one thing the card explains about its own number.
-    /// Static and here rather than in either screen: Today and the
-    /// next-workout sheet draw the same card and must not drift into two
-    /// different explanations.
+    /// The words for a set that came back. Static and here rather than in
+    /// either screen: Today and the next-workout sheet draw the same card and
+    /// must not drift into two different explanations.
     ///
     /// The store answers whether there is anything to say
     /// (`AppStore.aSetJustCameBack(in:)`); the sentence for it lives on this
     /// side of the line, with the view that draws it.
     ///
-    /// The second half of it — "your body is keeping up" — is gone. Nothing
-    /// here measured a body: the set returns because the plan's own counter
-    /// ran out and the cut fell (SetsHandle §38), and the same sentence would
-    /// have been shown to somebody who spent the last session taking sets off
-    /// because they were ill. A note under a number says what happened to the
-    /// number (UX review 05.09.2026).
+    /// It says what happened to the number and nothing about the body:
+    /// nothing here measures one. The set comes back by the plan's own rule —
+    /// a rise hands a cut set back once the hold has run out — and the same
+    /// words reach somebody who took sets off last time because they were ill.
     static func note(setCameBack: Bool) -> String? {
         guard setCameBack else { return nil }
         return String(localized: "A set is back.")
     }
 
-    /// The other one, and it exists because the row was quietly lying without
-    /// it: `sets` on an exercise that carries a probe is already one LOWER —
-    /// the probe replaces the last of them (§40.4) — so a plan of three sets
-    /// where the third is a probe rendered as "2 × 15" and said nothing about
-    /// the third at all. The announced duration counts that set; the row did
-    /// not mention it.
+    /// The probe's note: `sets` on an exercise that carries a probe is already
+    /// one LOWER — the probe replaces the last of them — so a plan of three
+    /// sets where the third is a probe renders as "2 × 15" and would say
+    /// nothing about the third at all. The announced duration counts that set,
+    /// so the row says it too.
     ///
     /// It names the movement, because the whole point of the probe is that the
-    /// last set is a DIFFERENT exercise — one nobody has done before.
+    /// last set is a DIFFERENT exercise — the next variation up.
     static func probeNote(_ exercise: SessionExercise) -> String? {
         guard let probe = exercise.probe else { return nil }
         return String(localized: "plan.probeNote",
                       defaultValue: "Then a probe: one set of \(probe.name) · \(probe.display)")
     }
 
-    /// The third one, and it is about the NAME rather than the number: a
-    /// movement standing on an easier variation than the last workout left it
-    /// on has changed under a name the person recognises, and a row that got
-    /// easier by itself reads as a bug exactly the way one that got harder
-    /// does (UX review 05.09.2026, finding 3).
+    /// About the NAME rather than the number: a movement standing on an
+    /// easier variation than the last workout left it on has changed under a
+    /// name the person recognises, and a row that got easier by itself reads
+    /// as a bug exactly the way one that got harder does.
     ///
     /// Two sentences, because in one of the two cases the app knows the cause
     /// and saying it is the whole answer: the athlete pulled "make it easier"
     /// themselves. That case stands ALONE rather than narrowing the other —
-    /// the handle can be pulled before the first workout ever exists, and
-    /// `aVariationJustDropped` has no earlier record to measure against there.
-    /// The remaining movers (the blind-zone decay, an accepted comeback) are
-    /// not named, because a note that guessed at one of them would be wrong
-    /// about the other.
+    /// it comes from the stamp the handle writes, while
+    /// `aVariationJustDropped` needs a last record that carries positions.
+    /// The other movers (among them the blind-zone decay, an accepted
+    /// comeback and a fresh start) are not named, because a note that guessed
+    /// at one of them would be wrong about the rest.
     static func variationNote(easedByHand: Bool, dropped: Bool) -> String? {
         if easedByHand {
             return String(localized: "plan.easedByHand",
@@ -116,9 +112,9 @@ struct ExerciseRow: View {
     }
 
     /// The part of this plan the person asked for themselves on the last
-    /// workout's summary (§41.13). Said in the plan's own row, where the
-    /// number stands: a rise that was your decision must not read as the
-    /// app's — the step-down note above exists for exactly the mirror case.
+    /// workout's summary. Said in the plan's own row, where the number
+    /// stands: a rise that was your decision must not read as the app's — the
+    /// step-down note above exists for exactly the mirror case.
     static func raisedNote(steps: Int, unit: LoadUnit) -> String? {
         guard steps > 0 else { return nil }
         return String(localized: "plan.raised",
@@ -130,10 +126,10 @@ struct ExerciseRow: View {
     /// both. One place, so Today and the next-workout sheet cannot drift into
     /// two explanations of one plan.
     ///
-    /// The newer facts carry a default because `false` (or zero) here means
+    /// The last three carry a default because `false` (or zero) here means
     /// "no claim", never "did not happen" — a caller with nothing to say says
-    /// nothing. Both screens pass all five explicitly; the default is what
-    /// keeps the pair the tests pin readable as the pair it was.
+    /// nothing. Both screens pass all five explicitly; the defaults keep the
+    /// two-argument form the tests pin readable.
     static func notes(_ exercise: SessionExercise, setCameBack: Bool,
                       easedByHand: Bool = false,
                       variationDropped: Bool = false,
@@ -166,9 +162,9 @@ struct ExerciseRow: View {
     private var shortLoad: String {
         let side = exercise.perSide ? String(localized: " /side") : ""
         // An uneven plan spells its sets out — "9-8-8". This is where the
-        // sub-step becomes visible: a third of the sessions used to read as
-        // "nothing changed", and the row is what says otherwise. Explicit
-        // keys, not the bare "%@%@" a plain interpolation would mint.
+        // sub-step becomes visible: a session that moved only the sub-step
+        // would otherwise read as "nothing changed". Explicit keys, not the
+        // bare "%@%@" a plain interpolation would mint.
         if let loads = exercise.loads {
             let spelled = loads.map(String.init).joined(separator: "-")
             switch exercise.unit {
@@ -187,15 +183,14 @@ struct ExerciseRow: View {
 
 /// Cached per text, display scale, Dynamic Type size AND appearance.
 /// `ink` on accentSoft — accentText on that fill is 4.20:1 in the dark
-/// scheme and accent itself 2.91:1, so neither carries an 11 pt pill
-/// (UX review 05.09.2026, finding 16; the pair is gated in
-/// `BrandPaletteTests`).
+/// scheme and accent itself 2.91:1 in the light one, so neither carries an
+/// 11 pt pill (I-21; the pair is gated in `BrandPaletteTests`).
 ///
 /// The appearance is part of the key because the product here is a BITMAP:
 /// `ImageRenderer` resolves the two tokens once, at render time, and both
-/// have four values in the asset catalog. Keyed on the text alone, the pill
-/// drawn on a light Today survived into dark mode — light accentSoft on the
-/// dark card — until something else evicted it.
+/// have four values in the asset catalog. Keyed on the text alone, a pill
+/// drawn on a light Today would survive into dark mode — light accentSoft on
+/// the dark card.
 ///
 /// The key alone would only guarantee a re-render; the render also has to
 /// land on the appearance it is keyed for, and inside `ImageRenderer` a
@@ -204,10 +199,10 @@ struct ExerciseRow: View {
 ///
 /// Nothing invalidates the cache, and nothing needs to: a stale entry is
 /// unreachable rather than wrong, and one badge text costs at most four
-/// entries per Dynamic Type size.
+/// entries per display scale and Dynamic Type size.
 ///
-/// Not file-private: `BadgePillTests` is the only thing that can tell two
-/// appearances of one bitmap apart, and it needs the entry point.
+/// Not file-private: `BadgePillTests` tells two appearances of one bitmap
+/// apart, and it needs the entry point.
 @MainActor
 enum BadgePill {
     private static var cache: [String: UIImage] = [:]
