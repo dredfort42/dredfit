@@ -158,7 +158,8 @@ final class AppStore {
     let notifications: NotificationScheduling
     let widgetSnapshotURL: URL?
     /// The state file existed but could not be read (data protection before
-    /// first unlock, transient I/O). While set, persist() is a no-op: the
+    /// first unlock, transient I/O), or was read and could not be put aside
+    /// before a write would replace it. While set, persist() is a no-op: the
     /// file on disk is the only copy of the journal and must never be
     /// overwritten from the empty in-memory state. Everything that publishes
     /// state outward — widget snapshot, backup export — checks this too.
@@ -200,11 +201,12 @@ final class AppStore {
         case .absent, .undecodable:
             adopt(nil)
         case .unreadable:
-            // Unlike a decode failure, the journal may be perfectly fine —
-            // e.g. still protected before first unlock. Freeze rather than
-            // quarantine; reloadIfNeeded() lifts it.
+            // The journal may be perfectly fine — still protected before the
+            // first unlock — or damaged with nowhere to put a copy. Either
+            // way the file is the only copy: freeze rather than start over on
+            // top of it; reloadIfNeeded() lifts it.
             journalFrozen = true
-            Self.log.fault("state file exists but could not be read — persistence frozen")
+            Self.log.fault("state file could not be read or put aside — persistence frozen")
             adopt(nil)
         case .loaded(let data):
             adopt(data)
@@ -218,8 +220,9 @@ final class AppStore {
         refreshWidgetSnapshot()   // the widget mirrors state from launch
     }
 
-    /// Second chance for a launch whose state file could not be read. Called
-    /// when the scene becomes active — i.e. once the device is unlocked.
+    /// Second chance for a launch whose state file could not be read or put
+    /// aside. Called when the scene becomes active — i.e. once the device is
+    /// unlocked.
     func reloadIfNeeded() {
         // Reloading over work already done would erase it silently, and
         // mid-workout would move the engine counter out from under a running
