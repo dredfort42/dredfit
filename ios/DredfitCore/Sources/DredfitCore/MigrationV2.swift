@@ -1,26 +1,19 @@
 //
-//  §41.7: reading a state written by an engine before v3.
+//  Reading a state written by an engine before v3.
 //
-//  REVERSES the §40.8 decision "there is no migration" (owner, 26.08.2026).
-//  The reason was not the reset itself but that the mechanism the decision
-//  counted on never reached the person: the one line in the app explaining
-//  how to enter facts shows only when the journal is EMPTY, and an upgrading
-//  trainee's journal is intact — by the same paragraph's decision. They never
-//  saw it once. Alongside the rungs, `hasBar` and `counter` were lost too,
-//  and neither carries progress.
+//  It must never start anyone over: a reset would throw away the rung and the
+//  dose every upgrading trainee had earned on every movement. A v2 state is
+//  read and carried over instead.
 //
 //  Mirrors `migrateFromV2` in the reference engine. The golden fixture does NOT
-//  pin it, contrary to what this header used to claim: `make_golden.js` seeds
-//  scenario `migration_v2` with the OUTPUT of the reference migration, and
-//  `GoldenTests.seedState` replays that output field by field instead of
-//  calling this function — so the fixture pins what happens AFTER an upgrade
-//  and never the upgrade itself. The two tables below are pinned by tests
-//  instead: `MigrationV2Tests+Table` compares them cell by cell against a
-//  second, independent transcription of the v2 format, and `MigrationV2Tests`
-//  sweeps all 480 cells for real work (`sets × dose × sides`) on both sides of
-//  the jump. Before those existed, replacing a whole row here with
-//  `[1, 1, 1, 1]` — every upgrading trainee thrown back to the first rung of
-//  every movement — left the entire suite green.
+//  pin it: `make_golden.js` seeds scenario `migration_v2` with the OUTPUT of the
+//  reference migration, and `GoldenTests.seedState` replays that output field
+//  by field instead of calling this function — so the fixture pins what
+//  happens AFTER an upgrade, never the upgrade itself. The two tables below are
+//  pinned by tests instead: `MigrationV2Tests+Table` compares them cell by cell
+//  against a second, independent transcription of the v2 format, and
+//  `MigrationV2Tests` sweeps all 480 cells for real work (`sets × dose × sides`)
+//  on both sides of the jump.
 //
 
 import Foundation
@@ -29,7 +22,7 @@ public extension Engine {
 
     /// v2 tier → v3 variation. Baked as data, not derived: the v2 library does
     /// not exist at runtime. Thirty-four of forty positions matched by MOVEMENT
-    /// NAME; six were decided by the owner (§41.7) — two are renames, three
+    /// NAME; six were decided by hand — two are renames, three
     /// moved into the warm-up, one was removed outright. Order is preserved by
     /// cascade: a higher v2 tier never lands below a lower one.
     static let v2TierToVariation: [Pattern: [Int]] = [
@@ -87,6 +80,8 @@ public extension Engine {
     static func migrateFromV2(_ old: V2State) -> EngineState? {
         guard !old.levels.isEmpty else { return nil }
         var next = EngineState.initial
+        // Neither is progress, but both are the person's: `counter` decides
+        // which movements come next, `hasBar` is their answer about the bar.
         next.counter = EngineState.clamped(old.counter, 0, EngineConfig.countMax)
         next.hasBar = old.hasBar
         for p in Pattern.allCases {
@@ -99,18 +94,19 @@ public extension Engine {
             // over with a snap down and a clamp. Where v2 could hand out a dose
             // below v3's floor (a 10-second hold), the trainee comes UP to the
             // floor — there is nothing lower in the product to land on
-            // (accepted gap §41.6 item 4, ten cells of 480, worst ×1.50).
+            // (an accepted gap: ten cells of 480, worst ×1.50).
             let dose = Dose.clamped(unit, Dose.snap(unit, unit == .hold ? v2hold : v2reps))
             next.vars[p] = v
             next.doses[p] = dose
-            // Sets bands live only on the top variation (§40.5): carrying one
+            // Sets bands live only on the top variation: carrying one
             // lower would silently build an unreachable state.
             if v2sets > EngineConfig.setsBase && Library.isTop(p, v) {
                 next.sets[p] = EngineState.clamped(v2sets, EngineConfig.setsBase, Engine.setsCeil(p, v))
             }
             // The journal: they really did do this dose in this variation, or
-            // they would never have reached it. Without the record the very
-            // first descent would send them to the floor.
+            // they would never have reached it. Without the record the
+            // journal's readers (`landingDose`, `riseWithinJournal`,
+            // `probeAllowed`) would treat this variation as never shown.
             next.shown[p, default: [:]][v] = dose
             next.failStreak[p] = EngineState.clamped(old.failStreak[p] ?? 0,
                                                      0, EngineConfig.failsToDeload - 1)

@@ -1,13 +1,12 @@
 //
-//  The engine's state (§40.2): six coordinates per pattern, the journal of
-//  what was shown, and the global counters that survived v2 unchanged.
+//  The engine's state: a position of five coordinates per pattern, the
+//  journal of what was shown, and the global counters.
 //
 //  A state written before v3 carries `levels` and no `vars`/`doses`, so the
-//  decode below FAILS on it — and since §41.7 that failure is the DISPATCH,
-//  not the end: the app then reads the v2 shape and carries it over with
+//  decode below FAILS on it — and that failure is the DISPATCH, not the end:
+//  the app then reads the v2 shape and carries it over with
 //  `Engine.migrateFromV2` (MigrationV2.swift). Only a state that is neither
-//  shape starts from `initial`. (§40.8's "no migration, start clean" was
-//  reversed by §41.7 on 26.08.2026.)
+//  shape starts from `initial`.
 //
 
 import Foundation
@@ -24,36 +23,40 @@ public struct EngineState: Codable, Equatable, Sendable {
     public var doses: [Pattern: Int]
     /// Sets. Sparse, and the base of 3 is never stored — so a state that never
     /// entered a band is byte-identical to one that came back out of it. Bands
-    /// 4 and 5 exist only on the top variation (§40.5).
+    /// 4 and 5 exist only on the top variation.
     public var sets: [Pattern: Int]
-    /// The sub-step (v2.22): the first `sub` sets carry one rung more. Sparse.
+    /// The sub-step: the first `sub` sets carry one rung more. Sparse.
     public var sub: [Pattern: Int]
-    /// Sets taken off (v2.25 §36). Sparse.
+    /// Sets taken off. Sparse.
     public var cut: [Pattern: Int]
     /// THE JOURNAL OF WHAT WAS SHOWN: per variation touched, the last dose
-    /// actually performed, in that variation's own unit. Written after every
-    /// appearance — by the fact when numbers are entered, by the plan when the
-    /// tap is used (§40.2).
+    /// actually performed, in that variation's own unit. Feedback writes it
+    /// for every exercise done — the fold when numbers were entered, the
+    /// plan's top on a tap. A probing exercise writes the probe's number under
+    /// the NEXT variation instead, and nothing at all when the probe went
+    /// unanswered or this movement came out "hard".
     ///
-    /// It is both the point of return (§40.6) and the ceiling on any
-    /// assignment (И2). Doubly sparse: a pattern with no entries is not
+    /// It is the point of return (`landingDose`), the bound on the
+    /// cross-credit (`riseWithinJournal`) and the evidence the probe gate
+    /// reads (`probeAllowed`). Doubly sparse: a pattern with no entries is not
     /// stored, a variation with no entry is not stored.
     public var shown: [Pattern: [Int: Int]]
 
-    // MARK: - Global fields, unchanged in meaning since v2 (§40.7)
+    // MARK: - Global fields
 
     /// Appearances left before the next set may come back. While it ticks, a
     /// growth event goes into the DOSE.
     public var setsHold: [Pattern: Int]
-    /// The work shown in the last COMPLETED appearance, and the position it
-    /// was shown AT — the two inputs to the postcondition repair.
+    /// The work of the last plan SHOWN, done or not — written by `recordShown`
+    /// when the app records a showing, and again by feedback — and the
+    /// position it was shown AT: the two inputs to the postcondition repair.
     public var shownWork: [Pattern: Int]
     public var shownOrd: [Pattern: Int]
     public var failStreak: [Pattern: Int]
-    /// Patterns whose last appearance the person called hard. A NEW field, and
-    /// it cannot be derived from `failStreak`: a deload zeroes the streak,
-    /// while the probe condition of §40.4 ("the last answer was not «hard»")
-    /// has to outlive the deload.
+    /// Patterns whose last appearance the person called hard. It cannot be derived
+    /// from `failStreak`: a deload zeroes the streak, while the probe
+    /// condition ("the last answer was not «hard»") has to outlive the
+    /// deload.
     public var lastHard: Set<Pattern>
     /// How many "less" ratings in a row named no movement.
     public var lessRun: Int
@@ -69,8 +72,8 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// Growth events spent inside the current weekly window, and how old that
     /// window is in days. Both stay idle until the app supplies the gap.
     public var weekGain: [Pattern: Int]
-    /// FRACTIONAL. Rounding it lost the fraction of a day for good, and two
-    /// workouts inside one day left the window standing still forever.
+    /// FRACTIONAL: rounding would lose the fraction of a day for good, and two
+    /// workouts inside one day would leave the window standing still forever.
     public var weekAgeDays: Double
 
     // Spelled out (same names the compiler would synthesize) so decodeLenient
@@ -115,7 +118,7 @@ public struct EngineState: Codable, Equatable, Sendable {
 
     /// `counter`, `vars` and `doses` are REQUIRED: a v2 file has `levels`
     /// instead and throws here, which is what sends the app to the v2 reader
-    /// and `Engine.migrateFromV2` (§41.7). Every other field is additive and
+    /// and `Engine.migrateFromV2`. Every other field is additive and
     /// tolerant — absent or unreadable, it opens at its default — so a v3 file
     /// from an older or a newer build keeps its positions.
     public init(from decoder: Decoder) throws {
@@ -194,7 +197,7 @@ public struct EngineState: Codable, Equatable, Sendable {
         return out
     }
 
-    /// §40.8: a clean start — every pattern on its first rung, 3×4 (3×15 s).
+    /// A clean start — every pattern on its first rung, 3×4 (3×15 s).
     public static var initial: EngineState {
         var vars: [Pattern: Int] = [:]
         var doses: [Pattern: Int] = [:]
@@ -278,7 +281,7 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// variation it belongs to — the journal has no right to promise more than
     /// the ladder can show. It is NOT clamped from below: "I showed two reps"
     /// is a fact too, and it is exactly the one that sends a person a
-    /// variation down (§40.3). The dose floor is applied at LANDING.
+    /// variation down. The dose floor is applied at LANDING.
     static func healShown(_ src: [Pattern: [Int: Int]]) -> [Pattern: [Int: Int]] {
         var out: [Pattern: [Int: Int]] = [:]
         for p in Pattern.allCases {
@@ -298,7 +301,7 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// The sets taken off a pattern, zero when none are.
     public func cutOf(_ pattern: Pattern) -> Int { cut[pattern] ?? 0 }
 
-    /// The pattern's place on its ladder — all six coordinates.
+    /// The pattern's place on its ladder — all five coordinates.
     public func position(_ pattern: Pattern) -> Position {
         Position(variation: vars[pattern] ?? 1,
                  sets: sets[pattern] ?? EngineConfig.setsBase,
@@ -308,7 +311,7 @@ public struct EngineState: Codable, Equatable, Sendable {
     }
 
     /// The last dose recorded for a variation, if the trainee has ever been
-    /// there. The app's progress screens read the ladder through this.
+    /// there. Only tests read it.
     public func shownDose(_ pattern: Pattern, variation: Int) -> Int? {
         shown[pattern]?[variation]
     }

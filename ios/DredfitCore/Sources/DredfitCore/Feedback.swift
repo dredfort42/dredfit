@@ -1,8 +1,8 @@
 //
-//  What one rating does to the state (§40.3, §40.4).
+//  What one rating does to the state.
 //
-//  Split out of Engine.swift: with `L` gone the arithmetic got smaller, but
-//  the feedback path did not, and both files sit against the lint's ceilings.
+//  Kept apart from Engine.swift: together the two would exceed the lint's
+//  file-length warning.
 //
 
 import Foundation
@@ -10,10 +10,9 @@ import Foundation
 extension Engine {
 
     /// The result of deciding one exercise. `wantedDown` records the INTENT to
-    /// descend rather than the movement of the plan: on the floor of a
-    /// variation "hard" moves nothing, and without this the tap would become
-    /// inert — the streak would never build and the deload would be
-    /// unreachable (v2.23 §34.2).
+    /// descend rather than the movement of the plan: "hard" does not always
+    /// change what the next plan shows, and the streak toward the deload and
+    /// the probe's "not hard" condition count the answer, not its effect.
     private struct Step {
         var position: Position
         var wantedDown: Bool
@@ -29,10 +28,10 @@ extension Engine {
     /*
      * result:    less | plan | more        — one rating per session
      * overrides: [pattern: actual]         — point facts about the WORKING sets
-     *                                        (folded by the mean, §37.8)
-     * skipped:   {pattern, …}              — exercises not done at all (v2.1.1)
+     *                                        (folded by the mean)
+     * skipped:   {pattern, …}              — exercises not done at all
      * gapDays:   number or nil             — days since the last workout
-     * probes:    [pattern: actual]         — the number from the PROBE SET (§40.4)
+     * probes:    [pattern: actual]         — the number from the PROBE SET
      *
      * `probes` is the SEVENTH parameter, and it is seventh deliberately:
      * `gapDays` stays sixth, so every caller written before v3 keeps passing
@@ -53,8 +52,8 @@ extension Engine {
         let state = dirty.sanitized()
         let overrides = dirtyOverrides.mapValues(sanitizeActual)
         let probes = dirtyProbes.mapValues { Engine.sanitizeProbe($0) }
-        // A no-op on a stale pair, exactly as the reference (И6): feedback is
-        // valid only for a session generated from THIS state.
+        // A no-op on a stale pair, exactly as the reference: feedback is valid
+        // only for a session generated from THIS state.
         guard session.sessionNumber == state.counter + 1 else { return dirty }
 
         var entryPos: [Pattern: Position] = [:]
@@ -77,7 +76,7 @@ extension Engine {
             overrides: overrides, skipped: skipped, chronic: chronic,
             prevLessRun: state.lessRun, hist: next.lessHist))
         // A named "less" does not feed the run: "it was hard, and it was this
-        // one" is a statement about one movement, not about the plan (§19.2).
+        // one" is a statement about one movement, not about the plan.
         next.lessRun = unnamedLess ? state.lessRun + 1 : 0
 
         for ex in session.exercises where !skipped.contains(ex.pattern) {
@@ -90,9 +89,9 @@ extension Engine {
                     overrides: overrides, entryPos: entryPos)
         // Remember what the person SAW and at what position — the position is
         // the ENTRY one, because the plan was shown before the feedback.
-        // §41.10: an exercise with a probe writes its memory too. §41.11: and
-        // it writes it with the set the probe OCCUPIED counted in — see
-        // `shownWorkOf` for why the base has to be about slots, not reps.
+        // An exercise with a probe writes its memory too, with the set the
+        // probe OCCUPIED counted in — see `shownWorkOf` for why the base has to
+        // be about slots, not reps.
         for ex in session.exercises {
             next.shownWork[ex.pattern] = shownWorkOf(ex)
             next.shownOrd[ex.pattern] = posOrd(ex.pattern, entryPos[ex.pattern]!)
@@ -114,17 +113,16 @@ extension Engine {
         let p = ex.pattern
         let unit = Library.unit(p, old.variation)
         let g = Dose.grid(unit)
-        // While the hold ticks, growth goes into the DOSE (v2.25, round 6).
+        // While the hold ticks, growth goes into the DOSE.
         let setsBackOk = (next.setsHold[p] ?? 0) == 0
         let cap = EngineConfig.maxUp(pattern: p, variation: old.variation)
-        // The MAXIMUM dose per set in the plan that was shown. On an uneven
-        // plan 9-8-8 the person showed a nine, and the next step — "shown + 1
-        // rep in one set" — counts from that nine. Counting from the BASE
-        // broke И2 on the boundary of every rung: three growth events off a
-        // plan of 8-7-7 give 3×8 while the journal would hold 7.
+        // The MAXIMUM dose per set in the plan that was shown — what a tap
+        // journals: on 9-8-8 the person showed a nine. Journalling the BASE
+        // would let the plan outrun the journal at every rung boundary: two
+        // growth events off 8-7-7 give 3×8 while the journal would hold 7.
         let planTop = ex.load
             + ((ex.loads?.contains { $0 > ex.load } ?? false) ? g.step : 0)
-        // §41.3: the plan's MEAN — what a trainee shows by doing it set for set.
+        // The plan's MEAN — what a trainee shows by doing it set for set.
         // With it, "the plan was met" becomes a threshold reachable on any shape
         // of plan: on a uniform one the mean equals the dose, on an uneven one it
         // lands exactly where an honest fold of the fact lands. A threshold at the
@@ -140,14 +138,14 @@ extension Engine {
         // deliberately NO clamp here: a dose outside [min,max] is legal as an
         // INPUT and its rung has to be allowed to go negative — clipping it at
         // the edge is exactly what broke monotonicity of the fact-based rating
-        // (#139), and the "fact below the variation floor" branch (§40.3)
+        // (#139), and the "fact below the variation floor" branch
         // stands on it.
         let actualRaw = overrides[p]
         let actual = actualRaw.map { Dose.snapToInt(unit, $0) }
-        // "the plan was met" is a WINDOW one rung wide: for reps it collapses
-        // to equality, for a hold it is five seconds (§25.1, #139). It is
-        // measured from the plan's BASE dose — `ex.load` IS the minimum of an
-        // uneven plan.
+        // "the plan was met" is a WINDOW one rung wide — one rep, five seconds
+        // (#139) — from the plan's MEAN (`planMean`), not its base or its top.
+        // The raw mean of the facts is fractional, so on reps it is a window
+        // too: [8,7,7] on 7-7-7 is 7.33 and meets the plan.
         let metPlan = actualRaw.map { $0 >= planMean && $0 < planMean + Double(g.step) } ?? false
         if let actual {
             step = stepFromFact(p, ex: ex, actual: actual, metPlan: metPlan, old: old,
@@ -158,17 +156,12 @@ extension Engine {
                                   setsBackOk: setsBackOk, shown: state.shown)
         }
 
-        // §40.2: the journal is written for a COMPLETED appearance — by the
-        // fact when numbers are entered, by the plan when the tap is used. A
-        // fact that landed inside the "plan was met" window is SEMANTICALLY
-        // the tap (§18.1, #96), so it writes the plan: the mean of 8-7-7 is
-        // 7.33 → 7, and recording the fold would say "I showed less than I
-        // did". An exercise with a probe writes no journal for the OLD
-        // variation — see below.
+        // The journal is written for a COMPLETED appearance. An exercise with a
+        // probe writes no journal for the OLD variation — see below.
         if ex.probe == nil {
-            // §41.3: the journal records the FOLD when a number was entered and
-            // the plan's top only on a tap — a tap asserts the whole plan was
-            // done, top set included. Storage snaps to the grid, so the journal
+            // The journal records the FOLD when a number was entered and the
+            // plan's top only on a tap — a tap asserts the whole plan was done,
+            // top set included. Storage snaps to the grid, so the journal
             // itself stays integer; the fraction is only ever a judge.
             setShown(&next, p, old.variation, actual ?? planTop)
         } else {
@@ -185,7 +178,7 @@ extension Engine {
         } else {
             next.failStreak[p] = 0
         }
-        // §40.4: the input to the probe condition. It outlives a deload on
+        // The input to the probe condition. It outlives a deload on
         // purpose — the deload zeroes the streak, but does not unsay "hard".
         if step.wantedDown { next.lastHard.insert(p) } else { next.lastHard.remove(p) }
 
@@ -210,13 +203,17 @@ extension Engine {
                                          allowSetsBack: setsBackOk), wantedDown: false)
         }
         if actual >= ex.load + g.step {
-            // §40.3, FAST ADAPTATION. The worst fact is above the plan, so the
-            // journal writes the fact and the next showing equals WHAT WAS
-            // SHOWN. `maxUp` does not apply: the cap bounds growth the engine
-            // ASSIGNS, and here the dose is what the person just did on their
-            // own. This is the one mechanism that walks a person back to their
-            // own level after the clean start of 3.0 (§40.8). A variation can
-            // never be jumped by facts — only by a probe.
+            // FAST ADAPTATION. The mean of the sets is a rung or more above
+            // the plan's base and past the "met" window, so the dose becomes
+            // that mean on the grid (no higher than the variation's ceiling),
+            // sub-step cleared — unless a probe in the same appearance moves
+            // the position instead.
+            // `maxUp` does not apply: the cap bounds growth the engine ASSIGNS,
+            // and here the dose is what the person just did on their own. It is
+            // the way back to a person's own level after a clean start with no
+            // per-session cap: a rating climbs at most `maxUp` growth events,
+            // the raise handle at most `raiseStepsMax` steps of its own. A
+            // variation can never be jumped by facts — only by a probe.
             var pos = old
             pos.dose = min(g.max, actual)
             pos.sub = 0
@@ -224,7 +221,7 @@ extension Engine {
         }
         if actual < g.min {
             // A fact below the floor of the variation: a variation down,
-            // landing in the journal.
+            // landing under its journal.
             let pos = old.variation > 1
                 ? landInVar(p, old.variation - 1, shown: shown, from: old)
                 : fit(p, Position(variation: old.variation, sets: old.sets,
@@ -268,10 +265,10 @@ extension Engine {
         return Step(position: old, wantedDown: false)
     }
 
-    /// §40.4, the outcomes of a probe. "Hard" on this movement is ordinary
+    /// The outcomes of a probe. "Hard" on this movement is ordinary
     /// "hard" handling and the probe of this session does not count; a skipped
     /// set or a single tap leaves it unresolved and it comes back next time.
-    /// И3: a failed or unresolved probe changes no field but the journal of
+    /// A failed or unresolved probe changes no field but the journal of
     /// facts.
     private static func resolveProbe(_ next: inout EngineState, ex: SessionExercise,
                                      step: inout Step, probes: [Pattern: Int]) {
@@ -281,13 +278,13 @@ extension Engine {
         setShown(&next, ex.pattern, probe.variation, got)
         guard got >= Dose.grid(probe.unit).min else { return }
         // ENTRY IS ALWAYS 3×4 (3×15 s). The first working session of a new
-        // variation is heavier than the probe — the named gap of §40.10 п. 2,
-        // insured by the honest-numbers channel.
+        // variation is heavier than the probe — a known gap, insured by the
+        // honest-numbers channel.
         step.position = Position(variation: probe.variation, sets: EngineConfig.setsBase,
                                  dose: Dose.grid(probe.unit).min, sub: 0, cut: 0)
     }
 
-    // MARK: - The session-wide "less" (§19.1, #91)
+    // MARK: - The session-wide "less" (#91)
 
     /// Who a point fact NAMED: a number below the plan is the trainee already
     /// pointing at the movement, and the other five have nothing to lose.
@@ -301,7 +298,7 @@ extension Engine {
         return named
     }
 
-    /// The window of appearances (§26.1, #137). Every exercise of the session
+    /// The window of appearances (#137). Every exercise of the session
     /// shifts its own mask: 1 when the session was rated an unnamed "less".
     /// Returns the patterns the chronic signal fires for, IN SESSION ORDER —
     /// a Swift `Set` has none, and the reference's object literal does.
@@ -375,12 +372,12 @@ extension Engine {
 
     // MARK: - Cross-credit and the weekly cap
 
-    /// v2.10 (§20.1, #90): the pull slot stands in every session, but with a
-    /// bar its accounting splits into two branches, each growing half as fast
-    /// as the slot. The applied gain is repeated to the other branch, bounded
-    /// by ITS OWN growth cell — and, since v3, BY ITS OWN JOURNAL: repeating
-    /// someone else's gain was assigning a dose the person never showed in
-    /// that branch, which is exactly what §40.0 forbids.
+    /// (#90) The pull slot stands in every session, but with a bar its
+    /// accounting splits into two branches, each growing half as fast as the
+    /// slot. The applied gain is repeated to the other branch, bounded by ITS
+    /// OWN growth cell and BY ITS OWN JOURNAL: repeated unbounded, someone
+    /// else's gain would lift that branch's base dose past anything the person
+    /// has shown in it.
     private static func crossCredit(_ next: inout EngineState, session: Session,
                                     result: FeedbackResult, overrides: [Pattern: Double],
                                     entryPos: [Pattern: Position]) {
@@ -389,10 +386,10 @@ extension Engine {
         else { return }
         let trained = trainedEx.pattern
         let other: Pattern = trained == .pull ? .pullBar : .pull
-        // v2.16 (§27.1, #141): the mark is set by the rating of the WHOLE
-        // session — owner's decision 19.08.2026. Telling "the branch really is
-        // hard" from "that is how the rhythm fell" is impossible from the
-        // inside, and the cost of the error is asymmetric.
+        // (#141) The mark is set by a "less" for the WHOLE session, named or
+        // not, and by an override for this branch below its base dose. Telling "the branch really is hard" from "that is how the
+        // rhythm fell" is impossible from the inside, and the cost of the
+        // error is asymmetric.
         let strained = result == .less
             || overrides[trained].map { Dose.snapToInt(trainedEx.unit, $0) < trainedEx.load } ?? false
         if strained { next.creditPaused.insert(trained) } else { next.creditPaused.remove(trained) }
@@ -418,7 +415,7 @@ extension Engine {
         return WeekWindow(haveGap: true, gain: state.weekGain, ageDays: aged)
     }
 
-    /// v2.17 (§28.5, #129): the weekly ceiling is applied ONCE, after every
+    /// (#129) The weekly ceiling is applied ONCE, after every
     /// rise of this session — the cross-credit included, which would otherwise
     /// walk around the budget.
     ///

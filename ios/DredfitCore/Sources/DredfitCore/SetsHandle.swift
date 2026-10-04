@@ -1,11 +1,10 @@
 //
-//  The set axis: the cut (§36), the bands on the top variation (§40.5), and
-//  growth (§40.3).
+//  The set axis: the cut, the bands on the top variation, and growth.
 //
 //  NO FUNCTION HERE CARRIES A DEFAULT ARGUMENT, deliberately. An omitted floor
-//  argument was the repeated defect class of two waves — a compile error is a
-//  stronger guard than a grep, and it stays that way now that the floor is
-//  shared by every caller.
+//  argument was a repeated defect class — a compile error is a stronger guard
+//  than a grep, and it stays that way now that the floor is shared by every
+//  caller.
 //
 
 import Foundation
@@ -26,11 +25,11 @@ extension Engine {
     }
 
     /// The one and only clamp on a set count. Every mechanism that cuts sets —
-    /// the band gate among them — goes through it, so the floor holds for
+    /// the pull-caps-push gate among them — goes through it, so the floor holds for
     /// their COMPOSITION and not just for each cut on its own.
     static func clampSets(_ n: Int, floor: Int) -> Int { max(floor, n) }
 
-    // MARK: - The bands on the top variation (§40.5)
+    // MARK: - The bands on the top variation
 
     /// Once the dose tops out on the TOP variation, growth continues in sets:
     /// `sets → sets+1` at `⌊sets × ceiling / (sets+1)⌋`, snapped down to the
@@ -41,29 +40,29 @@ extension Engine {
         Dose.snap(unit, (setsFrom * Dose.grid(unit).max) / (setsFrom + 1))
     }
 
-    /// Where a band starts: the grid floor for the base, the §40.5 entry above.
+    /// Where a band starts: the grid floor for the base, the band entry dose above.
     static func bandStartDose(_ unit: LoadUnit, sets: Int) -> Int {
         sets <= EngineConfig.setsBase ? Dose.grid(unit).min : bandEntryDose(unit, setsFrom: sets - 1)
     }
 
-    /// Bands exist only above the top variation of a ladder.
+    /// Bands exist only on the top variation of a ladder.
     static func setsCeil(_ p: Pattern, _ v: Int) -> Int {
         Library.isTop(p, v) ? EngineConfig.setsMax : EngineConfig.setsBase
     }
 
-    // MARK: - Growth (§40.3, §40.5)
+    // MARK: - Growth
 
-    /// Sets come back FIRST, and only then does the dose grow (§37.6): the
+    /// Sets come back FIRST, and only then does the dose grow: the
     /// trainee wins back the volume that was taken off before going further on
     /// intensity. Tolerance of volume recovers before tolerance of intensity.
     ///
-    /// At most ONE set per session, and only once the hold has run out (v2.25,
-    /// round 6): while it ticks, the growth event goes into the DOSE. That is
+    /// At most ONE set per session, and only once the hold has run out:
+    /// while it ticks, the growth event goes into the DOSE. That is
     /// what gives "set, dose, dose, set" instead of three sets in a row.
     ///
     /// Growth NEVER crosses a variation: the only way into a new one is a
-    /// probe (§40.4). On the dose ceiling of a non-top variation growth
-    /// honestly STANDS STILL — the declared parking of §40.10 п. 1.
+    /// probe. On the dose ceiling of a non-top variation growth honestly STANDS
+    /// STILL — that is the declared parking.
     static func riseBy(_ p: Pattern, _ pos: Position, _ n: Int,
                        allowSetsBack: Bool) -> Position {
         var cur = fit(p, pos)
@@ -103,18 +102,16 @@ extension Engine {
     }
 
     /// Growth BOUNDED BY THE JOURNAL. Needed in exactly the one place a
-    /// position rises WITHOUT the pattern appearing — the cross-credit of
-    /// §20.1: the pull slot's other branch was not in today's plan, and the
+    /// position rises WITHOUT the pattern appearing — the cross-credit:
+    /// the pull slot's other branch was not in today's plan, and the
     /// trainee showed nothing in it. After an appearance `riseBy` needs no
-    /// bound: the journal was just written by the plan, so the next step is
-    /// "shown + 1" by construction.
+    /// bound: it grows from the plan the person has just done.
     ///
-    /// §40.0 forbids assigning what was not shown, and the credit was the one
-    /// place the model still did: it REPEATED someone else's gain. The bound
-    /// leaves it what it was introduced for — the branch does not fall a whole
-    /// rung behind — and takes away exactly the prediction: the credit may
-    /// cross a rung of dose only after the trainee has shown that rung IN THIS
-    /// BRANCH.
+    /// Unbounded, the credit would REPEAT someone else's gain and lift this
+    /// branch past anything shown in it. The bound keeps what the credit is
+    /// for — the branch does not fall a whole rung behind — and removes the
+    /// prediction: the base dose may cross a rung only after the trainee has
+    /// shown that rung IN THIS BRANCH.
     static func riseWithinJournal(_ p: Pattern, _ pos: Position, _ n: Int,
                                   allowSetsBack: Bool,
                                   shown: [Pattern: [Int: Int]]) -> Position {

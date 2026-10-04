@@ -1,11 +1,11 @@
 //
-//  Exercise catalog: ten patterns, 59 positions along their ladders (§40.1).
+//  Exercise catalog: ten patterns, 59 positions along their ladders.
 //  Base language English, translations in Resources/Localizable.xcstrings.
 //  Technique: 3 steps + 2 common mistakes per position. Mirrors LIBRARY and
 //  TECHNIQUE in the reference adaptive_engine.js.
 //
 //  The ladder is the ONLY place a difficulty measure lives, and it has exactly
-//  two jobs (§40.0): the ORDER of the rungs, and the density invariant И1
+//  two jobs: the ORDER of the rungs, and the density invariant
 //  (`w(N+1)/w(N) <= 1.50`). No dose is ever computed from `w` — the engine
 //  measures what the trainee showed and never predicts it.
 //
@@ -13,7 +13,7 @@
 import Foundation
 
 /// Three steps and two common mistakes — the card a person reads standing on
-/// the mat. An assistance rung (kind `°` in the spec) inherits the technique
+/// the mat. An assistance rung inherits the technique
 /// of the variation it assists with ONE line replaced, and `assisted` is the
 /// only way to express that: two copies of one text drift exactly the way two
 /// copies of one rule do, and here the drift is read by a human mid-set.
@@ -35,7 +35,7 @@ public struct ExerciseVariation: Equatable, Sendable {
     /// may cross from seconds to reps once, and `pull_bar` does.
     public let unit: LoadUnit
     /// Share of body weight on the working link, per rep — per second for a
-    /// hold. Orders the ladder and bounds its density; never a dose (§40.0).
+    /// hold. Orders the ladder and bounds its density; never a dose.
     public let w: Double
     public let steps: [String]
     public let mistakes: [String]
@@ -50,8 +50,8 @@ public struct ExerciseEntry: Equatable, Sendable {
     public var count: Int { variations.count }
 
     /// Total by construction: reading the library must never trap. A plan
-    /// built from a dirty state has to stay a valid input to `applyFeedback`
-    /// (§17.4), and the sanitizer is not the only door into this type.
+    /// built from a dirty state has to stay a valid input to `applyFeedback`,
+    /// and the sanitizer is not the only door into this type.
     public func variation(_ v: Int) -> ExerciseVariation {
         variations[Library.index(pattern: pattern, variation: v) - 1]
     }
@@ -60,7 +60,7 @@ public struct ExerciseEntry: Equatable, Sendable {
 
     /// The one boundary the density invariant skips: seconds and reps are not
     /// commensurable, so `w(N+1)/w(N)` is undefined across it and the only way
-    /// in is a probe (§40.1, §40.10 п. 3).
+    /// in is a probe.
     ///
     /// DERIVED from the units rather than carried as a flag. A stored
     /// `probeOnly` and the units it describes are two copies of one fact, and
@@ -125,8 +125,8 @@ public enum ExerciseLibrary {
         .pullBar: ExerciseEntry(pattern: .pullBar, variations: pullBar),
     ]
 
-    /// One rung of a ladder, spelled out so the ladder files read as the
-    /// spec's tables do: name, difficulty, unit, sides, technique.
+    /// One rung of a ladder, spelled out so the ladder files read as
+    /// tables: name, difficulty, unit, sides, technique.
     static func rung(_ name: String, w: Double, unit: LoadUnit, perSide: Bool,
                      _ technique: Technique) -> ExerciseVariation {
         ExerciseVariation(name: name, unilateral: perSide, unit: unit, w: w,
