@@ -55,25 +55,26 @@ extension AppStore {
     }
 
     /// The share of `raised` the journal records as having moved a
-    /// position, per movement: the growth events between the state the rating
-    /// alone would have left and the one it left with the raise on top,
-    /// capped at the taps. Only the raise differs between the two states, so
-    /// a raise parked on the grid's ceiling shows up here as steps that did
-    /// not land.
+    /// position, per movement: the steps that changed the plan when the raise
+    /// is replayed one step at a time over the state the rating alone would
+    /// have left — the state the engine raises, since the raise lands last.
+    /// A step parked on the grid's ceiling moves nothing and is not counted.
     ///
-    /// It counts events, not steps. Without a cut the two agree step for
-    /// step; under a cut the step that rolls the sub-step into the next rung
-    /// is worth more than one event: squat 3×10 with cut 1 moves +1 after one
-    /// step of `raiseDose` and +3 after two, which the cap brings back to 2.
-    /// A step burned on the ceiling after such a step is still counted: at
-    /// 3×14, sub 1, cut 1, two steps land where one does, the ordinals move
-    /// +2, and this returns 2.
-    static func landed(_ raised: [Pattern: Int],
-                       from unraised: EngineState, to next: EngineState) -> [Pattern: Int] {
+    /// Step by step, not by the total move on the measure: under a cut the
+    /// step that completes a rung moves the measure by more than one, and a
+    /// step burned on the ceiling after it would hide inside that jump.
+    static func landed(_ raised: [Pattern: Int], from unraised: EngineState) -> [Pattern: Int] {
         var out: [Pattern: Int] = [:]
         for (pattern, steps) in raised where steps > 0 {
-            let moved = Engine.progress(next, pattern) - Engine.progress(unraised, pattern)
-            if moved > 0 { out[pattern] = min(steps, moved) }
+            var before = Engine.progress(unraised, pattern)
+            var moved = 0
+            for k in 1...min(steps, EngineConfig.raiseStepsMax) {
+                let after = Engine.progress(Engine.raiseDose(state: unraised, pattern: pattern, steps: k),
+                                            pattern)
+                if after > before { moved += 1 }
+                before = after
+            }
+            if moved > 0 { out[pattern] = moved }
         }
         return out
     }

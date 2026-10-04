@@ -113,7 +113,8 @@ extension Engine {
         let p = ex.pattern
         let unit = Library.unit(p, old.variation)
         let g = Dose.grid(unit)
-        // While the hold ticks, growth goes into the DOSE.
+        // While the hold ticks, growth goes into the DOSE — and under a cut
+        // it can land on a set the cut hides and be lost (see `riseBy`).
         let setsBackOk = (next.setsHold[p] ?? 0) == 0
         let cap = EngineConfig.maxUp(pattern: p, variation: old.variation)
         // The MAXIMUM dose per set in the plan that was shown — what a tap
@@ -159,11 +160,8 @@ extension Engine {
         // The journal is written for a COMPLETED appearance. An exercise with a
         // probe writes no journal for the OLD variation — see below.
         if ex.probe == nil {
-            // The journal records the FOLD when a number was entered and the
-            // plan's top only on a tap — a tap asserts the whole plan was done,
-            // top set included. Storage snaps to the grid, so the journal
-            // itself stays integer; the fraction is only ever a judge.
-            setShown(&next, p, old.variation, actual ?? planTop)
+            setShown(&next, p, old.variation,
+                     journalEntry(actualRaw, metPlan: metPlan, planTop: planTop, unit: unit))
         } else {
             resolveProbe(&next, ex: ex, step: &step, probes: probes)
         }
@@ -190,6 +188,29 @@ extension Engine {
             next.setsHold[p] = held > 0 ? held : nil
         }
         setPosition(&next, p, fitted)
+    }
+
+    /// What a completed appearance writes into the journal of its variation.
+    ///
+    /// A tap journals the plan's top: it asserts the whole plan was done, top
+    /// set included. A number journals its FOLD — except INSIDE the "plan met"
+    /// window, where it journals the best set the numbers prove. The fold
+    /// there is the plan's base: at a rung boundary the judge says "the top
+    /// was taken" while such a journal says it was not — 10-8-8 on 9-9-8 plans
+    /// 3×9 over a journal of 8, the probe comes an appearance after a tap's and
+    /// the cross-credit stalls. Sets are whole reps or seconds, so the best
+    /// one is at least the mean rounded up; that, snapped down to the grid and
+    /// never above the plan's top. On reps a met number always proves the top,
+    /// so a logger and a tapper leave one journal. On holds the 5 s grid does
+    /// not always let it, and the fold stays: the top taken on trust would
+    /// offer a 44 s holder a probe their own working sets then throw out as
+    /// "hard". Storage snaps to the grid, so the journal stays integer; the
+    /// fraction only ever judges.
+    private static func journalEntry(_ actualRaw: Double?, metPlan: Bool, planTop: Int,
+                                     unit: LoadUnit) -> Int {
+        guard let raw = actualRaw else { return planTop }
+        guard metPlan else { return Dose.snapToInt(unit, raw) }
+        return min(planTop, Dose.snapToInt(unit, raw.rounded(.up)))
     }
 
     // swiftlint:disable:next function_parameter_count
@@ -425,6 +446,15 @@ extension Engine {
     /// exempt for the same reason — and rebuilding through `riseBy` would
     /// additionally DESTROY the transition, since growth never crosses a
     /// variation and the position would snap back to the old ceiling.
+    ///
+    /// A set return the ceiling undoes arms no hold. The main loop has armed
+    /// it in full; left so, with the set still off, the next two appearances
+    /// would run under a hold with a cut — the corner where a growth event can
+    /// be lost — though no set came back at all. Without the return the
+    /// appearance would have left the hold empty: a return needs an expired
+    /// one. The cross-credit never arms a hold (it returns a set only to a
+    /// branch whose hold is empty), so for the pull slot's other branch the
+    /// clearing changes nothing.
     private static func applyWeeklyCap(_ next: inout EngineState,
                                        entryPos: [Pattern: Position],
                                        overrides: [Pattern: Double]) {
@@ -440,8 +470,10 @@ extension Engine {
             let granted = min(rise, max(0, budget - spent))
             // The rebuild does not decide again whether to give a set back —
             // it only trims the steps, repeating the main loop's decision.
-            setPosition(&next, p, riseBy(p, entry, granted,
-                                         allowSetsBack: (next.cut[p] ?? 0) < entry.cut))
+            let returned = (next.cut[p] ?? 0) < entry.cut
+            let rebuilt = riseBy(p, entry, granted, allowSetsBack: returned)
+            setPosition(&next, p, rebuilt)
+            if returned, rebuilt.cut >= entry.cut { next.setsHold[p] = nil }
             if granted > 0 { next.weekGain[p] = spent + granted }
         }
     }

@@ -17,16 +17,16 @@ final class WeakLinkPromptTests: AppStoreTestCase {
     override var tempURLPrefix: String { "dredfit-weaklink" }
 
     /// A store whose journal is `count` sessions, each one an unnamed "tough"
-    /// when it carried `culprit` and "on plan" otherwise — the naive persona.
-    /// The audit's shoulder persona, and it is seeded UP THE SCALE on purpose.
+    /// when it carried `culprit` and "on plan" otherwise — the naive persona,
+    /// a shoulder that keeps failing, seeded UP THE SCALE on purpose.
     ///
-    /// The prompt now routes into the handles, and it stays silent when
-    /// neither of them could do anything — so a persona sitting at L0 on the
-    /// sets floor is not the case this suite is about. It is the case accepts:
-    /// at the declared bottom of the app there is nothing left to offer, and
+    /// The prompt routes into the easier-variation handle, and it stays silent
+    /// when that handle could do nothing — so a persona on the first variation
+    /// is not the case this suite is about: at the declared bottom of the app
+    /// there is nothing left to offer, and
     /// `testAMovementWithNoHandleLeftIsNotSuggested` pins exactly that.
     /// Someone whose shoulder keeps failing is somewhere up the scale, with
-    /// both handles still live, and that is who is seeded here.
+    /// the handle still live, and that is who is seeded here.
     private func naiveStore(sessions count: Int, culprit: Pattern = .pushV,
                             variation: Int = 3) -> AppStore {
         func at(_ p: Pattern) -> Int { min(variation, Library.count(p)) }
@@ -37,7 +37,7 @@ final class WeakLinkPromptTests: AppStoreTestCase {
             .joined(separator: ",")
         let zeros = Pattern.allCases
             .map { "\"\($0.rawValue)\",0" }.joined(separator: ",")
-        // The journal of what was shown: the handle lands IN it (§40.6), and a
+        // The journal of what was shown: the handle lands under it, and a
         // persona without one would find an easier variation that offers 3×4.
         let shown = Pattern.allCases.map { p in
             let rows = (1...at(p)).map { "\"\($0)\":\(Dose.grid(Library.unit(p, $0)).max)" }
@@ -77,9 +77,8 @@ final class WeakLinkPromptTests: AppStoreTestCase {
     }
 
     func testATraineeWhoAlreadyNamesTheMovementIsNeverAsked() {
-        // Naming the movement used to mean reporting pain on it; the surviving
-        // way to name one is an exact number below the plan, and that is the
-        // answer the prompt is trying to reach.
+        // The way to name a movement is an exact number below the plan, and
+        // that is the answer the prompt is trying to reach.
         let store = makeStore()
         for _ in 0..<12 {
             let session = store.nextSession
@@ -104,12 +103,8 @@ final class WeakLinkPromptTests: AppStoreTestCase {
         XCTAssertTrue(store.shouldAskAboutSuspect())
     }
 
-    /// Re-marked from
-    /// `testTheSofterAnswerHoldsTheLevelInsteadOfTakingTheLoadOff`. The softer
-    /// answer — "just hard" — armed a hold, and the hold is cancelled: the case
-    /// it served (the plan ran ahead of what the trainee can do) is what the
-    /// sub-step fixes without asking. The prompt is down to the diagnosis and a
-    /// dismissal, and THAT is what gets pinned: dismissing must change no plan.
+    /// Dismissing the question must change no plan: the dismissal touches no
+    /// engine state, and the movement's next appearance takes no set off.
     func testDismissingTheQuestionChangesNothingAboutThePlan() throws {
         let store = naiveStore(sessions: 12)
         let suspect = try XCTUnwrap(store.unnamedLessSuspect())
@@ -132,18 +127,11 @@ final class WeakLinkPromptTests: AppStoreTestCase {
         XCTAssertTrue(applied)
     }
 
-    // Three tests moved rather than vanished — see the two below. The prompt
-    // used to answer "it hurts" by QUEUEING a pain report for the movement's
-    // next appearance: the answer was sticky, it had to survive a relaunch,
-    // and it took effect an appearance later. The handle takes effect at once
-    // and needs no queue, so "the answer survives a relaunch" has nothing left
-    // to survive.
-
     // MARK: - The answer is a handle, not a diagnosis
 
-    /// "Make it easier" acts AT ONCE and on the movement named. The old answer
-    /// queued a pain report for the next appearance; this one changes the
-    /// variation now and keeps the movement in every plan from here on.
+    /// "Make it easier" acts AT ONCE and on the movement named: it changes the
+    /// variation now, with no queue for the next appearance, and keeps the
+    /// movement in the rotation from here on.
     func testMakingItEasierActsAtOnceOnTheNamedMovement() throws {
         let store = naiveStore(sessions: 12)
         let suspect = try XCTUnwrap(store.unnamedLessSuspect())
@@ -168,8 +156,8 @@ final class WeakLinkPromptTests: AppStoreTestCase {
                        "the question is answered for this session")
     }
 
-    /// And the movement stays IN the plan — the difference from the mechanism
-    /// this replaces, which took it out for weeks.
+    /// And the movement stays IN the plan: an easier variation of it, never
+    /// weeks without it.
     func testTheMovementStaysInThePlanAfterTheHandle() throws {
         let store = naiveStore(sessions: 12)
         let suspect = try XCTUnwrap(store.unnamedLessSuspect())
@@ -185,14 +173,13 @@ final class WeakLinkPromptTests: AppStoreTestCase {
     }
 
     /// Nothing to suggest when the handle the prompt offers would do nothing:
-    /// on tier 1 the question would route into a dead control.
+    /// on the first variation the question would route into a dead control.
     ///
     /// This is the accepted bottom, stated from the app's side — at the
     /// first variation the app has run out of things to offer, and going quiet
-    /// is the honest answer rather than showing a button that cannot fire. The
-    /// sets half of the old guard went with the sets handle: volume is
-    /// answered inside the workout now, and a prompt on the plan cannot offer
-    /// it.
+    /// is the honest answer rather than showing a button that cannot fire.
+    /// Volume is answered inside the workout, and a prompt on the plan cannot
+    /// offer it.
     func testAMovementWithNoHandleLeftIsNotSuggested() throws {
         let store = naiveStore(sessions: 12)
         let suspect = try XCTUnwrap(store.unnamedLessSuspect())

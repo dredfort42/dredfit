@@ -1,13 +1,12 @@
 //
-//  Resuming a workout after the app was killed mid-flight, moved out of
-//  DredfitUITests.swift to keep it under the linter's file and type-body
+//  Resuming a workout after the app was killed mid-flight, in a file of its
+//  own to keep DredfitUITests.swift under the linter's file and type-body
 //  ceilings. Grouped here because each pins where a relaunch must land — back
 //  inside the workout, on the rating, on plain Start when there is nothing to
 //  resume — using the shared `relaunchOnAnInterruptedWorkout()` arrange that
 //  stays in the base file. The two persistence-after-a-completed-workout
-//  tests at the bottom joined them for the same reason: both ask what a cold
-//  relaunch shows, just without an interruption to resume from. The code
-//  moved unchanged.
+//  tests at the bottom sit with them for the same reason: both ask what a
+//  cold relaunch shows, just without an interruption to resume from.
 //
 
 import XCTest
@@ -63,12 +62,11 @@ extension DredfitUITests {
                        "there is nothing to continue — the card must not show")
     }
 
-    /// "Start over" asks before it acts (owner, UX review 05.09.2026): it
-    /// throws away the only copy of a half-finished workout — the logged sets,
-    /// the numbers, the probe — and it used to do that on one tap beside
-    /// "Continue", while skipping a single set already raised a question. So
-    /// the walk answers the question; reaching the warm-up without answering
-    /// it is the behaviour that was deliberately removed, not the goal.
+    /// "Start over" asks before it acts: it throws away the only copy of a
+    /// half-finished workout — the logged sets, the numbers, the probe — and
+    /// it stands one tap beside "Continue", while skipping a single set
+    /// already raises a question. So the walk answers the question; reaching
+    /// the warm-up without answering it would be the defect, not the goal.
     func testResumeCardCanStartOver() {
         let relaunch = relaunchOnAnInterruptedWorkout()
         relaunch.buttons[AX.resumeRestart].tap()
@@ -133,8 +131,9 @@ extension DredfitUITests {
             "all six skipped exercises must be listed")
 
         // Nothing was trained, so "easy" is not on offer at all — the purest
-        // case of the gate. The claim this walk used to make by tapping it is
-        // pinned in AppStoreTests now, where the card cannot get in the way.
+        // case of the gate. What it would do if given anyway is pinned in
+        // AppStoreTests (`testEasyOverAFullySkippedSessionLeavesTheTotalAtZero`),
+        // where the card cannot get in the way.
         XCTAssertTrue(app.staticTexts["“Easy, could do more” is for a workout done in full."].exists,
                       "a session where nothing was done still offers “easy”")
 

@@ -88,14 +88,14 @@ extension WorkoutSession {
         // anything — NOT at the last write. `savedAt` is the moment of the
         // last phase transition; nothing stamps the moment the app stopped
         // living, so a rest of 60–120 s is an unwritten tail of a session that
-        // was still running. Counting that tail as absence made an ordinary
-        // kill for memory during a rest subtract real minutes: a phone locked
-        // at the top of a 90 s rest and opened at its end reported a workout a
-        // minute and a half shorter than it was, which is the mirror of the
-        // lie the away time was added to fix (review 06.09.2026). A rest
-        // running on schedule is training whether or not the process survived
-        // it, so the gap is measured from its end. What is left over is the
-        // absence, and it accumulates across however many resumes.
+        // was still running. Counting that tail as absence would make an
+        // ordinary kill for memory during a rest subtract real minutes: a
+        // phone locked at the top of a 90 s rest and opened at its end would
+        // report a workout a minute and a half shorter than it was, the mirror
+        // of the lie the away time exists to fix. A rest running on schedule
+        // is training whether or not the process survived it, so the gap is
+        // measured from its end. What is left over is the absence, and it
+        // accumulates across however many resumes.
         //
         // The work screen carries no such end date, so a kill inside a hold
         // still charges the set to the absence; closing that needs the moment
@@ -167,8 +167,10 @@ extension WorkoutSession {
             || !actuals.isEmpty || !skippedPatterns.isEmpty
     }
 
-    /// Every exercise not fully completed keeps its level via the engine's
-    /// skip path, and the flow proceeds to the rating.
+    /// Settles what is not finished (`SetFacts.settlement`) — a movement not
+    /// far enough along is a skip to the engine, one far enough along keeps
+    /// its numbers and its remaining sets travel as skipped sets — and the
+    /// flow proceeds to the rating.
     func finishNow() {
         // Every exercise is already behind. Without this the generic path
         // would call the completed last exercise "not finished". The cool-down
@@ -187,9 +189,8 @@ extension WorkoutSession {
         // A movement is BEHIND US in two places, not one. The summary of a
         // finished hold is the same fact as the rest after a last set: every
         // set is done and its seconds are on the screen. Counting it as
-        // unfinished handed a FULLY PERFORMED movement to the engine as a
-        // skip and erased the very numbers that screen exists to confirm
-        // (UX review 05.09.2026, 🔴 02).
+        // unfinished would hand a FULLY PERFORMED movement to the engine as a
+        // skip and erase the very numbers that screen exists to confirm.
         var currentIsDone = false
         if case .rest = phase, isLastSet { currentIsDone = true }
         if case .exerciseSummary = phase { currentIsDone = true }
@@ -199,7 +200,7 @@ extension WorkoutSession {
         if case .rest = phase { setsBehind = setIndex + 1 }
         // The arithmetic itself lives in `SetFacts`, where a test can reach it
         // and where the settlement of a workout that was never rated reads the
-        // very same rules — the two used to describe one interruption
+        // very same rules — two copies would describe one interruption
         // differently depending on whether the app stayed alive.
         let settled = SetFacts.settlement(in: exercises,
                                           exIndex: exIndex,
@@ -207,8 +208,8 @@ extension WorkoutSession {
                                           currentIsDone: currentIsDone,
                                           alreadySkipped: setsSkipped)
         setsSkipped = settled.setsSkipped
-        // "not finished", not "skipped": the engine still freezes the level
-        // like any skip, the label is the only difference.
+        // "not finished", not "skipped": to the engine it is a skip like any
+        // other, the label is the only difference.
         interruptedPattern = settled.interrupted
         for pattern in settled.skipped {
             actuals.removeValue(forKey: pattern)   // a skip wins over an actual

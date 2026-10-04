@@ -10,10 +10,10 @@
 //  (which escape is offered, which number is the big one) stays in the view.
 //
 //  Split by what each part of the flow does: +Sets, +Rest, +Holds, +Summary,
-//  +Skips, +Warmup, +Cooldown, +BlockPause, +Snapshot. Swift's `private` is
-//  file-scoped, so the state those files share is internal; only this type
-//  writes it. The view writes `adjustValue` through the panel and hands in
-//  `animator` and `reduceMotion`, nothing else.
+//  +Skips, +Warmup, +Cooldown, +Blocks, +BlockPause, +Snapshot. Swift's
+//  `private` is file-scoped, so the state those files share is internal; only
+//  this type writes it. The view writes `adjustValue` through the panel and
+//  hands in `animator` and `reduceMotion`, nothing else.
 //
 
 import Foundation
@@ -69,30 +69,27 @@ final class WorkoutSession {
     }
 
     enum Phase: Equatable {
-        /// The warm-up no longer starts itself either. Being dropped straight
-        /// into a countdown nobody agreed to is how a block gets skipped by
-        /// walking away rather than by saying so — and the answer "I am
-        /// already warm" is a real one. Offered, never required; the same two
-        /// answers as the cool-down.
+        /// The warm-up does not start itself. Being dropped straight into a
+        /// countdown nobody agreed to is how a block gets skipped by walking
+        /// away rather than by saying so — and the answer "I am already warm"
+        /// is a real one. Offered, never required; the same two answers as the
+        /// cool-down.
         case warmupIntro
         case warmup
         case work
         case rest(seconds: Int)
-        /// Every set of a hold movement on one screen, with any number one
-        /// tap from being corrected. It REPLACES the settled hold that stood
-        /// on the work screen: that showed one number, the last one, and the
-        /// sets before it had never been correctable at all — a number
-        /// entered on the work screen writes the set under way and truncates
-        /// what follows, so there was no writer that could touch set one.
+        /// Every set of a hold movement on one screen, the last one a tap from
+        /// being corrected — a hold ends itself, and nothing about the
+        /// movement comes back after its last set (`finishHold`).
         ///
-        /// Only after a hold, and only when the movement is behind. Sets of
-        /// reps are logged by the tap that ends them and nothing about that
-        /// screen changed.
+        /// Only after a hold movement, and only when it is behind — its probe
+        /// set, when it has one, comes first on a screen of its own. Sets of
+        /// reps are logged by the tap that ends them.
         case exerciseSummary
-        /// The cool-down no longer starts itself. The work is behind, and
-        /// being dropped straight into a stretch nobody asked for is how a
-        /// block gets skipped by walking away instead of by saying so. One
-        /// screen, two answers, and both are fine.
+        /// The cool-down does not start itself. The work is behind, and being
+        /// dropped straight into a stretch nobody asked for is how a block
+        /// gets skipped by walking away instead of by saying so. One screen,
+        /// two answers, and both are fine.
         case cooldownIntro
         case cooldown                 // between the last exercise and the rating
         case feedback
@@ -124,13 +121,15 @@ final class WorkoutSession {
     var warmup = GuidedBlockRun()
     var cooldown = GuidedBlockRun()
 
-    // Computed once on entry: the composition depends on what was performed.
+    // Computed on entry — the composition depends on what was performed — and
+    // recomposed only when the athlete sets a position aside or brings one
+    // back (`rebaseCooldownOnComposition`).
     var cooldownPositions: [CooldownPosition] = []
 
-    // The pause of the guided blocks (issue #61). One for both, like the
-    // stage/clock pairs above: the two blocks never run at once. Held, the
-    // frozen seconds stand in the block's clock and no end date
-    // exists anywhere; re-entering, only this moves.
+    // The pause of the guided blocks (issue #61) and of a hands-free rest.
+    // One for all three: they never run at once. Held, the frozen seconds
+    // stand in the stage's own clock and no end date exists anywhere;
+    // re-entering, only this moves.
     var blockPause = BlockPause.State()
 
     var restClock = Countdown()
@@ -149,7 +148,7 @@ final class WorkoutSession {
     /// RESULT of the feedback, never on its input.
     var setsSkipped: SetFacts.Skips = [:]
 
-    /// What the PROBE set showed, per movement (§40.4). Kept apart from
+    /// What the PROBE set showed, per movement. Kept apart from
     /// `actuals` on purpose and for the same reason the engine keeps `probes`
     /// apart from `overrides`: the probe is a different exercise, and folding
     /// its number into the mean of the working sets would average two
@@ -157,11 +156,11 @@ final class WorkoutSession {
     var probeActuals: [Pattern: Int] = [:]
 
     /// Steps added "for next time" on the summary of a finished hold, per
-    /// movement (§41.13). A DECISION, not a fact: it never touches `actuals`
-    /// and reaches the engine through its own argument, landed after the
-    /// rating. Kept for the session like the facts are, and carried across a
-    /// process death for the same reason the declared time is — coming back
-    /// without it would undo a choice already made on screen.
+    /// movement. A DECISION, not a fact: it never touches `actuals` and
+    /// reaches the engine through its own argument, landed after the rating.
+    /// Kept for the session like the facts are, and carried across a process
+    /// death for the same reason the declared time is — coming back without
+    /// it would undo a choice already made on screen.
     var raisedSteps: [Pattern: Int] = [:]
 
     var skippedPatterns: Set<Pattern> = []
@@ -179,8 +178,8 @@ final class WorkoutSession {
     var workoutStart: Date?   // actual duration for Health
 
     /// Seconds spent away across resumes, subtracted from the duration
-    /// Health is told about. Wall clock alone charged the break to the
-    /// workout (UX review 05.09.2026).
+    /// Health is told about. Wall clock alone would charge the break to the
+    /// workout.
     var awaySec = 0
 
     /// The moment the scene left, while the process lives on (`sceneLeft`).
@@ -190,8 +189,8 @@ final class WorkoutSession {
     /// moment the person said yes; `*Sec` is what the block cost once it
     /// ended, and it stays nil only while the block has not ended yet. A
     /// declined block never gets a `BeganAt` and resolves to ZERO — which is
-    /// the whole point: its planned minutes used to be billed to Health
-    /// whether or not anybody stretched.
+    /// the whole point: its planned minutes must not be billed to Health when
+    /// nobody stretched.
     var warmupBeganAt: Date?
 
     var warmupSec: Int?
@@ -203,10 +202,9 @@ final class WorkoutSession {
     /// Seconds a guided block STOOD STILL — a pause, an open technique sheet,
     /// or the absence a tick found on its way into one. `warmupSec` and
     /// `cooldownSec` are wall clock (`BlockRun.seconds`), so without this a
-    /// warm-up paused for a phone call billed the call to the warm-up and
-    /// Health was told the person stretched for eleven minutes (UX review
-    /// 05.09.2026). One pair for both blocks, like every other pair above:
-    /// they never run at once, and each block resets them when it begins.
+    /// warm-up paused for a phone call would bill the call to the warm-up and
+    /// tell Health the person stretched through it. One pair for both blocks:
+    /// they never run at once, and each block resets the pair when it begins.
     var blockPausedSec = 0
 
     var blockFrozenAt: Date?
@@ -240,22 +238,17 @@ final class WorkoutSession {
     // the go can start it without recomputing anything.
     var holdCountInClock = Countdown()
 
-    /// The LAST hold of a movement is over and its seconds are recorded, but
-    /// the set is not closed yet — `finishHold` stops there and the primary
-    /// button finishes the job. A hold ends itself, so before this flag the
-    /// number it produced left the screen in the same frame it was produced
-    /// in, and "Went differently" never got a moment to exist.
-    ///
-    /// Only the last set: every earlier one still flows into its rest by
-    /// itself, because the movement comes back and a tap between the effort
-    /// and the recovery would be pure friction. After the last set nothing
-    /// about the movement returns, so its seconds would stand uncorrectable.
     /// The PROBE set of a hold movement is over and its seconds are
-    /// recorded, but the set is not closed yet — the probe's own caption
-    /// states its outcome ("Next time: …"), and that sentence has to survive
-    /// the moment the clock stops. Narrowed to the probe by this wave: every
-    /// other last set of a hold now lands on `exerciseSummary`, which is a
-    /// better version of the same idea and speaks about the whole movement.
+    /// recorded, but the set is not closed yet — `finishHold` stops there and
+    /// the primary button finishes the job. A hold ends itself, so without
+    /// this the number would leave the screen in the same frame it was
+    /// produced in, and the probe's own caption states its outcome ("Next
+    /// time: …"): that sentence has to survive the moment the clock stops.
+    ///
+    /// Only the probe: every earlier set flows into its rest by itself,
+    /// because the movement comes back and a tap between the effort and the
+    /// recovery would be pure friction, and every other last set of a hold
+    /// lands on `exerciseSummary`, which speaks about the whole movement.
     var holdSettled = false
 
     /// How long the athlete SAID this hold would run, before doing it.
@@ -281,23 +274,22 @@ final class WorkoutSession {
 
     /// What the CLOCK wrote for each set of the exercise in front of us, by
     /// set index — the number `recordHoldActual` produced, before any
-    /// correction by hand. The summary reads its ceiling off this rather
-    /// than off the number in force: a set corrected from 7 down to 5 kept
-    /// re-opening under "the clock saw 5 s", naming a number the person had
-    /// typed as the clock's, and could never be put back up to the 7 the
-    /// clock actually counted (owner, 12.09.2026). Per exercise, like the
-    /// estimate marks, and carried across a process death with them.
+    /// correction by hand. The summary reads the clock's word off this
+    /// rather than off the number in force (`summaryMeasured`): a set
+    /// corrected from 7 down to 5 re-opens under "the clock saw 7 s", never
+    /// under the 5 the person typed. Per exercise, like the estimate marks,
+    /// and carried across a process death with them.
     var holdMeasured: [Int: Int] = [:]
 
     /// The exercise was started by ONE tap and continues itself: the rest
-    /// after each set opens the next set's count-in with nobody touching the
-    /// phone (R23). It belongs to the exercise it was started for, so it is
-    /// cleared on the way out of one — `resetHoldSides` for every skip,
-    /// `advanceAfterRest` for the ordinary advance, `finishNow` for the exit.
+    /// after each set opens the next set with nobody touching the phone. It
+    /// belongs to the exercise it was started for, so it is cleared on the
+    /// way out of one — `resetHoldSides` for every skip, `advanceAfterRest`
+    /// for the ordinary advance, `finishNow` for the exit.
     ///
-    /// A PAUSED guided block deliberately does not clear it: the pause is a
-    /// block's own control, it cannot be reached from a work screen at all,
-    /// and Resume has to come back to the run the person started.
+    /// The pause of a hands-free rest deliberately does not clear it: the
+    /// pause cannot be reached from a work screen at all, and Resume has to
+    /// come back to the run the person started.
     ///
     /// Not in the snapshot, and that is a decision rather than an omission:
     /// process death drops the run, the work screen comes back with its own
@@ -305,18 +297,16 @@ final class WorkoutSession {
     /// would arm a countdown for someone who is holding a cold phone.
     var holdAutoRun = false
 
-    /// The session's own list. It used to be a SUBSET of it — the short
-    /// version ran three movements of six and recorded the rest as skips — and
-    /// every position in the flow (indices, "N / M", the capsules, restore
-    /// clamping) counts in this, which is why the name stayed.
+    /// The session's own list: every position in the flow (indices, "N / M",
+    /// the capsules, restore clamping) counts in this.
     var exercises: [SessionExercise] { session.exercises }
 
     var exercise: SessionExercise { exercises[exIndex] }
 
-    /// Working sets plus the probe, when the plan carries one (§40.4). The
-    /// probe REPLACED a working set upstream — the engine handed back one set
-    /// fewer — so the session's volume is unchanged and this count is what the
-    /// person actually walks through.
+    /// Working sets plus the probe, when the plan carries one. The probe
+    /// REPLACES a working set upstream — the engine hands back one set fewer —
+    /// so the session's volume is unchanged and this count is what the person
+    /// actually walks through.
     var totalSets: Int { exercise.sets + (exercise.probe == nil ? 0 : 1) }
 
     /// The set under way is the probe: one set of the NEXT variation, offered
@@ -330,7 +320,7 @@ final class WorkoutSession {
     /// What the screen is showing right now: the planned exercise, or — on the
     /// probe set — the movement the probe offers. Everything the work screen
     /// reads goes through this, which is why the probe needs no second screen
-    /// and no new question (§40.4).
+    /// and no new question.
     struct CurrentMovement {
         let name: String
         let unit: LoadUnit
@@ -472,9 +462,10 @@ final class WorkoutSession {
         // halves of the pair, not just the tone. The Taptic Engine idles
         // between countdowns and pays its wake-up on the first impulse, so
         // the first tick of a 3-2-1 would land after the second, and with the
-        // ring switch flipped the haptic is the whole channel. `prepare()`
-        // holds for a few seconds only, which is why every countdown is
-        // primed again a second before its 3-2-1 (`primeBeforeTheCount`).
+        // ring switch flipped — tones not let through — the haptic is the
+        // whole channel. `prepare()` holds for a few seconds only, which is
+        // why every countdown is primed again a second before its 3-2-1
+        // (`primeBeforeTheCount`).
         if store.settings.soundsEnabled {
             signals.primeSounds()
             signals.prime()
@@ -503,14 +494,14 @@ final class WorkoutSession {
             session: session, result: result,
             overrides: overrides,
             setActuals: actuals,
-            // Skips like any other: levels frozen, counter and rotation
-            // still advance.
+            // Skips like any other: the position stays put, counter and
+            // rotation still advance.
             skipped: skippedPatterns,
             // The sets skipped along the way. The engine settles them
             // against the rating — after it, never before.
             setsSkipped: setsSkipped,
-            // The probe's own channel (§40.4): a number about one set of a
-            // movement that is not in the plan yet.
+            // The probe's own channel: a number about one set of a movement
+            // that is not in the plan yet.
             probes: probeActuals,
             durationSec: workoutStart.map {
                 // max: the wall clock can move backwards mid-workout. Minus
@@ -525,7 +516,7 @@ final class WorkoutSession {
             // about one that was not.
             interrupted: interruptedPattern,
             // The additions, landed by the engine over the rating — never
-            // applied here (§41.13).
+            // applied here.
             raised: raisedSteps,
             date: now())
     }

@@ -35,10 +35,10 @@ extension AppStore {
 
     /// The switch follows the permission, which HealthKit grants per device:
     /// a restored backup or an offloaded app brings the flag without it, and the
-    /// person can take the workout share back in Health at any time. Every
-    /// save then failed under a switch that read "on" (owner, 27.09.2026).
-    /// Nothing is lost — mark and flags are kept, and turning it back on asks
-    /// again and offers what is pending. Never prompts.
+    /// person can take the workout share back in Health at any time. Without
+    /// this, every save would fail under a switch that reads "on". Nothing is
+    /// lost — mark and flags are kept, and turning it back on asks again and
+    /// offers what is pending. Never prompts.
     func reconcileHealthAuthorization() {
         guard settings.healthEnabled,
               !(health.isAvailable && health.workoutShareGranted) else { return }
@@ -137,12 +137,12 @@ extension AppStore {
             //
             // …and by identity AMONG THE UNEXPORTED, which is what makes the
             // loop terminate. The selection above asks for an unflagged
-            // record and this asks only for a matching id, so two records
-            // sharing an `id` — one journal, `sessionNumber` restarted by
-            // `resetProgress`, the same `date` to the double — sent every
-            // flag to the FIRST of the pair while the second stayed unflagged
-            // and was picked again. The loop then wrote a duplicate HKWorkout
-            // per turn, forever, into a store the app cannot clean up. Only a
+            // record; matched by id alone, two records sharing an `id` — one
+            // journal, `sessionNumber` restarted by `resetProgress`, the same
+            // `date` to the double — would send every flag to the FIRST of
+            // the pair while the second stayed unflagged and was picked
+            // again, and the loop would write a duplicate HKWorkout per turn,
+            // forever, into a store the app cannot clean up. Only a
             // hand-edited journal reaches it, which is exactly the input every
             // decoder in this project is written against.
             guard let i = records.firstIndex(where: {

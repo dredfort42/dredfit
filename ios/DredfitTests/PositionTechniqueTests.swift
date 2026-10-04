@@ -78,8 +78,8 @@ final class PositionTechniqueTests: XCTestCase {
         XCTAssertTrue(bilateral.contains("\(Cooldown.positionSeconds)"))
     }
 
-    /// §41.12: a split warm-up move has two halves, and the sheet says the
-    /// length of ONE of them. "warm-up · 30 s" on a move that runs 15 + 15
+    /// A split warm-up move has two halves, and the sheet says the length of
+    /// ONE of them. "warm-up · 30 s" on a move that runs 15 + 15
     /// would be the number of neither half — the sheet is read while the
     /// countdown is frozen, precisely to check what is being asked.
     ///

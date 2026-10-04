@@ -156,6 +156,52 @@ final class NextTimeTests: AppStoreTestCase {
         XCTAssertEqual(store.currentPositions[pattern]?.dose, Dose.hold.max)
     }
 
+    /// Under a cut, the step that completes a rung moves the measure by more
+    /// than one event, so a second step burned on the ceiling hid inside the
+    /// first one's jump. A knee plank on 45-40 s with one set cut: the first
+    /// tap makes it 2×45, the second has nowhere to go — one step landed.
+    func testAStepBurnedOnTheCeilingUnderACutIsNotCountedAsLanded() {
+        var unraised = EngineState.initial
+        unraised.vars[.coreAntiExt] = 1
+        unraised.doses[.coreAntiExt] = Dose.hold.max - Dose.hold.step
+        unraised.sets[.coreAntiExt] = EngineConfig.setsBase
+        unraised.sub[.coreAntiExt] = 1
+        unraised.cut[.coreAntiExt] = 1
+        let raised = Engine.raiseDose(state: unraised, pattern: .coreAntiExt, steps: 2)
+        XCTAssertEqual(raised.doses[.coreAntiExt], Dose.hold.max, "the premise: the first step reaches the top")
+        XCTAssertEqual(AppStore.landed([.coreAntiExt: 2], from: unraised), [.coreAntiExt: 1])
+    }
+
+    /// The same through the store, the way the summary reaches it: a plan of
+    /// 40-40-35 s, one set skipped, "easy", and two taps on "+". The rating
+    /// and the cut leave 45-40; the first tap lands, the second burns.
+    func testTheStoreRecordsOnlyTheStepThatLandedUnderACut() throws {
+        let store = makeStore()
+        let pattern = Pattern.coreAntiExt
+        var tries = 0
+        while !store.nextSession.exercises.contains(where: { $0.pattern == pattern }), tries < 12 {
+            store.completeWorkout(session: store.nextSession, result: .plan)
+            tries += 1
+        }
+        store.update(refreshWidget: false) {
+            $0.engineState.vars[pattern] = 2
+            $0.engineState.doses[pattern] = 35
+            $0.engineState.sets[pattern] = EngineConfig.setsBase
+            $0.engineState.sub[pattern] = 2
+            $0.engineState.cut[pattern] = 0
+        }
+        let session = store.nextSession
+        let hold = try XCTUnwrap(session.exercises.first { $0.pattern == pattern })
+        XCTAssertEqual(hold.loads, [40, 40, 35], "the premise: 40-40-35 s")
+
+        store.completeWorkout(session: session, result: .more, setsSkipped: [pattern: 1],
+                              raised: [pattern: 2])
+        let record = try XCTUnwrap(store.records.last)
+        XCTAssertEqual(store.currentPositions[pattern]?.dose, Dose.hold.max, "the premise: the raise reached the top")
+        XCTAssertEqual(record.raisedLanded, [pattern: 1])
+        XCTAssertEqual(store.raisedForNextPlan(pattern), 1)
+    }
+
     /// The share is what the screens read; a record written before the share
     /// existed falls back to the decision, and a record that says nothing
     /// landed says so even though the decision is on it.

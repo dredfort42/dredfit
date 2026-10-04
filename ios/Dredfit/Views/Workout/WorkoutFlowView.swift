@@ -27,7 +27,7 @@ struct WorkoutFlowView: View {
     // Captured at tap time (not a bool): an ordinary rest keeps ticking while
     // the sheet is open and may flip the phase underneath. The rest of a
     // hands-free run does NOT — it would start the next set under the sheet,
-    // so `openRestTechnique` freezes that one (UX review 05.09.2026).
+    // so `openRestTechnique` freezes that one.
     @State var techniqueTarget: TechniqueTarget?
     // Unlike techniqueTarget, presenting this freezes the countdown.
     @State private var positionTechnique: PositionTechnique?
@@ -40,7 +40,7 @@ struct WorkoutFlowView: View {
 
     @ScaledMetric(relativeTo: .largeTitle) private var restRingSize: CGFloat = 240
     /// The set dots of the work screen. A dot is the size of the caption it
-    /// stands over, so it follows the same setting (UX review 05.09.2026).
+    /// stands over, so it follows the same setting.
     @ScaledMetric(relativeTo: .caption) var setDotSize: CGFloat = 10
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -123,12 +123,12 @@ struct WorkoutFlowView: View {
         .background(Theme.bg.ignoresSafeArea())
         .saveFailureBanner(store)
         .onReceive(timer) { _ in
-            // Nothing the clocks drive happens behind "Leave the workout?": a
-            // hands-free rest ran out under it, started the next hold on its
-            // go and logged it as held. Every countdown is an end DATE, so a
-            // skipped tick loses nothing — after "Keep training" the next tick
-            // meets whatever ran out, under the rules a backgrounded app
-            // already lives by.
+            // Nothing the clocks drive happens behind "Leave the workout?":
+            // otherwise a hands-free rest could run out under it, start the
+            // next hold on its go and log it as held. Every countdown is an
+            // end DATE, so a skipped tick loses nothing — after "Keep
+            // training" the next tick meets whatever ran out, under the rules
+            // a backgrounded app already lives by.
             guard !exitConfirmShown else { return }
             flow.tick()
         }
@@ -163,10 +163,10 @@ struct WorkoutFlowView: View {
             }
         }
         // WITHOUT `planned:` — the step-below block belongs to the screen that
-        // shows the UPCOMING workout, never to one that is running (owner,
-        // 01.09.2026). The session is snapshotted at Start, so a switch taken
-        // here would move the state under a plan already in flight, and the
-        // rating lands on the pair: measured, squat v6 3×15 switched to v5 and
+        // shows the UPCOMING workout, never to one that is running. The
+        // session is snapshotted at Start, so a switch taken here would move
+        // the state under a plan already in flight, and the rating lands on
+        // the pair: measured, squat v6 3×15 switched to v5 and
         // rated "on plan" writes 15 into the journal of v5, where the person
         // had shown 4 — and a probe passed later in the same session promotes
         // straight past the rung they just chose, undoing the decision without
@@ -181,32 +181,32 @@ struct WorkoutFlowView: View {
         .alert(String(localized: "Leave the workout?"),
                isPresented: $exitConfirmShown) {
             // An ALERT, not a confirmationDialog: iOS 26 presents the latter
-            // as an anchored popover, so the same question drew a centred card
-            // in the workout and a tailed bubble pointing at a settings row.
+            // as an anchored popover, so the same question would draw a centred
+            // card in the workout and a tailed bubble pointing at a settings
+            // row.
             // An alert has no anchor — every one of these is the same window,
             // centred, whatever it was raised from.
             //
-            // And the workaround the popover forced is gone with it. A popover
-            // suppresses its cancel action, because tapping outside IS the
-            // cancel, so the escape had to be a SECOND, role-less button. An
-            // alert does not: measured on iPhone 17 Pro / iOS 26.5, the node is
-            // `Alert` with no `Popover` beside it, and all four buttons stood in
-            // the accessibility tree — the `.cancel` one included. So the escape
-            // is one button again, carrying the role AND the name that says what
-            // it does. "Cancel" answers "cancel what?"; this one does not.
+            // A popover suppresses its cancel action, because tapping outside
+            // IS the cancel, so it needs a SECOND, role-less button as the
+            // escape. An alert does not: measured on iPhone 17 Pro / iOS 26.5,
+            // the node is `Alert` with no `Popover` beside it, and all four
+            // buttons stand in the accessibility tree — the `.cancel` one
+            // included. So the escape is one button, carrying the role AND the
+            // name that says what it does. "Cancel" answers "cancel what?";
+            // this one does not.
             //
             // No tick runs behind this alert while the clocks do, so the way
             // back can land inside a 3-2-1 that nothing has primed.
             Button(String(localized: "Keep training"), role: .cancel) { flow.primeComingBack() }
             Button(String(localized: "Finish now")) { flow.finishNow() }
-            // The answer the flow could always give and never offered. Every
-            // number here is persisted at every transition (`persistProgress`),
-            // so stepping out keeps the workout and Today offers to pick it up
-            // — while the two buttons around it were the whole choice: rate an
-            // unfinished session as if it were over, or throw it away (UX
-            // review 05.09.2026). Past the resume window what was done is
-            // settled on plan rather than lost (`settleAbandonedWorkout`), so
-            // neither ending drops the work.
+            // Every number here is persisted at every transition
+            // (`persistProgress`), so stepping out keeps the workout and Today
+            // offers to pick it up — without this button the choice would be
+            // to rate an unfinished session as if it were over, or to throw it
+            // away. Past the resume window what was done is settled on plan
+            // rather than lost (`settleAbandonedWorkout`), so neither ending
+            // drops the work.
             Button(String(localized: "Finish later")) { dismiss() }
             Button(String(localized: "Discard workout"), role: .destructive) {
                 discardWorkout()
@@ -226,8 +226,8 @@ struct WorkoutFlowView: View {
     /// The screens a settle window is keyed by: the phase without its payload.
     /// Three things the phase alone does not show also change the button under
     /// the finger: a guided block's transition giving way to its position, the
-    /// next position's transition after a skip, and a hold's Stop turning into
-    /// Done when its clock runs out.
+    /// next position's transition after a skip, and a probe hold's Stop
+    /// turning into Done when its clock runs out.
     private enum Screen: Hashable {
         case warmupIntro, rest, exerciseSummary, cooldownIntro, feedback, milestone
         case warmupTransition(Int), warmupPosition(Int), cooldownTransition(Int), cooldownPosition(Int)
@@ -265,9 +265,9 @@ struct WorkoutFlowView: View {
             FlowHeader(title: headerTitle,
                        steps: flow.isWarmingUp ? 0 : flow.exercises.count,
                        // The cool-down is past the LAST exercise, not on it:
-                       // `exIndex` stops at count - 1 and the final capsule
-                       // stayed "under way" for the whole block, so the bar
-                       // could never say the work was done (review 06.09.2026).
+                       // `exIndex` stops at count - 1, so the final capsule
+                       // would stay "under way" for the whole block and the
+                       // bar could never say the work was done.
                        doneIndex: flow.phase == .cooldown || flow.phase == .cooldownIntro
                            ? flow.exercises.count : flow.exIndex,
                        minutesLeft: flow.minutesLeft) {
@@ -319,8 +319,8 @@ struct WorkoutFlowView: View {
                  // Skip stays live — an escape must always be reachable.
                  canExtend: flow.canExtendRest && !flow.blockPause.isHeld,
                  paused: flow.blockPause.isHeld,
-                 // Offered only where the clock acts on its own (R32). On
-                 // every other rest nothing happens without the person, and a
+                 // Offered only where the clock acts on its own. On every
+                 // other rest nothing happens without the person, and a
                  // control that promises to stop something that is not moving
                  // is worse than no control.
                  onPauseToggle: flow.restStartsTheNextSet ? { flow.toggleBlockPause() } : nil,

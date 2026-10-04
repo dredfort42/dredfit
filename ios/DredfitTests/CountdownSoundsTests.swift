@@ -132,8 +132,8 @@ final class CountdownSoundsTests: XCTestCase {
 
     /// The switch tone (issue #35) is a flat double tap: two G6 attacks
     /// 75 ms apart. Its identity is rhythmic, not melodic — a mirrored go
-    /// was still a two-note melody, and eyes closed mid-stretch it read as
-    /// either a start or a release.
+    /// would still be a two-note melody, and eyes closed mid-stretch it would
+    /// read as either a start or a release.
     func testSwitchIsAFlatDoubleTap() throws {
         let rate = Double(SignalTone.sampleRate)
         let env = envelope(SignalTone.switchSides)
@@ -159,8 +159,8 @@ final class CountdownSoundsTests: XCTestCase {
                        "both taps sit on one pitch, within a semitone")
     }
 
-    /// The go rises — the assertion the switch tone used to be measured
-    /// against, and still the reason a start cannot be mistaken for one.
+    /// The go rises — the reason a start cannot be mistaken for the flat
+    /// switch tone.
     func testGoRises() {
         let go = samples(SignalTone.go)
         XCTAssertGreaterThan(crossings(go.suffix(2000)), crossings(go.prefix(2000)),

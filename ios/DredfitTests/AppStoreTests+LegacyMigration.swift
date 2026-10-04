@@ -1,9 +1,9 @@
 //
-//  Tests for records and settings files written by earlier app versions,
-//  moved out of AppStoreTests.swift to keep it under the linter's file and
+//  Tests for records and settings files written by earlier app versions, in
+//  their own file to keep AppStoreTests.swift under the linter's file and
 //  type-body ceilings. Grouped here because they all pin the same promise:
 //  an upgrade must read an old file's fields exactly as they were, and fill
-//  in only what that file never carried. The code moved unchanged.
+//  in only what that file never carried.
 //
 
 import XCTest
@@ -35,13 +35,11 @@ extension AppStoreTests {
         XCTAssertNil(store.records[0].positionsAfter, "v1.0 records have no position snapshot")
         XCTAssertNil(store.records[0].totalProgressAfter,
                      "and none of them carries a number on the v3 scale")
-        // RE-MARKED §41.7 (v3.1, 26.08.2026), class: the test pinned the defect.
-        // See the twin note in `testOneBadRecordDoesNotDropTheJournal`.
         XCTAssertGreaterThan(store.totalProgress, Engine.totalProgress(.initial),
                              "the v2 rungs migrate, so progress is above a clean start")
         // Every settings key this file never carried comes out at its default.
         // The one exception is the announcement the migration itself owes the
-        // person (§41.7) — it is not a decoded setting, it is a consequence.
+        // person — it is not a decoded setting, it is a consequence.
         var expected = AppSettings()
         expected.migrationNoticePending = true
         XCTAssertEqual(store.settings, expected, "v1.0 files load with default settings")
@@ -57,8 +55,8 @@ extension AppStoreTests {
     // MARK: - Legacy settings files
 
     /// A fresh install starts with three spread-out rest days — four workouts
-    /// a week. Issue #36 shipped two, which put the default one workout above
-    /// what the app itself recommends on two screens.
+    /// a week. Two — what #36 shipped — would put the default one workout
+    /// above what the app itself recommends on two screens.
     func testFreshInstallDefaultsToThreeSpreadRestDays() {
         let store = makeStore()   // no file → fresh install
         let rest = store.settings.restWeekdays
@@ -134,15 +132,13 @@ extension AppStoreTests {
         XCTAssertEqual(store.settings.reminderMinute, 30)
         XCTAssertTrue(store.settings.healthEnabled)
         XCTAssertEqual(store.settings.healthExportedThrough, 3)
-        // RE-MARKED §41.7 (v3.1, 26.08.2026), class: the test pinned the defect.
-        // `hasBar` lives in the ENGINE state, not in the settings, and used to
-        // go down with it — the person said they have a bar, the upgrade said
-        // they do not, pull-ups vanished from every plan and the toggle in
-        // settings read "off". §40.8 was reversed for exactly this. The answer
-        // now survives, and this line is its guard.
+        // `hasBar` lives in the ENGINE state, not in the settings, so it has to
+        // migrate with the engine: lost, the upgrade would tell someone who
+        // said they have a bar that they do not — pull-ups gone from every
+        // plan and the toggle in settings reading "off".
         XCTAssertTrue(store.engineState.hasBar, "the answer about the bar is carried over")
         // Old level 5 is tier 1 of the removed encoding, and tier 1 of pull_bar
-        // maps to variation 1 (§41.7) — a MIGRATED one, not a reset one.
+        // maps to variation 1 — a MIGRATED one, not a reset one.
         XCTAssertEqual(store.engineState.vars[.pullBar], 1)
         XCTAssertEqual(store.engineState.doses[.pullBar], 30,
                        "and its hold of 32 s floors onto the 5 s grid, never up")

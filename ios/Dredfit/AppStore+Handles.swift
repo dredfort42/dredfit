@@ -34,8 +34,8 @@ extension AppStore {
     }
 
     /// The movement one step down the ladder, in pieces rather than one
-    /// glued string (R30): one of them cannot be said in a glued string at
-    /// all — on `pull_bar` 3 → 2 the UNIT changes, and "3×15" turning into
+    /// glued string: one of them cannot be said in a glued string at all —
+    /// on `pull_bar` 3 → 2 the UNIT changes, and "3×15" turning into
     /// "3×15 sec" is not a difference anyone reads off a preview.
     ///
     /// Nil when the handle is inactive, which is the same question

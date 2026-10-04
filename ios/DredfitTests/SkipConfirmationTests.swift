@@ -41,10 +41,10 @@ final class SkipConfirmationTests: XCTestCase {
     }
 
     /// ONE label for all four, because `UIAlertController` picks its layout
-    /// from the button widths: per-kind labels made two controls that sit at
-    /// equal weight in the same row stack differently — in Russian "Пропустить
-    /// этот подход" fit beside the cancel and "Пропустить это упражнение",
-    /// three characters longer, did not (owner, 31.08.2026).
+    /// from the button widths: per-kind labels would make two controls that
+    /// sit at equal weight in the same row stack differently — in Russian
+    /// "Пропустить этот подход" fits beside the cancel and "Пропустить это
+    /// упражнение", three characters longer, does not.
     ///
     /// Identical strings cannot diverge in any language or at any text size,
     /// which is what makes this the fix rather than a shorter wording. Which
@@ -56,15 +56,14 @@ final class SkipConfirmationTests: XCTestCase {
                        "the two set-level skips share a question; the other two do not")
     }
 
-    /// All four questions have the SAME shape — the movement-level one carried
-    /// a red `.destructive` button for a while and lost it (owner,
-    /// 31.08.2026): red says "danger", and this app's position on a skip is
-    /// that a skipped movement stays exactly where it was, no penalty and no
-    /// rollback. What is destroyed is the numbers, and the message says so;
-    /// the colour argued with the sentence above it.
+    /// All four questions have the SAME shape, with no red `.destructive`
+    /// button on any of them: red says "danger", and this app's position on a
+    /// skip is that a skipped movement stays exactly where it was, no penalty
+    /// and no rollback. What is destroyed is the numbers, and the message says
+    /// so; a red button would argue with the sentence above it.
     ///
-    /// Asserted through the strings rather than through a role, because the
-    /// role is gone — what a test can still hold is that no question is told
+    /// Asserted through the strings rather than through a role, because there
+    /// is no role to read — what a test can hold is that no question is told
     /// apart from the others by anything but its words.
     func testTheFourQuestionsDifferOnlyInWhatTheySay() {
         let shapes = all.map { make($0) }
@@ -95,7 +94,7 @@ final class SkipConfirmationTests: XCTestCase {
                            """))
     }
 
-    /// The probe takes no volume off anything (§40.4), so its question must
+    /// The probe takes no volume off anything, so its question must
     /// not borrow the working set's sentence — which promises a set kept off
     /// the next plan.
     func testTheProbeIsNotToldTheWorkingSetsPromise() {

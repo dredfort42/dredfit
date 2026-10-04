@@ -1,10 +1,10 @@
 //
 //  The skip that happens DURING the workout, end to end.
 //
-//  The two handles that used to stand on Today are gone: nobody is asked to
-//  decide how long the session will be before standing on the mat. What is
-//  walked here is the decision in its new place — the work screen — and the
-//  two shapes it takes: one set, or the rest of a movement.
+//  Nobody is asked on Today how long the session will be before standing on
+//  the mat: the decision is taken on the work screen, and what is walked here
+//  is that decision and the two shapes it takes — one set, or the rest of a
+//  movement.
 //
 
 import XCTest
@@ -137,10 +137,10 @@ final class SetSkipUITests: XCTestCase {
     }
 
     /// The defect this pair of guards exists for: both escapes are 44 pt
-    /// targets 18 pt under the button that LOGS the set, they used to fire on
-    /// contact, and a workout has no undo. A brushed thumb took a set — or a
-    /// whole movement with every number entered for it — and nothing anywhere
-    /// could put it back (owner, 30.08.2026).
+    /// targets 18 pt under the button that LOGS the set, and a workout has no
+    /// undo. Firing on contact, a brushed thumb would take a set — or a whole
+    /// movement with every number entered for it — and nothing anywhere could
+    /// put it back.
     ///
     /// Both halves are asserted, because a confirmation that cannot be
     /// declined is not a confirmation: the question has to stand, and saying

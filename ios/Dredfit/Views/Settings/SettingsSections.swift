@@ -24,8 +24,7 @@ struct RhythmSection: SettingsGroup {
     /// The rest days and the reminder under one name — the one "How it
     /// works" gives this rule (`Weekly rhythm`, glossary): the reminder is
     /// about the same week, fires on training days only, and toggling a
-    /// rest day reschedules it. It used to stand three groups lower with no
-    /// kicker, where the eye attached it to Appearance.
+    /// rest day reschedules it.
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             settingsKicker(String(localized: "Weekly rhythm"), id: "settings-rhythm")
@@ -42,10 +41,10 @@ struct RhythmSection: SettingsGroup {
                 }
                 caption(String(localized: "Highlighted days are rest days"))
                 // The second sentence names the rule `toggleRestDay` enforces by
-                // refusing the seventh chip. Worth saying now that the chip which
-                // cannot act is dimmed rather than silent (UX review 05.09.2026)
-                // — and it belongs under the chips, not under the reminder that
-                // follows them, or it reads as the reminder's rule.
+                // refusing the seventh chip — worth saying, because the chip that
+                // cannot act is dimmed rather than silent. It belongs under the
+                // chips, not under the reminder that follows them, or it reads as
+                // the reminder's rule.
                 caption(String(localized: "3–4 rest days a week is the recommended rhythm. At least one training day always stays."))
             }
             reminderField
@@ -58,7 +57,7 @@ struct RhythmSection: SettingsGroup {
         // walks into `toggleRestDay`'s silent refusal on the fourth tap, and a
         // chip that absorbs a tap reads as broken beside six that answer. The
         // predicate is NOT `isRest`: what cannot happen is turning the LAST
-        // training day into a rest day (UX review 05.09.2026).
+        // training day into a rest day.
         let isLocked = !isRest && store.settings.restWeekdays.count == 6
         // The marker the calendar already uses for today (CalendarScreen: an
         // accent ring). Without it the chips say nothing about which column is
@@ -87,7 +86,8 @@ struct RhythmSection: SettingsGroup {
                             .padding(-3)
                     }
                 }
-                // ink, not accent: accent text on accentSoft is 2.91:1.
+                // ink, not accent: accent text on accentSoft is 2.91:1 in the
+                // light scheme and 4.20:1 in the dark, both under 4.5.
                 .foregroundStyle(isRest ? Theme.ink : Theme.ink2)
         }
         .disabled(isLocked)
@@ -100,13 +100,11 @@ struct RhythmSection: SettingsGroup {
         .accessibilityLabel(isToday ? String(localized: "\(symbol), today") : symbol)
     }
 
-    // The session-length picker is gone. The audit measured what its rungs
-    // actually did: 10, 15 and 20 produced the SAME plan, and the "20" rung
-    // missed its own target in 100 % of sessions. The plan handle that replaced
-    // it is gone too, for a different reason: it still asked how much of the
-    // workout the person had in them BEFORE they had done any of it. The engine
-    // announces the range a session can land in, and the shortening happens on
-    // the work screen, one skipped set at a time, where the answer is known.
+    // No session-length control here, on purpose: a length chosen in advance
+    // asks how much of the workout the person has in them BEFORE they have
+    // done any of it. The engine announces the range a session can land in,
+    // and the shortening happens on the work screen, one skipped set at a
+    // time, where the answer is known.
 
     // MARK: - Reminder
 
@@ -124,10 +122,8 @@ struct RhythmSection: SettingsGroup {
                         .dredfitFont(16, weight: .medium)
                 }
                 .tint(Theme.accent)
-                // The rule was written nowhere a person could read it — not
-                // here, not in How it works, not in the notification itself —
-                // and it is the objection reminders get refused over (UX
-                // review 05.09.2026).
+                // The rule, said where the switch is: it is the objection
+                // reminders get refused over.
                 caption(String(localized: "On training days only — never on a rest day, and never after you have trained."))
             }
             if store.settings.reminderEnabled {
@@ -207,8 +203,7 @@ struct EquipmentSection: SettingsGroup {
                     // on Today just disappears — and the sets already done are
                     // not recorded either: `settleAbandonedWorkout` refuses a
                     // snapshot whose fingerprint no longer matches the session.
-                    // A switch that silently spends a workout has to ask first
-                    // (UX review 05.09.2026, finding 6).
+                    // A switch that silently spends a workout has to ask first.
                     guard store.barToggleWouldDiscardWorkout(on) else {
                         return store.setHasBar(on)
                     }
@@ -260,8 +255,8 @@ struct SoundsSection: SettingsGroup {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            // Named like every other group: without a kicker the switch read
-            // as the last row of Equipment.
+            // Named like every other group: without a kicker the switch would
+            // read as the last row of Equipment.
             settingsKicker(String(localized: "Sounds"), id: "settings-sounds")
             Toggle(isOn: Binding(
                 get: { store.settings.soundsEnabled },
@@ -272,7 +267,7 @@ struct SoundsSection: SettingsGroup {
             .tint(Theme.accent)
             // Only under the ON switch: with sounds off there is no tone for
             // the ringer switch to have an opinion about, and a sub-row that
-            // cannot change anything is the control this wave is removing.
+            // cannot change anything is a ghost control.
             if store.settings.soundsEnabled { silentModeRow }
         }
     }
@@ -285,7 +280,7 @@ struct SoundsSection: SettingsGroup {
     /// switch mutes, while the haptics carry the session on their own and were
     /// weighted apart for exactly that case (`WorkoutSignals`). Unsaid, an ON
     /// switch in a silent room reads as a broken app — and early morning, when
-    /// Silent is on, is when people train (UX review 05.09.2026, finding 53).
+    /// Silent is on, is when people train.
     ///
     /// Off by default: a phone silenced in a gym was silenced on purpose, so
     /// this is the athlete saying otherwise rather than the app deciding for
@@ -315,9 +310,9 @@ struct AppearanceSection: SettingsGroup {
     @Environment(AppStore.self) private var store
 
     /// A theme of its own, applied by the single `.preferredColorScheme` on
-    /// `RootView` (finding 54). Three chips rather than a menu, and the same
-    /// chips the rest days use: the choice is small, always visible, and worth
-    /// no more room than a week of weekdays.
+    /// `RootView`. Three chips rather than a menu, and the same chips the rest
+    /// days use: the choice is small, always visible, and worth no more room
+    /// than a week of weekdays.
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             settingsKicker(String(localized: "Appearance"), id: "settings-appearance")
@@ -356,8 +351,9 @@ struct AppearanceSection: SettingsGroup {
                         .overlay(RoundedRectangle(cornerRadius: 12)
                             .stroke(isOn ? Theme.accent : Theme.hairline, lineWidth: 1.5))
                 )
-                // ink, not accent: accent text on accentSoft is 2.91:1 — the
-                // same pin the day chips carry.
+                // ink, not accent: accent text on accentSoft is 2.91:1 in the
+                // light scheme and 4.20:1 in the dark — the same pin the day
+                // chips carry.
                 .foregroundStyle(isOn ? Theme.ink : Theme.ink2)
         }
         .accessibilityIdentifier("appearance-\(choice.rawValue)")
@@ -381,8 +377,7 @@ struct AboutSection: SettingsGroup {
             }
             // ink2, not ink3: ink3 is 2.35:1 on the light ground, and a
             // version line is the string a bug report is read off. Quiet is
-            // the ROLE of this line; unreadable was an oversight
-            // (owner's call, UX review 05.09.2026).
+            // the ROLE of this line; unreadable is not.
             caption(versionLine)
         }
     }
