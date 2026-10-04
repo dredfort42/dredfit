@@ -25,7 +25,11 @@ extension RecordedPosition {
     /// `Engine.fit` resolves them, the top-rung disable included — above it the
     /// next rung belongs to another band, and adding a step there would print a
     /// dose the grid does not have.
-    func asPlanned(_ pattern: Pattern) -> SessionExercise {
+    ///
+    /// `probe` is the one the plan will carry, as the engine decides it
+    /// (`Engine.probe`); it takes the last of the standing sets, the way the
+    /// engine hands a probing plan out (`SessionExercise.probe`).
+    func asPlanned(_ pattern: Pattern, probe: SessionProbe?) -> SessionExercise {
         let unit = Library.unit(pattern, self.variation)
         let grid = Dose.grid(unit)
         // Bounded by the SCALE, not by the record: `sets` comes back out of the
@@ -35,6 +39,7 @@ extension RecordedPosition {
         // domain never notices.
         let standing = self.sets
             - min(max(self.cut ?? 0, 0), Engine.cutMax(sets: self.sets))
+            - (probe == nil ? 0 : 1)
         let sets = min(max(standing, 0), EngineConfig.setsMax)
         let sub = self.dose >= grid.max
             ? 0
@@ -48,6 +53,6 @@ extension RecordedPosition {
                                load: self.dose,
                                perSide: Library.sides(pattern, self.variation) == 2,
                                sets: sets, restSetSec: 0, restExerciseSec: 0,
-                               loads: loads, probe: nil)
+                               loads: loads, probe: probe)
     }
 }

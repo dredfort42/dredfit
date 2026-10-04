@@ -204,7 +204,7 @@ struct NextTimeBlock: View {
     /// Whether two previews promise one plan — compared on what is printed,
     /// which is what the person would be promised.
     static func samePlan(_ a: SessionExercise, _ b: SessionExercise) -> Bool {
-        a.display == b.display && a.variation == b.variation
+        a.display == b.display && a.variation == b.variation && a.probe == b.probe
     }
 
     /// How many of `steps` still change the plan. The taps are made against
@@ -280,12 +280,22 @@ struct NextTimeBlock: View {
     /// reader wants the number, not its origin. Without a fact the condition
     /// stays, because the number is not a promise until the rating is given.
     private func sentence(for planned: SessionExercise) -> Text {
-        let what = planned.variation == exercise.variation
-            ? planned.display
-            : "\(planned.name) · \(planned.display)"
+        let what = Self.planWords(planned, after: exercise)
         return factEntered
             ? Text("The app will set \(what).")
             : Text("The app will set \(what) if you rate the workout “on plan”.")
+    }
+
+    /// The plan as the sentence names it, probe included: on a probing plan
+    /// the probe has taken a working set, and "2×45 s" alone would read as a
+    /// set taken off. Spelled as the comeback card spells a probing plan.
+    /// Static so a test can reach the words without a screen.
+    static func planWords(_ planned: SessionExercise, after exercise: SessionExercise) -> String {
+        let plan = planned.variation == exercise.variation
+            ? planned.display
+            : "\(planned.name) · \(planned.display)"
+        guard let probe = planned.probe else { return plan }
+        return String(localized: "\(plan) + probe: \(probe.name) · \(probe.display)")
     }
 }
 

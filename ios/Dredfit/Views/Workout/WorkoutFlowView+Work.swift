@@ -421,10 +421,10 @@ extension WorkoutFlowView {
     // MARK: - Inline actual adjuster (the panel itself is AdjustPanel.swift)
 
     /// What the probe set says under its number. Before a number is entered it
-    /// says what the set is for; afterwards it states the outcome — and the
-    /// failing outcome is NEUTRAL, because honesty is never punished: staying
-    /// on a movement you can already do is not a failure, and the copy must
-    /// not read like one.
+    /// says what the set is for; afterwards it states the outcome
+    /// (`WorkoutSession.probeOutcome`) — and every outcome but a pass is
+    /// NEUTRAL, because honesty is never punished: staying on a movement you
+    /// can already do is not a failure, and the copy must not read like one.
     ///
     /// The failing line states the consequence — the thing the reader will
     /// actually see tomorrow — rather than naming "the current variation": at
@@ -439,30 +439,33 @@ extension WorkoutFlowView {
     /// and a shade past the 14 pt ink2 every other state of this slot uses —
     /// and the one set the app calls optional would read as the loudest
     /// sentence on the screen. The passing outcome takes the accented variant
-    /// of the same slot; the failing one stays neutral, for the reason written
+    /// of the same slot; the others stay neutral, for the reason written
     /// above.
     @ViewBuilder
     private var probeCaption: some View {
-        if let entered = flow.probeActuals[flow.exercise.pattern] {
-            if entered >= flow.current.planned && !workingSetsFellShort {
-                Text("Next time: \(flow.current.name)")
-                    .dredfitFont(14, weight: .semibold)
-                    .foregroundStyle(Theme.accentText)
-                    .multilineTextAlignment(.center)
-                    .accessibilityIdentifier("probe-passed")
-            } else {
-                // Also the answer for a probe done at target AFTER working
-                // sets that fell short: the engine reads that session as
-                // "hard" for the pattern, and a hard pattern's probe does not
-                // count — a promise here would be broken by numbers already
-                // entered.
-                Text("Not this time — the plan stays as it is.")
-                    .dredfitFont(14)
-                    .foregroundStyle(Theme.ink2)
-                    .multilineTextAlignment(.center)
-                    .accessibilityIdentifier("probe-stays")
-            }
-        } else {
+        switch flow.probeOutcome {
+        case .passed(let name):
+            Text("Next time: \(name)")
+                .dredfitFont(14, weight: .semibold)
+                .foregroundStyle(Theme.accentText)
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier("probe-passed")
+        case .planMoves(let name):
+            // The same words as a pass and none of its accent: the plan moves
+            // because the working sets fell short, and that is the neutral
+            // outcome, not a promotion.
+            Text("Next time: \(name)")
+                .dredfitFont(14)
+                .foregroundStyle(Theme.ink2)
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier("probe-plan-moves")
+        case .stays:
+            Text("Not this time — the plan stays as it is.")
+                .dredfitFont(14)
+                .foregroundStyle(Theme.ink2)
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier("probe-stays")
+        case nil:
             // No number here: the big one above IS this number, and the
             // caption would repeat it. On a hold probe the big number starts
             // counting down once the timer runs, and the target then shows
@@ -472,11 +475,6 @@ extension WorkoutFlowView {
                 .foregroundStyle(Theme.ink2)
                 .multilineTextAlignment(.center)
         }
-    }
-
-    /// The knowable half of the probe's gate — see `SetFacts.foldFallsShort`.
-    private var workingSetsFellShort: Bool {
-        SetFacts.foldFallsShort(flow.actuals, of: flow.exercise)
     }
 
     /// The slot under the big number, which carries THREE different kinds of

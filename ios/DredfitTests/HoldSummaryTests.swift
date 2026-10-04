@@ -104,4 +104,91 @@ extension WorkoutSessionTests {
         XCTAssertEqual(flow.phase, .exerciseSummary)
         XCTAssertEqual(flow.summaryRange(set: 2), SetFacts.corridor(for: .hold))
     }
+
+    // MARK: - What is promised about next time
+
+    /// The plan the engine hands `pattern` on its next appearance.
+    func nextAppearance(of pattern: Pattern, in store: AppStore) -> SessionExercise? {
+        var state = store.engineState
+        for _ in Pattern.allCases {
+            if let ex = Engine.generateSession(state).exercises.first(where: { $0.pattern == pattern }) {
+                return ex
+            }
+            state.counter += 1
+        }
+        return nil
+    }
+
+    /// The probe stopped by hand at 8 s of its 15: it records 5 and falls
+    /// short, with the working sets behind it on plan.
+    func failTheProbe(_ flow: WorkoutSession) {
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds + 8)
+        flow.stopHoldEarly()
+        XCTAssertEqual(flow.probeActuals[.coreAntiExt], 5, "the premise: the probe fell short")
+    }
+
+    /// The probe fell short after working sets that met the plan: the plank
+    /// stays on its ceiling and its next appearance probes again — two
+    /// working sets and the probe, which is what the summary must promise
+    /// rather than three working sets.
+    func testTheNextPlanCarriesTheProbeTheEngineWillHandOut() throws {
+        let (flow, store) = try probingPlankFlow()
+        walkToTheProbe(flow)
+        failTheProbe(flow)
+        flow.completeSet()
+        XCTAssertEqual(flow.phase, .exerciseSummary)
+        let promised = try XCTUnwrap(flow.nextPlan(withAdditions: 0))
+
+        flow.leaveExerciseSummary()
+        _ = flow.rate(.plan, overrides: SetFacts.overrides(flow.actuals, in: flow.exercises))
+        let next = try XCTUnwrap(nextAppearance(of: .coreAntiExt, in: store))
+        XCTAssertNotNil(next.probe, "the premise: the engine probes again")
+        XCTAssertEqual(promised.probe, next.probe)
+        XCTAssertEqual(promised.display, next.display)
+    }
+
+    /// "Set the time" 30 on the probing plank: both working sets ran 30 of
+    /// the 45 asked and the probe met its target — and the plank steps down
+    /// whatever the probe showed. The caption names the movement of the plan
+    /// it steps down to, instead of saying the plan stays.
+    func testAProbeAfterWorkingSetsThatFellShortNamesWhereThePlanGoes() throws {
+        let (flow, _) = try probingPlankFlow()
+        flow.startDeclaringHoldTime()
+        flow.adjustValue = 30
+        flow.commitSetEdit()
+        flow.startHoldExercise()
+        run(flow, for: GetReady.countInSeconds + 30)
+        run(flow, until: { flow.phase == .work })
+        run(flow, for: 30)
+        run(flow, until: { flow.phase == .work })
+        XCTAssertTrue(flow.onProbeSet)
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds + 15)
+        XCTAssertEqual(flow.probeActuals[.coreAntiExt], 15, "the premise: the probe met its target")
+
+        let next = try XCTUnwrap(flow.nextPlan(withAdditions: 0))
+        XCTAssertEqual(next.load, 30, "the premise: the plan steps down to what was held")
+        XCTAssertNil(next.probe)
+        XCTAssertEqual(flow.probeOutcome, .planMoves(Library.name(.coreAntiExt, 1)))
+    }
+
+    /// Working sets that met the plan leave the outcome to the probe: met,
+    /// it names the probe's own movement.
+    func testAProbePassedAfterWorkingSetsThatMetThePlanNamesItsMovement() throws {
+        let (flow, _) = try probingPlankFlow()
+        walkToTheProbe(flow)
+        XCTAssertNil(flow.probeOutcome, "nothing to say before the probe has a number")
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds + 15)
+        XCTAssertEqual(flow.probeOutcome, .passed(Library.name(.coreAntiExt, 2)))
+    }
+
+    /// …short of its target, the plan stays as it is — and there it does.
+    func testAProbeShortAfterWorkingSetsThatMetThePlanLeavesThePlan() throws {
+        let (flow, _) = try probingPlankFlow()
+        walkToTheProbe(flow)
+        failTheProbe(flow)
+        XCTAssertEqual(flow.probeOutcome, .stays)
+    }
 }

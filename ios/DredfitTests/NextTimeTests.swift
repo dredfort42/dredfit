@@ -109,16 +109,36 @@ final class NextTimeTests: AppStoreTestCase {
         let fx = try storeWithHold()
         let (store, session, hold) = (fx.store, fx.session, fx.hold)
         let overrides: [Pattern: Double] = [hold.pattern: Double(hold.load) - 5]
-        let preview = try XCTUnwrap(store.previewPosition(
+        let preview = try XCTUnwrap(store.previewPlan(
             after: session, pattern: hold.pattern, overrides: overrides, skipped: [],
             setsSkipped: [:], probes: [:], raised: [hold.pattern: 2]))
         store.completeWorkout(session: session, result: .plan, overrides: overrides,
                               raised: [hold.pattern: 2])
-        XCTAssertEqual(preview, store.currentPositions[hold.pattern])
-        XCTAssertNil(store.previewPosition(after: session, pattern: hold.pattern,
-                                           overrides: [:], skipped: [], setsSkipped: [:],
-                                           probes: [:], raised: [:]),
+        XCTAssertEqual(preview, store.currentPositions[hold.pattern]?.asPlanned(hold.pattern, probe: nil))
+        XCTAssertNil(store.previewPlan(after: session, pattern: hold.pattern,
+                                       overrides: [:], skipped: [], setsSkipped: [:],
+                                       probes: [:], raised: [:]),
                      "a session the state no longer generates previews nothing")
+    }
+
+    /// A probing plan is named with its probe, the way the comeback card
+    /// names one; a plan on another variation is named with its movement.
+    /// Two plans the same but for the probe are two plans.
+    func testTheSentenceNamesTheProbeTheNextPlanCarries() {
+        let knee = SessionExercise(pattern: .coreAntiExt, name: "Knee plank", variation: 1,
+                                   unit: .hold, load: 45, perSide: false, sets: 2,
+                                   restSetSec: 60, restExerciseSec: 60, loads: nil, probe: nil)
+        let probe = SessionProbe(variation: 2, name: "High plank", unit: .hold, load: 15, perSide: false)
+        let probing = knee.withProbe(probe)
+        XCTAssertEqual(NextTimeBlock.planWords(probing, after: knee),
+                       String(localized: "\(knee.display) + probe: \(probe.name) · \(probe.display)"))
+        XCTAssertEqual(NextTimeBlock.planWords(knee, after: knee), knee.display)
+        let high = SessionExercise(pattern: .coreAntiExt, name: "High plank", variation: 2,
+                                   unit: .hold, load: 15, perSide: false, sets: 3,
+                                   restSetSec: 60, restExerciseSec: 60, loads: nil, probe: nil)
+        XCTAssertEqual(NextTimeBlock.planWords(high, after: probing), "High plank · \(high.display)")
+        XCTAssertFalse(NextTimeBlock.samePlan(probing, knee), "the same sets, and one of them probes")
+        XCTAssertTrue(NextTimeBlock.samePlan(probing, knee.withProbe(probe)))
     }
 
     /// Changing the rating afterwards keeps the addition: it was a decision
@@ -359,6 +379,13 @@ private extension SessionExercise {
     func withLoads(_ loads: [Int]?, load: Int? = nil) -> SessionExercise {
         SessionExercise(pattern: pattern, name: name, variation: variation, unit: unit,
                         load: load ?? self.load, perSide: perSide, sets: sets,
+                        restSetSec: restSetSec, restExerciseSec: restExerciseSec,
+                        loads: loads, probe: probe)
+    }
+
+    func withProbe(_ probe: SessionProbe) -> SessionExercise {
+        SessionExercise(pattern: pattern, name: name, variation: variation, unit: unit,
+                        load: load, perSide: perSide, sets: sets,
                         restSetSec: restSetSec, restExerciseSec: restExerciseSec,
                         loads: loads, probe: probe)
     }

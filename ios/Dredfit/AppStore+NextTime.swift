@@ -9,10 +9,15 @@ import DredfitCore
 
 extension AppStore {
 
-    /// The position a movement will stand on after this session, computed
-    /// the way `completeWorkout` will compute it — the same entry point and
-    /// arguments, with the rating assumed to be "on plan" and the gap
-    /// measured now.
+    /// The plan a movement will get after this session: the position it will
+    /// stand on, computed the way `completeWorkout` will compute it — the same
+    /// entry point and arguments, with the rating assumed to be "on plan" and
+    /// the gap measured now — stated the way a plan states one.
+    ///
+    /// With the probe the next session would hand it, asked of the engine
+    /// over the same state (`Engine.probe`): on a probing appearance the
+    /// probe takes a working set, and a plan read without it would promise a
+    /// set the engine will not ask for.
     ///
     /// The assumption is a promise only where it cannot break. With a fact
     /// entered for the movement the step is taken from the fact
@@ -22,17 +27,20 @@ extension AppStore {
     ///
     /// Nil when the session is not the one this state generated: a preview
     /// of a rating the engine would refuse is a preview of nothing.
-    func previewPosition(after session: Session, pattern: Pattern, // swiftlint:disable:this function_parameter_count
-                         overrides: [Pattern: Double], skipped: Set<Pattern>,
-                         setsSkipped: SetFacts.Skips, probes: [Pattern: Int],
-                         raised: [Pattern: Int]) -> RecordedPosition? {
+    func previewPlan(after session: Session, pattern: Pattern, // swiftlint:disable:this function_parameter_count
+                     overrides: [Pattern: Double], skipped: Set<Pattern>,
+                     setsSkipped: SetFacts.Skips, probes: [Pattern: Int],
+                     raised: [Pattern: Int]) -> SessionExercise? {
         guard session.sessionNumber == engineState.counter + 1 else { return nil }
         let next = Engine.applyFeedback(state: engineState, session: session,
                                         result: .plan, overrides: overrides,
                                         skipped: skipped, setsSkipped: setsSkipped,
                                         gapDays: gapFraction(),
                                         probes: probes, raised: raised)
-        return Self.positions(of: next)[pattern]
+        guard let position = Self.positions(of: next)[pattern] else { return nil }
+        let probe = Engine.probe(pattern, at: next.position(pattern),
+                                 lastHard: next.lastHard, shown: next.shown)
+        return position.asPlanned(pattern, probe: probe)
     }
 
     /// Steps the LAST workout added to a movement "for next time", when the

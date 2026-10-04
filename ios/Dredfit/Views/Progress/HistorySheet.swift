@@ -192,10 +192,10 @@ struct HistorySheet: View {
     /// indistinguishable from the file; "not this time" is true of both, and it
     /// is the sentence the work screen gives a probe that did not pass.
     /// Static, and taking the record rather than reading `self`, for the reason
-    /// the probe caption named at the bottom of `ProbeChannelTests` is NOT
-    /// covered: a policy written as a `private` member of a SwiftUI view is a
-    /// policy no unit test can reach. This one is a pure function of a record
-    /// and an exercise, so it is written as one.
+    /// the probe caption's outcome lives in `WorkoutSession.probeOutcome`: a
+    /// policy written as a `private` member of a SwiftUI view is a policy no
+    /// unit test can reach. This one is a pure function of a record and an
+    /// exercise, so it is written as one.
     static func probeLine(_ ex: SessionExercise, in record: WorkoutRecord) -> String? {
         guard let probe = ex.probe,
               let after = record.positionsAfter?[ex.pattern] else { return nil }
@@ -284,7 +284,9 @@ struct HistorySheet: View {
     static func afterLine(_ ex: SessionExercise, in record: WorkoutRecord) -> String? {
         guard let after = record.positionsAfter?[ex.pattern],
               (1...Library.count(ex.pattern)).contains(after.variation) else { return nil }
-        let stood = after.asPlanned(ex.pattern)
+        // Where the position stood, not the next appearance: whether that
+        // one probes is the next record's to show.
+        let stood = after.asPlanned(ex.pattern, probe: nil)
         let line: String
         if after.variation == ex.variation {
             guard stood.display != ex.display,
