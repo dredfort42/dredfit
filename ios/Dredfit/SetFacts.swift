@@ -33,15 +33,27 @@ nonisolated enum SetFacts {
 
     /// Sets SKIPPED during the session, per movement.
     ///
-    /// A count, not a set of indices, and deliberately: what the engine is
-    /// handed is how MANY sets went, because that is what `cut` measures.
-    /// Which of the five it was is nobody's business once the workout is over
-    /// — and a count is also what survives a snapshot without a shape of its
-    /// own.
+    /// A count, deliberately: what the engine is handed is how MANY sets
+    /// went, because that is what `cut` measures. The ones the person skipped
+    /// are also named (`SkippedSets`); the ones a workout ended before
+    /// reaching ("Finish now", a settled workout) are only counted.
     ///
     /// It lives beside the per-set facts because it is the same kind of thing:
     /// what the set actually ran at, when the answer is "it did not".
     typealias Skips = [Pattern: Int]
+
+    /// WHICH sets the person skipped ("Skip this set", "Skip the remaining
+    /// sets"), by index, per movement. A skipped set has no number of its
+    /// own: what `allSets` reads for it is the plan or a shortfall carried
+    /// down (`inForce`), a number nobody did, and folded in it pulls the mean
+    /// toward the plan from either side. So the fold the engine takes, the
+    /// rating screen's "actual" and the history line leave these sets out
+    /// (`performed`), and the summary has no card for them.
+    ///
+    /// A set the workout ended before reaching is not among them: nobody
+    /// skipped it, and it folds at what was in force for it — a number
+    /// entered for the set in progress included.
+    typealias SkippedSets = [Pattern: Set<Int>]
 
     // MARK: - The corridors
 
@@ -86,6 +98,16 @@ nonisolated enum SetFacts {
         skips.compactMapValues { count in
             let clean = min(max(count, 0), EngineConfig.setsMax)
             return clean > 0 ? clean : nil
+        }
+    }
+
+    /// And for which sets were skipped, as they are written down — sorted
+    /// arrays: indices an exercise can have, and no entry for a movement with
+    /// none.
+    static func sanitized(skippedSets: [Pattern: [Int]]) -> SkippedSets {
+        skippedSets.compactMapValues { indices in
+            let clean = Set(indices.filter { (0..<EngineConfig.setsMax).contains($0) })
+            return clean.isEmpty ? nil : clean
         }
     }
 
@@ -169,6 +191,16 @@ nonisolated enum SetFacts {
     static func allSets(_ facts: PerSet, _ ex: SessionExercise) -> [Int] {
         let sets = min(max(ex.sets, 1), EngineConfig.setsMax)
         return (0..<sets).map { inForce(facts, ex, set: $0) }
+    }
+
+    /// Every set (`allSets`) but the ones the person skipped, in set order,
+    /// each with its index. With every set skipped there is nothing to set
+    /// apart, and every set reads as it does in `allSets`.
+    static func performed(_ facts: PerSet, _ ex: SessionExercise,
+                          skipping skipped: Set<Int>) -> [(set: Int, value: Int)] {
+        let every = allSets(facts, ex).enumerated().map { (set: $0.offset, value: $0.element) }
+        let done = every.filter { !skipped.contains($0.set) }
+        return done.isEmpty ? every : done
     }
 
     // MARK: - Writing
@@ -453,6 +485,10 @@ nonisolated enum SetFacts {
     /// 45 / 45 / 30 against 3×45 s reports 40. The snap to the grid is the
     /// engine's, not this one's — see the last paragraph below.
     ///
+    /// Without the sets the person SKIPPED (`performed`): 10, a skipped set
+    /// and 8 against 3×8 report 9 — the skipped set has no number to fold,
+    /// and the one `allSets` reads for it would pull the mean toward the plan.
+    ///
     /// A shortfall is never reported as MEETING the plan, however close the
     /// mean lands: a session that fell short is no proof the plan was met.
     /// So when the grid cannot hold the mean below the plan without
@@ -466,9 +502,10 @@ nonisolated enum SetFacts {
     /// Doing [8,7,7] gives 7.33 and counts as the plan met; doing [7,7,7]
     /// gives 7.00 and does not. Rounded here, both would be a seven, and the
     /// engine could no longer tell the two apart.
-    static func override(_ facts: PerSet, for ex: SessionExercise) -> Double? {
+    static func override(_ facts: PerSet, for ex: SessionExercise,
+                         skipping skipped: Set<Int>) -> Double? {
         guard facts[ex.pattern]?.isEmpty == false else { return nil }
-        let values = allSets(facts, ex)
+        let values = performed(facts, ex, skipping: skipped).map(\.value)
         guard !values.isEmpty else { return nil }
         // Summed as Doubles: the values are sanitized, but this is the one
         // place their total is taken and an Int overflow would trap.
@@ -488,8 +525,9 @@ nonisolated enum SetFacts {
     /// would be broken by numbers the person has themselves entered. The
     /// unnamed "tough" a rating may add later stays unknowable here, and no
     /// caption should guess at it.
-    static func foldFallsShort(_ facts: PerSet, of ex: SessionExercise) -> Bool {
-        guard let fold = override(facts, for: ex) else { return false }
+    static func foldFallsShort(_ facts: PerSet, of ex: SessionExercise,
+                               skipping skipped: Set<Int>) -> Bool {
+        guard let fold = override(facts, for: ex, skipping: skipped) else { return false }
         return fold < Double(ex.plannedVolume) / Double(max(ex.sets, 1))
     }
 
@@ -517,10 +555,11 @@ nonisolated enum SetFacts {
     }
 
     /// The whole session's `overrides`, keyed the way the engine wants them.
-    static func overrides(_ facts: PerSet, in exercises: [SessionExercise]) -> [Pattern: Double] {
+    static func overrides(_ facts: PerSet, skipping skipped: SkippedSets,
+                          in exercises: [SessionExercise]) -> [Pattern: Double] {
         var result: [Pattern: Double] = [:]
         for ex in exercises where facts[ex.pattern] != nil {
-            result[ex.pattern] = override(facts, for: ex)
+            result[ex.pattern] = override(facts, for: ex, skipping: skipped[ex.pattern] ?? [])
         }
         return result
     }

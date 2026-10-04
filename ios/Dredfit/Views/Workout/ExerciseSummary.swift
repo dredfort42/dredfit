@@ -1,7 +1,7 @@
 //
-//  Every set of a finished hold movement, on one screen, with the last one a
-//  tap from being corrected — and, under them, what the next plan will be
-//  and the one control that can raise it.
+//  Every set of a finished hold movement that was done, on one screen, with
+//  the last one a tap from being corrected — and, under them, what the next
+//  plan will be and the one control that can raise it.
 //
 //  The work screen's writer records the set under way and truncates what
 //  follows, because on that screen the sets after it have not happened yet.
@@ -25,35 +25,18 @@
 import SwiftUI
 import DredfitCore
 
-/// One set of the movement as the summary prints it.
-struct HeldSet: Identifiable {
-    /// 0-based, like everything the flow counts sets with.
-    let index: Int
-    let seconds: Int
-    let planned: Int
-    /// The number is an ESTIMATE rather than a measurement: the set ended
-    /// under a thumb, which pays a guessed three-second reach allowance.
-    /// Printed as "≈", because a number the app guessed at must not be shown
-    /// with the confidence of one the clock produced.
-    let approximate: Bool
-
-    var id: Int { index }
-}
-
 /// One tappable number. 44 pt is the floor for the target, not for the card:
 /// the number alone is 40 pt tall at the default text size and a card that
 /// only just cleared it would fail the moment somebody turned text up (R18).
 struct HeldSetCard: View {
     let held: HeldSet
-    /// Only the last working set of the movement: what it ran is the
-    /// person's to correct — down always, up as far as nothing stopped it
-    /// (`SetFacts.correctionRange`). Every earlier set ended on its signal
-    /// or under a thumb and stands as it ran — the card is inert, without
-    /// the outline that says "tap me" and without the hint that promises a
+    let action: () -> Void
+
+    /// `HeldSet.correctable`. A card that is not is inert, without the
+    /// outline that says "tap me" and without the hint that promises a
     /// change. It stays a button in the tree so the tests that read the
     /// cards by identifier keep reading them.
-    let correctable: Bool
-    let action: () -> Void
+    private var correctable: Bool { held.correctable }
 
     var body: some View {
         Button {
@@ -161,7 +144,7 @@ struct HeldSetsRow: View {
     @ViewBuilder
     private func cards(_ sets: [HeldSet]) -> some View {
         ForEach(sets) { held in
-            HeldSetCard(held: held, correctable: held.index == self.sets.count - 1) {
+            HeldSetCard(held: held) {
                 onEdit(held.index)
             }
         }

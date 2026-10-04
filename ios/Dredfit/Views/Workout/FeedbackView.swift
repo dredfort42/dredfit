@@ -24,6 +24,9 @@ struct FeedbackView: View {
     /// shortfall the rating still governs at full speed, and the only reason
     /// this screen needs it (see `didFullPlan`).
     var setsSkipped: SetFacts.Skips = [:]
+    /// The ones among those the person skipped: the fold and the "actual"
+    /// row leave them out.
+    var skippedSets: SetFacts.SkippedSets = [:]
     var skipped: Set<Pattern> = []
     /// Steps added "for next time" on the summaries of the holds behind.
     /// Shown so the decision is seen to have reached the rating
@@ -34,7 +37,7 @@ struct FeedbackView: View {
     let onComplete: (FeedbackResult, [Pattern: Double]) -> Void
 
     private var overrides: [Pattern: Double] {
-        SetFacts.overrides(facts, in: session.exercises)
+        SetFacts.overrides(facts, skipping: skippedSets, in: session.exercises)
     }
 
     /// Whether "easy" is on offer. The rule itself is `SetFacts.didFullPlan`,
@@ -153,7 +156,9 @@ struct FeedbackView: View {
                     // The screen shows a whole number. The fraction is
                     // how the engine decides whether the top set was taken; a
                     // person reading "you did 7.33" would learn nothing.
-                    SetFactsLabel(values: SetFacts.allSets(facts, ex),
+                    SetFactsLabel(values: SetFacts.performed(facts, ex,
+                                                             skipping: skippedSets[ex.pattern] ?? [])
+                                    .map(\.value),
                                   reported: Int((overrides[ex.pattern] ?? 0).rounded()))
                 }
             }

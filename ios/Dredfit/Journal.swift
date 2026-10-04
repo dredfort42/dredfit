@@ -93,6 +93,12 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// dominant price is still an open question, and this is the only place
     /// it can ever be answered from.
     var setsSkipped: [Pattern: Int]?
+    /// The ones among those the person skipped, by index, sorted
+    /// (`SetFacts.SkippedSets`): the fold — again on a changed rating
+    /// (`changeLastRating`) — and the history line leave them out. Optional
+    /// with a nil default like every field added to a persisted type; a
+    /// record written without it is read the way it always was.
+    var skippedSetIndices: [Pattern: [Int]]?
     var skipped: Set<Pattern>?
     /// Reported as painful mid-workout, by a build that had the pain report:
     /// to the engine a skip, to the journal a different fact. LEGACY and
@@ -153,6 +159,11 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         (raisedLanded ?? raisedSteps)?[pattern] ?? 0
     }
 
+    /// Which sets were skipped, as the readers of the sets take it.
+    var skippedSets: SetFacts.SkippedSets {
+        SetFacts.sanitized(skippedSets: skippedSetIndices ?? [:])
+    }
+
     /// The journal is an input too. The engine heals the state it is handed,
     /// but its own snapshots come back out of this file and straight into
     /// arithmetic — the retrospective subtracts a stored level from the
@@ -181,6 +192,10 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
             .mapValues { clamp($0, 0, EngineConfig.countMax) }
         setsSkipped = try c.decodeIfPresent([Pattern: Int].self, forKey: .setsSkipped)?
             .mapValues { clamp($0, 0, EngineConfig.setsMax) }
+        // An index is not clamped, it is kept or dropped: clamped, it would
+        // name a different set.
+        skippedSetIndices = try c.decodeIfPresent([Pattern: [Int]].self, forKey: .skippedSetIndices)?
+            .mapValues { $0.filter { (0..<EngineConfig.setsMax).contains($0) } }
         skipped = try c.decodeIfPresent(Set<Pattern>.self, forKey: .skipped)
         discomfort = try c.decodeIfPresent(Set<Pattern>.self, forKey: .discomfort)
         positionsAfter = try c.decodeIfPresent([Pattern: RecordedPosition].self,
@@ -205,6 +220,7 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
          exercises: [SessionExercise]? = nil, actuals: [Pattern: Int]? = nil,
          setActuals: [Pattern: [Int]]? = nil, probes: [Pattern: Int]? = nil,
          setsSkipped: [Pattern: Int]? = nil,
+         skippedSetIndices: [Pattern: [Int]]? = nil,
          skipped: Set<Pattern>? = nil, discomfort: Set<Pattern>? = nil,
          positionsAfter: [Pattern: RecordedPosition]? = nil,
          durationSec: Int? = nil,
@@ -222,6 +238,7 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         self.setActuals = setActuals
         self.probes = probes
         self.setsSkipped = setsSkipped
+        self.skippedSetIndices = skippedSetIndices
         self.skipped = skipped
         self.discomfort = discomfort
         self.positionsAfter = positionsAfter
@@ -271,6 +288,10 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// Sets skipped so far, per movement. Optional like everything
     /// below it: a snapshot written before the skip existed still decodes.
     var setsSkipped: [Pattern: Int]?
+    /// The ones among those the person skipped, by index, sorted
+    /// (`WorkoutSession.skippedSetIndices`). Optional with a nil default, like
+    /// every field added to a persisted type.
+    var skippedSetIndices: [Pattern: [Int]]?
     /// What the PROBE set showed, per movement. Its own field for the same
     /// reason it is its own argument to the engine: it is a number about
     /// a movement that is not in the plan yet, and folding it into the per-set
@@ -364,6 +385,11 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// has no decoder of its own and everything here comes back off disk.
     var skips: SetFacts.Skips {
         SetFacts.sanitized(skips: setsSkipped ?? [:])
+    }
+
+    /// Which sets were skipped, sanitized where it is read like the count.
+    var skippedSets: SetFacts.SkippedSets {
+        SetFacts.sanitized(skippedSets: skippedSetIndices ?? [:])
     }
 
     /// The additions, sanitized where they are read like everything above:

@@ -465,8 +465,8 @@ extension DredfitUITests {
         let lastCard = app.buttons[AX.summarySet(3)]
         XCTAssertTrue(lastCard.waitForExistence(timeout: 150),
                       "the exercise did not run itself out after the skipped set")
-        // Set one was never performed and stands at its plan; the two behind
-        // it are the ones the declaration governs.
+        // Set one was never performed and has no card; the two behind it are
+        // the ones the declaration governs.
         for set in 2...3 {
             let label = app.buttons[AX.summarySet(set)].label
             XCTAssertTrue(label.contains("20 seconds"),

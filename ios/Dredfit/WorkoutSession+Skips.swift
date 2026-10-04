@@ -49,6 +49,7 @@ extension WorkoutSession {
         guard skipsLeaveAMovement(1) else { leaveExercise(); return }
         editing = nil
         setsSkipped[exercise.pattern, default: 0] += 1
+        skippedSetIndices[exercise.pattern, default: []].insert(setIndex)
         if isLastSet {
             advancePastExercise()
         } else {
@@ -71,6 +72,9 @@ extension WorkoutSession {
         guard skipsLeaveAMovement(left) else { leaveExercise(); return }
         editing = nil
         setsSkipped[exercise.pattern, default: 0] += left
+        if left > 0 {
+            skippedSetIndices[exercise.pattern, default: []].formUnion(setIndex..<exercise.sets)
+        }
         advancePastExercise()
     }
 }

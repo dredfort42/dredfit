@@ -153,12 +153,24 @@ struct HistorySheet: View {
     /// not one that ran. Without a mid-skip `known <= performed`, and the cut
     /// to the sets that ran is all that applies.
     ///
+    /// The two paragraphs above are how a record that does not say WHICH sets
+    /// were skipped is read. One that does (`skippedSetIndices`) needs neither:
+    /// the line leaves the skipped sets out (`SetFacts.performed`) and holds
+    /// each of the others against its own plan.
+    ///
     /// Static and taking the record for the same reason `probeLine` is: a rule
     /// written as a private member of a SwiftUI view is a rule no unit test
     /// can reach.
     static func setFacts(_ ex: SessionExercise,
                          in record: WorkoutRecord) -> (values: [Int], reported: Int)? {
         let reported = record.actuals?[ex.pattern]
+        if let facts = record.setActuals, facts[ex.pattern] != nil,
+           let skipped = record.skippedSets[ex.pattern] {
+            let done = SetFacts.performed(facts, ex, skipping: skipped)
+            guard let first = done.first?.value,
+                  done.contains(where: { $0.value != ex.plannedLoad(set: $0.set) }) else { return nil }
+            return (done.map(\.value), reported ?? first)
+        }
         let values: [Int]
         if let facts = record.setActuals, let known = facts[ex.pattern]?.count {
             let performed = max(ex.sets - setsSkipped(ex, in: record), 0)

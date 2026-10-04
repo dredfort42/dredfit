@@ -50,7 +50,10 @@ extension WorkoutSession {
             sessionNumber: session.sessionNumber,
             exIndex: exIndex, setIndex: setIndex,
             restEndDate: restEnd, restTotalSec: restTotal, restPlannedSec: restPlan,
-            setActuals: actuals, setsSkipped: setsSkipped, probes: probeActuals,
+            setActuals: actuals, setsSkipped: setsSkipped,
+            skippedSetIndices: skippedSetIndices.isEmpty
+                ? nil : skippedSetIndices.mapValues { $0.sorted() },
+            probes: probeActuals,
             skipped: skippedPatterns,
             workoutStart: workoutStart ?? now(), savedAt: now(),
             fingerprint: WorkoutSnapshot.fingerprint(of: session),
@@ -86,6 +89,7 @@ extension WorkoutSession {
         setIndex = min(max(snap.setIndex, 0), max(0, totalSets - 1))
         actuals = snap.facts
         setsSkipped = snap.skips
+        skippedSetIndices = snap.skippedSets
         probeActuals = snap.probeFacts
         skippedPatterns = snap.skipped
         workoutStart = snap.workoutStart
@@ -222,6 +226,7 @@ extension WorkoutSession {
         for pattern in settled.skipped {
             actuals.removeValue(forKey: pattern)   // a skip wins over an actual
             probeActuals.removeValue(forKey: pattern)
+            skippedSetIndices.removeValue(forKey: pattern)
             skippedPatterns.insert(pattern)
         }
         // The cool-down is never reached from here, and a block never begun is

@@ -222,6 +222,7 @@ extension WorkoutSession {
         // …and over the sets skipped inside it: the movement was not trained,
         // so there is no volume to take off it next time.
         setsSkipped.removeValue(forKey: exercise.pattern)
+        skippedSetIndices.removeValue(forKey: exercise.pattern)
         skippedPatterns.insert(exercise.pattern)
         advancePastExercise()
     }
@@ -240,9 +241,9 @@ extension WorkoutSession {
         firstSideHeld = nil
         // A first side ended by a thumb marks the set before the set has
         // recorded anything, so a set left here takes its mark with it: the
-        // summary would otherwise print "≈ · stopped by hand" over the number
-        // a set that recorded nothing falls back to. This set's mark only —
-        // the sets behind keep theirs (`resetHoldExercise`).
+        // mark says that what the set RECORDED is an estimate, and this one
+        // recorded nothing. This set's mark only — the sets behind keep
+        // theirs (`resetHoldExercise`).
         holdApproxSets.remove(setIndex)
         editing = nil
         // The settled hold belongs to the set it was held in for exactly the

@@ -47,8 +47,8 @@ final class SetFactsTests: XCTestCase {
         XCTAssertEqual(SetFacts.inForce([:], reps, set: 0), 15)
         XCTAssertEqual(SetFacts.inForce([:], reps, set: 2), 15)
         XCTAssertEqual(SetFacts.allSets([:], reps), [15, 15, 15])
-        XCTAssertNil(SetFacts.override([:], for: reps))
-        XCTAssertEqual(SetFacts.overrides([:], in: [reps, hold]), [:])
+        XCTAssertNil(SetFacts.override([:], for: reps, skipping: []))
+        XCTAssertEqual(SetFacts.overrides([:], skipping: [:], in: [reps, hold]), [:])
     }
 
     // MARK: - The reported bug
@@ -65,7 +65,7 @@ final class SetFactsTests: XCTestCase {
     func testAFactOnTheLastSetLeavesTheEarlierOnesAlone() throws {
         let facts = SetFacts.recording(10, in: [:], reps, set: 2)
         XCTAssertEqual(SetFacts.allSets(facts, reps), [15, 15, 10])
-        let mean = try XCTUnwrap(SetFacts.override(facts, for: reps))
+        let mean = try XCTUnwrap(SetFacts.override(facts, for: reps, skipping: []))
         XCTAssertEqual(mean, 40.0 / 3.0, accuracy: 1e-9, "the fraction reaches the engine")
         XCTAssertEqual(SetFacts.snap(mean, unit: reps.unit), 13, "and an integer is stored")
     }
@@ -77,7 +77,7 @@ final class SetFactsTests: XCTestCase {
         let facts = SetFacts.recording(SetFacts.snap(30, unit: .hold),
                                        in: [:], hold, set: 2)
         XCTAssertEqual(SetFacts.allSets(facts, hold), [45, 45, 30])
-        XCTAssertEqual(SetFacts.override(facts, for: hold), 40)
+        XCTAssertEqual(SetFacts.override(facts, for: hold, skipping: []), 40)
     }
 
     /// What the mean is worth, stated as the engine sees it: a bare 10 would
@@ -86,7 +86,7 @@ final class SetFactsTests: XCTestCase {
     func testTheEngineDropsLessAndDeloadsLater() throws {
         let p = reps.pattern
         let facts = SetFacts.recording(10, in: [:], reps, set: 2)
-        let mean = try XCTUnwrap(SetFacts.override(facts, for: reps))
+        let mean = try XCTUnwrap(SetFacts.override(facts, for: reps, skipping: []))
         let fixed = Engine.applyFeedback(state: state, session: session,
                                          result: .plan, overrides: [p: mean])
         let old = Engine.applyFeedback(state: state, session: session,
@@ -106,14 +106,14 @@ final class SetFactsTests: XCTestCase {
     func testAFactOnTheFirstSetCarriesForward() {
         let facts = SetFacts.recording(10, in: [:], reps, set: 0)
         XCTAssertEqual(SetFacts.allSets(facts, reps), [10, 10, 10])
-        XCTAssertEqual(SetFacts.override(facts, for: reps), 10)
+        XCTAssertEqual(SetFacts.override(facts, for: reps, skipping: []), 10)
     }
 
     func testTheSecondFactOverridesOnlyFromItsOwnSet() {
         var facts = SetFacts.recording(12, in: [:], reps, set: 0)
         facts = SetFacts.recording(9, in: facts, reps, set: 2)
         XCTAssertEqual(SetFacts.allSets(facts, reps), [12, 12, 9])
-        XCTAssertEqual(SetFacts.override(facts, for: reps), 11)
+        XCTAssertEqual(SetFacts.override(facts, for: reps, skipping: []), 11)
     }
 
     /// Correcting the set under way, twice, must not lengthen the record.
@@ -129,7 +129,7 @@ final class SetFactsTests: XCTestCase {
         var facts = SetFacts.recording(10, in: [:], reps, set: 0)
         facts = SetFacts.recording(15, in: facts, reps, set: 0)
         XCTAssertNil(facts[reps.pattern], "the rating governs the pattern again")
-        XCTAssertNil(SetFacts.override(facts, for: reps))
+        XCTAssertNil(SetFacts.override(facts, for: reps, skipping: []))
     }
 
     /// One set corrected back while another still differs is still a fact.
@@ -141,7 +141,7 @@ final class SetFactsTests: XCTestCase {
         var facts = SetFacts.recording(10, in: [:], reps, set: 0)
         facts = SetFacts.recording(15, in: facts, reps, set: 2)
         XCTAssertEqual(SetFacts.allSets(facts, reps), [10, 10, 15])
-        let mean = try XCTUnwrap(SetFacts.override(facts, for: reps))
+        let mean = try XCTUnwrap(SetFacts.override(facts, for: reps, skipping: []))
         XCTAssertEqual(mean, 35.0 / 3.0, accuracy: 1e-9)
         XCTAssertLessThan(mean, Double(reps.load), "and it is still short of the plan")
     }
@@ -157,11 +157,11 @@ final class SetFactsTests: XCTestCase {
         let facts = SetFacts.recording(44, in: [:], hold, set: 2)
         XCTAssertEqual(SetFacts.allSets(facts, hold), [45, 45, 44],
                        "the sets themselves are still recorded and shown")
-        XCTAssertNil(SetFacts.override(facts, for: hold),
+        XCTAssertNil(SetFacts.override(facts, for: hold, skipping: []),
                      "44.7 s snaps to 45 — below the plan must not report as on it")
 
         let reps = SetFacts.recording(self.reps.load - 1, in: [:], self.reps, set: 2)
-        XCTAssertNil(SetFacts.override(reps, for: self.reps), "the same on the reps grid")
+        XCTAssertNil(SetFacts.override(reps, for: self.reps, skipping: []), "the same on the reps grid")
     }
 
     /// The rule is about the DIRECTION, not the landing: a mean at or above
@@ -172,7 +172,7 @@ final class SetFactsTests: XCTestCase {
     func testAMeanAtOrAboveThePlanStillReportsIt() throws {
         let facts = SetFacts.recording(hold.load + 1, in: [:], hold, set: 2)
         XCTAssertEqual(SetFacts.allSets(facts, hold), [45, 45, 46])
-        let mean = try XCTUnwrap(SetFacts.override(facts, for: hold))
+        let mean = try XCTUnwrap(SetFacts.override(facts, for: hold, skipping: []))
         XCTAssertEqual(mean, 136.0 / 3.0, accuracy: 1e-9)
         XCTAssertGreaterThanOrEqual(mean, Double(hold.load),
                                     "the athlete did not fall short")
@@ -184,7 +184,7 @@ final class SetFactsTests: XCTestCase {
     func testAShortfallCannotClaimThePlan() throws {
         let p = hold.pattern
         let facts = SetFacts.recording(38, in: [:], hold, set: 2)
-        let overrides = SetFacts.overrides(facts, in: session.exercises)
+        let overrides = SetFacts.overrides(facts, skipping: [:], in: session.exercises)
 
         // The guard lives in the COLLAPSE, which is where it is enforced: a
         // mean that falls short is never reported as meeting the plan, however
@@ -263,7 +263,7 @@ final class SetFactsTests: XCTestCase {
         let facts = SetFacts.recording(10, in: [:], hostile, set: 0)
         XCTAssertEqual(SetFacts.allSets(facts, hostile), [10, 10, 10, 10, 10],
                        "the walk stops at the scale's ceiling, not the record's claim")
-        XCTAssertEqual(SetFacts.override(facts, for: hostile), 10)
+        XCTAssertEqual(SetFacts.override(facts, for: hostile, skipping: []), 10)
     }
 
     // MARK: - The whole session
@@ -279,7 +279,7 @@ final class SetFactsTests: XCTestCase {
     func testOverridesCoverOnlyWhatWasSaid() throws {
         var facts = SetFacts.recording(10, in: [:], reps, set: 2)
         facts = SetFacts.recording(46, in: facts, hold, set: 0)
-        let overrides = SetFacts.overrides(facts, in: session.exercises)
+        let overrides = SetFacts.overrides(facts, skipping: [:], in: session.exercises)
         XCTAssertEqual(Set(overrides.keys), [reps.pattern, hold.pattern],
                        "every other exercise of the session ran to plan")
         XCTAssertEqual(try XCTUnwrap(overrides[reps.pattern]), 40.0 / 3.0, accuracy: 1e-9)
@@ -380,7 +380,7 @@ final class SetFactsTests: XCTestCase {
                     // And the collapse is the mean of exactly those sets —
                     // counted here, never asked for a second time.
                     let mean = Double(expected.reduce(0, +)) / Double(expected.count)
-                    let overrides = SetFacts.overrides(facts, in: session.exercises)
+                    let overrides = SetFacts.overrides(facts, skipping: [:], in: session.exercises)
                     // Two ways to report nothing, both correct: every set landed
                     // on the plan, so there is no fact at all; or the mean falls
                     // short of the plan yet snaps back onto it, and a shortfall
@@ -415,8 +415,8 @@ final class SetFactsTests: XCTestCase {
         late = SetFacts.recording(reps.plannedLoad(set: 1) - 4, in: late, reps, set: 1)
         late = SetFacts.recording(reps.plannedLoad(set: 2) + 4, in: late, reps, set: 2)
 
-        XCTAssertEqual(SetFacts.overrides(early, in: session.exercises)[reps.pattern],
-                       SetFacts.overrides(late, in: session.exercises)[reps.pattern],
+        XCTAssertEqual(SetFacts.overrides(early, skipping: [:], in: session.exercises)[reps.pattern],
+                       SetFacts.overrides(late, skipping: [:], in: session.exercises)[reps.pattern],
                        "under a mean the order cannot change what the engine sees")
     }
 

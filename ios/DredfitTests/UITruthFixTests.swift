@@ -53,11 +53,11 @@ final class UITruthFixTests: XCTestCase {
         let ex = unevenExercise()
         var short = SetFacts.PerSet()
         for set in 0..<3 { short = SetFacts.recording(8, in: short, ex, set: set) }
-        XCTAssertTrue(SetFacts.foldFallsShort(short, of: ex))
+        XCTAssertTrue(SetFacts.foldFallsShort(short, of: ex, skipping: []))
         // 9-8-8 done as written collapses to nothing said at all — the
         // caption may promise, and the engine will keep the promise.
         let onPlan = SetFacts.recording(9, in: [:], ex, set: 0)
-        XCTAssertFalse(SetFacts.foldFallsShort(onPlan, of: ex))
+        XCTAssertFalse(SetFacts.foldFallsShort(onPlan, of: ex, skipping: []))
     }
 
     // MARK: - The next-milestone label counts the crossing, not the ceiling
@@ -138,7 +138,7 @@ final class UITruthFixTests: XCTestCase {
         func nextPlan(_ sets: [Int]) throws -> String {
             var facts = SetFacts.PerSet()
             for (i, v) in sets.enumerated() { facts = SetFacts.recording(v, in: facts, ex, set: i) }
-            let fold = SetFacts.override(facts, for: ex)
+            let fold = SetFacts.override(facts, for: ex, skipping: [])
             let next = Engine.applyFeedback(state: state, session: session, result: .plan,
                                             overrides: fold.map { [.pull: $0] } ?? [:])
             return try XCTUnwrap(Engine.generateSession(next).exercises

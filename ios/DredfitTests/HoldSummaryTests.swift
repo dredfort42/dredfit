@@ -141,7 +141,7 @@ extension WorkoutSessionTests {
         let promised = try XCTUnwrap(flow.nextPlan(withAdditions: 0))
 
         flow.leaveExerciseSummary()
-        _ = flow.rate(.plan, overrides: SetFacts.overrides(flow.actuals, in: flow.exercises))
+        _ = flow.rate(.plan, overrides: SetFacts.overrides(flow.actuals, skipping: flow.skippedSetIndices, in: flow.exercises))
         let next = try XCTUnwrap(nextAppearance(of: .coreAntiExt, in: store))
         XCTAssertNotNil(next.probe, "the premise: the engine probes again")
         XCTAssertEqual(promised.probe, next.probe)
@@ -223,7 +223,7 @@ extension WorkoutSessionTests {
         walkToTheProbe(flow)
         flow.skipSet()
         flow.leaveExerciseSummary()
-        _ = flow.rate(.plan, overrides: SetFacts.overrides(flow.actuals, in: flow.exercises))
+        _ = flow.rate(.plan, overrides: SetFacts.overrides(flow.actuals, skipping: flow.skippedSetIndices, in: flow.exercises))
         let record = try XCTUnwrap(store.records.last)
         XCTAssertNil(record.probes?[.coreAntiExt], "no number for a probe nobody did")
         XCTAssertEqual(store.engineState.position(.coreAntiExt).variation, 1, "not promoted")

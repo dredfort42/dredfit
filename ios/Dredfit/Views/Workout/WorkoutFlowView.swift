@@ -94,6 +94,7 @@ struct WorkoutFlowView: View {
             case .feedback:
                 FeedbackView(session: session, facts: flow.actuals,
                              setsSkipped: flow.setsSkipped,
+                             skippedSets: flow.skippedSetIndices,
                              skipped: flow.skippedPatterns,
                              raised: flow.raisedSteps,
                              interrupted: flow.interruptedPattern) { result, overrides in

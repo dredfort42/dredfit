@@ -8,11 +8,55 @@
 import Foundation
 import DredfitCore
 
+/// One set of the movement as the summary prints it.
+struct HeldSet: Identifiable, Equatable {
+    /// 0-based, like everything the flow counts sets with — the set's own,
+    /// so the card after a skipped set still says "set 3".
+    let index: Int
+    let seconds: Int
+    let planned: Int
+    /// The number is an ESTIMATE rather than a measurement: the set ended
+    /// under a thumb, which pays a guessed three-second reach allowance.
+    /// Printed as "≈", because a number the app guessed at must not be shown
+    /// with the confidence of one the clock produced.
+    let approximate: Bool
+    /// Only the last working set of the movement: what it ran is the
+    /// person's to correct — down always, up as far as nothing stopped it
+    /// (`SetFacts.correctionRange`). Every earlier set ended on its signal
+    /// or under a thumb and stands as it ran. Decided by the set's index, not
+    /// by its place in the row: with a skipped set left out, the last card
+    /// and the last set are no longer the same count.
+    let correctable: Bool
+
+    var id: Int { index }
+}
+
 extension WorkoutSession {
 
-    /// Opens the entry on the card that was tapped. Only the last card
-    /// calls this (`HeldSetsRow`); the guard keeps it true if a caller
-    /// changes.
+    /// The sets of the exercise in front of us that were skipped.
+    var skippedHere: Set<Int> { skippedSetIndices[exercise.pattern] ?? [] }
+
+    /// Every set of the movement that was DONE, as the summary prints it, in
+    /// set order. A skipped set has no card: what would stand on it is a
+    /// number nobody held. The cards keep their sets' own numbers, so the
+    /// gap shows as "set 1", "set 3" without a word about it.
+    ///
+    /// `SetFacts.allSets` underneath deliberately: it is what the work
+    /// screen showed for each set as it ran, so the summary and the flow
+    /// cannot disagree about a number — and `recordingSet` freezes exactly
+    /// that list before it changes one of them.
+    var heldSets: [HeldSet] {
+        SetFacts.performed(actuals, exercise, skipping: skippedHere).map { done in
+            HeldSet(index: done.set, seconds: done.value,
+                    planned: exercise.plannedLoad(set: done.set),
+                    approximate: summaryCardIsApproximate(set: done.set),
+                    correctable: isLastSummarySet(done.set))
+        }
+    }
+
+    /// Opens the entry on the card that was tapped. Only the correctable
+    /// card calls this (`HeldSet.correctable`); the guard keeps it true if a
+    /// caller changes.
     func startSummaryAdjusting(set index: Int) {
         guard isLastSummarySet(index) else { return }
         adjustValue = SetFacts.inForce(actuals, exercise, set: index)
@@ -41,8 +85,8 @@ extension WorkoutSession {
     }
 
     /// What the clock counted for a set — the number before any correction.
-    /// A set no clock ran for (skipped mid-movement, restored from a snapshot
-    /// written before the field) falls back to what the card shows.
+    /// A set no clock ran for (restored from a snapshot written before the
+    /// field) falls back to what the card shows.
     func summaryMeasured(set index: Int) -> Int {
         holdMeasured[index] ?? SetFacts.inForce(actuals, exercise, set: index)
     }
@@ -98,7 +142,8 @@ extension WorkoutSession {
         var raised = raisedSteps
         raised[exercise.pattern] = steps > 0 ? steps : nil
         return store.previewPlan(after: session, pattern: exercise.pattern,
-                                 overrides: SetFacts.overrides(actuals, in: exercises),
+                                 overrides: SetFacts.overrides(actuals, skipping: skippedSetIndices,
+                                                               in: exercises),
                                  skipped: skippedPatterns, setsSkipped: setsSkipped,
                                  probes: probeActuals, raised: raised)
     }
@@ -149,7 +194,7 @@ extension WorkoutSession {
     /// most that can be said then.
     var probeOutcome: ProbeOutcome? {
         guard let entered = probeActuals[exercise.pattern] else { return nil }
-        if SetFacts.foldFallsShort(actuals, of: exercise) {
+        if SetFacts.foldFallsShort(actuals, of: exercise, skipping: skippedHere) {
             return .planMoves(nextPlan(withAdditions: 0)?.name ?? exercise.name)
         }
         return entered >= current.planned ? .passed(current.name) : .stays

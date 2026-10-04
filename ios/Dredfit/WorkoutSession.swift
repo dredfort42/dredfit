@@ -78,9 +78,9 @@ final class WorkoutSession {
         case warmup
         case work
         case rest(seconds: Int)
-        /// Every set of a hold movement on one screen, the last one a tap from
-        /// being corrected — a hold ends itself, and nothing about the
-        /// movement comes back after its last set (`finishHold`).
+        /// Every set of a hold movement that was done, on one screen, the last
+        /// one a tap from being corrected — a hold ends itself, and nothing
+        /// about the movement comes back after its last set (`finishHold`).
         ///
         /// Only after a hold movement, and only when it is behind — its probe
         /// set, when it has one, comes first on a screen of its own. Sets of
@@ -147,6 +147,11 @@ final class WorkoutSession {
     /// handed to the engine only when the rating lands: the cut belongs on the
     /// RESULT of the feedback, never on its input.
     var setsSkipped: SetFacts.Skips = [:]
+
+    /// The ones among those the person skipped, by index
+    /// (`SetFacts.SkippedSets`): kept, persisted and cleared with the count,
+    /// so that what reads the sets leaves them out.
+    var skippedSetIndices: SetFacts.SkippedSets = [:]
 
     /// What the PROBE set showed, per movement. Kept apart from
     /// `actuals` on purpose and for the same reason the engine keeps `probes`
@@ -486,6 +491,7 @@ final class WorkoutSession {
             // The sets skipped along the way. The engine settles them
             // against the rating — after it, never before.
             setsSkipped: setsSkipped,
+            skippedSets: skippedSetIndices,
             // The probe's own channel: a number about one set of a movement
             // that is not in the plan yet.
             probes: probeActuals,
