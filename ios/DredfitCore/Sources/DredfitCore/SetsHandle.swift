@@ -60,6 +60,14 @@ extension Engine {
     /// while it ticks, the growth event goes into the DOSE. That is
     /// what gives "set, dose, dose, set" instead of three sets in a row.
     ///
+    /// The sub-step is counted against the BAND, so under a cut, while the
+    /// hold ticks, it can land on a set the cut hides: `fit` clamps it back
+    /// and the event is lost — the plan stands for at most the hold, then the
+    /// set returns. Kept on purpose. Counting on the sets on screen moves the
+    /// measure by two or more per visible rep, which the weekly window and the
+    /// cross-credit then miscount; returning the set early breaks the very
+    /// spacing the hold exists for.
+    ///
     /// Growth NEVER crosses a variation: the only way into a new one is a
     /// probe. On the dose ceiling of a non-top variation growth honestly STANDS
     /// STILL — that is the declared parking.
