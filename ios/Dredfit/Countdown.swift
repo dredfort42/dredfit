@@ -33,12 +33,9 @@ struct Countdown: Equatable {
         remaining = max(0, Int(end.timeIntervalSince(now).rounded()))
     }
 
-    /// Runs on from the second on screen — the way out of a freeze. `floor`
-    /// is the least it runs for, so one frozen at 0 gets an end date ahead of
-    /// it rather than one already reached. The second on screen is left for
-    /// the next tick to move.
-    mutating func resume(now: Date, atLeast floor: Int = 0) {
-        endDate = now.addingTimeInterval(TimeInterval(max(remaining, floor)))
+    /// Runs on from the second on screen — the way out of a freeze.
+    mutating func resume(now: Date) {
+        endDate = now.addingTimeInterval(TimeInterval(remaining))
     }
 
     /// Stops the clock; the second on screen stays, ready for `resume`.

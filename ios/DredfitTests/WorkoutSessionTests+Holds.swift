@@ -285,12 +285,80 @@ extension WorkoutSessionTests {
         XCTAssertFalse(flow.restClock.isRunning)
         XCTAssertNil(tile.updates.last?.restEndDate)
         XCTAssertEqual(store.pendingWorkout?.restEndDate, clock + 40,
-                       "a frozen rest is written as the rest it will be")
+                       "a frozen rest is written as the seconds it froze with")
         clock += 300
         flow.tick()
         XCTAssertEqual(flow.phase, .rest(seconds: 60), "nothing runs out under the sheet")
         flow.resumeRestCountdown()
         XCTAssertEqual(flow.restClock.endDate, clock + 40)
+    }
+
+    func testARunsRestReadAboutInItsLastSecondsComesBackWithTheWholeCountIn() throws {
+        let (flow, store) = try holdFlow(.coreAntiExt)
+        flow.startHoldExercise()
+        run(flow, until: { flow.restStartsTheNextSet })
+        run(flow, until: { flow.restClock.remaining == 2 })
+        flow.freezeRestForTechnique()
+        clock += 60
+        signals.primes = 0
+        signals.events.removeAll()
+
+        flow.resumeRestCountdown()
+        let end = clock + TimeInterval(BlockPause.reentrySeconds)
+        XCTAssertEqual(flow.restClock.remaining, BlockPause.reentrySeconds,
+                       "the end of this rest starts a plank: not two seconds after the page closes")
+        XCTAssertEqual(flow.restClock.endDate, end)
+        XCTAssertEqual(tile.updates.last?.restEndDate, end, "the lock screen counts to the same moment")
+        XCTAssertEqual(store.pendingWorkout?.restEndDate, end)
+        XCTAssertEqual(signals.primes, 1, "a minute on the page let the engine go cold")
+        run(flow, until: { flow.phase == .work })
+        XCTAssertEqual(signals.tones, [.tick, .tick, .tick, .go], "the whole 3-2-1, then the go the hold starts on")
+        XCTAssertTrue(flow.holding)
+    }
+
+    func testTheSheetsFloorStopsAtTheRestsOwnLength() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.startHoldExercise()
+        run(flow, until: { flow.restStartsTheNextSet })
+        // No planned rest is shorter than the count-in, so one is started
+        // here: the floor must not stretch a rest past its own length.
+        flow.startRest(BlockPause.reentrySeconds - 1)
+        run(flow, for: 1)
+        flow.freezeRestForTechnique()
+        clock += 60
+
+        flow.resumeRestCountdown()
+        XCTAssertEqual(flow.restClock.remaining, BlockPause.reentrySeconds - 1)
+        XCTAssertEqual(flow.restClock.endDate, clock + TimeInterval(BlockPause.reentrySeconds - 1))
+    }
+
+    func testAnOrdinaryRestRunsOnUnderTheSheetAndClosingItMovesNothing() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.startHold()
+        run(flow, until: { flow.phase != .work })
+        XCTAssertFalse(flow.restStartsTheNextSet, "the premise: this rest hands the screen back and waits")
+        run(flow, until: { flow.restClock.remaining == 2 })
+        let end = flow.restClock.endDate
+        flow.freezeRestForTechnique()
+        XCTAssertTrue(flow.restClock.isRunning)
+
+        flow.resumeRestCountdown()
+        XCTAssertEqual(flow.restClock.endDate, end, "its end starts nothing, so it takes no floor")
+    }
+
+    func testAPausedRunsRestStaysHeldWhenTheSheetCloses() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.startHoldExercise()
+        run(flow, until: { flow.restStartsTheNextSet })
+        run(flow, until: { flow.restClock.remaining == 2 })
+        flow.toggleBlockPause()
+        flow.freezeRestForTechnique()
+        clock += 60
+
+        flow.resumeRestCountdown()
+        XCTAssertTrue(flow.blockPause.isHeld, "the person's own stop outranks the sheet's")
+        XCTAssertFalse(flow.restClock.isRunning)
+        XCTAssertNil(tile.updates.last?.restEndDate)
     }
 
     // MARK: - The declared time

@@ -53,7 +53,8 @@ enum BlockPause {
         return GetReady.countInSeconds
     }
 
-    /// The seconds a REST picks up when the pause ends (R32).
+    /// The seconds a REST picks up when the pause ends or the technique sheet
+    /// closes (R32).
     ///
     /// A rest is not a position to be counted back into — it is time being
     /// given — so it resumes into itself with no lead-in of its own. What it

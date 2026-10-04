@@ -38,9 +38,9 @@ extension WorkoutSession {
         // date away — the same reason `pauseBlock` does.
         liveActivity.update(.init(phase: .rest, title: nextLabel,
                                   detail: restActivityDetail, restEndDate: nil))
-        // A frozen rest is persisted as the rest it will be when the sheet
-        // closes, for the reason `persistProgress` states about a paused
-        // one: written with no date it reads back as "no rest was running".
+        // A frozen rest is persisted as the seconds it froze with, for the
+        // reason `persistProgress` states about a paused one: written with
+        // no date it reads back as "no rest was running".
         persistProgress()
     }
 
@@ -53,14 +53,22 @@ extension WorkoutSession {
         advanceAfterRest(countIn: true)
     }
 
-    /// …and hands back exactly what it froze. A rest held by the PAUSE stays
-    /// held — the person's own stop outranks the sheet's, the same order
+    /// Closing the sheet hands the frozen rest back as the pause does
+    /// (`restartFrozenStage`): the seconds it froze with, floored at the
+    /// count-in (`BlockPause.restAfterPause`). The end of this rest STARTS
+    /// the next hold, and closing the page two seconds out would drop the
+    /// person into a plank with the phone still in their hand. Started, not
+    /// resumed: a resumed countdown keeps the lower second on screen, and the
+    /// 3-2-1 would lose its 3. A rest held by the PAUSE stays held — the
+    /// person's own stop outranks the sheet's, the same order
     /// `resumePositionCountdown` keeps.
     func resumeRestCountdown() {
-        guard case .rest = phase, !restClock.isRunning, !blockPause.isPaused else { return }
-        restClock.resume(now: now(), atLeast: 1)
+        guard case .rest(let total) = phase, !restClock.isRunning, !blockPause.isPaused else { return }
+        restClock.start(BlockPause.restAfterPause(remaining: restClock.remaining, total: total),
+                        now: now())
         // A page read for longer than `prepare()` holds lets the engine go
-        // cold, and a rest frozen in its last seconds comes back inside them.
+        // cold, and a rest frozen in its last seconds comes back on its four,
+        // which no tick reports.
         primeComingBack()
         liveActivity.update(.init(phase: .rest, title: nextLabel,
                                   detail: restActivityDetail, restEndDate: restClock.endDate))
