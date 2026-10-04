@@ -281,27 +281,6 @@ enum Cooldown {
         wholePool.first { $0.id == id }?.name
     }
 
-    // MARK: - The stage machine (issue #35)
-
-    /// A bilateral position runs `.single`; a per-side one runs `.firstSide`
-    /// → `.switchPause` → `.secondSide` — 15 + 5 + 15. Both open with
-    /// `.getReady` (issue #52).
-    enum Stage { case getReady, single, firstSide, switchPause, secondSide }
-
-    /// The transition's length depends on the position it announces (issue
-    /// #83), so a stage alone no longer has one.
-    static func stageSeconds(_ stage: Stage, of position: CooldownPosition) -> Int {
-        #if DEBUG
-        if CommandLine.arguments.contains("--uitest-fast") { return 1 }
-        #endif
-        switch stage {
-        case .getReady:               return GetReady.stageSeconds(needsSetup: position.needsSetup)
-        case .single:                 return positionSeconds
-        case .firstSide, .secondSide: return sideSeconds
-        case .switchPause:            return sideSwitchPauseSec
-        }
-    }
-
     /// The workout's per-side holds play the same pause with no position
     /// attached — and collapse under --uitest-fast with everything else.
     static var switchPauseSeconds: Int {
@@ -309,51 +288,5 @@ enum Cooldown {
         if CommandLine.arguments.contains("--uitest-fast") { return 1 }
         #endif
         return sideSwitchPauseSec
-    }
-
-    static let openingStage = Stage.getReady
-
-    /// nil when the block is over.
-    static func step(after step: (index: Int, stage: Stage),
-                     positions: [CooldownPosition]) -> (index: Int, stage: Stage)? {
-        guard step.index < positions.count else { return nil }
-        switch step.stage {
-        case .getReady:    return (step.index, positions[step.index].perSide ? .firstSide : .single)
-        case .firstSide:   return (step.index, .switchPause)
-        case .switchPause: return (step.index, .secondSide)
-        case .single, .secondSide:
-            let next = step.index + 1
-            guard next < positions.count else { return nil }
-            return (next, openingStage)
-        }
-    }
-
-    /// `entered` names the stage the audible boundary opened; index/stage/
-    /// remaining are where the countdown landed. A long absence crosses
-    /// several boundaries, so the two can disagree — callers choosing a
-    /// signal must read both.
-    struct Advance {
-        let entered: Stage
-        let index: Int
-        let stage: Stage
-        let remaining: Int
-    }
-
-    /// Whole stages a long absence (`overshoot` seconds past the boundary)
-    /// already covered are absorbed. nil when the block is over — immediately
-    /// or inside the overshoot.
-    static func advance(from current: (index: Int, stage: Stage),
-                        overshoot: Int,
-                        positions: [CooldownPosition]) -> Advance? {
-        guard var landing = step(after: current, positions: positions) else { return nil }
-        let entered = landing.stage
-        var remainder = overshoot
-        while remainder >= stageSeconds(landing.stage, of: positions[landing.index]) {
-            remainder -= stageSeconds(landing.stage, of: positions[landing.index])
-            guard let next = step(after: landing, positions: positions) else { return nil }
-            landing = next
-        }
-        return Advance(entered: entered, index: landing.index, stage: landing.stage,
-                       remaining: stageSeconds(landing.stage, of: positions[landing.index]) - remainder)
     }
 }

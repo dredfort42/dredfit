@@ -148,7 +148,7 @@ extension WorkoutSessionTests {
         let flow = makeFlow(store)
         flow.beginWarmup()
         XCTAssertEqual(flow.phase, .warmup)
-        XCTAssertEqual(flow.warmupClock.remaining, GetReady.countInSeconds,
+        XCTAssertEqual(flow.warmup.clock.remaining, GetReady.countInSeconds,
                        "a start tap opens on the count-in")
         let ran = run(flow, until: { flow.phase == .work }, limit: 1_000)
         XCTAssertEqual(flow.warmupSec, ran)
@@ -163,8 +163,8 @@ extension WorkoutSessionTests {
         flow.tick()
         XCTAssertTrue(flow.blockPause.isHeld)
         XCTAssertEqual(flow.phase, .warmup)
-        XCTAssertFalse(flow.warmupClock.isRunning)
-        XCTAssertEqual(flow.warmupClock.remaining, GetReady.countInSeconds,
+        XCTAssertFalse(flow.warmup.clock.isRunning)
+        XCTAssertEqual(flow.warmup.clock.remaining, GetReady.countInSeconds,
                        "frozen on the second it showed")
         XCTAssertEqual(flow.blockPausedSec, 600 - GetReady.countInSeconds)
         XCTAssertTrue(signals.events.contains(.announce(String(localized: "Paused"))))
@@ -174,7 +174,7 @@ extension WorkoutSessionTests {
         XCTAssertTrue(flow.blockPause.isHeld, "a held block has nothing left to run out")
         flow.toggleBlockPause()
         XCTAssertFalse(flow.blockPause.isPaused, "a frozen transition is its own way back in")
-        XCTAssertTrue(flow.warmupClock.isRunning)
+        XCTAssertTrue(flow.warmup.clock.isRunning)
         XCTAssertEqual(flow.blockPausedSec, 700 - GetReady.countInSeconds)
     }
 
@@ -182,9 +182,9 @@ extension WorkoutSessionTests {
         let store = makeStore()
         let flow = makeFlow(store)
         flow.beginWarmup()
-        run(flow, until: { flow.warmupStage != .getReady })
+        run(flow, until: { flow.warmup.stage != .getReady })
         run(flow, for: 3)
-        let frozen = flow.warmupClock.remaining
+        let frozen = flow.warmup.clock.remaining
         flow.toggleBlockPause()
         XCTAssertTrue(flow.blockPause.isHeld)
         clock += 50
@@ -195,8 +195,8 @@ extension WorkoutSessionTests {
         signals.events.removeAll()
         run(flow, for: BlockPause.reentrySeconds)
         XCTAssertFalse(flow.blockPause.isPaused)
-        XCTAssertEqual(flow.warmupClock.remaining, frozen, "the move picks up the seconds it froze with")
-        XCTAssertEqual(flow.warmupClock.endDate, clock + TimeInterval(frozen))
+        XCTAssertEqual(flow.warmup.clock.remaining, frozen, "the move picks up the seconds it froze with")
+        XCTAssertEqual(flow.warmup.clock.endDate, clock + TimeInterval(frozen))
         XCTAssertEqual(signals.tones, [.tick, .tick, .tick, .go])
         XCTAssertEqual(flow.blockPausedSec, 50, "the way back in is the block again")
     }

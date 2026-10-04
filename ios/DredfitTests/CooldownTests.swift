@@ -100,26 +100,25 @@ final class CooldownTests: XCTestCase {
         XCTAssertTrue(positions[0].perSide, "hip flexors open the block per side")
         // Every position opens with the transition (issue #52); the sides
         // start once it runs out.
-        XCTAssertEqual(Cooldown.openingStage, .getReady)
-        XCTAssertEqual(Cooldown.step(after: (0, .getReady), positions: positions)?.stage,
-                       .firstSide)
-        let pause = Cooldown.step(after: (0, .firstSide), positions: positions)
+        XCTAssertEqual(GuidedBlock.step(after: (0, .getReady), positions: positions)?.stage,
+                       .firstHalf)
+        let pause = GuidedBlock.step(after: (0, .firstHalf), positions: positions)
         XCTAssertEqual(pause?.stage, .switchPause)
-        let second = Cooldown.step(after: (0, .switchPause), positions: positions)
-        XCTAssertEqual(second?.stage, .secondSide)
+        let second = GuidedBlock.step(after: (0, .switchPause), positions: positions)
+        XCTAssertEqual(second?.stage, .secondHalf)
         // ...and the second side leaves the position entirely, into the next
         // position's transition.
-        let next = Cooldown.step(after: (0, .secondSide), positions: positions)
+        let next = GuidedBlock.step(after: (0, .secondHalf), positions: positions)
         XCTAssertEqual(next?.index, 1)
         XCTAssertEqual(next?.stage, .getReady)
-        XCTAssertEqual(Cooldown.step(after: (1, .getReady), positions: positions)?.stage,
-                       .firstSide,
+        XCTAssertEqual(GuidedBlock.step(after: (1, .getReady), positions: positions)?.stage,
+                       .firstHalf,
                        "chest wall is per side too — it tells the user to swap arms")
     }
 
     func testTheBlockEndsAfterTheLastPosition() {
         let positions = machinePositions
-        XCTAssertNil(Cooldown.step(after: (positions.count - 1, .single),
+        XCTAssertNil(GuidedBlock.step(after: (positions.count - 1, .whole),
                                    positions: positions))
     }
 
@@ -128,13 +127,13 @@ final class CooldownTests: XCTestCase {
         // side's end enters the pause (the falling switch tone), the
         // pause's end enters the second side (the usual go).
         let positions = machinePositions
-        let intoPause = Cooldown.advance(from: (0, .firstSide), overshoot: 0,
+        let intoPause = GuidedBlock.cooldown.advance(from: (0, .firstHalf), overshoot: 0,
                                          positions: positions)
         XCTAssertEqual(intoPause?.entered, .switchPause)
         XCTAssertEqual(intoPause?.remaining, Cooldown.sideSwitchPauseSec)
-        let intoSecond = Cooldown.advance(from: (0, .switchPause), overshoot: 0,
+        let intoSecond = GuidedBlock.cooldown.advance(from: (0, .switchPause), overshoot: 0,
                                           positions: positions)
-        XCTAssertEqual(intoSecond?.entered, .secondSide)
+        XCTAssertEqual(intoSecond?.entered, .secondHalf)
         XCTAssertEqual(intoSecond?.remaining, Cooldown.sideSeconds)
     }
 
@@ -145,7 +144,7 @@ final class CooldownTests: XCTestCase {
         // while the switch pause was five; the pause is on trial at four
         // (06.09.2026) and the overshoot simply reaches one second further.
         let positions = machinePositions
-        let landing = Cooldown.advance(from: (0, .firstSide), overshoot: 22,
+        let landing = GuidedBlock.cooldown.advance(from: (0, .firstHalf), overshoot: 22,
                                        positions: positions)
         XCTAssertEqual(landing?.index, 1)
         XCTAssertEqual(landing?.stage, .getReady)
@@ -153,7 +152,7 @@ final class CooldownTests: XCTestCase {
                        GetReady.seconds + GetReady.setupSupplementSec - 3,
                        "chest wall carries the supplement of issue #83")
         // An overshoot past the whole block is simply over.
-        XCTAssertNil(Cooldown.advance(from: (0, .firstSide), overshoot: 10_000,
+        XCTAssertNil(GuidedBlock.cooldown.advance(from: (0, .firstHalf), overshoot: 10_000,
                                       positions: positions))
     }
 

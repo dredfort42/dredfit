@@ -120,7 +120,7 @@ struct WarmupMoveScreen: View {
     let move: WarmupMove
     /// Which half of a split move is running (§41.12). A move with no halfway
     /// boundary has one stage and shows no line at all.
-    let stage: Warmup.Stage
+    let stage: GuidedStage
     let remaining: Int
     let index: Int
     let count: Int
@@ -162,7 +162,7 @@ struct WarmupMoveScreen: View {
 
 struct CooldownPositionScreen: View {
     let position: CooldownPosition
-    let stage: Cooldown.Stage
+    let stage: GuidedStage
     let remaining: Int
     let index: Int
     let count: Int
@@ -175,8 +175,8 @@ struct CooldownPositionScreen: View {
     var body: some View {
         BlockLayout {
             BlockPositionName(name: position.name)
-            if position.perSide {
-                SplitStageLine(stage).padding(.top, 6)
+            if let halves = position.halves {
+                SplitStageLine(stage, halves: halves).padding(.top, 6)
             }
 
             // Freezes the countdown mid-pause too: the switch waits.
@@ -214,9 +214,7 @@ struct CooldownPositionScreen: View {
 /// Spanish had drifted apart ("Omitir el calentamiento" against "Omitir
 /// calentamiento"). A second key is a second thing to keep in step; the
 /// keeping-in-step is what failed.
-enum GuidedBlock {
-    case warmup, cooldown
-
+extension GuidedBlock {
     var skipTitle: String {
         switch self {
         case .warmup:
@@ -239,15 +237,12 @@ enum GuidedBlock {
 
 /// The line a split position shows over its countdown.
 ///
-/// ONE view, not a copy per block: the two stage machines differ (`.single`
-/// against `.move`), the three lines they show do not, and §41.12 — which gave
-/// the warm-up the cool-down's counted switch — would otherwise have written
-/// the second copy that drifts. Each block hands over its own stage; the
-/// mapping lives here, so a new stage on either side is a compile error here
-/// rather than a screen that quietly says nothing.
+/// ONE view for both blocks, over their one stage machine: the mapping lives
+/// here, so a new stage is a compile error here rather than a screen that
+/// quietly says nothing.
 ///
 /// The words come from what is switched, and only the words do: sides and
-/// directions run the same 15 + 5 + 15. Telling someone to switch SIDES on a
+/// directions run the same 15 + 4 + 15. Telling someone to switch SIDES on a
 /// circle they are about to reverse would be a lie of the same size as the
 /// silence §41.12 replaced.
 private struct SplitStageLine: View {
@@ -255,23 +250,12 @@ private struct SplitStageLine: View {
     private let phase: Phase
     private let halves: WarmupHalves
 
-    init(_ stage: Warmup.Stage, halves: WarmupHalves) {
+    init(_ stage: GuidedStage, halves: WarmupHalves) {
         self.halves = halves
         switch stage {
         case .switchPause: phase = .switching
         case .secondHalf:  phase = .secondHalf
-        case .getReady, .move, .firstHalf: phase = .beforeTheSwitch
-        }
-    }
-
-    /// The cool-down splits by side and by nothing else — its nine positions
-    /// are stretches, and no stretch of the pool reverses.
-    init(_ stage: Cooldown.Stage) {
-        self.halves = .sides
-        switch stage {
-        case .switchPause: phase = .switching
-        case .secondSide:  phase = .secondHalf
-        case .getReady, .single, .firstSide: phase = .beforeTheSwitch
+        case .getReady, .whole, .firstHalf: phase = .beforeTheSwitch
         }
     }
 
