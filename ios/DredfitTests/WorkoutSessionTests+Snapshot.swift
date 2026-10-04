@@ -171,6 +171,26 @@ extension WorkoutSessionTests {
         XCTAssertEqual(signals.tones.last, .done)
     }
 
+    /// The threshold is measured to the fraction, as the rest measures it
+    /// (`testARestMissedByAFractionPastTheThresholdDropsTheRun`): 4.6 s late
+    /// is an absence, 4.0 s is not.
+    func testAWarmUpBoundaryMissedByAFractionPastTheThresholdFreezes() {
+        let flow = makeFlow(makeStore())
+        flow.beginWarmup()
+        clock += Double(GetReady.countInSeconds + BlockPause.absenceSeconds) + 0.6
+        flow.tick()
+        XCTAssertTrue(flow.blockPause.isHeld)
+    }
+
+    func testAWarmUpBoundaryMissedByExactlyTheThresholdRunsOn() {
+        let flow = makeFlow(makeStore())
+        flow.beginWarmup()
+        clock += Double(GetReady.countInSeconds + BlockPause.absenceSeconds)
+        flow.tick()
+        XCTAssertFalse(flow.blockPause.isPaused)
+        XCTAssertNotEqual(flow.warmup.stage, .getReady, "the boundary was crossed under the person's eyes")
+    }
+
     func testAWarmUpBoundaryCrossedWhileAwayFreezesTheBlockAndBillsNothingOfIt() {
         let store = makeStore()
         let flow = makeFlow(store)
