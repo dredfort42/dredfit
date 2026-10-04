@@ -72,6 +72,8 @@ final class BrandPaletteTests: XCTestCase {
         Floor(ink: "restFill", ground: "bg", ratio: 1.3),
         Floor(ink: "accent", ground: "bg", ratio: 3),
         Floor(ink: "accentText", ground: "bg", ratio: 4.5),
+        // The summary's "Next time" kicker while its block is not filled.
+        Floor(ink: "accentText", ground: "cardBG", ratio: 4.5),
         Floor(ink: "ink", ground: "accentSoft", ratio: 4.5),
         Floor(ink: "cardBG", ground: "bg", ratio: 1.2),
     ]
@@ -82,13 +84,12 @@ final class BrandPaletteTests: XCTestCase {
     // in that wave was authorised to move a token.
     //
     // It is gone because the finding is closed from the other side: no view
-    // draws accentText on accentSoft any more. Every word on that fill takes
-    // `ink` — the probe badge, the held-set card, the maximum note, Today's
-    // "day N in a row" card, the onboarding chip, the summary's "Next time"
-    // kicker — and `Theme.badgePillColors` does the same for the pill, the
-    // one place that is a bitmap and cannot be fixed at its call site.
-    // Nothing was repainted: accentText keeps its four values, and every
-    // pair still on it (accentText on bg) keeps its floors above.
+    // draws accentText on accentSoft any more. The summary's "Next time"
+    // kicker was the last, and takes `ink` while its block is filled;
+    // `Theme.badgePillColors` does the same for the pill, which is a bitmap
+    // and cannot be fixed at its call site. Nothing was repainted:
+    // accentText keeps its four values, and every pair still on it
+    // (accentText on bg and on cardBG) keeps its floors.
     //
     // A pin on a pair nobody draws gates nothing, so what replaces it is the
     // floor for the pair that is now drawn everywhere — see `lightTextFloors`
@@ -100,8 +101,8 @@ final class BrandPaletteTests: XCTestCase {
     /// light ink2 would quietly take every kicker, every card sub-line and the
     /// accented figures back under 4.5:1; it fails here instead.
     ///
-    /// ink-on-accentSoft is the accented fill's ONLY text pair now (finding
-    /// 16). Dark gates it at 4.5 and Increased Contrast at 7 in the two lists
+    /// ink-on-accentSoft is the pair the accented fills set their words in.
+    /// Dark gates it at 4.5 and Increased Contrast at 7 in the two lists
     /// beside this one; the light scheme was the appearance nothing measured,
     /// which is where the badge pill is read most. It stands at 15.23:1, so 7
     /// is a floor with room, not a value pinned to today's hexes.
@@ -111,6 +112,7 @@ final class BrandPaletteTests: XCTestCase {
         Floor(ink: "ink2", ground: "bg", ratio: 4.5),
         Floor(ink: "ink2", ground: "cardBG", ratio: 4.5),
         Floor(ink: "accentText", ground: "bg", ratio: 4.5),
+        Floor(ink: "accentText", ground: "cardBG", ratio: 4.5),
         Floor(ink: "ink", ground: "accentSoft", ratio: 7),
     ]
 
