@@ -233,6 +233,12 @@ extension WorkoutSession {
     func resetHoldSides() {
         holdSecondSide = false
         firstSideHeld = nil
+        // A first side ended by a thumb marks the set before the set has
+        // recorded anything, so a set left here takes its mark with it: the
+        // summary would otherwise print "≈ · stopped by hand" over the number
+        // a set that recorded nothing falls back to. This set's mark only —
+        // the sets behind keep theirs (`resetHoldExercise`).
+        holdApproxSets.remove(setIndex)
         editing = nil
         // The settled hold belongs to the set it was held in for exactly the
         // same reason and for exactly as long: carried into the next set it
@@ -252,7 +258,8 @@ extension WorkoutSession {
     /// measured for each. Apart from `resetHoldSides` because a SET skip
     /// keeps them — saying "hold 60" and then skipping one set must not put
     /// the sets after it back on the plan, nor drop the "≈" marks off numbers
-    /// the app guessed at. Two lifetimes, two functions.
+    /// the app guessed at — only the skipped set's own goes, as it recorded
+    /// nothing. Two lifetimes, two functions.
     func resetHoldExercise() {
         holdDeclared = nil
         holdApproxSets.removeAll()

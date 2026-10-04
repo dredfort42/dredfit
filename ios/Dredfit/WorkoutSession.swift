@@ -273,10 +273,16 @@ final class WorkoutSession {
     /// decision.
     var holdDeclared: Int?
 
-    /// Sets of the exercise in front of us whose number is an ESTIMATE rather
-    /// than a measurement: the set ended under a thumb, which pays a guessed
-    /// three-second reach allowance. Indices, because that is what the summary
-    /// prints beside; cleared with the exercise it describes.
+    /// Sets of the exercise in front of us that a thumb ended: what they
+    /// recorded is an ESTIMATE rather than a measurement, because the tap pays
+    /// a guessed three-second reach allowance. Indices, because that is what
+    /// the summary prints beside; cleared with the exercise it describes, and
+    /// with a set left before it recorded anything (`resetHoldSides`).
+    ///
+    /// A correction on the summary leaves the mark standing: it changes the
+    /// number, not who ended the set. The panel's line goes on naming the
+    /// estimate (`summaryPanelLine`); the card's "≈" is narrower
+    /// (`summaryCardIsApproximate`).
     var holdApproxSets: Set<Int> = []
 
     /// What the CLOCK wrote for each set of the exercise in front of us, by

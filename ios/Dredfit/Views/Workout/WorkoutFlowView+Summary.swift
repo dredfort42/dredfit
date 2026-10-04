@@ -20,7 +20,7 @@ extension WorkoutFlowView {
         SetFacts.allSets(flow.actuals, flow.exercise).enumerated().map { index, seconds in
             HeldSet(index: index, seconds: seconds,
                     planned: flow.exercise.plannedLoad(set: index),
-                    approximate: flow.holdApproxSets.contains(index))
+                    approximate: flow.summaryCardIsApproximate(set: index))
         }
     }
 
@@ -96,7 +96,7 @@ extension WorkoutFlowView {
                 // are theirs. Every earlier card is inert (`HeldSetCard`) — a
                 // panel whose "+" and "−" were dead at the floor read as a
                 // broken control (owner, 13.09.2026).
-                Text(summaryPanelLine(set: index))
+                Text(flow.summaryPanelLine(set: index))
                     .dredfitFont(14)
                     .monospacedDigit()
                     .foregroundStyle(Theme.ink2)
@@ -156,18 +156,6 @@ extension WorkoutFlowView {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
         }
-    }
-
-    /// The line above the panel: the set, and what was recorded for it —
-    /// what the clock counted, or, for a set stopped by hand, the estimate
-    /// the summary prints with "≈" (the clock less the reach allowance,
-    /// `SetFacts.holdEndedByTap`). Saying "the clock saw" about that number
-    /// would call a guess a measurement.
-    func summaryPanelLine(set index: Int) -> String {
-        let measured = flow.summaryMeasured(set: index)
-        return flow.holdApproxSets.contains(index)
-            ? String(localized: "set \(index + 1) · stopped by hand at about \(measured) s")
-            : String(localized: "set \(index + 1) · the clock saw \(measured) s")
     }
 
 }

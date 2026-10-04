@@ -1,6 +1,7 @@
 //
 //  The exercise summary a hold movement ends on: which card the adjuster
-//  edits, the ceiling of a correction, and the steps added "for next time".
+//  edits, what the panel's line and a card's "≈" say, the ceiling of a
+//  correction, and the steps added "for next time".
 //
 
 import Foundation
@@ -27,9 +28,6 @@ extension WorkoutSession {
         // burn, and the stepper read "+10 s" over a sentence that
         // showed the plan "+5 s" shows (review, 12.09.2026).
         trimRaiseToWhatStillMoves()
-        // A number the person typed is not an estimate any
-        // more, whatever produced the one it replaced.
-        holdApproxSets.remove(index)
         // The second door of the same channel, and it spends
         // the same one-way flag: the work screen's hint asks
         // people to say a number of their own, and correcting
@@ -47,6 +45,30 @@ extension WorkoutSession {
     /// what the ceiling used to be read off for every set.
     func summaryMeasured(set index: Int) -> Int {
         holdMeasured[index] ?? SetFacts.inForce(actuals, exercise, set: index)
+    }
+
+    /// The line above the panel: the set, and what was recorded for it —
+    /// what the clock counted, or, for a set a thumb ended, the estimate it
+    /// recorded (the clock less the reach allowance,
+    /// `SetFacts.holdEndedByTap`). Chosen by the mark, not by the card's
+    /// "≈": a correction changes the number on the card, not the fact that
+    /// the clock never saw the estimate, and "the clock saw" about it would
+    /// call a guess a measurement.
+    func summaryPanelLine(set index: Int) -> String {
+        let measured = summaryMeasured(set: index)
+        return holdApproxSets.contains(index)
+            ? String(localized: "set \(index + 1) · stopped by hand at about \(measured) s")
+            : String(localized: "set \(index + 1) · the clock saw \(measured) s")
+    }
+
+    /// The card's "≈" and its "stopped by hand": a set a thumb ended, while
+    /// the card still carries the number the thumb produced. A number the
+    /// person put in its place is their own report, not a guess, and is
+    /// printed as one; OK on the estimate, or a correction back to it,
+    /// leaves the guess on the card, and the card says so.
+    func summaryCardIsApproximate(set index: Int) -> Bool {
+        holdApproxSets.contains(index)
+            && SetFacts.inForce(actuals, exercise, set: index) == summaryMeasured(set: index)
     }
 
     func isLastSummarySet(_ index: Int) -> Bool { index == exercise.sets - 1 }

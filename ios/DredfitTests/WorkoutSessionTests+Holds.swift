@@ -154,6 +154,72 @@ extension WorkoutSessionTests {
         XCTAssertNil(flow.editing)
     }
 
+    /// A set a thumb ended at 33 s on the clock records 30, the clock less the
+    /// reach allowance, and the line above its panel names that number as the
+    /// estimate it is. A correction does not change who ended the set, so the
+    /// line says the same after one — "the clock saw 30 s" would pass the
+    /// estimate off as a measurement. The card's "≈" stands while the card
+    /// carries the thumb's number: OK on it keeps the mark, a number of the
+    /// person's own takes it off.
+    func testACorrectedSetStoppedByHandIsNotPassedOffAsTheClocksCount() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        declare(45, on: flow)
+        flow.setIndex = 2
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds + 33)
+        flow.stopHoldEarly()
+        XCTAssertEqual(flow.phase, .exerciseSummary)
+        XCTAssertEqual(flow.actuals[.coreAntiExt], [15, 15, 30], "33 s on the clock less the 3 s reach")
+        let estimate = String(localized: "set \(3) · stopped by hand at about \(30) s")
+
+        flow.startSummaryAdjusting(set: 2)
+        XCTAssertEqual(flow.summaryPanelLine(set: 2), estimate)
+        XCTAssertTrue(flow.summaryCardIsApproximate(set: 2))
+
+        flow.commitSummaryEdit(set: 2)   // OK on the number as it stands
+        XCTAssertTrue(flow.summaryCardIsApproximate(set: 2), "the card still carries the thumb's number")
+        flow.startSummaryAdjusting(set: 2)
+        XCTAssertEqual(flow.summaryPanelLine(set: 2), estimate)
+
+        flow.adjustValue = 35   // one "+" on the panel's five-second grid
+        flow.commitSummaryEdit(set: 2)
+        XCTAssertEqual(flow.actuals[.coreAntiExt], [15, 15, 35])
+        XCTAssertFalse(flow.summaryCardIsApproximate(set: 2), "the card carries the person's number now")
+        flow.startSummaryAdjusting(set: 2)
+        XCTAssertEqual(flow.summaryPanelLine(set: 2), estimate, "the clock saw neither 30 nor 35")
+    }
+
+    /// A per-side set whose first side a thumb ended is marked as an estimate
+    /// before it has recorded anything. A second side stopped inside the
+    /// mis-tap grace hands the set back with "Skip this set" live, and a set
+    /// skipped from there records nothing — its card on the summary shows the
+    /// number it falls back to, and must not print "≈ · stopped by hand" over
+    /// it. A set that did record an estimate keeps its mark through the skip.
+    func testASkippedSetLeavesNoEstimateOnTheSummary() throws {
+        let (flow, _) = try holdFlow(.coreRot)
+        // Set one: a thumb ends the first side, the clock the second.
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds + 10)
+        flow.stopHoldEarly()
+        run(flow, until: { flow.phase != .work })
+        flow.skipRest()
+
+        // Set two: a thumb ends the first side, the second is handed back.
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds + 5)
+        flow.stopHoldEarly()
+        run(flow, for: Cooldown.switchPauseSeconds + 2)
+        flow.stopHoldEarly()
+        XCTAssertTrue(flow.holdSecondSide, "the grace handed the second side back")
+        flow.skipSet()
+
+        // Set three runs on the clock to the summary.
+        flow.startHold()
+        run(flow, until: { flow.phase == .exerciseSummary })
+        XCTAssertTrue(flow.summaryCardIsApproximate(set: 0), "set one recorded an estimate")
+        XCTAssertFalse(flow.summaryCardIsApproximate(set: 1), "set two recorded nothing")
+    }
+
     // MARK: - The hands-free run
 
     func testAHandsFreeRunOpensTheNextSetOnTheRestsOwnGo() throws {
