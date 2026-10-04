@@ -349,9 +349,9 @@ extension WorkoutSession {
     /// `second` is the one a countdown has just come to show, by a tick or by
     /// a start: `Countdown.read` reports only a NEW second, so a countdown
     /// started on this one never reports it, and a caller that asks from both
-    /// places primes it whichever way it got here. The count-in and the
-    /// hands-free rest ask from both. A rest paused on its four and resumed
-    /// is primed a second time, on purpose: the first has gone cold by then.
+    /// places primes it whichever way it got here. A rest paused on its four
+    /// and resumed is primed a second time, on purpose: the first has gone
+    /// cold by then.
     func primeBeforeTheCount(showing second: Int) {
         if second == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
             signals.prime()
