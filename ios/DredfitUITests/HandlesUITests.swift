@@ -2,17 +2,12 @@
 //  The athlete's handle, end to end, and the two blocks that ask before they
 //  run.
 //
-//  This file replaced DiscomfortUITests, which walked "Something hurt" through
-//  the workout, the rating screen and the resting line on Today. That change
-//  then took the two handles that moved VOLUME off the plan — the decision
-//  they asked for in advance is taken mid-session now (SetSkipUITests) — and
-//  what is left here is the one that changes the movement itself.
-//
-//  R30 moved that last one off the plan as well, into the technique sheet the
-//  plan row already opened. So the tests below no longer look for a control
-//  under a row: they check that there is none, that the sheet carries it
-//  instead — from Today AND from the work screen, which is the door the plan
-//  never had — and that the one grey line paying for its discoverability is
+//  The plan carries no per-movement handles. The decision about VOLUME is
+//  taken mid-session (SetSkipUITests); the one handle that changes the
+//  movement itself lives in the technique sheet the plan row opens. So the
+//  tests below check that there is no control under a row, that the sheet
+//  carries it instead — opened from Today's plan row, never inside a running
+//  workout — and that the one grey line paying for its discoverability is
 //  spent by the first visit and stays spent across a relaunch.
 //
 
@@ -46,7 +41,7 @@ final class HandlesUITests: XCTestCase {
 
     // MARK: - The plan carries no handles at all
 
-    /// The whole claim of R30 in one screen: six rows, six movements, and
+    /// The plan's whole claim in one screen: six rows, six movements, and
     /// nothing under any of them. Asked by PREFIX rather than for one movement,
     /// so a handle that comes back on a single pattern is caught too — and the
     /// row's own affordance is asserted in the same test, because "no control"
@@ -71,10 +66,10 @@ final class HandlesUITests: XCTestCase {
                       "the row must open the sheet the handle moved into")
     }
 
-    /// And the two that used to stand beside it are gone. Not a style
-    /// preference: they asked the person to predict, before the first set, how
-    /// much of the session they had in them — a question that moved to the
-    /// work screen, where it is known.
+    /// And nothing beside it asks how long today will be. Not a style
+    /// preference: such a handle asks the person to predict, before the first
+    /// set, how much of the session they have in them — a question the work
+    /// screen asks instead, where the answer is known.
     func testThePlanNoLongerAsksHowLongTodayWillBe() {
         app.launch()
         XCTAssertTrue(app.buttons[AX.startWorkout].waitForExistence(timeout: 5))
@@ -90,7 +85,7 @@ final class HandlesUITests: XCTestCase {
             "the way back from the sets handle is still on the plan")
     }
 
-    // MARK: - The handle, where it lives now
+    // MARK: - The handle, in the technique sheet
 
     /// What the block promises is that this sheet becomes the movement it
     /// names, and that the plan follows. Both halves are asserted without
@@ -116,8 +111,8 @@ final class HandlesUITests: XCTestCase {
         let promise = switchDown.label
         switchDown.tap()
 
-        // It asks first (owner, 01.09.2026): the plan has no undo, and the way
-        // back up a ladder is a probe several appearances away.
+        // It asks first: the plan has no undo, and the way back up a ladder
+        // is a probe several appearances away.
         let confirm = app.alerts.firstMatch.buttons[Self.confirmSwitch]
         XCTAssertTrue(confirm.waitForExistence(timeout: 5),
                       "the step down acted without asking")
@@ -181,8 +176,8 @@ final class HandlesUITests: XCTestCase {
                          + "there is nothing below it to offer")
     }
 
-    /// And it is offered on the screen that shows the UPCOMING workout, never
-    /// inside a running one (owner, 01.09.2026).
+    /// And it is offered from Today's plan row, the screen that shows the
+    /// upcoming workout, never inside a running one.
     ///
     /// Not a matter of taste: the session is snapshotted at Start, so a switch
     /// taken mid-workout moves the state under a plan already in flight, and
@@ -207,9 +202,11 @@ final class HandlesUITests: XCTestCase {
 
     // MARK: - The line that pays for it
 
-    /// One grey line is the whole price the plan pays for a handle that is no
-    /// longer visible on it, and it is spent by going through the door once —
-    /// from any screen. Gated on that rather than on an empty journal, because
+    /// One grey line is the whole price the plan pays for a handle that is
+    /// not visible on it, and it is spent by going through the door once: from
+    /// the plan row always, from any other screen only while the line promises
+    /// no step below (only the plan row's sheet carries one). Gated on that
+    /// rather than on an empty journal, because
     /// the person carried over from v2 has a full one and is exactly who the
     /// sentence is for.
     ///
@@ -289,9 +286,8 @@ final class HandlesUITests: XCTestCase {
         }
 
         // The last movement is walked to its end by the driver; the question
-        // comes after it. A private copy of that loop is what this file used
-        // to carry, and the drift it invites had already cost six red nightly
-        // runs once.
+        // comes after it. A private copy of that loop here would invite the
+        // drift that has already cost six red nightly runs once.
         let rating = app.staticTexts["How did it go?"]
         XCTAssertTrue(WorkoutDriver(app: app).walkToCooldownOffer(deadline: 180),
                       "the work must end on the cool-down question"

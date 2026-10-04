@@ -1,9 +1,9 @@
 //
 //  The skip that happens DURING the workout — the app's half of the rule.
 //
-//  The engine's half is pinned in EngineV227Tests: the order is a contract,
-//  the floor is not a place to record a dose of 0, and one tap per movement is
-//  what makes a long session fit. What is left for this suite is everything
+//  The engine's half: the order is a contract, the floor is not a place to
+//  record a dose of 0, and one tap per movement is what makes a long session
+//  fit. What is left for this suite is everything
 //  between the tap and the engine — that the app hands the skip over through
 //  the one entry point that settles the order, that a movement it could not
 //  record travels as a skipped exercise instead, and that neither the journal
@@ -20,15 +20,15 @@ final class SetSkipTests: AppStoreTestCase {
     override var tempURLPrefix: String { "dredfit-skip" }
 
     /// Seeded through the state file, like the app's own load — in the v3
-    /// shape, because a v2 state no longer decodes at all (§40.8) and a seed
-    /// the store quietly replaced with a clean start would make the assertions
-    /// here true for the wrong reason.
+    /// shape, so it loads as written rather than through the v2 migration: a
+    /// seed the store quietly replaced would make the assertions here true for
+    /// the wrong reason.
     ///
     /// `variation` rungs up every ladder, one rung BELOW the dose ceiling —
-    /// a ceiling would offer a PROBE (§40.4), and a probe set is not a working
-    /// set a skip can take, so the plan under test would stop being the plan
-    /// §38.2 describes. `sets` opens a band, which exists only on the top
-    /// variation (§40.5).
+    /// a ceiling would offer a PROBE, and a probe set is not a working set a
+    /// skip can take, so the plan under test would stop being a plan of
+    /// working sets. `sets` opens a band, which exists only on the top
+    /// variation.
     private func store(variation: Int, sets: Int = EngineConfig.setsBase) throws -> AppStore {
         func at(_ p: Pattern) -> Int { min(variation, Library.count(p)) }
         func dose(_ p: Pattern) -> Int {
@@ -68,8 +68,8 @@ final class SetSkipTests: AppStoreTestCase {
 
     // MARK: - Rule 1: the order, from the app's side
 
-    /// The rule's two worked examples, walked through the STORE: a session
-    /// completed on plan with one set skipped comes back one set shorter.
+    /// The rule on two cases, walked through the STORE: a session completed
+    /// on plan with one set skipped comes back one set shorter.
     ///
     /// This is the app's half of rule 1 and it is a real guard, not a copy of
     /// the engine's. The store cannot express the wrong order — it hands the
@@ -80,7 +80,7 @@ final class SetSkipTests: AppStoreTestCase {
     /// so the first half cannot be read as passing by luck.
     func testASkippedSetReachesTheNextPlanThroughTheRating() throws {
         // The base band and a real band: a movement partway up its ladder,
-        // and one at the very top of it where §40.5 opens the set bands.
+        // and one at the very top of it, where the set bands open.
         for (variation, sets) in [(2, EngineConfig.setsBase),
                                   (Library.count(.squat), EngineConfig.setsMax)] {
             let store = try store(variation: variation, sets: sets)
@@ -164,7 +164,7 @@ final class SetSkipTests: AppStoreTestCase {
 
     /// What the app does instead, and the reason rule 2 exists: the movement
     /// travels as an ordinary skipped exercise, and NOT as a dose of 0. The
-    /// engine costs one of them nothing and the other a whole tier.
+    /// engine costs one of them nothing and the other a whole variation.
     func testOnTheFloorTheMovementTravelsAsASkipAndNotAsAZero() throws {
         let store = try store(variation: 2, sets: EngineConfig.setsBase)
         // On the floor: every movement cut as far as the axis goes.
@@ -203,9 +203,9 @@ final class SetSkipTests: AppStoreTestCase {
 
     // MARK: - The journal and the interrupted workout
 
-    /// What happened is what the journal keeps. The post-release audit asks
-    /// whether the mid-workout skip has become the dominant price, and a
-    /// record that kept only the rating could not answer it.
+    /// What happened is what the journal keeps: a record that kept only the
+    /// rating could not tell whether the mid-workout skip has become the
+    /// dominant price.
     func testTheJournalRemembersTheSkippedSetsAcrossARelaunch() throws {
         let store = try store(variation: 3, sets: EngineConfig.setsBase)
         store.completeWorkout(session: store.nextSession, result: .plan,

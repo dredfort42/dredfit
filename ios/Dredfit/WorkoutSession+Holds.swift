@@ -13,11 +13,10 @@ extension WorkoutSession {
     /// `.hold` rather than `.work` is what puts a countdown on the tile at
     /// all (`RestLiveActivity`), and it is the phase that needs one: the hold
     /// is the one screen whose own copy asks the athlete to put the phone
-    /// down, and it was the phase showing a static dot while the rest — the
-    /// beat you are allowed to miss — counted down beside it (UX review
-    /// 05.09.2026). It does NOT promise a sound from under the lock: a
-    /// suspended app plays nothing (R28), and the tile shows seconds, which is
-    /// the one thing it can keep.
+    /// down, and a static dot there would leave the rest — the beat you are
+    /// allowed to miss — the only one the tile counts down. It does NOT
+    /// promise a sound from under the lock: a suspended app plays nothing,
+    /// and the tile shows seconds, which is the one thing it can keep.
     func showHoldActivity(until end: Date, detail: String) {
         liveActivity.update(.init(phase: .hold, title: current.name,
                                   detail: detail, restEndDate: end))
@@ -32,24 +31,22 @@ extension WorkoutSession {
             : String(localized: "set \(setIndex + 1) of \(totalSets)")
     }
 
-    /// The tap arms the set; the clock waits out a count-in first. It used to
-    /// start the hold under the thumb, and on a hold that is not only a jolt:
-    /// the seconds spent getting down into the plank came off the number the
-    /// engine measures.
+    /// The tap arms the set; the clock waits out a count-in first. Started
+    /// under the thumb, a hold is not only a jolt: the seconds spent getting
+    /// down into the plank would come off the number the engine measures.
     ///
-    /// A SET THE RUN OPENS HAS NO COUNT-IN OF ITS OWN (R32). The rest before
-    /// it is the lead-in: it counts its own last three seconds down and ends
-    /// on the go, and that go is this hold's start signal — the same shape the
-    /// side-switch pause has always had.
+    /// A SET THE RUN OPENS HAS NO COUNT-IN OF ITS OWN, unless a tap cut the
+    /// rest short or its go came too late to be heard
+    /// (`SetFacts.restHandsOverWithCountIn`). The rest before it is the
+    /// lead-in: it counts its own last three seconds down and ends on the go,
+    /// and that go is this hold's start signal — the same shape the
+    /// side-switch pause has.
     ///
-    /// It used to lay a second window on top of that: fifteen seconds priced
-    /// as travel, with its own 3-2-1 and its own go, so a minute of rest
-    /// actually ran a minute and a quarter and sounded the start twice. The
-    /// minute IS the travel time; a person who has spent it lying beside the
-    /// mat does not need a quarter of one more, and the second go said
-    /// "begin" about a set that had already been announced. It also spent
-    /// seconds no estimate anywhere counts — `restSetSec` is what the engine
-    /// budgets between sets.
+    /// Nothing is laid on top of that rest. The rest IS the travel time: a
+    /// person who has spent it lying beside the mat needs no more, a second
+    /// 3-2-1 and go would announce a set that has already been announced, and
+    /// its seconds would be ones no estimate anywhere counts — `restSetSec`
+    /// is what the engine budgets between sets.
     ///
     /// A TAP still earns its beat, and that asymmetry is the point:
     /// `GetReady.countInSeconds` is the pause between somebody saying "I am
@@ -59,24 +56,21 @@ extension WorkoutSession {
         guard phase == .work else { return }
         editing = nil
         // On the probe set the countdown is the PROBE's target — a different
-        // movement, and possibly a different unit (§40.1, `pull_bar` 2→3).
+        // movement, and possibly a different unit (`pull_bar` 2→3).
         // The declaration stands in for the plan while this exercise lasts —
         // `SetFacts.holdTarget` says how, and why a set cut short still
         // governs the sets after it. The PROBE is outside it: it is one set of
         // another movement, and a time declared for this one says nothing
-        // about that one (§40.4).
+        // about that one.
         var planned = current.isProbe
             ? (probeActuals[exercise.pattern] ?? current.planned)
             : SetFacts.holdTarget(actuals, exercise, set: setIndex,
                                   declared: holdDeclared)
         #if DEBUG
-        // The UI suite used to set a hold's length through the adjuster on
-        // this screen, which R23 removed: nothing is entered before the
-        // effort. What the suite actually needed were the two ENDS of the
-        // corridor — the floor, to walk a whole hold exercise inside a test's
-        // budget, and the ceiling, to give a mid-hold Stop a margin no loaded
-        // runner can eat (the nightly of 2026-08-04 spent 20 s delivering
-        // one tap).
+        // The UI suite needs the two ENDS of the corridor — the floor, to walk
+        // a whole hold exercise inside a test's budget, and the ceiling, to
+        // give a mid-hold Stop a margin no loaded runner can eat (a nightly
+        // run has spent 20 s delivering one tap).
         //
         // A SEED OF THE PLAN, never of the number in force and never of a
         // DECLARED time: once the athlete has said something about this
@@ -97,8 +91,8 @@ extension WorkoutSession {
         // The SECOND side is re-armed through here too, not only through the
         // switch pause: a Stop inside the mis-tap grace leaves every countdown
         // nil with `holdSecondSide` still true, so "Start hold" comes back and
-        // this is its only call site. Deriving from the plan there handed the
-        // second side the full length again and undid the rule in silence.
+        // this is its only call site. Deriving from the plan there would hand
+        // the second side the full length again and undo the rule in silence.
         holdTotal = SetFacts.holdSideSeconds(
             planned: planned, firstSideHeld: holdSecondSide ? firstSideHeld : nil)
         holdClock.show(holdTotal)
@@ -128,14 +122,12 @@ extension WorkoutSession {
         case .unchanged:
             return
         case .ended(let overshoot):
-            // The rest applies this rule and says it in words: "a signal
-            // nobody could hear cannot be what started a plank". The count-in
-            // did not apply it to ITSELF — the comment beside it only covered
-            // the LENGTH of the set, not the moment it began — so a call taken
-            // inside these five seconds put the athlete in a plank that had
-            // already started (UX review 05.09.2026). Same rule, same
-            // constant: count them in again rather than start under a signal
-            // played to a suspended app.
+            // The rule the rest applies, in its own words: "a signal nobody
+            // could hear cannot be what started a plank" — otherwise a call
+            // taken inside the count-in would put the athlete in a plank that
+            // had already started. Same rule, same constant: count them in
+            // again rather than start under a signal played to a suspended
+            // app.
             guard overshoot <= SetFacts.restGoHeardWithinSec else {
                 let again = holdCountInClock.start(GetReady.countInSeconds, now: now())
                 primeBeforeTheCount(showing: holdCountInClock.remaining)
@@ -146,9 +138,9 @@ extension WorkoutSession {
             playGo()
             // …and said, for the reason the two blocks say their boundaries
             // out loud: VoiceOver stays where it was while the screen turns
-            // into a running hold, and the go is behind the sounds switch
-            // (UX review 05.09.2026). The words are the movement's own name,
-            // exactly as at a block's go.
+            // into a running hold, and the go is behind the sounds switch.
+            // The words are the movement's own name, exactly as at a block's
+            // go.
             announce(current.name)
             // The hold's own total was fixed at the tap, so a long absence
             // during the count-in still starts a FULL set rather than the
@@ -175,8 +167,9 @@ extension WorkoutSession {
         case .unchanged:
             return
         case .ended:
-            // Silent: completeSet() owns the end-of-set signal now, whatever
-            // ended it (#186). Sounding a done here would double it.
+            // Silent: `finishHold` sounds what comes next — the switch, or the
+            // set's done, by itself on a last set and through `completeSet`
+            // otherwise (#186). Sounding a done here would double it.
             finishHold(heldSeconds: holdTotal)
         case .second(let second):
             if holdClock.signals(second, within: Self.countdownSignalSeconds) {
@@ -190,8 +183,7 @@ extension WorkoutSession {
 
     /// "Stop" sits exactly where "Start hold" was, so a stop within the first
     /// seconds is an accidental double-tap: the set stays available.
-    /// Otherwise one mis-tap consumes the set and records a bogus actual —
-    /// which on the first workout also feeds the zero-level calibration.
+    /// Otherwise one mis-tap consumes the set and records a bogus actual.
     ///
     /// Past the grace the seconds are written down by the thumb's own
     /// allowance (`SetFacts.holdEndedByTap`): the tap lands after the effort
@@ -230,28 +222,25 @@ extension WorkoutSession {
         holdSecondSide = false
         firstSideHeld = nil
         recordHoldActual(heldSeconds: held)
-        // Only the LAST set stops here. A hold ends itself, and the flow used
-        // to leave the work screen in the same frame the number was produced
-        // in — but a set with another one behind it is not lost: the movement
-        // comes back, and until it does the rest is what the person wants. It
-        // is the last set that is terminal, because after it no screen about
-        // this movement ever returns, and the seconds it recorded would stand
-        // uncorrectable (owner, 30–31.08.2026).
+        // Only the LAST set stops here. A set with another one behind it is
+        // not lost: the movement comes back, and until it does the rest is
+        // what the person wants. The last set is terminal — after it no
+        // screen about this movement returns, and the seconds it recorded
+        // would stand uncorrectable.
         guard isLastSet else {
-            completeSet()   // rest starts itself, exactly as it always did
+            completeSet()   // the rest starts itself
             return
         }
         // The signal fires HERE, where the effort actually stopped, not on the
         // tap that follows: the person may have their eyes shut in a plank,
         // and the sound is the only thing that says the hold is over.
         playDone()
-        // The PROBE keeps the settled screen it always had: its caption states
-        // the outcome of the trial ("Next time: …"), which is a sentence about
-        // a movement the summary below deliberately says nothing about — the
-        // probe's number is its own channel and is never folded in (§40.4).
-        // Every other last set of a hold lands on the summary instead, where
-        // the whole movement is in front of the person and any set of it can
-        // be corrected, not only this one.
+        // The PROBE keeps a settled screen of its own: its caption states the
+        // outcome of the trial ("Next time: …"), which is a sentence about a
+        // movement the summary below deliberately says nothing about — the
+        // probe's number is its own channel and is never folded in. Every
+        // other last set of a hold lands on the summary instead, where the
+        // whole movement is in front of the person.
         if current.isProbe {
             holdSettled = true
             // The effort is over and the screen waits for a tap: the tile goes
@@ -279,8 +268,8 @@ extension WorkoutSession {
         playSwitch()
         let end = holdSwitchClock.start(Cooldown.switchPauseSeconds, now: now())
         // The one instruction of this whole exercise that is not "keep still",
-        // and the phone is on the floor by then: the tile counts the five
-        // seconds and names them (UX review 05.09.2026).
+        // and the phone is on the floor by then: the tile counts the pause
+        // down and names it.
         showHoldActivity(until: end, detail: String(localized: "Switch sides"))
     }
 
@@ -292,19 +281,17 @@ extension WorkoutSession {
         case .ended(let overshoot):
             // The same rule the count-in applies to itself, and the same
             // constant: a signal nobody could hear cannot be what started the
-            // second side. Two five-second pauses forty lines apart, and only
-            // one of them checked (self-review 05.09.2026) — a call taken
-            // inside this one used to start the second side while the phone
-            // was still in the athlete's hand, and `finishHold` then recorded
-            // min(side one, side two) as a full set nobody held.
+            // second side. Otherwise a call taken inside this pause would
+            // start the second side while the phone is still in the athlete's
+            // hand, and `finishHold` would record min(side one, side two) as a
+            // full set nobody held.
             guard overshoot <= SetFacts.restGoHeardWithinSec else {
                 let again = holdSwitchClock.start(Cooldown.switchPauseSeconds, now: now())
                 // The pause's OWN words, the way the count-in's restart
-                // repeats "Get ready". This branch named the stage that comes
-                // NEXT, so a phone on the floor said "second side" while the
-                // screen beside it still said "Switch sides" and the five
-                // seconds on the tile belonged to the pause (review
-                // 06.09.2026).
+                // repeats "Get ready": the seconds on the tile belong to the
+                // pause, and naming the stage that comes NEXT would put
+                // "second side" on a phone on the floor while the screen
+                // beside it still says "Switch sides".
                 showHoldActivity(until: again, detail: String(localized: "Switch sides"))
                 return
             }
@@ -312,15 +299,14 @@ extension WorkoutSession {
             playGo()
             // Spoken as well, like every other go in the flow: the switch is
             // the moment nobody can afford to miss, and the tone is behind the
-            // sounds switch (UX review 05.09.2026).
+            // sounds switch.
             announce(SplitStageWords(halves: .sides).secondHalf)
-            // BOTH SIDES OF ONE SET CARRY THE SAME LOAD (owner, 27.08.2026).
-            // The second side runs for what the first actually ran, not for
-            // what the plan asked. Before this, a first side stopped at 20 s
-            // of a planned 30 handed the second side the full 30 — and the
-            // fact recorded for the set is min(side one, side two), so those
-            // ten seconds loaded one side harder than the other AND counted
-            // for nothing.
+            // BOTH SIDES OF ONE SET CARRY THE SAME LOAD. The second side runs
+            // for what the first actually ran, not for what the plan asked: a
+            // first side stopped at 20 s of a planned 30 must not hand the
+            // second side the full 30 — the fact recorded for the set is
+            // min(side one, side two), so those ten seconds would load one
+            // side harder than the other AND count for nothing.
             //
             // `holdTotal` itself, not just the remaining and the end date:
             // `stopHoldEarly` measures what was held as `holdTotal -
@@ -336,8 +322,9 @@ extension WorkoutSession {
         }
     }
 
-    /// Onto the grid the manual adjuster steps on, and onto the set actually
-    /// held: stopping at 40 s of 55 in the third set is the third set's fact.
+    /// Snapped to a storable number (`SetFacts.snap`), and onto the set
+    /// actually held: stopping at 40 s of 55 in the third set is the third
+    /// set's fact.
     func recordHoldActual(heldSeconds: Int) {
         let held = SetFacts.snap(Double(heldSeconds), unit: .hold)
         // The probe's number goes to the probe's channel — see `probeActuals`.
@@ -380,16 +367,17 @@ extension WorkoutSession {
     func playWorkoutDone() { signals.workoutDone(store.settings.soundsEnabled) }
     func playMilestone() { signals.milestone(store.settings.soundsEnabled) }
 
-    /// "Start exercise": one tap buys every set of the hold (R23).
+    /// "Start exercise": one tap buys every set of the hold.
     func startHoldExercise() {
         holdAutoRun = true
         startHold()
     }
 
     /// What the summary's own primary control does. It is `completeSet` and
-    /// not a path of its own deliberately: the summary REPLACED the tap that
-    /// logged the set, so the flow past it has to be the same flow — the rest
-    /// this movement earns, or the cool-down when it was the last one.
+    /// not a path of its own deliberately: the summary stands where the tap
+    /// that logs the set would be, so the flow past it has to be the same
+    /// flow — the rest this movement earns, or the cool-down when it was the
+    /// last one.
     func leaveExerciseSummary() {
         guard phase == .exerciseSummary else { return }
         holdApproxSets.removeAll()
@@ -398,7 +386,7 @@ extension WorkoutSession {
     }
 
     /// The screen a hold exercise OPENS on: nothing running, nothing behind,
-    /// and one tap away from all of it. What 6c adds — the shape of the
+    /// and one tap away from all of it. What it adds — the shape of the
     /// exercise and the promise under it — belongs to this moment only; once
     /// the run is under way the caption has states of its own to report.
     var holdExerciseIntro: Bool {
@@ -408,11 +396,10 @@ extension WorkoutSession {
     }
 
     /// The clock is on the person: a hold is running, counting them in, or
-    /// holding the five seconds between sides. Named once because four things
-    /// on this screen stand down for exactly this, each of them spelling the
-    /// same three flags out by hand — which is how the escapes came to be
-    /// dimmed and disabled but still in the accessibility tree, and the
-    /// technique button to be neither (UX review, 05.09.2026).
+    /// holding the pause between sides. Named once because four things on
+    /// this screen stand down for exactly this, and three flags spelled out by
+    /// hand at each is how they drift apart — escapes dimmed and disabled but
+    /// still in the accessibility tree, a technique button neither.
     var holdUnderWay: Bool { holding || holdCountingIn || holdSwitchPausing }
 
     /// What a Stop right now would RECORD — nil inside the mis-tap grace,

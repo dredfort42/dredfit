@@ -1,10 +1,10 @@
 //
-//  The storage-corruption and freeze tests, moved out of AppStoreTests.swift
-//  to keep it under the linter's file and type-body ceilings. Grouped here
-//  because they share one shape: a state file that cannot be trusted
-//  (garbage bytes, a stale permission, one bad journal entry) must never cost
-//  the rest of the journal, or get silently overwritten by the clean state
-//  that stood in for it. The code moved unchanged.
+//  The storage-corruption and freeze tests, in their own file to keep
+//  AppStoreTests.swift under the linter's file and type-body ceilings.
+//  Grouped here because they share one shape: a state file that cannot be
+//  trusted (garbage bytes, a stale permission, one bad journal entry) must
+//  never cost the rest of the journal, or get silently overwritten by the
+//  clean state that stood in for it.
 //
 
 import XCTest
@@ -126,11 +126,9 @@ extension AppStoreTests {
         let store = makeStore()
         XCTAssertEqual(store.records.count, 1, "the readable record must survive")
         XCTAssertEqual(store.records.first?.sessionNumber, 1)
-        // RE-MARKED §41.7 (v3.1, 26.08.2026), class: the test pinned the defect.
-        // §40.8's "there is no migration" was reversed, so the claim inverts:
-        // an upgrading trainee's work is CARRIED OVER. The number itself is not
-        // pinned here — this test is about the journal surviving a bad entry,
-        // and `MigrationV2Tests` owns what the rungs land on.
+        // An upgrading trainee's work is CARRIED OVER. The number itself is
+        // not pinned here — this test is about the journal surviving a bad
+        // entry, and `MigrationV2Tests` owns what the rungs land on.
         XCTAssertGreaterThan(store.totalProgress, Engine.totalProgress(.initial),
                              "the v2 rungs migrate, so progress is above a clean start")
         XCTAssertTrue(FileManager.default.fileExists(atPath: corruptURL.path),

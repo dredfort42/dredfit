@@ -143,7 +143,7 @@ extension WorkoutSession {
                                                             overshootSec: overshoot)
             // THE RUN IS A PROMISE TO SOMEBODY WHO IS HERE. Past the absence
             // threshold the phone was somewhere else — a call, a pocket — and
-            // starting the next hold five seconds after the app comes back
+            // starting the next hold one count-in after the app comes back
             // drops a plank on someone who is still walking to the mat. The
             // threshold is `BlockPause.absenceSeconds`, the same one the two
             // blocks freeze on, and it means the same thing here (UX review
@@ -155,7 +155,7 @@ extension WorkoutSession {
             // …and then the go, which marks the end of the rest — and on a
             // hands-free run is also the start of the hold, because the set
             // opens on it. When the rest hands over WITH a count-in instead,
-            // that count-in ends on a go of its own five seconds later, so
+            // that count-in ends on a go of its own a few seconds later, so
             // this one announced the same beginning twice (UX review
             // 05.09.2026). Read AFTER the clearing above, so a dropped run
             // takes its count-in — and this suppression — with it.

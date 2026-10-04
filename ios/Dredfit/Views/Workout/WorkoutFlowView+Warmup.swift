@@ -17,11 +17,10 @@ extension WorkoutFlowView {
     /// making the person justify a skip by walking out of a countdown.
     var warmupIntroView: some View {
         // The scroll of `BlockLayout`, for the reason stated there and one
-        // more of its own (UX review 05.09.2026): this screen and its
-        // cool-down twin were the only ones of the flow NOT wrapped, and they
-        // now carry two lines more. At the accessibility text sizes a bare
-        // VStack overflows both ends and takes the decline button off the
-        // bottom with it. Below that size nothing scrolls and nothing moved.
+        // more of its own: this screen carries the composition lines too, and
+        // at the accessibility text sizes a bare VStack overflows both ends
+        // and takes the decline button off the bottom with it. Below that size
+        // nothing scrolls.
         GeometryReader { geometry in
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
@@ -35,11 +34,10 @@ extension WorkoutFlowView {
                         .foregroundStyle(Theme.ink2)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, 8)
-                    // ink3 → ink2: this is small TEXT, and ink3 is 2.35:1 on
-                    // the light background — under the 4.5:1 small text needs.
-                    // Owner's call, UX review 05.09.2026: the low-contrast ink3
-                    // text across the app was an oversight, and ink3 is a
-                    // graphics tone from here on.
+                    // ink2, not ink3: this is small TEXT, and ink3 is 2.35:1
+                    // on the light background — under the 4.5:1 small text
+                    // needs. ink3 is a graphics tone, not a text one (the
+                    // owner's call).
                     Text("\(flow.warmupMoves.count) positions · about \(flow.warmupIntroMinutes) min")
                         .dredfitFont(13.5)
                         .foregroundStyle(Theme.ink2)
@@ -67,22 +65,20 @@ extension WorkoutFlowView {
 
     /// What the offer is actually offering.
     ///
-    /// UX review 05.09.2026: the only screen where "do it or not" is decided
-    /// named no movement at all, while the composition changes from session to
-    /// session (six compositions of six out of a pool of nine) and could be
-    /// read only one name at a time INSIDE the block being decided about. The
-    /// names are already localized — they are the same strings the running
-    /// screen shows — and the list needs no separator of its own: the locale's
-    /// own list format has one.
+    /// This is the screen where "do it or not" is decided, and the composition
+    /// changes from session to session (six compositions of six out of a pool
+    /// of nine) — without the list it could be read only one name at a time
+    /// INSIDE the block being decided about. The names are already localized
+    /// — they are the same strings the running screen shows — and the list
+    /// needs no separator of its own: the locale's own list format has one.
     ///
-    /// The second line is the mechanic that has existed since 1.7 and lived
-    /// behind the very decision it should be changing: someone with twenty
-    /// minutes instead of thirty cut the whole block because the screen
-    /// offered nothing smaller.
+    /// The second line is a mechanic that would otherwise live behind the
+    /// very decision it should be changing: someone with twenty minutes
+    /// instead of thirty would cut the whole block because the screen offered
+    /// nothing smaller.
     ///
     /// ink2, like every other word on the screen: at 2.35:1 in the light
-    /// theme ink3 does not carry small text (owner, 05.09.2026 — the
-    /// low-contrast ink3 text was an oversight, not a decision).
+    /// theme ink3 does not carry small text.
     @ViewBuilder
     private var warmupCompositionLines: some View {
         Text(flow.warmupMoves.map(\.name).formatted(.list(type: .and)))
@@ -128,7 +124,7 @@ extension WorkoutFlowView {
         }
         // The OLD list is what the rebase needs and the only place it still
         // exists: `warmupMoves` is computed, so by the time this runs it
-        // already answers with the new composition (review 06.09.2026).
+        // already answers with the new composition.
         .onChange(of: flow.warmupMoves.map(\.id)) { previous, _ in
             flow.rebaseWarmupOnComposition(was: previous)
         }

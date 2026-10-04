@@ -27,17 +27,17 @@ extension AppStore {
     }
 
     /// Past the occasion but not yet forgotten — the band where the athlete is
-    /// ASKED rather than answered for (owner, 06.09.2026): ready to carry on,
-    /// or keep what is already done?
+    /// ASKED rather than answered for: ready to carry on, or keep what is
+    /// already done?
     ///
-    /// Recording it unasked after three hours was the previous rule and it was
-    /// wrong in the ordinary case: three hours is a long lunch, not a lost
-    /// session, and the plan came back rated by nobody.
+    /// Not recorded unasked when the resume window closes: three hours is a
+    /// long lunch, not a lost session, and the plan would come back rated by
+    /// nobody.
     ///
     /// The store has no "keep it" of its own on purpose. Answering the card
     /// opens the flow on its RATING screen, so the athlete says how it went
     /// themselves — the only thing recorded on anyone's behalf is a workout
-    /// nobody came back to for half a day (owner, 06.09.2026).
+    /// nobody came back to for half a day.
     func unfinishedWorkoutAwaitingAnswer(now: Date = .now) -> WorkoutSnapshot? {
         guard let snap = validPendingWorkout()?.snapshot, !doneToday else { return nil }
         let age = now.timeIntervalSince(snap.savedAt)
@@ -49,21 +49,20 @@ extension AppStore {
     /// The automatic path, and the ONLY one that decides for the athlete: a
     /// workout nobody came back to for twelve hours.
     ///
-    /// A workout that was trained and never rated used to vanish altogether —
-    /// the journal is written by `completeWorkout` alone and its only caller
-    /// is the tap on a rating card, so putting the phone down on "How did it
-    /// go?" and letting iOS unload the process erased the whole session, for
-    /// exactly the people who train late (UX review 05.09.2026, 🔴 01).
+    /// Without it a workout that was trained and never rated would vanish
+    /// altogether: the flow records a workout only from the tap on a rating
+    /// card, so putting the phone down on "How did it go?" and letting iOS
+    /// unload the process would erase the whole session, for exactly the
+    /// people who train late.
     @discardableResult
     func settleAbandonedWorkout(now: Date = .now) -> Bool {
         // A flow on screen OWNS this snapshot: it will finish the workout
-        // itself. Settling underneath it advanced the engine's counter, and
-        // the rating the athlete then gave failed `completeWorkout`'s replay
-        // guard and was dropped in silence — the session stood recorded as
-        // "on plan" and the honest answer never reached the engine. Reachable
+        // itself. Settling underneath it would advance the engine's counter,
+        // and the rating the athlete then gave would fail `completeWorkout`'s
+        // replay guard and be dropped in silence — the session recorded as
+        // "on plan" and the honest answer never reaching the engine. Reachable
         // because `activate()` runs on every foreground and the flow is a
-        // cover presented from a screen that stays alive under it
-        // (self-review 06.09.2026).
+        // cover presented from a screen that stays alive under it.
         guard !workoutIsOnScreen,
               let snap = pendingWorkout,
               now.timeIntervalSince(snap.savedAt) >= WorkoutSessionStore.forgottenAfter

@@ -1,13 +1,12 @@
 //
-//  A workout that was trained and never rated. The journal is written by
-//  `completeWorkout` alone, whose only caller is the tap on a rating card, so
-//  putting the phone down on "How did it go?" and letting iOS unload the
-//  process erased the whole session (UX review 05.09.2026, 🔴 01).
+//  A workout that was trained and never rated. Putting the phone down on
+//  "How did it go?" and letting iOS unload the process must not erase the
+//  session: the snapshot it leaves behind is what gets it into the journal.
 //
-//  Three bands, not two (owner, 06.09.2026): inside three hours the card
-//  offers to carry on; past it and up to twelve hours the athlete is ASKED
-//  whether to continue or to finish and rate it; only a workout nobody came
-//  back to for twelve hours is recorded without being asked.
+//  Three bands: inside three hours the card offers to carry on; past it and
+//  up to twelve hours the athlete is ASKED whether to continue or to finish
+//  and rate it; only a workout nobody came back to for twelve hours is
+//  recorded without being asked.
 //
 
 import XCTest
@@ -131,14 +130,15 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
 
     /// `activate()` runs on EVERY foreground, and the workout flow is a cover
     /// presented from a screen that stays alive underneath it — so a return to
-    /// the app a day into an idle session used to settle the workout out
-    /// from under the athlete still standing in it. The counter advanced, the
-    /// rating they then gave failed `completeWorkout`'s replay guard, and the
-    /// session stood recorded "on plan" with the honest answer dropped in
-    /// silence (self-review 06.09.2026).
+    /// the app a day into an idle session must not settle the workout out
+    /// from under the athlete still standing in it. The counter would
+    /// advance, the rating they then gave would fail `completeWorkout`'s
+    /// replay guard, and the session would stand recorded "on plan" with the
+    /// honest answer dropped in silence.
     ///
     /// Every other test here settles through a freshly built store — process
-    /// death only — which is why the live-app case was green by omission.
+    /// death only — so without this one the live-app case is green by
+    /// omission.
     func testAWorkoutStillOnScreenIsNeverSettledUnderneathIt() {
         let store = makeStore()
         store.saveWorkoutSnapshot(
@@ -158,7 +158,7 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
         XCTAssertEqual(store.records.count, 1)
     }
 
-    // MARK: - The band where the athlete is asked (owner, 06.09.2026)
+    // MARK: - The band where the athlete is asked
 
     /// Three hours is a long lunch, not a lost session. Past the occasion the
     /// card stops offering to carry on and starts ASKING — and nothing is
@@ -181,8 +181,8 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
 
     /// The store deliberately has NO way to record a workout in this band:
     /// answering the card opens the flow on its rating screen, and the athlete
-    /// says how it went themselves (owner, 06.09.2026). The only thing decided
-    /// for them is a workout nobody came back to for twelve hours.
+    /// says how it went themselves. The only thing decided for them is a
+    /// workout nobody came back to for twelve hours.
     func testNothingInThisBandCanBeRecordedWithoutTheAthlete() {
         let store = makeStore()
         store.saveWorkoutSnapshot(
@@ -246,10 +246,8 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
         XCTAssertEqual(absence.comeBack(now: t.addingTimeInterval(3000)), 2910)
     }
 
-    /// The rule the away time rests on, and it had no test at all: the flow
-    /// changed what "absence" means and nothing anywhere read the result back
-    /// (review 06.09.2026). A rest running on schedule is training whether or
-    /// not the process survived it.
+    /// The rule the away time rests on: a rest running on schedule is
+    /// training whether or not the process survived it.
     func testAScheduledRestIsTrainingEvenWhenTheProcessDies() {
         let restStart = Date.now.addingTimeInterval(-3600)
         let restEnd = restStart.addingTimeInterval(90)
@@ -280,10 +278,10 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
 
     // MARK: - What an interruption amounts to
 
-    /// 🔴 02: the summary of a finished hold is the same fact as the rest
-    /// after a last set — every set is behind. It used to be catalogued as
-    /// unfinished, which handed a fully performed movement to the engine as a
-    /// skip and erased the seconds that screen exists to confirm.
+    /// The summary of a finished hold is the same fact as the rest after a
+    /// last set — every set is behind. Catalogued as unfinished, it would hand
+    /// a fully performed movement to the engine as a skip and erase the
+    /// seconds that screen exists to confirm.
     func testAFinishedMovementOnItsSummaryIsNotASkip() {
         let exercises = makeStore().nextSession.exercises
         let settled = SetFacts.settlement(in: exercises,
@@ -297,8 +295,8 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
         XCTAssertEqual(settled.setsSkipped[exercises[0].pattern] ?? 0, 0)
     }
 
-    /// Both numbers come off disk. A negative index trapped inside
-    /// `activate()` on every launch; it now reads as the first exercise.
+    /// Both numbers come off disk, and a negative index must not trap inside
+    /// `activate()` on every launch: it reads as the first exercise.
     func testANegativeSnapshotIndexSettlesLikeTheFirstExercise() {
         let exercises = makeStore().nextSession.exercises
         for done in [false, true] {
@@ -310,7 +308,7 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
         }
     }
 
-    /// 🔴 03: "finish now" promises to keep what you have done. A movement
+    /// "Finish now" promises to keep what you have done. A movement
     /// with enough sets behind keeps its numbers, and the sets never reached
     /// travel as skipped SETS — the statement an in-workout skip makes.
     func testAMovementWithEnoughSetsBehindKeepsItsNumbers() {
@@ -364,7 +362,7 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
 
     /// The journal has to be able to say which movement was left half-done —
     /// "not finished" and "skipped" are different facts to a person even
-    /// though the engine freezes the ladder either way (owner, 05.09.2026).
+    /// though the engine freezes the ladder either way.
     func testTheJournalNamesTheUnfinishedMovement() throws {
         let store = makeStore()
         let session = store.nextSession
