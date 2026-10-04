@@ -84,7 +84,7 @@ extension WorkoutSession {
     }
 
     func tick(_ block: GuidedBlock) {
-        let overshoot: Int
+        let late: TimeInterval
         switch self[run: block].clock.read(now: now()) {
         case .unchanged:
             return
@@ -100,9 +100,10 @@ extension WorkoutSession {
             // a bare mutation swaps them with no transaction.
             animate(.countdown) { self[run: block].clock.show(second) }
             return
-        case .ended(let late):
-            overshoot = Int(max(0, late))
+        case .ended(let seconds):
+            late = max(0, seconds)
         }
+        let overshoot = Int(late)
         // A boundary crossed while the phone was elsewhere is not a boundary
         // the person was at (UX review 05.09.2026). A block that swallowed the
         // stages an absence covered would put someone into the first working
@@ -110,8 +111,10 @@ extension WorkoutSession {
         // refuses that — `SetFacts.restHandsOverWithCountIn` hands the next set
         // a count-in when its go went nowhere — and a block needs no new screen
         // to do the same: freeze on the stage that was running, and the way
-        // back in is Resume with the 3-2-1 it already has.
-        if overshoot > BlockPause.absenceSeconds {
+        // back in is Resume.
+        // Compared to the fraction, as the rest compares it: rounded down
+        // first, 4.9 s away would read as 4 and not count as an absence.
+        if late > Double(BlockPause.absenceSeconds) {
             // The absence itself is handed over: it is time the block stood
             // still, and the block's length is wall clock (`blockPausedSec`).
             pauseBlock(absence: overshoot)

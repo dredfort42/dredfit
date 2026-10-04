@@ -56,15 +56,13 @@ struct HealthSection: SettingsGroup {
     /// Weight is the factor the whole estimate is multiplied by, so an absent
     /// one is not an empty field — it is the reason no calories are written.
     ///
-    /// The row ALWAYS opens the editor. It used to go read-only while Health
-    /// supplied the number, on the argument that the next foreground would
-    /// replace whatever was typed — and that argument is what was wrong: on
-    /// the owner's phone the scale's last reading was a month old, the app
-    /// took it on every activation, and the row gave no way to say otherwise
-    /// (13.09.2026). The later statement wins now, so a typed number stands
-    /// until Health logs a NEWER one, and the caption says where the number
-    /// in force came from and when, so a stale reading is seen for what it
-    /// is rather than trusted for being Health's.
+    /// The row ALWAYS opens the editor, whether the number in force came from
+    /// Health or was typed: the scale's last reading can be a month old, and a
+    /// row that took no typed number would leave no way to say otherwise. The
+    /// later statement wins, so a typed number stands until Health logs a
+    /// NEWER one, and the caption says where the number in force came from
+    /// and when, so a stale reading is seen for what it is rather than
+    /// trusted for being Health's.
     private var bodyMassRow: some View {
         VStack(alignment: .leading, spacing: 6) {
             Button {
@@ -86,10 +84,11 @@ struct HealthSection: SettingsGroup {
     /// it. Present with Health off: nothing to explain — it is the typed
     /// number and nothing competes with it. A number with no date (a file
     /// from before the date was kept) says nothing rather than a guessed
-    /// day; the next activation dates it. "Set in the app", not "typed
-    /// here": a restored backup sets the number too, dated by the journal
-    /// it came with, and a caption claiming it was typed on this phone
-    /// would be wrong about both the hand and the day.
+    /// day; it ranks below any Health sample, so the next activation that
+    /// finds one replaces it with a dated number. "Set in the app", not
+    /// "typed here": a restored backup sets the number too, dated by the
+    /// journal it came with, and a caption claiming it was typed on this
+    /// phone would be wrong about both the hand and the day.
     private var bodyMassCaption: String? {
         guard store.settings.bodyMassKg != nil else {
             return String(localized: "Without it, workouts are saved with no calorie estimate.")
@@ -133,12 +132,11 @@ struct HealthSection: SettingsGroup {
     /// allowed — a refusal looks exactly like "nothing found there", which is
     /// the wrong answer for precisely the person wearing a watch.
     ///
-    /// And, since the weight started following Health, the ONLY way left to
-    /// say "write no estimate at all": clearing the weight used to say it, and
-    /// the field is not even reachable for the person whose Health holds a
-    /// weight. So the label names the EFFECT and the caption names both
-    /// reasons. The stored key stays `watchRecordsWorkouts` — it is the wire
-    /// name in every saved file, and a label is not a reason to move it.
+    /// And, because the weight follows Health, the ONLY way to say "write no
+    /// estimate at all": a cleared weight is filled again from Health on the
+    /// next activation. So the label names the EFFECT and the caption names
+    /// both reasons. The stored key stays `watchRecordsWorkouts` — it is the
+    /// wire name in every saved file, and a label is not a reason to move it.
     private var watchToggle: some View {
         VStack(alignment: .leading, spacing: 6) {
             Toggle(isOn: Binding(

@@ -1,6 +1,6 @@
 //
 //  The cool-down block (issue #28): offered once the work is behind, composed
-//  once from the movements actually performed, and run on the guided blocks'
+//  from the movements actually performed, and run on the guided blocks'
 //  engine (+Blocks).
 //
 
@@ -14,10 +14,9 @@ extension WorkoutSession {
     var cooldownIntroMinutes: Int { cooldownMinutes(of: cooldownPositions[...]) }
 
     /// What is LEFT of the block, for the header that answers "how much
-    /// longer" everywhere else in the flow and went silent here — the work
-    /// screen reserves the cool-down's minutes in its own number, and then the
-    /// one screen where the person is actually waiting them out said nothing
-    /// (UX review 05.09.2026).
+    /// longer" everywhere else in the flow — the work screen reserves the
+    /// cool-down's minutes in its own number, so the one screen where the
+    /// person is actually waiting them out must not say nothing.
     ///
     /// The position on screen counts WHOLE, like the set the rest screen is
     /// standing on: the header's number is an "≈", and rounding a running
@@ -43,22 +42,22 @@ extension WorkoutSession {
     }
 
     /// The athlete set the position on screen aside, or brought an earlier one
-    /// back (UX review 05.09.2026, finding 49).
+    /// back.
     ///
-    /// Unlike the warm-up, this composition is state — drawn once in
+    /// Unlike the warm-up, this composition is state — drawn in
     /// `startCooldown` — so nothing moves on its own and the block would
     /// simply go on showing what was just refused. The two blocks answer the
     /// same control, so they answer it the same way: recompose from the same
     /// input the block started with, and restart the slot on its transition.
     /// A position nobody announced must not begin under the thumb.
     ///
-    /// WHICH slot is `rebaseLanding`'s rule, shared with the warm-up. Hiding
-    /// the position on screen was safe here by luck of the arithmetic — the
+    /// WHICH slot is `rebaseLanding`'s rule, shared with the warm-up. A clamp
+    /// of the ordinal would get by when the position on screen is hidden — the
     /// middle only ever tops up at its tail — but "Bring back" re-inserts into
-    /// `opening` and pushes everything after it one slot right, and the clamp
-    /// this replaced then reopened a stretch already done while dropping the
-    /// one that was running. The sheet does not close on that tap, so nobody
-    /// saw the block move under them (review 06.09.2026).
+    /// `opening` and pushes everything after it one slot right, and a clamp
+    /// would then reopen a stretch already done while dropping the one that
+    /// was running. The sheet does not close on that tap, so nobody would see
+    /// the block move under them.
     func rebaseCooldownOnComposition() {
         guard phase == .cooldown else { return }
         let recomposed = Cooldown.positions(performed: performedPatterns,
@@ -131,8 +130,8 @@ extension WorkoutSession {
         persistProgress()
     }
 
-    /// …or no. The same ending a fully skipped cool-down already had: straight
-    /// to the rating, with the work counted exactly as it was done.
+    /// …or no. The same ending a fully skipped cool-down has: straight to the
+    /// rating, with the work counted exactly as it was done.
     func declineCooldown() {
         guard phase == .cooldownIntro else { return }
         finishCooldown()

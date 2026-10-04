@@ -171,6 +171,26 @@ extension WorkoutSessionTests {
         XCTAssertEqual(signals.tones.last, .done)
     }
 
+    /// The threshold is measured to the fraction, as the rest measures it
+    /// (`testARestMissedByAFractionPastTheThresholdDropsTheRun`): 4.6 s late
+    /// is an absence, 4.0 s is not.
+    func testAWarmUpBoundaryMissedByAFractionPastTheThresholdFreezes() {
+        let flow = makeFlow(makeStore())
+        flow.beginWarmup()
+        clock += Double(GetReady.countInSeconds + BlockPause.absenceSeconds) + 0.6
+        flow.tick()
+        XCTAssertTrue(flow.blockPause.isHeld)
+    }
+
+    func testAWarmUpBoundaryMissedByExactlyTheThresholdRunsOn() {
+        let flow = makeFlow(makeStore())
+        flow.beginWarmup()
+        clock += Double(GetReady.countInSeconds + BlockPause.absenceSeconds)
+        flow.tick()
+        XCTAssertFalse(flow.blockPause.isPaused)
+        XCTAssertNotEqual(flow.warmup.stage, .getReady, "the boundary was crossed under the person's eyes")
+    }
+
     func testAWarmUpBoundaryCrossedWhileAwayFreezesTheBlockAndBillsNothingOfIt() {
         let store = makeStore()
         let flow = makeFlow(store)
@@ -215,6 +235,125 @@ extension WorkoutSessionTests {
         XCTAssertEqual(flow.warmup.clock.endDate, clock + TimeInterval(frozen))
         XCTAssertEqual(signals.tones, [.tick, .tick, .tick, .go])
         XCTAssertEqual(flow.blockPausedSec, 50, "the way back in is the block again")
+    }
+
+    func testATransitionFrozenByAnAbsenceNearItsEndGetsItsWholeCountBack() {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.beginWarmup()
+        run(flow, for: GetReady.countInSeconds - 2)
+        XCTAssertEqual(flow.warmup.clock.remaining, 2)
+        clock += 60
+        flow.tick()
+        XCTAssertTrue(flow.blockPause.isHeld)
+        XCTAssertEqual(flow.warmup.stage, .getReady)
+        XCTAssertEqual(flow.warmup.clock.remaining, 2, "frozen on the second it showed; the floor comes at Resume")
+
+        flow.toggleBlockPause()
+        XCTAssertFalse(flow.blockPause.isPaused, "a frozen transition is its own way back in")
+        XCTAssertEqual(flow.warmup.clock.endDate, clock + TimeInterval(GetReady.countInSeconds),
+                       "two seconds would put someone who has just come back into the move with no count")
+        signals.events.removeAll()
+        run(flow, for: GetReady.countInSeconds)
+        XCTAssertNotEqual(flow.warmup.stage, .getReady)
+        XCTAssertEqual(signals.tones, [.tick, .tick, .tick, .go])
+    }
+
+    func testASwitchPausedNearItsEndGetsTheCountInBack() {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.beginWarmup()
+        run(flow, until: { flow.warmup.stage == .switchPause }, limit: 1_000)
+        run(flow, until: { flow.warmup.clock.remaining == 1 })
+        flow.toggleBlockPause()
+        clock += 30
+        flow.toggleBlockPause()
+        XCTAssertFalse(flow.blockPause.isPaused, "the switch is a transition too")
+        XCTAssertEqual(flow.warmup.clock.endDate, clock + TimeInterval(GetReady.countInSeconds))
+        signals.events.removeAll()
+        run(flow, for: GetReady.countInSeconds)
+        XCTAssertEqual(flow.warmup.stage, .secondHalf)
+        XCTAssertEqual(signals.tones, [.go], "no 3-2-1 inside the switch: its go is its signal")
+    }
+
+    func testACoolDownTransitionPausedNearItsEndGetsTheCountInBack() {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.declineWarmup()
+        flow.exIndex = flow.exercises.count - 1
+        flow.setIndex = 2
+        flow.completeSet()
+        flow.beginCooldown()
+        run(flow, until: { flow.cooldown.clock.remaining == 1 })
+        XCTAssertEqual(flow.cooldown.stage, .getReady)
+        flow.toggleBlockPause()
+        clock += 30
+        flow.toggleBlockPause()
+        XCTAssertFalse(flow.blockPause.isPaused)
+        XCTAssertEqual(flow.cooldown.clock.endDate, clock + TimeInterval(GetReady.countInSeconds))
+        signals.events.removeAll()
+        run(flow, for: GetReady.countInSeconds)
+        XCTAssertEqual(signals.tones, [.tick, .tick, .tick, .go])
+    }
+
+    func testAMovePausedNearItsEndKeepsItsSecondsAfterTheWayBackIn() {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.beginWarmup()
+        run(flow, until: { BlockPause.needsReentry(flow.warmup.stage) && flow.warmup.clock.remaining == 2 },
+            limit: 1_000)
+        flow.toggleBlockPause()
+        clock += 30
+        flow.toggleBlockPause()
+        XCTAssertTrue(flow.blockPause.isReentering)
+        run(flow, for: BlockPause.reentrySeconds)
+        XCTAssertFalse(flow.blockPause.isPaused)
+        XCTAssertEqual(flow.warmup.clock.endDate, clock + 2, "the floor is a transition's, never a position's")
+    }
+
+    func testACoolDownStretchPausedNearItsEndKeepsItsSecondsAfterTheWayBackIn() {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.declineWarmup()
+        flow.exIndex = flow.exercises.count - 1
+        flow.setIndex = 2
+        flow.completeSet()
+        flow.beginCooldown()
+        run(flow, until: { BlockPause.needsReentry(flow.cooldown.stage) && flow.cooldown.clock.remaining == 2 })
+        flow.toggleBlockPause()
+        clock += 30
+        flow.toggleBlockPause()
+        XCTAssertTrue(flow.blockPause.isReentering)
+        run(flow, for: BlockPause.reentrySeconds)
+        XCTAssertFalse(flow.blockPause.isPaused)
+        XCTAssertEqual(flow.cooldown.clock.endDate, clock + 2,
+                       "the cool-down's own stage decides, whatever the warm-up was left on")
+    }
+
+    func testATransitionPausedWithTimeLeftKeepsIt() {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.beginWarmup()
+        run(flow, until: { flow.warmup.index == 1 && flow.warmup.stage == .getReady
+                            && flow.warmup.clock.remaining == 6 }, limit: 1_000)
+        flow.toggleBlockPause()
+        clock += 30
+        flow.toggleBlockPause()
+        XCTAssertFalse(flow.blockPause.isPaused)
+        XCTAssertEqual(flow.warmup.clock.endDate, clock + 6, "the floor never lengthens a transition")
+    }
+
+    func testTheTechniqueSheetHandsATransitionBackExactlyWhatItFroze() {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.beginWarmup()
+        run(flow, for: GetReady.countInSeconds - 1)
+        XCTAssertEqual(flow.warmup.clock.remaining, 1)
+        flow.freezeForPositionTechnique()
+        clock += 30
+        flow.resumePositionCountdown()
+        XCTAssertEqual(flow.warmup.clock.endDate, clock + 1,
+                       "reading is not a pause: the floor belongs to the way back from one")
     }
 
     func testTheCoolDownIsOfferedAfterTheLastSetAndEndsOnTheRating() {

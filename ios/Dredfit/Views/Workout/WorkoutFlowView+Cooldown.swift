@@ -11,15 +11,12 @@ import DredfitCore
 extension WorkoutFlowView {
     /// The cool-down is OFFERED, not started.
     ///
-    /// The tone is the wave's own: it is proposed, never required, and the
-    /// screen carries no consequence for saying no. The warm-up keeps its
-    /// footer skip and gains no confirmation of its own — the owner asked for
-    /// this one only, and symmetry here would be a decision nobody made.
+    /// It is proposed, never required, and the screen carries no consequence
+    /// for saying no — the same two answers as the warm-up's offer.
     var cooldownIntroView: some View {
-        // Wrapped for the reason its warm-up twin states (UX review
-        // 05.09.2026): these two were the only screens of the flow with no
-        // scroll under them, and at the accessibility text sizes the decline
-        // button goes off the bottom of a bare VStack.
+        // Wrapped for the reason its warm-up twin states: at the
+        // accessibility text sizes the decline button goes off the bottom of
+        // a bare VStack.
         GeometryReader { geometry in
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
@@ -28,9 +25,8 @@ extension WorkoutFlowView {
                         .dredfitFont(32, weight: .heavy)
                         .tracking(-0.5)
                         .foregroundStyle(Theme.ink)
-                    // The third sentence says what the block already IS and
-                    // never admitted (UX review 05.09.2026): three of the six
-                    // positions are drawn from the movements actually
+                    // The third sentence says what the block IS: three of the
+                    // six positions are drawn from the movements actually
                     // performed today, so the person saying no knows what
                     // they are turning down. "Some", deliberately — two
                     // positions and the rest pose are fixed, and a short
@@ -44,8 +40,7 @@ extension WorkoutFlowView {
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, 8)
                     // ink2, for the reason the warm-up offer states: ink3 is
-                    // 2.35:1 in the light theme and does not carry small text
-                    // (owner, UX review 05.09.2026).
+                    // 2.35:1 in the light theme and does not carry small text.
                     Text("\(flow.cooldownPositions.count) positions · about \(flow.cooldownIntroMinutes) min")
                         .dredfitFont(13.5)
                         .foregroundStyle(Theme.ink2)

@@ -9,13 +9,12 @@
 import Foundation
 import DredfitCore
 
-// MARK: - Taking a rating back (UX review 05.09.2026, finding 25)
+// MARK: - Taking a rating back
 
-/// A rating is one tap and it is spent: it moves every movement of the session
-/// and the journal keeps only the answer. Owner decision 1 (05.09.2026) makes
-/// a way back mandatory rather than nice — a workout nobody rated is now
-/// settled as "on plan" on the athlete's behalf, so the first rating a person
-/// ever sees may be one they never gave.
+/// A rating is one tap and it is spent: it moves the plan, and the journal
+/// keeps only the answer. A way back is mandatory rather than nice — a workout
+/// nobody rated is settled as "on plan" on the athlete's behalf, so the first
+/// rating a person ever sees may be one they never gave.
 ///
 /// Not an EDIT of the journal entry: the other rating is re-applied to the
 /// state the first one was applied to, so the engine lands exactly where it
@@ -44,7 +43,7 @@ extension AppStore {
               // `completeWorkout` opens with `pendingWorkout = nil` — the
               // re-applied rating would take a half-finished session down with
               // it, silently and unrecoverably, while the alert asked only
-              // about the rating (self-review 05.09.2026).
+              // about the rating.
               pendingWorkout?.hasProgress != true else { return nil }
         return (undo, record)
     }
