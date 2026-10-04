@@ -191,4 +191,78 @@ extension WorkoutSessionTests {
         failTheProbe(flow)
         XCTAssertEqual(flow.probeOutcome, .stays)
     }
+
+    // MARK: - A skipped probe
+
+    /// Set 2 stopped by hand at 44 s on its clock (≈41), then the probe
+    /// skipped. "The working sets lose nothing": their summary still comes,
+    /// with the estimate on its card to put right, and its Done leads into
+    /// the rest between movements, as after a probe done.
+    func testSkippingAHoldsProbeOpensTheMovementsSummary() throws {
+        let (flow, _) = try probingPlankFlow()
+        walkToTheProbe(flow, secondStoppedAt: 44)
+        flow.skipSet()
+        XCTAssertEqual(flow.phase, .exerciseSummary,
+                       "the plank's summary, with its ≈41 card, after the probe is skipped")
+        XCTAssertEqual(flow.exercise.pattern, .coreAntiExt)
+        XCTAssertTrue(flow.summaryCardIsApproximate(set: 1), "the estimate is still there to put right")
+        XCTAssertEqual(flow.summaryMeasured(set: 1), 41)
+        XCTAssertNil(flow.probeActuals[.coreAntiExt])
+
+        flow.leaveExerciseSummary()
+        XCTAssertEqual(flow.phase, .rest(seconds: flow.exercise.restExerciseSec),
+                       "the rest between movements, as after a probe done")
+        XCTAssertNil(flow.probeActuals[.coreAntiExt], "a skipped probe records nothing on the way out")
+    }
+
+    /// The summary's Done is not the probe's: nothing records the skipped
+    /// probe at its target, so the engine sees it unresolved — no pass, and
+    /// the plank's next appearance probes again.
+    func testASkippedProbeReachesTheEngineUnresolved() throws {
+        let (flow, store) = try probingPlankFlow()
+        walkToTheProbe(flow)
+        flow.skipSet()
+        flow.leaveExerciseSummary()
+        _ = flow.rate(.plan, overrides: SetFacts.overrides(flow.actuals, in: flow.exercises))
+        let record = try XCTUnwrap(store.records.last)
+        XCTAssertNil(record.probes?[.coreAntiExt], "no number for a probe nobody did")
+        XCTAssertEqual(store.engineState.position(.coreAntiExt).variation, 1, "not promoted")
+        let next = try XCTUnwrap(nextAppearance(of: .coreAntiExt, in: store))
+        XCTAssertEqual(next.probe?.variation, 2, "the probe comes back")
+    }
+
+    /// A process death on that summary comes back to it — the estimate mark
+    /// and the clock's number with it — and its Done still records no probe.
+    func testTheSummaryAfterASkippedProbeSurvivesAProcessDeath() throws {
+        let (flow, store) = try probingPlankFlow()
+        walkToTheProbe(flow, secondStoppedAt: 44)
+        flow.skipSet()
+        let snap = try XCTUnwrap(store.pendingWorkout)
+        XCTAssertEqual(snap.atExerciseSummary, true)
+
+        let back = makeFlow(store, resume: snap)
+        XCTAssertEqual(back.phase, .exerciseSummary)
+        XCTAssertEqual(back.exercise.pattern, .coreAntiExt)
+        XCTAssertTrue(back.summaryCardIsApproximate(set: 1))
+        XCTAssertEqual(back.summaryMeasured(set: 1), 41)
+        XCTAssertNil(back.probeActuals[.coreAntiExt])
+        back.leaveExerciseSummary()
+        XCTAssertNil(back.probeActuals[.coreAntiExt], "the restored summary's Done records no probe either")
+        XCTAssertEqual(back.phase, .rest(seconds: back.exercise.restExerciseSec))
+    }
+
+    /// A movement in reps has no summary to open: skipping its probe goes
+    /// straight on to the next movement, as it always has.
+    func testSkippingARepsProbeGoesStraightOn() throws {
+        let flow = makeFlow(makeStore(), session: try probeSession())
+        flow.declineWarmup()
+        XCTAssertEqual(flow.exercise.unit, .reps, "the premise: a movement in reps")
+        let pattern = flow.exercise.pattern
+        flow.setIndex = flow.exercise.sets
+        XCTAssertTrue(flow.onProbeSet)
+        flow.skipSet()
+        XCTAssertEqual(flow.phase, .work)
+        XCTAssertNotEqual(flow.exercise.pattern, pattern)
+        XCTAssertNil(flow.probeActuals[pattern])
+    }
 }

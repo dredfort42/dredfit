@@ -34,6 +34,15 @@ extension WorkoutSession {
         if onProbeSet {
             editing = nil
             probeActuals.removeValue(forKey: exercise.pattern)
+            // A hold's working sets are still owed their summary — where a
+            // thumb's estimate is put right and next time is set — and the
+            // skip promises they lose nothing. So the movement ends as it
+            // does after a probe done: the summary, and its Done into the
+            // rest between movements. A movement in reps has no summary.
+            if exercise.unit == .hold {
+                startExerciseSummary()
+                return
+            }
             advancePastExercise()
             return
         }

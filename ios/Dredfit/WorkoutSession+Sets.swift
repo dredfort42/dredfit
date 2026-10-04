@@ -140,9 +140,12 @@ extension WorkoutSession {
         // hold's first side goes to the switch pause instead, not here.
         //
         // Finishing the PROBE set records its target. The rule and the reason
-        // live in `SetFacts.recordingProbe`, stated once.
+        // live in `SetFacts.recordingProbe`, stated once. Only on the probe's
+        // own screen: the summary's Done is not the probe's, and by then the
+        // probe has recorded its number or been skipped — and a skip must
+        // reach the engine unresolved, not as passed at its target.
         probeActuals = SetFacts.recordingProbe(probeActuals, exercise.pattern,
-                                               isProbe: current.isProbe,
+                                               isProbe: current.isProbe && phase == .work,
                                                target: current.planned)
         // A hold's LAST set gets its summary first, and the probe's Done is
         // the one tap that can arrive here still owing one: the probe keeps a
