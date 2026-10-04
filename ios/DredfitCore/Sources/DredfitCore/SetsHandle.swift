@@ -109,6 +109,17 @@ extension Engine {
         return fit(p, cur)
     }
 
+    /// The hold (`EngineState.setsHold`) is armed by sets coming back ON
+    /// SCREEN: the cut went down and the plan shows more sets than before. One
+    /// rule for both places a set comes back — the appearance and the
+    /// cross-credit. A variation change that carries the cut along (a descent
+    /// off a band) shows no more sets and arms nothing; it used to, and the
+    /// next growth event was lost to the hold's corner.
+    static func setsCameBack(from old: Position, to new: Position) -> Bool {
+        new.cut < old.cut
+            && setsAfterCut(sets: new.sets, cut: new.cut) > setsAfterCut(sets: old.sets, cut: old.cut)
+    }
+
     /// Growth BOUNDED BY THE JOURNAL. Needed in exactly the one place a
     /// position rises WITHOUT the pattern appearing — the cross-credit:
     /// the pull slot's other branch was not in today's plan, and the
@@ -120,6 +131,11 @@ extension Engine {
     /// for — the branch does not fall a whole rung behind — and removes the
     /// prediction: the base dose may cross a rung only after the trainee has
     /// shown that rung IN THIS BRANCH.
+    ///
+    /// A set it returns ENDS it, as a set return ends growth in `riseBy`: a
+    /// credit that returned a set and then added a dose step was rebuilt by
+    /// the weekly window through `riseBy`, which kept the set alone — and the
+    /// window charged both.
     static func riseWithinJournal(_ p: Pattern, _ pos: Position, _ n: Int,
                                   allowSetsBack: Bool,
                                   shown: [Pattern: [Int: Int]]) -> Position {
@@ -132,10 +148,12 @@ extension Engine {
         }
         var k = max(0, n)
         while k > 0 {
-            let step = riseBy(p, cur, 1, allowSetsBack: allowSetsBack && cur.cut == pos.cut)
+            let step = riseBy(p, cur, 1, allowSetsBack: allowSetsBack)
             if same(step, cur) || !allowed(step) { break }
+            let returned = step.cut < cur.cut
             cur = step
             k -= 1
+            if returned { break }
         }
         return cur
     }

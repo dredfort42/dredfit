@@ -79,10 +79,15 @@ extension Engine {
         // one" is a statement about one movement, not about the plan.
         next.lessRun = unnamedLess ? state.lessRun + 1 : 0
 
+        // Patterns whose number fell in the "plan met" window: their rise is the
+        // engine's +1, as a tap's is, and the weekly ceiling below governs it.
+        var metFacts: Set<Pattern> = []
         for ex in session.exercises where !skipped.contains(ex.pattern) {
-            advance(&next, ex: ex, old: entryPos[ex.pattern]!, state: state,
-                    result: result, overrides: overrides, probes: probes,
-                    targeted: targeted, chronic: chronic, rampLeft: state.rampWindow)
+            if advance(&next, ex: ex, old: entryPos[ex.pattern]!, state: state,
+                       result: result, overrides: overrides, probes: probes,
+                       targeted: targeted, chronic: chronic, rampLeft: state.rampWindow) {
+                metFacts.insert(ex.pattern)
+            }
         }
 
         crossCredit(&next, session: session, result: result,
@@ -97,19 +102,21 @@ extension Engine {
             next.shownOrd[ex.pattern] = posOrd(ex.pattern, entryPos[ex.pattern]!)
         }
         if window.haveGap {
-            applyWeeklyCap(&next, entryPos: entryPos, overrides: overrides)
+            applyWeeklyCap(&next, entryPos: entryPos, overrides: overrides, metFacts: metFacts)
         }
         return next
     }
 
     // MARK: - One exercise
 
+    // One exercise of the session. Answers whether its number fell in the
+    // "plan met" window — the one fact-driven rise the engine assigns itself.
     // swiftlint:disable:next function_parameter_count
     private static func advance(_ next: inout EngineState, ex: SessionExercise,
                                 old: Position, state: EngineState, result: FeedbackResult,
                                 overrides: [Pattern: Double], probes: [Pattern: Int],
                                 targeted: Set<Pattern>?, chronic: [Pattern],
-                                rampLeft: Int) {
+                                rampLeft: Int) -> Bool {
         let p = ex.pattern
         let unit = Library.unit(p, old.variation)
         let g = Dose.grid(unit)
@@ -181,13 +188,14 @@ extension Engine {
         if step.wantedDown { next.lastHard.insert(p) } else { next.lastHard.remove(p) }
 
         let fitted = fit(p, step.position)
-        if fitted.cut < old.cut {
+        if setsCameBack(from: old, to: fitted) {
             next.setsHold[p] = EngineConfig.setsBackHold
         } else {
             let held = (next.setsHold[p] ?? 0) - 1
             next.setsHold[p] = held > 0 ? held : nil
         }
         setPosition(&next, p, fitted)
+        return metPlan
     }
 
     /// What a completed appearance writes into the journal of its variation.
@@ -423,6 +431,10 @@ extension Engine {
             other, q, min(gained, EngineConfig.maxUp(pattern: other, variation: q.variation)),
             allowSetsBack: (next.setsHold[other] ?? 0) == 0, shown: next.shown)
         setPosition(&next, other, pos)
+        // A set the credit returns arms the branch's hold, as its own return
+        // does: without it the branch's next appearance returned a second set at
+        // once — two volume jumps in a row against the hold's spacing.
+        if setsCameBack(from: q, to: pos) { next.setsHold[other] = EngineConfig.setsBackHold }
     }
 
     private static func rollWeeklyWindow(_ state: EngineState, gapDays: Double?) -> WeekWindow {
@@ -442,7 +454,10 @@ extension Engine {
     ///
     /// Fast adaptation by facts is NOT subject to it: there the dose equals
     /// what was shown rather than what was assigned, and trimming it would be
-    /// telling the person they did not do what they did. A RESOLVED PROBE is
+    /// telling the person they did not do what they did. A number that merely
+    /// met the plan is: its +1 is the engine's, as a tap's is, and exempting
+    /// it let a daily logger outgrow the window on the slow tissues by half
+    /// again. A RESOLVED PROBE is
     /// exempt for the same reason — and rebuilding through `riseBy` would
     /// additionally DESTROY the transition, since growth never crosses a
     /// variation and the position would snap back to the old ceiling.
@@ -452,14 +467,18 @@ extension Engine {
     /// would run under a hold with a cut — the corner where a growth event can
     /// be lost — though no set came back at all. Without the return the
     /// appearance would have left the hold empty: a return needs an expired
-    /// one. The cross-credit never arms a hold (it returns a set only to a
-    /// branch whose hold is empty), so for the pull slot's other branch the
-    /// clearing changes nothing.
+    /// one. A set the cross-credit returned arms a hold too, and goes the same
+    /// way.
+    ///
+    /// The window charges what the rebuild REALISED, not what it granted: a
+    /// granted event can land on a set the cut hides and be lost, and it was
+    /// charged all the same.
     private static func applyWeeklyCap(_ next: inout EngineState,
                                        entryPos: [Pattern: Position],
-                                       overrides: [Pattern: Double]) {
+                                       overrides: [Pattern: Double],
+                                       metFacts: Set<Pattern>) {
         for p in Pattern.allCases {
-            if overrides[p] != nil { continue }
+            if overrides[p] != nil, !metFacts.contains(p) { continue }
             let entry = entryPos[p]!
             if next.vars[p] != entry.variation { continue }
             let rise = max(0, posOrd(p, next.position(p)) - posOrd(p, entry))
@@ -474,7 +493,8 @@ extension Engine {
             let rebuilt = riseBy(p, entry, granted, allowSetsBack: returned)
             setPosition(&next, p, rebuilt)
             if returned, rebuilt.cut >= entry.cut { next.setsHold[p] = nil }
-            if granted > 0 { next.weekGain[p] = spent + granted }
+            let realised = max(0, posOrd(p, rebuilt) - posOrd(p, entry))
+            if realised > 0 { next.weekGain[p] = spent + realised }
         }
     }
 }

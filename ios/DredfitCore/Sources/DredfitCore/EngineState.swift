@@ -45,9 +45,11 @@ public struct EngineState: Codable, Equatable, Sendable {
 
     // MARK: - Global fields
 
-    /// Appearances left before the next set may come back. While it ticks, a
-    /// growth event goes into the DOSE — or, under a cut, can be lost on a set
-    /// the cut hides (see `Engine.riseBy`).
+    /// Appearances left before the next set may come back. Armed when sets
+    /// come back on screen, by the appearance or by the cross-credit
+    /// (`Engine.setsCameBack`). While it ticks, a growth event goes into the
+    /// DOSE — or, under a cut, can be lost on a set the cut hides (see
+    /// `Engine.riseBy`).
     public var setsHold: [Pattern: Int]
     /// The work of the last plan SHOWN, done or not — written by `recordShown`
     /// when the app records a showing, and again by feedback — and the
