@@ -538,7 +538,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | # | Check | Expected |
 |---|---|---|
 | 32.1 | Every warm-up move and cool-down position | A **technique** affordance under the name; the mini-sheet opens with the name, a block capsule ("warm-up · 30 s" / "cool-down · 30 s" / "cool-down · 15 s per side"), 2–3 numbered steps and **Got it** — all 15 positions |
-| 32.2 | The countdown while the sheet is open | **Frozen** — the number does not move; closing the sheet resumes from the same second. A deliberate divergence from the rest-phase sheet, where the timer keeps ticking |
+| 32.2 | The countdown while the sheet is open | **Frozen** — the number does not move; closing the sheet resumes from the same second. A deliberate divergence from the sheet on an ordinary rest, where the timer keeps ticking (32.6) |
 | 32.3 | Open during a side-switch pause (issue #35) | The 5→1 pause countdown freezes too and resumes on close |
 | 32.4 | Signals under the sheet | No ticks or go while frozen — the countdown is simply not running |
 | 32.5 | es / pt-BR / de / large Dynamic Type | Long strings wrap inside the sheet (scrolls at the biggest accessibility sizes); nothing clips or overlaps |
