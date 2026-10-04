@@ -558,9 +558,9 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 
 | # | Check | Expected |
 |---|---|---|
-| 34.1 | Tap **Start** | The warm-up opens on **GET READY** + "Marching in place", an 8 s countdown, the block dots, **technique**, **Skip this move**, **I'm ready** and **Skip warm-up** — never mid-move |
+| 34.1 | Tap **Start** | The warm-up opens on **GET READY** + "Marching in place" with a 4 s count-in, the block dots, **technique**, **Skip this move** and **Skip warm-up** — never mid-move. No **I'm ready** on this one: the Start tap already was it |
 | 34.2 | Let it run out | 3-2-1 ticks, then the rising go, and the move starts at 30 s. The position itself now ends **silently** — the go belongs to the moment a movement starts, not to the moment one finishes |
-| 34.3 | Tap **I'm ready** | The move starts at once; the transition is a floor on the pause between positions, never a wait |
+| 34.3 | On the transition after the first move, tap **I'm ready** | The transition drops to a 4 s count-in on the same screen — 3-2-1, then the go — and the move starts. In the last 4 s the button is not there: those seconds already are the count-in. The transition is a floor on the pause between positions, never a wait |
 | 34.4 | **Skip this move** during a transition | Skips the position it was announcing and lands on the next position's transition; on the last one it ends the block |
 | 34.5 | Complete the last exercise's last set | The cool-down opens the same way — a transition before "Hip flexor stretch", then the 15 s first side |
 | 34.6 | Every cool-down position | Preceded by its own transition, the per-side ones included: transition → 15 s → "Switch sides" 4 s → 15 s → next transition |
@@ -578,8 +578,8 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 35.1 | **Pause** on a running warm-up move | The countdown stops on the second it showed, the number dims, the unit under it becomes "Paused", and the control reads **Resume** |
 | 35.2 | Wait a minute, watching | Nothing moves and nothing sounds — no ticks, no go, no advance to the next position |
 | 35.3 | **Resume** | A 4 s count-in naming the same move, with the usual 3-2-1 and go, then the move **continues from the seconds it stopped on** — never from 30, never a position later |
-| 35.4 | Pause a "Get ready" transition | It freezes the same way, and **I'm ready** steps aside — there is nothing to start early. **Resume** gives the transition straight back with no second lead-in: a transition already is one |
-| 35.5 | Pause the "Switch sides" 4 s of a per-side stretch | Freezes; resuming carries the pause on from where it stopped and hands over to the second side on its own single go. No lead-in here either — two gos seconds apart is what §34.2 exists to prevent |
+| 35.4 | Pause a "Get ready" transition | It freezes the same way, and **I'm ready** steps aside — there is nothing to start early. **Resume** gives the transition straight back with no second lead-in: a transition already is one. Paused with a second or two left — or left behind by an absence that froze it there — it comes back at **4**, with the full 3-2-1 and the go, never with the second it froze on |
+| 35.5 | Pause the "Switch sides" 4 s of a per-side stretch | Freezes; **Resume** gives the switch its whole 4 s again — it is no longer than the count-in a resumed transition always gets — and it hands over to the second side on its own single go. No lead-in here either — two gos seconds apart is what §34.2 exists to prevent |
 | 35.6 | Pause a cool-down stretch, then **Skip this move** / **Skip cool-down** | Both escapes work from a paused screen and leave the pause behind — the next position runs normally |
 | 35.7 | Lock the phone while paused, return after several minutes | Still paused on the same second. A pause has no deadline to run out, so time away costs nothing |
 | 35.8 | Background the app while paused, return | Same — and the block does **not** jump stages the way an unpaused absence does |
@@ -1015,7 +1015,7 @@ rotations and cat-cow alternate continuously and must stay one countdown.
 | 53.3 | Torso rotations, cat-cow, marching, half squats, Y-T-W | One 30 s countdown, no line above it, no switch tone. They alternate continuously — there is no single moment to announce |
 | 53.4 | Listen at each boundary | The pause opens with the **falling** two-tone and the second half starts on the rising go — the cool-down's signals exactly (31.2). 3-2-1 ticks precede the end of each half and **none** sound inside the pause |
 | 53.5 | The technique sheet of each kind | The capsule reads **"warm-up · 15 s per side"** for the unilateral pair, **"warm-up · 15 s each way"** for the circles, and "warm-up · 30 s" for the rest. Opening it freezes the countdown mid-pause too |
-| 53.6 | Pause during the switch, then Resume | Freezes and carries the pause on from where it stopped, handing over to the second half on its own single go — no lead-in, for the reason 35.5 gives about the cool-down twin |
+| 53.6 | Pause during the switch, then Resume | Freezes; **Resume** gives the switch its whole 4 s again, as 35.5 does for the cool-down twin, and it hands over to the second half on its own single go — no lead-in, for the reason 35.5 gives |
 | 53.7 | Lock the phone across a whole split move | The block lands where the wall clock says. Nothing sounds a switch that is already over: the tone belongs to what is on screen |
 | 53.8 | The warm-up offer screen | "6 positions · about **4** min" for a 240 s composition and "about 5 min" for 244 or 248 — `introMinutes` rounds UP, and the shortened transition moved the boundary, so BOTH readings are correct and neither block may overrun what it promised |
 | 53.9 | All seven languages | "Switch sides" / "second side" / "15 s per side" and "Switch direction" / "the other way" / "15 s each way" read naturally and stay distinct; nothing clips |

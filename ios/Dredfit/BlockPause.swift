@@ -14,7 +14,7 @@ import Foundation
 
 enum BlockPause {
 
-    /// The way back into a frozen position: the COUNT-IN — five seconds, the
+    /// The way back into a frozen position: the COUNT-IN — four seconds, the
     /// same beat a start tap buys before any clock runs.
     ///
     /// It was the base transition length (ten), and the tree carried two
@@ -64,6 +64,21 @@ enum BlockPause {
     /// total so a one-second rest under `--uitest-fast` stays one second.
     static func restAfterPause(remaining: Int, total: Int) -> Int {
         max(remaining, min(reentrySeconds, total))
+    }
+
+    /// The seconds a frozen guided stage picks up when the pause ends.
+    ///
+    /// A transition is its own way back in (`needsReentry`), so it never picks
+    /// up less than the count-in: the seconds before its go — with the 3-2-1
+    /// on a "Get ready" — are what someone who has just come back needs, and
+    /// one frozen a second or two from its end, by a tap or by an absence,
+    /// would otherwise drop them into the position on a partial count or none.
+    /// In production the side switch is no longer than the count-in, so it
+    /// comes back whole.
+    /// A position takes the re-entry instead and keeps exactly the seconds it
+    /// froze with.
+    static func stageAfterPause(remaining: Int, stage: GuidedStage) -> Int {
+        needsReentry(stage) ? remaining : max(remaining, reentrySeconds)
     }
 
     /// A frozen transition resumes straight into itself: it already IS the way
