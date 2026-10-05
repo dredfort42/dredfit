@@ -107,6 +107,19 @@ extension AppStore {
         return exercise.sets < last.card.sets && exercise.totalSets < last.card.totalSets
     }
 
+    /// True when a push's next set waits for the pulls: it stands on its top
+    /// variation below the top band, and the pull slot's cap — the weaker
+    /// branch with the bar — does not reach the band above. The push enters
+    /// that band only once the pulls show its sets, so a count of steps to it
+    /// would promise a set the pulls decide. A fact, not a line:
+    /// `PatternProgressRow` owns the words.
+    func nextSetWaitsForThePulls(_ pattern: Pattern) -> Bool {
+        let position = engineState.position(pattern)
+        guard Library.isTop(pattern, position.variation), position.sets < EngineConfig.setsMax,
+              let gate = Engine.pullCap(on: pattern, in: engineState) else { return false }
+        return gate.cap <= position.sets
+    }
+
     /// The push rows of a session that showed fewer sets than their own
     /// positions stood on — the stamp `completeWorkout` writes into the
     /// record. Read against the state the session was BUILT from: after the

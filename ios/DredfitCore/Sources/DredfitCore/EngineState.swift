@@ -56,6 +56,22 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// position it was shown AT: the two inputs to the postcondition repair.
     public var shownWork: [Pattern: Int]
     public var shownOrd: [Pattern: Int]
+    /// The pull-cap memory of a push, written with the two above at every
+    /// showing: the pull slot's sets then (`shownCap`; with the bar, the weaker
+    /// branch's) and the push's own sets then, the band less the cut
+    /// (`shownOwn`). Their minimum is what the cap allowed at that showing,
+    /// and the repair hands a standing push back exactly what the cap has
+    /// risen since — not what it holds for a cause of its own. Pushes only:
+    /// nothing else is capped. A push with no entry was last shown by a build
+    /// without this memory; it gets its whole cap back once, and that showing
+    /// writes the memory.
+    public var shownCap: [Pattern: Int]
+    public var shownOwn: [Pattern: Int]
+    /// Pushes a set was taken off since their last showing — a skipped set, or
+    /// the fewer-sets handle (`Engine.setCut` with a growing cut). A cut is a
+    /// descent, so such a push keeps the repair's hold even when the cap
+    /// rises. Cleared by the next showing.
+    public var shownSkip: Set<Pattern>
     public var failStreak: [Pattern: Int]
     /// Patterns whose last appearance the person called hard. It cannot be derived
     /// from `failStreak`: a deload zeroes the streak, while the probe
@@ -85,7 +101,7 @@ public struct EngineState: Codable, Equatable, Sendable {
     // init(from:)/encode(to:).
     private enum CodingKeys: String, CodingKey {
         case counter, hasBar, vars, doses, sets, sub, cut, shown,
-             setsHold, shownWork, shownOrd, failStreak, lastHard,
+             setsHold, shownWork, shownOrd, shownCap, shownOwn, shownSkip, failStreak, lastHard,
              lessRun, creditPaused, returnRun, lessHist, rampWindow,
              weekGain, weekAgeDays
     }
@@ -95,6 +111,7 @@ public struct EngineState: Codable, Equatable, Sendable {
                 sets: [Pattern: Int], sub: [Pattern: Int], cut: [Pattern: Int],
                 shown: [Pattern: [Int: Int]], setsHold: [Pattern: Int],
                 shownWork: [Pattern: Int], shownOrd: [Pattern: Int],
+                shownCap: [Pattern: Int], shownOwn: [Pattern: Int], shownSkip: Set<Pattern>,
                 lastHard: Set<Pattern>, lessRun: Int, creditPaused: Set<Pattern>,
                 returnRun: Int, lessHist: [Pattern: Int], rampWindow: Int,
                 weekGain: [Pattern: Int], weekAgeDays: Double) {
@@ -110,6 +127,9 @@ public struct EngineState: Codable, Equatable, Sendable {
         self.setsHold = setsHold
         self.shownWork = shownWork
         self.shownOrd = shownOrd
+        self.shownCap = shownCap
+        self.shownOwn = shownOwn
+        self.shownSkip = shownSkip
         self.lastHard = lastHard
         self.lessRun = lessRun
         self.creditPaused = creditPaused
@@ -144,6 +164,10 @@ public struct EngineState: Codable, Equatable, Sendable {
         setsHold = Self.optionalMap(c, .setsHold)
         shownWork = Self.optionalMap(c, .shownWork)
         shownOrd = Self.optionalMap(c, .shownOrd)
+        shownCap = Self.optionalMap(c, .shownCap)
+        shownOwn = Self.optionalMap(c, .shownOwn)
+        shownSkip = Set(((try? c.decodeIfPresent([String].self, forKey: .shownSkip)) ?? [])
+            .compactMap(Pattern.init(rawValue:)))
         lastHard = Set(((try? c.decodeIfPresent([String].self, forKey: .lastHard)) ?? [])
             .compactMap(Pattern.init(rawValue:)))
         lessRun = Self.clamped((try? c.decodeIfPresent(Int.self, forKey: .lessRun)) ?? 0,
@@ -213,7 +237,8 @@ public struct EngineState: Codable, Equatable, Sendable {
         }
         return EngineState(counter: 0, vars: vars, doses: doses, failStreak: streaks,
                            hasBar: false, sets: [:], sub: [:], cut: [:], shown: [:],
-                           setsHold: [:], shownWork: [:], shownOrd: [:], lastHard: [],
+                           setsHold: [:], shownWork: [:], shownOrd: [:],
+                           shownCap: [:], shownOwn: [:], shownSkip: [], lastHard: [],
                            lessRun: 0, creditPaused: [], returnRun: 0, lessHist: [:],
                            rampWindow: 0, weekGain: [:], weekAgeDays: 0)
     }
@@ -267,9 +292,9 @@ public struct EngineState: Codable, Equatable, Sendable {
             shown: Self.healShown(shown),
             setsHold: setsHold.filter { $0.value >= 1 }
                 .mapValues { Self.clamped($0, 1, EngineConfig.setsBackHold) },
-            shownWork: shownWork.filter { $0.value > 0 },
-            shownOrd: shownOrd,
-            lastHard: lastHard,
+            shownWork: shownWork.filter { $0.value > 0 }, shownOrd: shownOrd,
+            shownCap: Self.healPushSets(shownCap), shownOwn: Self.healPushSets(shownOwn),
+            shownSkip: shownSkip.intersection(Pattern.pushSide), lastHard: lastHard,
             lessRun: Self.clamped(lessRun, 0, EngineConfig.countMax),
             creditPaused: creditPaused.intersection(Pattern.pullSide),
             returnRun: Self.clamped(returnRun, 0, EngineConfig.countMax),
@@ -300,6 +325,14 @@ public struct EngineState: Codable, Equatable, Sendable {
             if !dst.isEmpty { out[p] = dst }
         }
         return out
+    }
+
+    /// The pull-cap memory, healed: push keys only, and a count of sets on
+    /// screen — never below the floor, never above the scale. Identity on the
+    /// valid domain.
+    static func healPushSets(_ src: [Pattern: Int]) -> [Pattern: Int] {
+        src.filter { Pattern.pushSide.contains($0.key) }
+            .mapValues { clamped($0, EngineConfig.setsFloor, EngineConfig.setsMax) }
     }
 
     /// The sets taken off a pattern, zero when none are.

@@ -313,8 +313,8 @@ final class AppStore {
 
     /// IMPORTANT: right after a workout is completed the counter has
     /// advanced, so this is the NEXT workout. Never present it under today's
-    /// date — only with nextTrainingDate.
-    var nextSession: Session { Engine.generateSession(engineState) }
+    /// date — only with nextTrainingDate. A workout in progress: `session(for:)`.
+    var nextSession: Session { session(for: engineState) }
 
     /// Conservative on missing data: records without an exercise snapshot
     /// cannot vouch for what was done, so a pattern with no snapshotted
@@ -605,14 +605,22 @@ final class AppStore {
     /// write, a file write or a widget reload. That it settles at all is by
     /// construction — the memory keeps the work of the plan AFTER the
     /// postcondition repair, and the repair only ever trims work STRICTLY
-    /// above what was shown, so the second pass has nothing left to trim.
+    /// above what was shown, so the second pass has nothing left to trim; the
+    /// same write remembers a push's pull cap, so it has no rise of the cap to
+    /// hand back either.
+    ///
+    /// Besides a frozen journal's, the one showing deliberately NOT written
+    /// down is a plan held for a workout in progress across an update
+    /// (`session(for:)`), so only the plan drawn now is: the build before wrote
+    /// the held one down, and writing it again would spend the release a push
+    /// without the cap memory is owed.
     func recordPlanShown(_ session: Session) {
         // A frozen journal is a launch that could not READ the state file —
         // before first unlock, usually. The plan on screen was drawn from an
         // empty state and is worth remembering least of all, and writing it
         // would pin the freeze (`mutatedWhileFrozen`) and cost the trainee
         // their journal for the rest of the launch.
-        guard !journalFrozen else { return }
+        guard !journalFrozen, session == Engine.generateSession(engineState) else { return }
         let recorded = Engine.recordShown(state: engineState, session: session)
         guard recorded != engineState else { return }
         engineState = recorded
@@ -975,12 +983,13 @@ extension AppStore {
         guard let redo = ratingRedo(), redo.record.result != result else { return [] }
         // A clean rollback, nothing carried across. The one thing the engine
         // wrote after the rating is the shown-plan memory of the NEXT plan
-        // (`recordPlanShown` → `shownWork`/`shownOrd`), and `applyFeedback`
-        // rewrites that pair for every movement of the session it settles —
-        // so re-applying reproduces the post-rating state exactly, and the
-        // next render of Today, which is the screen this button is on, writes
-        // the new plan's memory back. Carrying the later pair over instead
-        // would describe a plan that no longer exists.
+        // (`recordPlanShown` → `shownWork`/`shownOrd`, and a push's pull-cap
+        // memory with them), and `applyFeedback` rewrites all of it for every
+        // movement of the session it settles — so re-applying reproduces the
+        // post-rating state exactly, and the next render of Today, which is the
+        // screen this button is on, writes the new plan's memory back. Carrying
+        // the later memory over instead would describe a plan that no longer
+        // exists.
         engineState = redo.undo.state
         records.removeLast()
         let facts = redo.record.setActuals ?? [:]

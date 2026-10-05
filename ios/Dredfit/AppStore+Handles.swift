@@ -80,7 +80,7 @@ extension AppStore {
         guard let snap = resumableWorkout(now: now) else { return false }
         var after = engineState
         after.hasBar = on
-        return snap.fingerprint != WorkoutSnapshot.fingerprint(of: Engine.generateSession(after))
+        return snap.fingerprint != WorkoutSnapshot.fingerprint(of: session(for: after))
     }
 
     // MARK: - How long today can be

@@ -1080,6 +1080,26 @@ The write that fails is `StateFile.write` (one atomic file: state, journal, sett
 | 55.12 | VoiceOver on the card | The title and the explanation are read as one element; **Try again** is the next stop |
 | 55.13 | The card in all seven languages, at the largest Dynamic Type | Nothing clips; French keeps its spaces; German and Russian do not overflow the button; the Russian text says «Повтори попытку» and the button «Повторить» |
 
+### 56. A push waits for its pulls, and gets back what they give (app + engine §41.17)
+
+Two defects of the pull cap, both on engine 3.7. A push on its dose ceiling entered the
+next set band while the pull slot showed fewer sets: the summary said "Now 4 sets" and
+the next plan showed 3×11, a quarter less than the 3×15 just done. And a push the cap had
+held once stayed held after the pulls caught up, until its own position moved — on 5×15
+of the top variation, until it fell. Seed the positions in `dredfit-state.json` (section
+55 says where it lives): `vars`, `sets`, `doses` and `shown` of `pull`, `pull_bar`,
+`push_h` and `push_v`.
+
+| # | Check | Expected |
+|---|---|---|
+| 56.1 | Archer push-ups on 3×15 with the rows on three sets; finish a workout that carries the push **On plan** | Nothing on the summary or the rating says the push has more sets. The next plan with the push shows 3×15 again, with no line under the row. Progress → the push: **"+1 set once pulling catches up"** where "+1 set in N" stood |
+| 56.2 | The rows on four sets | Progress → the push counts again ("+1 set in N"), and its next workout on plan takes it to 4×11 |
+| 56.3 | The bar on, the pull-ups on three sets and the rows on four | The push's Progress row still says it waits: the weaker branch is the one that decides |
+| 56.4 | Both pushes and the rows on 5×15; skip one set of the rows, then keep training **On plan** | The next push shows 4×15 with *Fewer sets for now — pushes keep pace with your pulls.* Once the rows have the set back, that push is on 5×15 again at its next appearance, with *A set is back.* — not on 4×15 at every appearance until it falls |
+| 56.5 | Under a cap, skip one set of the push itself; then let the rows get their set back | The push does not get the skipped set back from the cap: it returns the way a skipped set always does, by growing |
+| 56.6 | Update from a build before this wave with a push frozen — 4×15 shown on a position of 5×15, the rows long back on five sets. Once with no workout in progress, once in the middle of one | With nothing in progress the first plan shows 5×15 — once; it says *A set is back.* only when the last card was written by a build that stamps the hold. In the middle of a workout the card **Continue the workout?** is still there and the workout carries on at 4×15 as it began; **Start over** instead runs 5×15. Carried to its end, that workout spends the release: the push then stays on 4×15 — a known residual — until a plan with the push in it comes up while the rows are a set down and the rows then get that set back, or until the push itself moves. A row set lost and won back between two plans with the push gives nothing back |
+| 56.7 | All seven languages, the smallest screen, the largest Dynamic Type | "+1 set once pulling catches up" reads naturally and drops under the variation line rather than clipping. Russian: «+1 подход, когда тяга догонит» |
+
 ## Engine gates before a release
 
 Not a manual row — the five automated gates a release runs from `reference/`,
@@ -1093,8 +1113,8 @@ the repository, like `reference/` itself.
 | Command | Must print | Clean means |
 |---|---|---|
 | `python3 scripts/update_reference_manifest.py --check` | `OK:` | the local `reference/` really is the one that produced the fixture. It is not versioned, so it goes stale silently |
-| `node verify2.js` | `провалов: 0` | every block of the verifier — 1 501 778 checks on engine 3.7.0 |
-| `node accept.js` | `ПРИЁМКА ЧИСТА` | not one `ПРОВАЛ` line across the twenty-eight wave-acceptance blocks below. It is the wave's own gate: every wave replaces the copy in `reference/` with the one written for it |
+| `node verify2.js` | `провалов: 0` | every block of the verifier — 1 762 742 checks on engine 3.8.0 |
+| `node accept.js` | `ПРИЁМКА ЧИСТА` | not one `ПРОВАЛ` line across the thirty-three wave-acceptance blocks below. It is the wave's own gate: every wave replaces the copy in `reference/` with the one written for it |
 | `node passcheck_v3.js` | `Провалов всего: 0` | П1 and П2 both PASS — the two passability claims of §40, that every variation can be reached and that entering one never lengthens the session |
 | `node audit_static.js` | `НОВЫХ СРАБАТЫВАНИЙ НЕТ` | no new hit of the "fix applied to one branch of two" class |
 
@@ -1149,10 +1169,11 @@ trust. It is deterministic, self-contained and takes seconds, and it calls the
 engine's **exported** predicates rather than keeping its own copies of them
 (rule 16 of the audit protocol), so a rule and its check cannot drift apart.
 
-Twenty-eight blocks. The `Пn` numbers are the ones they carried in the v2.27
+Thirty-three blocks. The `Пn` numbers are the ones they carried in the v2.27
 acceptance and keep them on purpose, so a block can be traced back to the
 defect that created it; the `Иn` and `Фn` blocks arrived with v3, `Ж1`, `Ж2`
-and `В1` with v3.6, `Н1`, `Н2`, `К1`, `В2` and `К2` with v3.7. There is no
+and `В1` with v3.6, `Н1`, `Н2`, `К1`, `В2` and `К2` with v3.7, `Т1`–`Т5` with
+v3.8. There is no
 П13 any more — the roll-call it performed is now an `EXPECTED` list plus a
 `process.on('exit')` hook, which also catches a script that dies before the
 last block instead of printing "no failures" and reading as a pass.
@@ -1185,6 +1206,11 @@ last block instead of printing "no failures" and reading as a pass.
 | К1 | A set the cross-credit returns arms the branch's hold, so its own next appearance returns no second set | Without the hold, the pull-up branch went 2 → 3 → 4 sets on consecutive appearances, against the spacing the hold exists for (§36.3, §41.16) |
 | В2 | The hold is armed by sets coming back on screen: a descent that carries the cut down a variation arms none, a probe entry that adds sets keeps its hold | A descent off a band armed the hold with no set added, and the next growth event was lost to the hold's corner (§41.16) |
 | К2 | The cross-credit repeats what the trained branch kept after its weekly ceiling: under a spent budget the pull stands and so do the pull-ups; with one event of budget left an "easy" gives each branch one — with the control that without the window both rise, by two | The credit repeated the gain before the window: the pull-ups grew for growth the window took from the pull, and a logger's pull slot ended 0.6–1.9 % higher after twelve daily weeks (§41.16) |
+| Т1 | A push on its band's ceiling enters the band above only behind the pull slot: archer push-ups on 3×15 under a pull on three sets stay on 3×15, and enter 4×11 in the session the pull shows four — with the control that without the rule they enter 4×11 and the cap shows 3×11. With the bar the slot is read after the other branch's weekly window too: a credit that window takes back keeps both pushes on three, and with budget left they enter behind it | The summary said "Now 4 sets" while the next plan showed 3×11, 27 % less than the 3×15 just done (§41.17). The window clause had no check at all: an engine reading the slot before it passed every gate |
+| Т2 | A standing push gets back what a lifted cap took: push and pull on 5×15, one pull set skipped, forty workouts on plan — the push shows 4×15 once and 5×15 ever after, against a control that keeps the 3.7 behaviour and holds 4×15 to the end of the run | The repair kept the count the cap once showed until the position moved — on 5×15, until the push fell, and on a run of "on plan", never (§41.17) |
+| Т3 | A push set skipped at a showing under the cap keeps the repair's hold when the cap lifts. The set came back that session and was skipped at once, so the position stands and its own sets equal those it was shown with — only the skip's trace tells the hold apart | The first draft of the rule handed that set straight back: one set more than was shown right after the skip (§41.17) |
+| Т4 | A state written before 3.8 is released once: the frozen 4×15 shows 5×15, and that showing writes the cap memory; the same state with a memory saying the cap has not risen stays on 4×15 | The pushes frozen today have to get their sets back with the update, and only once (§41.17) |
+| Т5 | A lifted cap returns exactly what the cap took, not the repair's hold for a skipped set: band 4, where the cap never cut, gets nothing back; band 5, where it cut one set, gets one — against a whole release and a full hold as controls | The wave's skeptic found the literal rule ("the slot rose, no set skipped, no fewer own sets") releasing whole holds: two sets back where the cap had taken one (§41.17) |
 
 Two things this table deliberately does not claim. Ф1 and П12 are bounded by
 what the engine already accepted rather than by zero, so they detect a

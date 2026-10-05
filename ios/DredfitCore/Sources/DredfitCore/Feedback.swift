@@ -88,40 +88,58 @@ extension Engine {
         // discarded, and must not lift the ceiling off the credit that
         // movement receives.
         var adapted: Set<Pattern> = []
-        for ex in session.exercises where !skipped.contains(ex.pattern) {
-            if advance(&next, ex: ex, old: entryPos[ex.pattern]!, state: state,
-                       result: result, overrides: overrides, probes: probes,
-                       targeted: targeted, chronic: chronic, rampLeft: state.rampWindow) {
-                adapted.insert(ex.pattern)
+        func train(_ pushes: Bool, bandCeil: Int) {
+            for ex in session.exercises where !skipped.contains(ex.pattern)
+                && Pattern.pushSide.contains(ex.pattern) == pushes {
+                if advance(&next, ex: ex, old: entryPos[ex.pattern]!, state: state,
+                           result: result, overrides: overrides, probes: probes,
+                           targeted: targeted, chronic: chronic, rampLeft: state.rampWindow,
+                           bandCeil: bandCeil) {
+                    adapted.insert(ex.pattern)
+                }
             }
         }
+        func weeklyCap(_ patterns: [Pattern]) {
+            if window.haveGap { applyWeeklyCap(&next, patterns, entryPos: entryPos, adapted: adapted) }
+        }
+        // The pushes come LAST. A push enters a band only behind the pull slot
+        // as it stands after the session, so the slot settles first: its own
+        // growth, its weekly ceiling, the cross-credit and the other branch's
+        // ceiling. No exercise reads another's, so the order moves nothing else.
+        train(false, bandCeil: EngineConfig.setsMax)
 
         // The pull branch that trained meets its weekly ceiling BEFORE the
         // cross-credit, so the credit repeats the gain the branch KEPT. Repeated
         // before the ceiling, the credit would grow the other branch for growth
         // the ceiling took from the trained one.
         let pullEx = session.exercises.first { Pattern.pullSide.contains($0.pattern) }
-        if window.haveGap, let trained = pullEx?.pattern {
-            applyWeeklyCap(&next, [trained], entryPos: entryPos, adapted: adapted)
-        }
+        weeklyCap(Pattern.allCases.filter { $0 == pullEx?.pattern })
         if let pullEx {
             crossCredit(&next, trainedEx: pullEx, result: result,
                         overrides: overrides, entryPos: entryPos)
         }
-        // Remember what the person SAW and at what position — the position is
-        // the ENTRY one, because the plan was shown before the feedback.
-        // An exercise with a probe writes its memory too, with the set the
-        // probe OCCUPIED counted in — see `shownWorkOf` for why the base has to
-        // be about slots, not reps.
+        // Everything else meets its ceiling after the credit, the other pull
+        // branch included: a credit it did not pay for out of its own budget
+        // would walk around its window. The pushes meet theirs after they train.
+        weeklyCap(Pattern.allCases.filter { $0 != pullEx?.pattern && !Pattern.pushSide.contains($0) })
+        train(true, bandCeil: pullSlotSets(next))
+        weeklyCap(Pattern.allCases.filter { Pattern.pushSide.contains($0) })
+        rememberShowing(&next, session: session, entryPos: entryPos, cap: pullSlotSets(state))
+        return next
+    }
+
+    /// Remember what the person SAW and at what position — the position is
+    /// the ENTRY one, because the plan was shown before the feedback. An
+    /// exercise with a probe writes its memory too, with the set the probe
+    /// OCCUPIED counted in — see `shownWorkOf` for why the base has to be
+    /// about slots, not reps. A push also keeps the cap it was shown under.
+    private static func rememberShowing(_ next: inout EngineState, session: Session,
+                                        entryPos: [Pattern: Position], cap: Int) {
         for ex in session.exercises {
             next.shownWork[ex.pattern] = shownWorkOf(ex)
             next.shownOrd[ex.pattern] = posOrd(ex.pattern, entryPos[ex.pattern]!)
+            rememberCap(&next, ex.pattern, entryPos[ex.pattern]!, cap: cap)
         }
-        if window.haveGap {
-            applyWeeklyCap(&next, Pattern.allCases.filter { $0 != pullEx?.pattern },
-                           entryPos: entryPos, adapted: adapted)
-        }
-        return next
     }
 
     // MARK: - One exercise
@@ -133,7 +151,7 @@ extension Engine {
                                 old: Position, state: EngineState, result: FeedbackResult,
                                 overrides: [Pattern: Double], probes: [Pattern: Int],
                                 targeted: Set<Pattern>?, chronic: [Pattern],
-                                rampLeft: Int) -> Bool {
+                                rampLeft: Int, bandCeil: Int) -> Bool {
         let p = ex.pattern
         let unit = Library.unit(p, old.variation)
         let g = Dose.grid(unit)
@@ -174,11 +192,12 @@ extension Engine {
         let metPlan = actualRaw.map { $0 >= planMean && $0 < planMean + Double(g.step) } ?? false
         if let actual {
             step = stepFromFact(p, ex: ex, actual: actual, metPlan: metPlan, old: old,
-                                cap: cap, setsBackOk: setsBackOk, shown: state.shown)
+                                cap: cap, setsBackOk: setsBackOk, bandCeil: bandCeil,
+                                shown: state.shown)
         } else {
             step = stepFromRating(p, old: old, result: result, targeted: targeted,
                                   chronic: chronic, cap: cap, rampLeft: rampLeft,
-                                  setsBackOk: setsBackOk, shown: state.shown)
+                                  setsBackOk: setsBackOk, bandCeil: bandCeil, shown: state.shown)
         }
 
         // The journal is written for a COMPLETED appearance. An exercise with a
@@ -241,12 +260,13 @@ extension Engine {
     // swiftlint:disable:next function_parameter_count
     private static func stepFromFact(_ p: Pattern, ex: SessionExercise, actual: Int,
                                      metPlan: Bool, old: Position, cap: Int,
-                                     setsBackOk: Bool,
+                                     setsBackOk: Bool, bandCeil: Int,
                                      shown: [Pattern: [Int: Int]]) -> Step {
         let g = Dose.grid(Library.unit(p, old.variation))
         if metPlan {
             return Step(position: riseBy(p, old, min(EngineConfig.deltaPlan, cap),
-                                         allowSetsBack: setsBackOk), wantedDown: false)
+                                         allowSetsBack: setsBackOk, bandCeil: bandCeil),
+                        wantedDown: false)
         }
         if actual >= ex.load + g.step {
             // FAST ADAPTATION. The mean of the sets is a rung or more above
@@ -286,7 +306,7 @@ extension Engine {
     // swiftlint:disable:next function_parameter_count
     private static func stepFromRating(_ p: Pattern, old: Position, result: FeedbackResult,
                                        targeted: Set<Pattern>?, chronic: [Pattern],
-                                       cap: Int, rampLeft: Int, setsBackOk: Bool,
+                                       cap: Int, rampLeft: Int, setsBackOk: Bool, bandCeil: Int,
                                        shown: [Pattern: [Int: Int]]) -> Step {
         // While the window a comeback opened is open, "more" is credited as
         // "plan" — tissue does not recover along with the number. It does not
@@ -302,7 +322,8 @@ extension Engine {
         }
         let rampCap = rampLeft > 0 ? min(cap, EngineConfig.deltaPlan) : cap
         if delta > 0 {
-            return Step(position: riseBy(p, old, min(delta, rampCap), allowSetsBack: setsBackOk),
+            return Step(position: riseBy(p, old, min(delta, rampCap), allowSetsBack: setsBackOk,
+                                         bandCeil: bandCeil),
                         wantedDown: false)
         }
         if delta < 0 {
@@ -507,9 +528,13 @@ extension Engine {
             let spent = next.weekGain[p] ?? 0
             let granted = min(rise, max(0, budget - spent))
             // The rebuild does not decide again whether to give a set back —
-            // it only trims the steps, repeating the main loop's decision.
+            // it only trims the steps, repeating the main loop's decision. Nor
+            // does it need a push's band ceiling: it walks the main loop's own
+            // path from the same entry, no further than that loop rose, so it
+            // never reaches the step where the loop stopped.
             let returned = (next.cut[p] ?? 0) < entry.cut
-            let rebuilt = riseBy(p, entry, granted, allowSetsBack: returned)
+            let rebuilt = riseBy(p, entry, granted, allowSetsBack: returned,
+                                 bandCeil: EngineConfig.setsMax)
             setPosition(&next, p, rebuilt)
             if returned, rebuilt.cut >= entry.cut { next.setsHold[p] = nil }
             let realised = max(0, posOrd(p, rebuilt) - posOrd(p, entry))

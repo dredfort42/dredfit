@@ -31,7 +31,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v3.7.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v3.8.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -121,6 +121,8 @@ final class GoldenTests: XCTestCase {
             if seed.lastHard[idx] == 1 { state.lastHard.insert(p) }
         }
         state.shown = try decodeShown(seed.shown)
+        state.shownWork = try patternKeyed(seed.shownWork ?? [:])
+        state.shownOrd = try patternKeyed(seed.shownOrd ?? [:])
         return state
     }
 
@@ -287,6 +289,12 @@ final class GoldenTests: XCTestCase {
                        ctx + " (shown work)")
         XCTAssertEqual(order.map { state.shownOrd[$0] ?? 0 }, snap.shownOrdAfter,
                        ctx + " (shown position)")
+        XCTAssertEqual(order.map { state.shownCap[$0] ?? 0 }, snap.shownCapAfter,
+                       ctx + " (pull cap shown under)")
+        XCTAssertEqual(order.map { state.shownOwn[$0] ?? 0 }, snap.shownOwnAfter,
+                       ctx + " (own sets shown with)")
+        XCTAssertEqual(order.map { state.shownSkip.contains($0) ? 1 : 0 }, snap.shownSkipAfter,
+                       ctx + " (a set taken off since)")
         XCTAssertEqual(state.rampWindow, snap.rampWindowAfter, ctx + " (ramp window)")
         XCTAssertEqual(order.map { state.weekGain[$0] ?? 0 }, snap.weekGainAfter,
                        ctx + " (weekly gain)")

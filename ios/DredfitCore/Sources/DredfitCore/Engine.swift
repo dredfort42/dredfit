@@ -225,6 +225,17 @@ public enum Engine {
         if pos.cut > 0 { next.cut[p] = pos.cut } else { next.cut[p] = nil }
     }
 
+    /// The pull cap a push was shown under — the slot's sets then (with the bar,
+    /// the weaker branch's) and its own sets then — with the trace of a cut
+    /// taken off it closed: this showing is the new reference. One write for
+    /// both places a showing is remembered, the feedback and `recordShown`.
+    static func rememberCap(_ next: inout EngineState, _ p: Pattern, _ pos: Position, cap: Int) {
+        guard Pattern.pushSide.contains(p) else { return }
+        next.shownCap[p] = cap
+        next.shownOwn[p] = setsAfterCut(sets: pos.sets, cut: pos.cut)
+        next.shownSkip.remove(p)
+    }
+
     /// The journal of what was shown: ONE point of writing in the whole engine.
     static func setShown(_ next: inout EngineState, _ p: Pattern, _ v: Int, _ dose: Int) {
         let unit = Library.unit(p, v)
@@ -302,12 +313,17 @@ public enum Engine {
     /// a descent would knock the dose off the ceiling, the probe would go with
     /// it, the third working set would come back, and the "easier" plan would
     /// ask +40 % of the work the person had actually seen.
+    ///
+    /// A push keeps the cap it was shown under as well: a showing on screen is
+    /// the one the next plan's "the cap has risen since" is measured from.
     public static func recordShown(state dirty: EngineState, session: Session) -> EngineState {
         let state = dirty.sanitized()
         var next = state
+        let cap = pullSlotSets(state)
         for ex in session.exercises {
             next.shownWork[ex.pattern] = shownWorkOf(ex)
             next.shownOrd[ex.pattern] = posOrd(ex.pattern, state.position(ex.pattern))
+            rememberCap(&next, ex.pattern, state.position(ex.pattern), cap: cap)
         }
         return next
     }
