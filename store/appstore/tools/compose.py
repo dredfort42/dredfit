@@ -132,7 +132,7 @@ jobs = [
     (f"{RAW}/probe_fr.png",      ["Rien ne se débloque", "tout seul"], "Une série de la variante suivante décide, pas le calendrier.", f"{OUT}/fr/s4.png"),
     (f"{RAW}/probe_it.png",      ["Niente si sblocca", "da solo"], "Decide una serie del movimento nuovo, non il calendario.", f"{OUT}/it/s4.png"),
     # --- 5. technique_ — new in 2.1.0. The sheet FROM THE PLAN: `planned:
-    #        true` lives in one place in the project (TodayView.swift:101) and
+    #        true` lives in one place in the project (TodayView.swift:98) and
     #        is what draws the step below, so no other door composes this.
     (f"{RAW}/technique_en.png",   ["Always a version", "you can do"], "Technique for every movement — and the easier version.", f"{OUT}/en/s5.png"),
     (f"{RAW}/technique_ru.png",   ["Всегда есть", "вариация полегче"], "У каждого движения — техника и вариация полегче.", f"{OUT}/ru/s5.png"),
@@ -249,7 +249,7 @@ jobs = [
 # that rung "Incline push-up", `unit: .reps` — a reps screen, so "Did fewer
 # reps?" was true of it; (3) the shipped 2.0.0 raw showed exactly that screen,
 # a big 6 over "reps" with the `− 6 + OK` strip open. `WentDifferentlyButton`
-# is on every reps set to this day (`WorkoutFlowView+Work.swift:245`). It lost
+# is on every reps set to this day (`WorkoutFlowView+Work.swift:320`). It lost
 # its slot ON VALUE: the control is already legible as a button on slots 6 and
 # 7, and the promise behind it ("it bends to you") is what slot 2 sells with a
 # whole screen. A future wave that wants it back needs no repair — it needs a
