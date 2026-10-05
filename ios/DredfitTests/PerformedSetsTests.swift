@@ -192,7 +192,8 @@ extension WorkoutSessionTests {
                        "and the changed record still keeps the number")
     }
 
-    /// The skeptic's (b): "8, entered 6 then skipped, entered 8" — 8, 6, 8.
+    /// A number entered before a skip counts beside the sets after it: "8,
+    /// entered 6 then skipped, entered 8" on 3×8 is 8, 6, 8 — 7.33.
     func testANumberEnteredBeforeASkipCountsBesideTheSetsAfterIt() throws {
         let (flow, _) = try squatFlow()
         flow.completeSet()
@@ -205,9 +206,9 @@ extension WorkoutSessionTests {
         XCTAssertEqual(try XCTUnwrap(flow.overrides[.squat]), 22.0 / 3.0, accuracy: 1e-9)
     }
 
-    /// The skeptic's (c): "8, 8, entered 6 then Skip the remaining sets",
-    /// called on the last set of 3×8 — the screen offers "Skip this set"
-    /// there, which names the same set — keeps the 6: 8, 8, 6, 7.33.
+    /// "Skip the remaining sets" called on the last set of 3×8 after 6 was
+    /// entered for it — the screen offers "Skip this set" there, which names
+    /// the same set — keeps the 6: 8, 8, 6, 7.33.
     func testSkippingTheRemainingSetsKeepsTheNumberEnteredForTheSetInFront() throws {
         let (flow, _) = try squatFlow()
         doTwoSetsAtPlanAndEnterSixOnTheThird(flow)
