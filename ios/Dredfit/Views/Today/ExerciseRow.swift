@@ -121,22 +121,38 @@ struct ExerciseRow: View {
                       defaultValue: "\(RaiseLabel.text(steps: steps, unit: unit)) — your addition")
     }
 
+    /// The words for a push the pull slot's cap took sets from
+    /// (`AppStore.setsJustHeldBackByThePulls(in:)`). A push never shows more
+    /// sets than the weaker pull branch stands on, so a pull set skipped
+    /// shows up on the push rows. With the bar on, the branch that caps is
+    /// usually not in today's plan — so the line names the pulls, never a row
+    /// on screen — and "fewer" rather than a count: the cap can take more
+    /// than one set at once. "For now" because the set comes back with the
+    /// pull's, and the row then says so.
+    static func pullsNote(heldBack: Bool) -> String? {
+        guard heldBack else { return nil }
+        return String(localized: "plan.heldBackByPulls",
+                      defaultValue: "Fewer sets for now — pushes keep pace with your pulls.")
+    }
+
     /// All of them, in the order they are read: what happened to the name on
     /// the left, then to the number on the right, then what stands after
     /// both. One place, so Today and the next-workout sheet cannot drift into
     /// two explanations of one plan.
     ///
-    /// The last three carry a default because `false` (or zero) here means
+    /// The last four carry a default because `false` (or zero) here means
     /// "no claim", never "did not happen" — a caller with nothing to say says
-    /// nothing. Both screens pass all five explicitly; the defaults keep the
+    /// nothing. Both screens pass all six explicitly; the defaults keep the
     /// two-argument form the tests pin readable.
     static func notes(_ exercise: SessionExercise, setCameBack: Bool,
                       easedByHand: Bool = false,
                       variationDropped: Bool = false,
-                      raisedSteps: Int = 0) -> [String] {
+                      raisedSteps: Int = 0,
+                      heldBackByPulls: Bool = false) -> [String] {
         [variationNote(easedByHand: easedByHand, dropped: variationDropped),
          raisedNote(steps: raisedSteps, unit: exercise.unit),
          note(setCameBack: setCameBack),
+         pullsNote(heldBack: heldBackByPulls),
          probeNote(exercise)].compactMap { $0 }
     }
 

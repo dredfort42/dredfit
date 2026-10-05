@@ -19573,6 +19573,52 @@
         }
       }
     },
+    "plan.heldBackByPulls": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorerst weniger Sätze – das Drücken hält mit dem Ziehen Schritt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fewer sets for now — pushes keep pace with your pulls."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menos series por ahora: los empujes siguen el ritmo de tus tracciones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moins de séries pour l’instant — les poussées suivent le rythme de tes tirages."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meno serie per ora – le spinte tengono il passo con le tue tirate."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menos séries por enquanto — os empurrões acompanham o ritmo das suas puxadas."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пока подходов меньше — жимы идут в ногу с тягами."
+          }
+        }
+      }
+    },
     "plan.techniqueHintNoStep": {
       "localizations": {
         "de": {

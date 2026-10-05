@@ -549,6 +549,9 @@ final class AppStore {
             interrupted: interrupted,
             raisedSteps: raised.isEmpty ? nil : raised,
             raisedLanded: raised.isEmpty ? nil : landed))
+        // Which push cards the pulls held back, read off `before`: only this
+        // moment still holds the position each card was cut from.
+        records[records.count - 1].heldBack = Self.pushesHeldBack(in: session, builtFrom: before)
         persist()
         // A morning workout takes tonight's reminder down with it.
         // NOT `now: date`: the record's date is about the JOURNAL, and

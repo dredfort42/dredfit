@@ -264,16 +264,8 @@ extension Engine {
         let patterns = Pattern.ordered.filter { chosen.contains($0) }
             .map { $0 == .pull && useBar ? Pattern.pullBar : $0 }
 
-        func setsShown(_ p: Pattern) -> Int {
-            let q = state.position(p)
-            return setsAfterCut(sets: q.sets, cut: q.cut)
-        }
-        // The pull slot's set count caps the push of the same session, and it
-        // reads the WEAKER of the slot's two branches rather than whichever
-        // one stands today: on diverged branches the push plan would otherwise
-        // flip every session with no cause on screen.
         let pullSets = patterns.contains(where: { Pattern.pullSide.contains($0) })
-            ? (state.hasBar ? min(setsShown(.pull), setsShown(.pullBar)) : setsShown(patterns.first { Pattern.pullSide.contains($0) }!))
+            ? pullSlotSets(state)
             : EngineConfig.setsMax
 
         let exercises: [SessionExercise] = patterns.map { p in
@@ -330,6 +322,34 @@ extension Engine {
             exercises: trimmed,
             estimatedTotalMin: estimatedMin(
                 exercises: trimmed, ends: EngineConfig.warmupMin + EngineConfig.cooldownMin))
+    }
+
+    /// The pull slot's set count caps the push of the same session, and it
+    /// reads the WEAKER of the slot's two branches rather than whichever one
+    /// stands today: on diverged branches the push plan would otherwise flip
+    /// every session with no cause on screen. `state` is already sanitized.
+    static func pullSlotSets(_ state: EngineState) -> Int {
+        func own(_ p: Pattern) -> Int {
+            let q = state.position(p)
+            return setsAfterCut(sets: q.sets, cut: q.cut)
+        }
+        return state.hasBar ? min(own(.pull), own(.pullBar)) : own(.pull)
+    }
+
+    /// The two numbers the pull-caps-push gate weighs for one push: the sets
+    /// its own position stands on (the band less the cut) and the pull slot's
+    /// cap. A session shows the smaller, and only the probe and the
+    /// postcondition repair take more off. Nil for anything but a push — the
+    /// cap reaches nothing else.
+    ///
+    /// Read-only, for the plan's rows: a push showing fewer sets than it
+    /// stands on has a cause the person cannot see on that row, and the app
+    /// has to name it without restating the rule.
+    public static func pullCap(on p: Pattern, in dirty: EngineState) -> (own: Int, cap: Int)? {
+        guard Pattern.pushSide.contains(p) else { return nil }
+        let state = dirty.sanitized()
+        let pos = state.position(p)
+        return (setsAfterCut(sets: pos.sets, cut: pos.cut), pullSlotSets(state))
     }
 
     /// The work of an exercise in the units of the measure: sets × dose ×
