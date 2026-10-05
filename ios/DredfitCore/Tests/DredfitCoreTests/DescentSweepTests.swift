@@ -1,7 +1,7 @@
 //
-//  "No path of descent makes the plan heavier", swept the way the reference
-//  sweeps it: every position of every ladder, through every path a descent
-//  can take.
+//  "No path of descent makes the plan heavier", swept from every position of
+//  every ladder, enumerated the way the reference's verifier enumerates them,
+//  through each path down that this file covers.
 //
 //  WHY AN ENUMERATION. A sweep that builds its starting position exactly one
 //  way — base band, `cut 0`, `sub 0` — can call itself exhaustive ("every
@@ -102,7 +102,7 @@ private enum UnitCrossing {
 /// pattern and one variation (`.squat`, variation 2) turns `GoldenTests` and
 /// `EngineV3Tests.testFactBelowTheFloorLandsNoHeavier` red, and in this file
 /// only `Work` sees it — with the `noHarder` assertions alone, every test here
-/// stays green, the sweeps that call themselves exhaustive included.
+/// stays green, every sweep in this file included.
 ///
 /// So this must NOT be "simplified" back into `Engine.planLoad`: routing both
 /// sides of the comparison through the function under test is exactly the
@@ -497,9 +497,10 @@ final class DescentSweepTests: XCTestCase {
     }
 
     /// The fourth path down: on a gap that hits a row of the landing-ceiling
-    /// table the comeback WRITES a position instead of walking rungs
-    /// (`Breaks.swift`), and a walk that ends above the ceiling is written
-    /// onto the base band with nothing cut. Swept from every position with a
+    /// table the comeback walks rungs and then holds the landing to the
+    /// ceiling (`Breaks.swift`). A walk that ends above it is replaced by the
+    /// ceiling's floor on the base band, with nothing cut; one that ends on it
+    /// keeps its band and cut and drops to the floor dose. Swept from every position with a
     /// cut or a band: what the write does to somebody training on two sets,
     /// or on a band of four or five, is asserted for each of them.
     ///
@@ -525,11 +526,12 @@ final class DescentSweepTests: XCTestCase {
     }
 
     /// And the return is a DESCENT, so "no heavier" binds it as well —
-    /// including the gaps where the ceiling writes a position instead of
-    /// walking rungs, and including the cut and the bands.
+    /// including the gaps where the ceiling replaces the walk's landing, and
+    /// including the cut and the bands.
     ///
-    /// The reference's verifier binds the silent decay this way, never the
-    /// comeback.
+    /// The reference's verifier runs this sweep over every position for the
+    /// silent decay only; for the comeback it checks narrower things, such as
+    /// a longer break never landing higher.
     func test_comeback_fromEveryCutAndBandPosition_neverMakesThePlanHeavier() {
         // Both sides of the return table: gaps before its first row walk rungs
         // only, gaps on a row also take the landing ceiling.
@@ -562,7 +564,7 @@ final class DescentSweepTests: XCTestCase {
     /// A probing appearance is where it would break: with the memory written
     /// by the working sets alone, one set below the position, a descent would
     /// take the set the probe only borrowed until the dose fell far enough for
-    /// three sets to fit under that base again, and the plan jumped back UP —
+    /// three sets to fit under that base again, and the plan would jump back UP —
     /// 84 days would meet a person higher than 56. `Engine.shownWorkOf` counts
     /// the borrowed set for that reason.
     func test_comeback_afterAProbingAppearance_neverRisesWithTheLengthOfTheBreak() throws {

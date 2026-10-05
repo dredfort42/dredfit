@@ -15,8 +15,8 @@ final class EngineV3Tests: XCTestCase {
     // MARK: - Helpers
 
     /// A state with one pattern moved and everything else fresh. Everything
-    /// past the variation and the dose travels in `Seed` — a position is five
-    /// coordinates, and nine loose parameters is a parameter list nobody reads.
+    /// the helper takes past the variation and the dose travels in `Seed`: a
+    /// long list of loose parameters is a list nobody reads.
     private struct Seed {
         var sets = EngineConfig.setsBase
         var shown: [Int: Int] = [:]
@@ -241,7 +241,7 @@ final class EngineV3Tests: XCTestCase {
     ///
     /// The journal's 11 is a CEILING, not the landing. The trainee is leaving
     /// "Bulgarian split squats" at 3×8 per side — work 48; landing on 3×11
-    /// would be 66, a 37 % rise straight after they showed a fact below the
+    /// would be 66, a 37.5 % rise straight after they showed a fact below the
     /// variation's floor. The landing walks down and stops at 8: work 48,
     /// exactly what they were doing.
     func testFactBelowTheFloorLandsNoHeavier() throws {

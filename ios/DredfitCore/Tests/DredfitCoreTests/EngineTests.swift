@@ -379,7 +379,7 @@ final class EngineTests: XCTestCase {
     /// Reading the library is TOTAL — the rule `ExerciseEntry.variation` is
     /// written for: "a plan built from a dirty state has to stay a valid input
     /// to `applyFeedback`, and the sanitizer is not the only door into this
-    /// type". Nothing else in this package asks the catalog for a variation
+    /// type". Nothing else in this package's tests asks the catalog for a variation
     /// off the end of a ladder, so a `variations[v - 1]` written in place of
     /// the clamp would pass every other test here and trap on the first dirty
     /// state that reached a plan.
