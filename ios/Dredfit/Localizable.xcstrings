@@ -16575,42 +16575,42 @@
         }
       }
     },
-    "Used only to estimate the calories of each workout. It stays on this device.": {
+    "Used only to estimate the calories of each workout. Kept on this device and in the backups you export.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dient nur dazu, die Kalorien jedes Trainings zu schätzen. Bleibt auf diesem Gerät."
+            "value": "Dient nur dazu, die Kalorien jedes Trainings zu schätzen. Bleibt auf diesem Gerät und in den Backups, die du exportierst."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Solo se usa para estimar las calorías de cada entrenamiento. No sale de este dispositivo."
+            "value": "Solo se usa para estimar las calorías de cada entrenamiento. Se guarda en este dispositivo y en los respaldos que exportes."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sert uniquement à estimer les calories de chaque séance. Reste sur cet appareil."
+            "value": "Sert uniquement à estimer les calories de chaque séance. Conservé sur cet appareil et dans les sauvegardes que tu exportes."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Serve solo a stimare le calorie di ogni allenamento. Resta su questo dispositivo."
+            "value": "Serve solo a stimare le calorie di ogni allenamento. Resta su questo dispositivo e nei backup che esporti."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usado apenas para estimar as calorias de cada treino. Fica neste dispositivo."
+            "value": "Usado apenas para estimar as calorias de cada treino. Fica neste dispositivo e nos backups que você exportar."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Нужен только для оценки калорий каждой тренировки. Остается на этом устройстве."
+            "value": "Нужен только для оценки калорий каждой тренировки. Хранится на этом устройстве и в резервных копиях, которые ты экспортируешь."
           }
         }
       }
@@ -20704,42 +20704,42 @@
         }
       }
     },
-    "Took %lld min, pauses included": {
+    "Took %lld min in the app, pauses included": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hat %lld min gedauert, Pausen eingerechnet"
+            "value": "Hat %lld min in der App gedauert, Pausen eingerechnet"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Duró %lld min, pausas incluidas"
+            "value": "Duró %lld min en la app, pausas incluidas"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "A duré %lld min, repos et pauses compris"
+            "value": "A duré %lld min dans l’app, repos et pauses compris"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "È durato %lld min, pause comprese"
+            "value": "È durato %lld min nell’app, pause comprese"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Durou %lld min, pausas incluídas"
+            "value": "Durou %lld min no app, pausas incluídas"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Заняла %lld мин, вместе с паузами"
+            "value": "Заняла %lld мин в приложении, вместе с паузами"
           }
         }
       }
