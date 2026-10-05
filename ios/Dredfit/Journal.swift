@@ -105,6 +105,18 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// dominant price is still an open question, and this is the only place
     /// it can ever be answered from.
     var setsSkipped: [Pattern: Int]?
+    /// The ones among those the person skipped, by index, sorted
+    /// (`SetFacts.SkippedSets`): the fold — again on a changed rating
+    /// (`changeLastRating`) — and the history line leave out the ones with no
+    /// number of their own (`skippedWithNumberIndices`). Optional with a nil
+    /// default like every field added to a persisted type; a record written
+    /// without it is read the way it always was.
+    var skippedSetIndices: [Pattern: [Int]]?
+    /// The ones among those that carry a number the person entered for the
+    /// set before skipping it, by index, sorted (`SetFacts.leftOut`): the
+    /// fold and the history line count them. Optional with a nil default
+    /// like every field added to a persisted type.
+    var skippedWithNumberIndices: [Pattern: [Int]]?
     var skipped: Set<Pattern>?
     /// Reported as painful mid-workout, by a build that had the pain report:
     /// to the engine a skip, to the journal a different fact. LEGACY and
@@ -165,6 +177,21 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         (raisedLanded ?? raisedSteps)?[pattern] ?? 0
     }
 
+    /// Which sets were skipped, as the readers of the sets take it.
+    var skippedSets: SetFacts.SkippedSets {
+        SetFacts.sanitized(skippedSets: skippedSetIndices ?? [:])
+    }
+
+    /// Which of those keep the number entered for them.
+    var skippedWithNumber: SetFacts.SkippedSets {
+        SetFacts.sanitized(skippedSets: skippedWithNumberIndices ?? [:])
+    }
+
+    /// The skipped sets the fold and the history line leave out.
+    var leftOutSets: SetFacts.SkippedSets {
+        SetFacts.leftOut(skippedSets, keeping: skippedWithNumber)
+    }
+
     /// The journal is an input too. The engine heals the state it is handed,
     /// but its own snapshots come back out of this file and straight into
     /// arithmetic — the retrospective subtracts a stored level from the
@@ -194,6 +221,13 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
             .mapValues { clamp($0, 0, EngineConfig.countMax) }
         setsSkipped = try c.decodeIfPresent([Pattern: Int].self, forKey: .setsSkipped)?
             .mapValues { clamp($0, 0, EngineConfig.setsMax) }
+        // An index is not clamped, it is kept or dropped: clamped, it would
+        // name a different set.
+        skippedSetIndices = try c.decodeIfPresent([Pattern: [Int]].self, forKey: .skippedSetIndices)?
+            .mapValues { $0.filter { (0..<EngineConfig.setsMax).contains($0) } }
+        skippedWithNumberIndices = try c.decodeIfPresent([Pattern: [Int]].self,
+                                                         forKey: .skippedWithNumberIndices)?
+            .mapValues { $0.filter { (0..<EngineConfig.setsMax).contains($0) } }
         skipped = try c.decodeIfPresent(Set<Pattern>.self, forKey: .skipped)
         discomfort = try c.decodeIfPresent(Set<Pattern>.self, forKey: .discomfort)
         positionsAfter = try c.decodeIfPresent([Pattern: RecordedPosition].self,
@@ -218,6 +252,8 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
          exercises: [SessionExercise]? = nil, actuals: [Pattern: Int]? = nil,
          setActuals: [Pattern: [Int]]? = nil, probes: [Pattern: Int]? = nil,
          setsSkipped: [Pattern: Int]? = nil,
+         skippedSetIndices: [Pattern: [Int]]? = nil,
+         skippedWithNumberIndices: [Pattern: [Int]]? = nil,
          skipped: Set<Pattern>? = nil, discomfort: Set<Pattern>? = nil,
          positionsAfter: [Pattern: RecordedPosition]? = nil,
          durationSec: Int? = nil,
@@ -235,6 +271,8 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         self.setActuals = setActuals
         self.probes = probes
         self.setsSkipped = setsSkipped
+        self.skippedSetIndices = skippedSetIndices
+        self.skippedWithNumberIndices = skippedWithNumberIndices
         self.skipped = skipped
         self.discomfort = discomfort
         self.positionsAfter = positionsAfter
@@ -284,6 +322,14 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// Sets skipped so far, per movement. Optional like everything
     /// below it: a snapshot written before the skip existed still decodes.
     var setsSkipped: [Pattern: Int]?
+    /// The ones among those the person skipped, by index, sorted
+    /// (`WorkoutSession.skippedSetIndices`). Optional with a nil default, like
+    /// every field added to a persisted type.
+    var skippedSetIndices: [Pattern: [Int]]?
+    /// The ones among those that keep the number entered for them
+    /// (`WorkoutSession.skippedWithNumber`). Optional with a nil default, like
+    /// every field added to a persisted type.
+    var skippedWithNumberIndices: [Pattern: [Int]]?
     /// What the PROBE set showed, per movement. Its own field for the same
     /// reason it is its own argument to the engine: it is a number about
     /// a movement that is not in the plan yet, and folding it into the per-set
@@ -322,6 +368,12 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// on the card since (`WorkoutSession.holdApproxSets`). An array
     /// because a `Set<Int>` is one on the wire anyway; read back as a set.
     var approxSets: [Int]?
+    /// Of those, the sets whose LAST side a thumb ended
+    /// (`WorkoutSession.holdTapEndedSets`), read back by `endedByTapSets`.
+    /// Optional with a nil default, like every field added to a persisted
+    /// type; without it no set reads as ended by a thumb, and a correction's
+    /// ceiling falls back to the estimate itself — never above what was held.
+    var tapEndedSets: [Int]?
     /// What the clock wrote for each set of the exercise in front of us, by
     /// set index (`WorkoutSession.holdMeasured`). The summary's ceiling is
     /// read off it, so a kill on that screen must not turn a corrected
@@ -379,6 +431,16 @@ struct WorkoutSnapshot: Codable, Equatable {
         SetFacts.sanitized(skips: setsSkipped ?? [:])
     }
 
+    /// Which sets were skipped, sanitized where it is read like the count.
+    var skippedSets: SetFacts.SkippedSets {
+        SetFacts.sanitized(skippedSets: skippedSetIndices ?? [:])
+    }
+
+    /// Which of those keep the number entered for them, read alike.
+    var skippedWithNumber: SetFacts.SkippedSets {
+        SetFacts.sanitized(skippedSets: skippedWithNumberIndices ?? [:])
+    }
+
     /// The additions, sanitized where they are read like everything above:
     /// the engine clamps its own input too, but a number on screen should
     /// never exceed what the stepper could have produced.
@@ -406,6 +468,11 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// where it is read for the same reason as everything above it.
     var approximateSets: Set<Int> {
         Set((approxSets ?? []).filter { (0..<EngineConfig.setsMax).contains($0) })
+    }
+
+    /// The sets a thumb ended, bounded like the marks.
+    var endedByTapSets: Set<Int> {
+        Set((tapEndedSets ?? []).filter { (0..<EngineConfig.setsMax).contains($0) })
     }
 
     /// Whether anything happened worth keeping. A snapshot from the moment the

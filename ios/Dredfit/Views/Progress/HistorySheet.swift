@@ -153,12 +153,30 @@ struct HistorySheet: View {
     /// not one that ran. Without a mid-skip `known <= performed`, and the cut
     /// to the sets that ran is all that applies.
     ///
+    /// A record that says WHICH sets were skipped (`skippedSetIndices`) needs
+    /// no guess about where they were: the line leaves out the named ones with
+    /// no number of their own (`leftOutSets`) and holds each of the others
+    /// against its own plan. The sets a workout ended before reaching are
+    /// still counted and not named — `setsSkipped` past the named ones, always
+    /// a trailing block — so they are cut as above, never below what was
+    /// recorded.
+    ///
     /// Static and taking the record for the same reason `probeLine` is: a rule
     /// written as a private member of a SwiftUI view is a rule no unit test
     /// can reach.
     static func setFacts(_ ex: SessionExercise,
                          in record: WorkoutRecord) -> (values: [Int], reported: Int)? {
         let reported = record.actuals?[ex.pattern]
+        if let facts = record.setActuals, let known = facts[ex.pattern]?.count,
+           let named = record.skippedSets[ex.pattern] {
+            let unreached = max(setsSkipped(ex, in: record) - named.count, 0)
+            let ran = max(ex.sets - unreached, known)
+            let done = SetFacts.performed(facts, ex, skipping: record.leftOutSets[ex.pattern] ?? [])
+                .filter { $0.set < ran }
+            guard let first = done.first?.value,
+                  done.contains(where: { $0.value != ex.plannedLoad(set: $0.set) }) else { return nil }
+            return (done.map(\.value), reported ?? first)
+        }
         let values: [Int]
         if let facts = record.setActuals, let known = facts[ex.pattern]?.count {
             let performed = max(ex.sets - setsSkipped(ex, in: record), 0)
@@ -192,10 +210,10 @@ struct HistorySheet: View {
     /// indistinguishable from the file; "not this time" is true of both, and it
     /// is the sentence the work screen gives a probe that did not pass.
     /// Static, and taking the record rather than reading `self`, for the reason
-    /// the probe caption named at the bottom of `ProbeChannelTests` is NOT
-    /// covered: a policy written as a `private` member of a SwiftUI view is a
-    /// policy no unit test can reach. This one is a pure function of a record
-    /// and an exercise, so it is written as one.
+    /// the probe caption's outcome lives in `WorkoutSession.probeOutcome`: a
+    /// policy written as a `private` member of a SwiftUI view is a policy no
+    /// unit test can reach. This one is a pure function of a record and an
+    /// exercise, so it is written as one.
     static func probeLine(_ ex: SessionExercise, in record: WorkoutRecord) -> String? {
         guard let probe = ex.probe,
               let after = record.positionsAfter?[ex.pattern] else { return nil }
@@ -284,7 +302,9 @@ struct HistorySheet: View {
     static func afterLine(_ ex: SessionExercise, in record: WorkoutRecord) -> String? {
         guard let after = record.positionsAfter?[ex.pattern],
               (1...Library.count(ex.pattern)).contains(after.variation) else { return nil }
-        let stood = after.asPlanned(ex.pattern)
+        // Where the position stood, not the next appearance: whether that
+        // one probes is the next record's to show.
+        let stood = after.asPlanned(ex.pattern, probe: nil)
         let line: String
         if after.variation == ex.variation {
             guard stood.display != ex.display,

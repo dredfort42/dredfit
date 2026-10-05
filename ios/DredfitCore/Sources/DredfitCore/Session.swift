@@ -249,6 +249,20 @@ extension Engine {
             && !lastHard.contains(p)
     }
 
+    /// The probe a session hands `p` at `pos` — one set of the next variation
+    /// at its grid's floor — or nil where `probeAllowed` says no. Public so a
+    /// preview of the next plan asks the engine's own question instead of a
+    /// copy of it; `pos` and the two journals come from a state the engine
+    /// handed out.
+    public static func probe(_ p: Pattern, at pos: Position, lastHard: Set<Pattern>,
+                             shown: [Pattern: [Int: Int]]) -> SessionProbe? {
+        guard probeAllowed(p, pos, lastHard: lastHard, shown: shown) else { return nil }
+        let nv = pos.variation + 1
+        let nUnit = Library.unit(p, nv)
+        return SessionProbe(variation: nv, name: Library.name(p, nv), unit: nUnit,
+                            load: Dose.grid(nUnit).min, perSide: Library.sides(p, nv) == 2)
+    }
+
     /// A pure function: the only input is the state.
     public static func generateSession(_ dirty: EngineState) -> Session {
         // Every public entry heals its input first, as the reference does on
@@ -286,16 +300,9 @@ extension Engine {
                 : (EngineConfig.restSetByBand[pos.sets] ?? EngineConfig.restSetSec)
 
             // The probe replaces the LAST of the remaining sets.
-            let probing = probeAllowed(p, pos, lastHard: state.lastHard, shown: state.shown)
+            let probe = Engine.probe(p, at: pos, lastHard: state.lastHard, shown: state.shown)
+            let probing = probe != nil
             let sets = probing ? slotSets - 1 : slotSets
-            var probe: SessionProbe?
-            if probing {
-                let nv = pos.variation + 1
-                let nUnit = Library.unit(p, nv)
-                probe = SessionProbe(variation: nv, name: Library.name(p, nv), unit: nUnit,
-                                     load: Dose.grid(nUnit).min,
-                                     perSide: Library.sides(p, nv) == 2)
-            }
             return SessionExercise(
                 pattern: p, name: Library.name(p, pos.variation), variation: pos.variation,
                 unit: unit, load: pos.dose, perSide: sides == 2, sets: sets,

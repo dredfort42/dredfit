@@ -78,9 +78,9 @@ final class WorkoutSession {
         case warmup
         case work
         case rest(seconds: Int)
-        /// Every set of a hold movement on one screen, the last one a tap from
-        /// being corrected — a hold ends itself, and nothing about the
-        /// movement comes back after its last set (`finishHold`).
+        /// Every set of a hold movement that was done, on one screen, the last
+        /// one a tap from being corrected — a hold ends itself, and nothing
+        /// about the movement comes back after its last set (`finishHold`).
         ///
         /// Only after a hold movement, and only when it is behind — its probe
         /// set, when it has one, comes first on a screen of its own. Sets of
@@ -147,6 +147,26 @@ final class WorkoutSession {
     /// handed to the engine only when the rating lands: the cut belongs on the
     /// RESULT of the feedback, never on its input.
     var setsSkipped: SetFacts.Skips = [:]
+
+    /// The ones among those the person skipped, by index
+    /// (`SetFacts.SkippedSets`): kept, persisted and cleared with the count,
+    /// so that what reads the sets leaves out the ones with no number of
+    /// their own (`skippedWithNumber`).
+    var skippedSetIndices: SetFacts.SkippedSets = [:]
+
+    /// The ones among those that carry a number the person entered for the
+    /// set before skipping it: counted in every fold and display, never
+    /// discarded (`SetFacts.leftOut`). Kept, persisted and cleared with them.
+    var skippedWithNumber: SetFacts.SkippedSets = [:]
+
+    /// Sets the person entered a number for ("Went differently" → OK), by
+    /// index: the OK itself, not the record it leaves, because a number on
+    /// the plan leaves none (`SetFacts.recording`) and a skip of that set
+    /// still has to keep it. In the session only: after a process death the
+    /// record in `actuals` still says so for a number off the plan, while one
+    /// on the plan, entered before the death, reads as nothing said — keeping
+    /// that one too would take one more field in the snapshot.
+    var numbersEntered: [Pattern: Set<Int>] = [:]
 
     /// What the PROBE set showed, per movement. Kept apart from
     /// `actuals` on purpose and for the same reason the engine keeps `probes`
@@ -286,6 +306,14 @@ final class WorkoutSession {
     /// under the 5 the person typed. Per exercise, like the estimate marks,
     /// and carried across a process death with them.
     var holdMeasured: [Int: Int] = [:]
+
+    /// Sets of the exercise in front of us whose LAST side a thumb ended. On
+    /// a per-side hold the mark (`holdApproxSets`) also covers a first side
+    /// stopped by hand, but then the second side ran on its own clock and
+    /// ended the set — and the ceiling of a correction is what the side that
+    /// ended the set ran (`summaryRange`). Per exercise, like the marks, and
+    /// carried across a process death with them.
+    var holdTapEndedSets: Set<Int> = []
 
     /// The exercise was started by ONE tap and continues itself: the rest
     /// after each set opens the next set with nobody touching the phone. It
@@ -471,9 +499,38 @@ final class WorkoutSession {
         liveActivity.end()
     }
 
+    /// The skipped sets every fold and display leaves out — the ones without
+    /// a number of their own (`SetFacts.leftOut`).
+    var leftOutSets: SetFacts.SkippedSets {
+        SetFacts.leftOut(skippedSetIndices, keeping: skippedWithNumber)
+    }
+
+    /// The number each movement with a fact of its own hands the engine: the
+    /// fold of its sets, the skipped ones without a number left out
+    /// (`SetFacts.overrides`). Computed here and not on the rating screen,
+    /// which only shows it: the screen and the engine cannot be shown
+    /// different arithmetic, and the skipped sets reach the fold without
+    /// riding on a view's argument.
+    var overrides: [Pattern: Double] {
+        SetFacts.overrides(actuals, skipping: leftOutSets, in: exercises)
+    }
+
+    /// Each such movement's sets as the rating screen prints its "actual":
+    /// in set order, the skipped ones without a number left out
+    /// (`SetFacts.performed`).
+    var actualSets: [Pattern: [Int]] {
+        let leftOut = leftOutSets
+        var out: [Pattern: [Int]] = [:]
+        for ex in exercises where actuals[ex.pattern] != nil {
+            out[ex.pattern] = SetFacts.performed(actuals, ex, skipping: leftOut[ex.pattern] ?? [])
+                .map(\.value)
+        }
+        return out
+    }
+
     /// The rating lands: the workout goes to the engine with everything it
     /// recorded, and what it earned comes back.
-    func rate(_ result: FeedbackResult, overrides: [Pattern: Double]) -> [Milestone] {
+    func rate(_ result: FeedbackResult) -> [Milestone] {
         store.completeWorkout(
             session: session, result: result,
             overrides: overrides,
@@ -484,6 +541,8 @@ final class WorkoutSession {
             // The sets skipped along the way. The engine settles them
             // against the rating — after it, never before.
             setsSkipped: setsSkipped,
+            skippedSets: skippedSetIndices,
+            skippedWithNumber: skippedWithNumber,
             // The probe's own channel: a number about one set of a movement
             // that is not in the plan yet.
             probes: probeActuals,

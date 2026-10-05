@@ -1,28 +1,15 @@
 //
-//  The exercise summary as the phase shows it. What a tap on a card writes
-//  and what the "next time" block asks the engine are WorkoutSession's
-//  (+Summary); the leaves themselves are ExerciseSummary.swift — what a card
-//  looks like is not what the phase decides.
+//  The exercise summary as the phase shows it. Which cards there are, what a
+//  tap on one writes and what the "next time" block asks the engine are
+//  WorkoutSession's (+Summary); the leaves themselves are
+//  ExerciseSummary.swift — what a card looks like is not what the phase
+//  decides.
 //
 
 import SwiftUI
 import DredfitCore
 
 extension WorkoutFlowView {
-
-    /// Every set of the movement as the screen prints it, in set order.
-    ///
-    /// `SetFacts.allSets` is the source deliberately: it is what the work
-    /// screen showed for each set as it ran, so the summary and the flow
-    /// cannot disagree about a number — and `recordingSet` freezes exactly
-    /// this list before it changes one of them.
-    var heldSets: [HeldSet] {
-        SetFacts.allSets(flow.actuals, flow.exercise).enumerated().map { index, seconds in
-            HeldSet(index: index, seconds: seconds,
-                    planned: flow.exercise.plannedLoad(set: index),
-                    approximate: flow.summaryCardIsApproximate(set: index))
-        }
-    }
 
     var exerciseSummaryView: some View {
         VStack(spacing: 0) {
@@ -36,7 +23,7 @@ extension WorkoutFlowView {
                     VStack(spacing: 0) {
                         Spacer(minLength: 0)
                         summaryHead
-                        HeldSetsRow(sets: heldSets, onEdit: flow.startSummaryAdjusting)
+                        HeldSetsRow(sets: flow.heldSets, onEdit: flow.startSummaryAdjusting)
                             // The row asks for its IDEAL height — the tallest
                             // card — and the cards stretch to it: without this
                             // the cards' `maxHeight: .infinity` would fill the
@@ -87,11 +74,13 @@ extension WorkoutFlowView {
             // to read at a time, the rule of every message slot in the flow.
             if case .summaryCard(let index) = flow.editing {
                 // Which set and what was recorded for it, said above the
-                // panel. ONLY THE LAST SET OPENS THE PANEL: nothing followed
-                // it and the person may have kept holding, so both directions
-                // are theirs. Every earlier card is inert (`HeldSetCard`): a
-                // panel whose "+" and "−" are both dead reads as a broken
-                // control.
+                // panel. ONLY THE LAST SET OPENS THE PANEL. Down is always
+                // the person's; up goes as far as nothing stopped the set —
+                // the corridor when nothing followed it and they may have
+                // kept holding, what the clock ran when the rest before a
+                // probe started on its signal (`summaryRange`). Every earlier
+                // card is inert (`HeldSetCard`): a panel whose "+" and "−"
+                // are both dead reads as a broken control.
                 Text(flow.summaryPanelLine(set: index))
                     .dredfitFont(14)
                     .monospacedDigit()
@@ -108,7 +97,8 @@ extension WorkoutFlowView {
             } else {
                 NextTimeBlock(exercise: flow.exercise,
                               steps: flow.raisedSteps[flow.exercise.pattern] ?? 0,
-                              factEntered: SetFacts.override(flow.actuals, for: flow.exercise) != nil,
+                              factEntered: SetFacts.override(flow.actuals, for: flow.exercise,
+                                                             skipping: flow.leftOutHere) != nil,
                               preview: flow.nextPlan(withAdditions:),
                               onChange: flow.setRaise)
                     .padding(.bottom, 18)

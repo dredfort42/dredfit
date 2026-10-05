@@ -33,15 +33,54 @@ nonisolated enum SetFacts {
 
     /// Sets SKIPPED during the session, per movement.
     ///
-    /// A count, not a set of indices, and deliberately: what the engine is
-    /// handed is how MANY sets went, because that is what `cut` measures.
-    /// Which of the five it was is nobody's business once the workout is over
-    /// — and a count is also what survives a snapshot without a shape of its
-    /// own.
+    /// A count, deliberately: what the engine is handed is how MANY sets
+    /// went, because that is what `cut` measures. The ones the person skipped
+    /// are also named (`SkippedSets`); the ones a workout ended before
+    /// reaching ("Finish now", a settled workout) are only counted.
     ///
     /// It lives beside the per-set facts because it is the same kind of thing:
     /// what the set actually ran at, when the answer is "it did not".
     typealias Skips = [Pattern: Int]
+
+    /// WHICH sets the person skipped ("Skip this set", "Skip the remaining
+    /// sets"), by index, per movement. A skipped set has no number of its
+    /// own: what `allSets` reads for it is the plan or a shortfall carried
+    /// down (`inForce`), a number nobody did, and folded in it pulls the mean
+    /// toward the plan from either side. So the fold the engine takes, the
+    /// rating screen's "actual" and the history line leave these sets out
+    /// (`performed`, `leftOut`), and the summary has no card for them.
+    ///
+    /// A set the workout ended before reaching is not among them: nobody
+    /// skipped it, and it folds at what was in force for it — a number
+    /// entered for the set in progress included.
+    ///
+    /// Nor is a number the person ENTERED for a set before skipping it ever
+    /// discarded: such a set stays a skipped one for the count and the cut,
+    /// and its number counts like any other (`leftOut`).
+    typealias SkippedSets = [Pattern: Set<Int>]
+
+    /// What the journal and the snapshot keep of them: sorted indices, and
+    /// nothing at all when no set was skipped, so a record without a skip is
+    /// written exactly as before the field existed.
+    static func stored(_ sets: SkippedSets) -> [Pattern: [Int]]? {
+        sets.isEmpty ? nil : sets.mapValues { $0.sorted() }
+    }
+
+    /// The skipped sets the fold and every display leave out: the ones with
+    /// no number the person entered for them before the skip (`numbered`).
+    ///
+    /// The numbered ones are known only at the skip. Read off the facts
+    /// afterwards the two kinds look alike: a set recorded later fills the
+    /// gap before it with what was in force (`recording`), so "6, entered 6
+    /// then skipped, 10" and "6, skipped, 10" both leave 6, 6, 10.
+    static func leftOut(_ skipped: SkippedSets, keeping numbered: SkippedSets) -> SkippedSets {
+        var out: SkippedSets = [:]
+        for (pattern, sets) in skipped {
+            let left = sets.subtracting(numbered[pattern] ?? [])
+            if !left.isEmpty { out[pattern] = left }
+        }
+        return out
+    }
 
     // MARK: - The corridors
 
@@ -86,6 +125,16 @@ nonisolated enum SetFacts {
         skips.compactMapValues { count in
             let clean = min(max(count, 0), EngineConfig.setsMax)
             return clean > 0 ? clean : nil
+        }
+    }
+
+    /// And for which sets were skipped, as they are written down — sorted
+    /// arrays: indices an exercise can have, and no entry for a movement with
+    /// none.
+    static func sanitized(skippedSets: [Pattern: [Int]]) -> SkippedSets {
+        skippedSets.compactMapValues { indices in
+            let clean = Set(indices.filter { (0..<EngineConfig.setsMax).contains($0) })
+            return clean.isEmpty ? nil : clean
         }
     }
 
@@ -171,6 +220,17 @@ nonisolated enum SetFacts {
         return (0..<sets).map { inForce(facts, ex, set: $0) }
     }
 
+    /// Every set (`allSets`) but the ones `skipped` names — the skipped sets
+    /// with no number of their own (`leftOut`) — in set order, each with its
+    /// index. With every set skipped there is nothing to set apart, and every
+    /// set reads as it does in `allSets`.
+    static func performed(_ facts: PerSet, _ ex: SessionExercise,
+                          skipping skipped: Set<Int>) -> [(set: Int, value: Int)] {
+        let every = allSets(facts, ex).enumerated().map { (set: $0.offset, value: $0.element) }
+        let done = every.filter { !skipped.contains($0.set) }
+        return done.isEmpty ? every : done
+    }
+
     // MARK: - Writing
 
     /// Records `value` for the set under way and nothing else. The sets
@@ -253,13 +313,26 @@ nonisolated enum SetFacts {
     /// The range a hold's recorded seconds may be corrected within on the
     /// movement's summary.
     ///
-    /// ONLY THE LAST SET IS CORRECTED. It has nothing after it — no rest
-    /// starts on its signal, and the person may have kept holding — so both
-    /// directions stay open there, up to the corridor: the "Went differently"
-    /// of the last hold, on its card. Every earlier set ended on its signal
-    /// or under a thumb and stands as it ran: its range is the number itself,
-    /// and its card opens no panel — one with both ends dead reads as a
-    /// broken control.
+    /// ONLY THE LAST WORKING SET IS CORRECTED. Every earlier set ended on its
+    /// signal or under a thumb and stands as it ran: its range is the number
+    /// itself, and its card opens no panel — one with both ends dead reads as
+    /// a broken control.
+    ///
+    /// The last one goes down to the corridor's floor, and up as far as
+    /// nothing stopped it. With nothing after it — no rest starts on its
+    /// signal, and the person may have kept holding — the corridor is the
+    /// ceiling: the "Went differently" of the last hold, on its card. A set a
+    /// REST followed — the last working set of a probing hold, whose signal
+    /// starts the rest before the probe — ended where its LAST side ended, and
+    /// the ceiling is what that side's clock ran. When its clock ended it,
+    /// that is the seconds recorded. When a thumb did (`endedByTap`), it is
+    /// the estimate plus the reach allowance it paid (`holdReachSeconds`):
+    /// the clock's reading at the tap everywhere but the corridor's floor,
+    /// where a tap at 4–7 s records 5 and the ceiling of 8 can lie up to 4 s
+    /// over the reading — only the reading itself would be exact, and nothing
+    /// keeps it. More would be seconds nobody could have held, and on a
+    /// probing hold one step of them can decide whether the probe counts at
+    /// all.
     ///
     /// What is wanted next time is a different channel (`raisedSteps`): a
     /// number entered on a card is written down as HELD (`recordingSet`), so
@@ -267,13 +340,17 @@ nonisolated enum SetFacts {
     ///
     /// `measured` is what the clock recorded for the set (`summaryMeasured`),
     /// or what the card shows when no clock ran for it. For a set ended by tap
-    /// that is already the clock less the reach allowance, and the allowance
-    /// is not handed back: it is a guess about a walk to the phone either way.
-    static func correctionRange(measured: Int, isLastSet: Bool) -> ClosedRange<Int> {
+    /// that is already the clock less the reach allowance, and an earlier set
+    /// stands at it: the allowance is a guess about a walk to the phone either
+    /// way.
+    static func correctionRange(measured: Int, isLastSet: Bool,
+                                restFollowed: Bool, endedByTap: Bool) -> ClosedRange<Int> {
         let corridor = corridor(for: .hold)
-        guard !isLastSet else { return corridor }
         let fixed = min(max(measured, corridor.lowerBound), corridor.upperBound)
-        return fixed...fixed
+        guard isLastSet else { return fixed...fixed }
+        guard restFollowed else { return corridor }
+        let ran = endedByTap ? measured + holdReachSeconds : measured
+        return corridor.lowerBound...min(max(ran, corridor.lowerBound), corridor.upperBound)
     }
 
     // MARK: - What a hold is worth when a thumb ends it
@@ -440,6 +517,12 @@ nonisolated enum SetFacts {
     /// 45 / 45 / 30 against 3×45 s reports 40. The snap to the grid is the
     /// engine's, not this one's — see the last paragraph below.
     ///
+    /// Without the sets SKIPPED with no number of their own (`performed`,
+    /// `leftOut`): 10, a skipped set and 8 against 3×8 report 9 — that set has
+    /// no number to fold, and the one `allSets` reads for it would pull the
+    /// mean toward the plan. A number entered for a set before its skip folds
+    /// like any other.
+    ///
     /// A shortfall is never reported as MEETING the plan, however close the
     /// mean lands: a session that fell short is no proof the plan was met.
     /// So when the grid cannot hold the mean below the plan without
@@ -453,9 +536,10 @@ nonisolated enum SetFacts {
     /// Doing [8,7,7] gives 7.33 and counts as the plan met; doing [7,7,7]
     /// gives 7.00 and does not. Rounded here, both would be a seven, and the
     /// engine could no longer tell the two apart.
-    static func override(_ facts: PerSet, for ex: SessionExercise) -> Double? {
+    static func override(_ facts: PerSet, for ex: SessionExercise,
+                         skipping skipped: Set<Int>) -> Double? {
         guard facts[ex.pattern]?.isEmpty == false else { return nil }
-        let values = allSets(facts, ex)
+        let values = performed(facts, ex, skipping: skipped).map(\.value)
         guard !values.isEmpty else { return nil }
         // Summed as Doubles: the values are sanitized, but this is the one
         // place their total is taken and an Int overflow would trap.
@@ -475,8 +559,9 @@ nonisolated enum SetFacts {
     /// would be broken by numbers the person has themselves entered. The
     /// unnamed "tough" a rating may add later stays unknowable here, and no
     /// caption should guess at it.
-    static func foldFallsShort(_ facts: PerSet, of ex: SessionExercise) -> Bool {
-        guard let fold = override(facts, for: ex) else { return false }
+    static func foldFallsShort(_ facts: PerSet, of ex: SessionExercise,
+                               skipping skipped: Set<Int>) -> Bool {
+        guard let fold = override(facts, for: ex, skipping: skipped) else { return false }
         return fold < Double(ex.plannedVolume) / Double(max(ex.sets, 1))
     }
 
@@ -504,10 +589,11 @@ nonisolated enum SetFacts {
     }
 
     /// The whole session's `overrides`, keyed the way the engine wants them.
-    static func overrides(_ facts: PerSet, in exercises: [SessionExercise]) -> [Pattern: Double] {
+    static func overrides(_ facts: PerSet, skipping skipped: SkippedSets,
+                          in exercises: [SessionExercise]) -> [Pattern: Double] {
         var result: [Pattern: Double] = [:]
         for ex in exercises where facts[ex.pattern] != nil {
-            result[ex.pattern] = override(facts, for: ex)
+            result[ex.pattern] = override(facts, for: ex, skipping: skipped[ex.pattern] ?? [])
         }
         return result
     }

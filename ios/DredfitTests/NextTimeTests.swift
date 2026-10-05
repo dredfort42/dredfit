@@ -18,18 +18,46 @@ final class NextTimeTests: AppStoreTestCase {
     // MARK: - The clock is the ceiling
 
     /// Every set but the last stands as it ran — its range is the number
-    /// itself. The last: the whole corridor — nothing follows it, and the
-    /// person may have kept holding.
+    /// itself, a rest after it or not. The last: the whole corridor when
+    /// nothing follows it, and the person may have kept holding.
     func testOnlyTheLastSetOpensARange() {
         let corridor = SetFacts.corridor(for: .hold)
-        XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: false), 30...30)
-        XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: true), corridor)
+        for restFollowed in [false, true] {
+            for endedByTap in [false, true] {
+                XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: false,
+                                                        restFollowed: restFollowed,
+                                                        endedByTap: endedByTap), 30...30)
+            }
+        }
+        XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: true,
+                                                restFollowed: false, endedByTap: false), corridor)
+        XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: true,
+                                                restFollowed: false, endedByTap: true), corridor)
         // Off the corridor either way, the number is still one the panel
         // could stand on.
-        XCTAssertEqual(SetFacts.correctionRange(measured: 2, isLastSet: false),
+        XCTAssertEqual(SetFacts.correctionRange(measured: 2, isLastSet: false,
+                                                restFollowed: true, endedByTap: false),
                        corridor.lowerBound...corridor.lowerBound)
-        XCTAssertEqual(SetFacts.correctionRange(measured: 500, isLastSet: false),
+        XCTAssertEqual(SetFacts.correctionRange(measured: 500, isLastSet: false,
+                                                restFollowed: true, endedByTap: false),
                        corridor.upperBound...corridor.upperBound)
+    }
+
+    /// The last set with a rest after it — the one before a probe — goes
+    /// down to the floor and up to what the clock ran: its seconds, or the
+    /// thumb's estimate plus the allowance the estimate took off.
+    func testALastSetARestFollowedGoesNoHigherThanTheClockRan() {
+        let corridor = SetFacts.corridor(for: .hold)
+        XCTAssertEqual(SetFacts.correctionRange(measured: 45, isLastSet: true,
+                                                restFollowed: true, endedByTap: false),
+                       corridor.lowerBound...45)
+        XCTAssertEqual(SetFacts.correctionRange(measured: 41, isLastSet: true,
+                                                restFollowed: true, endedByTap: true),
+                       corridor.lowerBound...(41 + SetFacts.holdReachSeconds))
+        // Still a range the panel can stand on at the corridor's top.
+        XCTAssertEqual(SetFacts.correctionRange(measured: 89, isLastSet: true,
+                                                restFollowed: true, endedByTap: true),
+                       corridor)
     }
 
     // MARK: - The addition through the store
@@ -81,16 +109,36 @@ final class NextTimeTests: AppStoreTestCase {
         let fx = try storeWithHold()
         let (store, session, hold) = (fx.store, fx.session, fx.hold)
         let overrides: [Pattern: Double] = [hold.pattern: Double(hold.load) - 5]
-        let preview = try XCTUnwrap(store.previewPosition(
+        let preview = try XCTUnwrap(store.previewPlan(
             after: session, pattern: hold.pattern, overrides: overrides, skipped: [],
             setsSkipped: [:], probes: [:], raised: [hold.pattern: 2]))
         store.completeWorkout(session: session, result: .plan, overrides: overrides,
                               raised: [hold.pattern: 2])
-        XCTAssertEqual(preview, store.currentPositions[hold.pattern])
-        XCTAssertNil(store.previewPosition(after: session, pattern: hold.pattern,
-                                           overrides: [:], skipped: [], setsSkipped: [:],
-                                           probes: [:], raised: [:]),
+        XCTAssertEqual(preview, store.currentPositions[hold.pattern]?.asPlanned(hold.pattern, probe: nil))
+        XCTAssertNil(store.previewPlan(after: session, pattern: hold.pattern,
+                                       overrides: [:], skipped: [], setsSkipped: [:],
+                                       probes: [:], raised: [:]),
                      "a session the state no longer generates previews nothing")
+    }
+
+    /// A probing plan is named with its probe, the way the comeback card
+    /// names one; a plan on another variation is named with its movement.
+    /// Two plans the same but for the probe are two plans.
+    func testTheSentenceNamesTheProbeTheNextPlanCarries() {
+        let knee = SessionExercise(pattern: .coreAntiExt, name: "Knee plank", variation: 1,
+                                   unit: .hold, load: 45, perSide: false, sets: 2,
+                                   restSetSec: 60, restExerciseSec: 60, loads: nil, probe: nil)
+        let probe = SessionProbe(variation: 2, name: "High plank", unit: .hold, load: 15, perSide: false)
+        let probing = knee.withProbe(probe)
+        XCTAssertEqual(NextTimeBlock.planWords(probing, after: knee),
+                       String(localized: "\(knee.display) + probe: \(probe.name) · \(probe.display)"))
+        XCTAssertEqual(NextTimeBlock.planWords(knee, after: knee), knee.display)
+        let high = SessionExercise(pattern: .coreAntiExt, name: "High plank", variation: 2,
+                                   unit: .hold, load: 15, perSide: false, sets: 3,
+                                   restSetSec: 60, restExerciseSec: 60, loads: nil, probe: nil)
+        XCTAssertEqual(NextTimeBlock.planWords(high, after: probing), "High plank · \(high.display)")
+        XCTAssertFalse(NextTimeBlock.samePlan(probing, knee), "the same sets, and one of them probes")
+        XCTAssertTrue(NextTimeBlock.samePlan(probing, knee.withProbe(probe)))
     }
 
     /// Changing the rating afterwards keeps the addition: it was a decision
@@ -331,6 +379,13 @@ private extension SessionExercise {
     func withLoads(_ loads: [Int]?, load: Int? = nil) -> SessionExercise {
         SessionExercise(pattern: pattern, name: name, variation: variation, unit: unit,
                         load: load ?? self.load, perSide: perSide, sets: sets,
+                        restSetSec: restSetSec, restExerciseSec: restExerciseSec,
+                        loads: loads, probe: probe)
+    }
+
+    func withProbe(_ probe: SessionProbe) -> SessionExercise {
+        SessionExercise(pattern: pattern, name: name, variation: variation, unit: unit,
+                        load: load, perSide: perSide, sets: sets,
                         restSetSec: restSetSec, restExerciseSec: restExerciseSec,
                         loads: loads, probe: probe)
     }

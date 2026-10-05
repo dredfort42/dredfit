@@ -1,7 +1,7 @@
 //
-//  Every set of a finished hold movement, on one screen, with the last one a
-//  tap from being corrected — and, under them, what the next plan will be
-//  and the one control that can raise it.
+//  Every set of a finished hold movement that was done, on one screen, with
+//  the last one a tap from being corrected — and, under them, what the next
+//  plan will be and the one control that can raise it.
 //
 //  The work screen's writer records the set under way and truncates what
 //  follows, because on that screen the sets after it have not happened yet.
@@ -25,34 +25,18 @@
 import SwiftUI
 import DredfitCore
 
-/// One set of the movement as the summary prints it.
-struct HeldSet: Identifiable {
-    /// 0-based, like everything the flow counts sets with.
-    let index: Int
-    let seconds: Int
-    let planned: Int
-    /// The number is an ESTIMATE rather than a measurement: the set ended
-    /// under a thumb, which pays a guessed three-second reach allowance.
-    /// Printed as "≈", because a number the app guessed at must not be shown
-    /// with the confidence of one the clock produced.
-    let approximate: Bool
-
-    var id: Int { index }
-}
-
 /// One tappable number. 44 pt is the floor for the target, not for the card:
 /// the number alone is 40 pt tall at the default text size and a card that
 /// only just cleared it would fail the moment somebody turned text up (R18).
 struct HeldSetCard: View {
     let held: HeldSet
-    /// Only the last set of the movement: nothing followed it, so what it
-    /// ran is the person's to correct in both directions. Every earlier set
-    /// ended on its signal or under a thumb and stands as it ran — the
-    /// card is inert, without the outline that says "tap me" and without
-    /// the hint that promises a change. It stays a button in the tree so
-    /// the tests that read the cards by identifier keep reading them.
-    let correctable: Bool
     let action: () -> Void
+
+    /// `HeldSet.correctable`. A card that is not is inert, without the
+    /// outline that says "tap me" and without the hint that promises a
+    /// change. It stays a button in the tree so the tests that read the
+    /// cards by identifier keep reading them.
+    private var correctable: Bool { held.correctable }
 
     var body: some View {
         Button {
@@ -160,7 +144,7 @@ struct HeldSetsRow: View {
     @ViewBuilder
     private func cards(_ sets: [HeldSet]) -> some View {
         ForEach(sets) { held in
-            HeldSetCard(held: held, correctable: held.index == self.sets.count - 1) {
+            HeldSetCard(held: held) {
                 onEdit(held.index)
             }
         }
@@ -203,7 +187,7 @@ struct NextTimeBlock: View {
     /// Whether two previews promise one plan — compared on what is printed,
     /// which is what the person would be promised.
     static func samePlan(_ a: SessionExercise, _ b: SessionExercise) -> Bool {
-        a.display == b.display && a.variation == b.variation
+        a.display == b.display && a.variation == b.variation && a.probe == b.probe
     }
 
     /// How many of `steps` still change the plan. The taps are made against
@@ -279,12 +263,22 @@ struct NextTimeBlock: View {
     /// reader wants the number, not its origin. Without a fact the condition
     /// stays, because the number is not a promise until the rating is given.
     private func sentence(for planned: SessionExercise) -> Text {
-        let what = planned.variation == exercise.variation
-            ? planned.display
-            : "\(planned.name) · \(planned.display)"
+        let what = Self.planWords(planned, after: exercise)
         return factEntered
             ? Text("The app will set \(what).")
             : Text("The app will set \(what) if you rate the workout “on plan”.")
+    }
+
+    /// The plan as the sentence names it, probe included: on a probing plan
+    /// the probe has taken a working set, and "2×45 s" alone would read as a
+    /// set taken off. Spelled as the comeback card spells a probing plan.
+    /// Static so a test can reach the words without a screen.
+    static func planWords(_ planned: SessionExercise, after exercise: SessionExercise) -> String {
+        let plan = planned.variation == exercise.variation
+            ? planned.display
+            : "\(planned.name) · \(planned.display)"
+        guard let probe = planned.probe else { return plan }
+        return String(localized: "\(plan) + probe: \(probe.name) · \(probe.display)")
     }
 }
 

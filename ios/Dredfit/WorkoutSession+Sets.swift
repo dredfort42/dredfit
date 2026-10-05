@@ -140,9 +140,12 @@ extension WorkoutSession {
         // hold's first side goes to the switch pause instead, not here.
         //
         // Finishing the PROBE set records its target. The rule and the reason
-        // live in `SetFacts.recordingProbe`, stated once.
+        // live in `SetFacts.recordingProbe`, stated once. Only on the probe's
+        // own screen: the summary's Done is not the probe's, and by then the
+        // probe has recorded its number or been skipped — and a skip must
+        // reach the engine unresolved, not as passed at its target.
         probeActuals = SetFacts.recordingProbe(probeActuals, exercise.pattern,
-                                               isProbe: current.isProbe,
+                                               isProbe: current.isProbe && phase == .work,
                                                target: current.planned)
         // A hold's LAST set gets its summary first, and the probe's Done is
         // the one tap that can arrive here still owing one: the probe keeps a
@@ -219,6 +222,8 @@ extension WorkoutSession {
         // …and over the sets skipped inside it: the movement was not trained,
         // so there is no volume to take off it next time.
         setsSkipped.removeValue(forKey: exercise.pattern)
+        skippedSetIndices.removeValue(forKey: exercise.pattern)
+        skippedWithNumber.removeValue(forKey: exercise.pattern)
         skippedPatterns.insert(exercise.pattern)
         advancePastExercise()
     }
@@ -237,9 +242,9 @@ extension WorkoutSession {
         firstSideHeld = nil
         // A first side ended by a thumb marks the set before the set has
         // recorded anything, so a set left here takes its mark with it: the
-        // summary would otherwise print "≈ · stopped by hand" over the number
-        // a set that recorded nothing falls back to. This set's mark only —
-        // the sets behind keep theirs (`resetHoldExercise`).
+        // mark says that what the set RECORDED is an estimate, and this one
+        // recorded nothing. This set's mark only — the sets behind keep
+        // theirs (`resetHoldExercise`).
         holdApproxSets.remove(setIndex)
         editing = nil
         // The settled hold belongs to the set it was held in for exactly the
@@ -266,6 +271,7 @@ extension WorkoutSession {
         holdDeclared = nil
         holdApproxSets.removeAll()
         holdMeasured.removeAll()
+        holdTapEndedSets.removeAll()
     }
 
     /// Past the exercise in front of us, however it ended — into the next one,
@@ -330,6 +336,7 @@ extension WorkoutSession {
             // This set only — the ones behind keep what they ran at.
             actuals = SetFacts.recording(adjustValue, in: actuals,
                                          exercise, set: setIndex)
+            numbersEntered[exercise.pattern, default: []].insert(setIndex)
             noteMaximumOutOfOrder()
             // The hint above is spent HERE, on a number actually
             // reported — not when the panel opens. Opening it

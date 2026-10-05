@@ -50,7 +50,10 @@ extension WorkoutSession {
             sessionNumber: session.sessionNumber,
             exIndex: exIndex, setIndex: setIndex,
             restEndDate: restEnd, restTotalSec: restTotal, restPlannedSec: restPlan,
-            setActuals: actuals, setsSkipped: setsSkipped, probes: probeActuals,
+            setActuals: actuals, setsSkipped: setsSkipped,
+            skippedSetIndices: SetFacts.stored(skippedSetIndices),
+            skippedWithNumberIndices: SetFacts.stored(skippedWithNumber),
+            probes: probeActuals,
             skipped: skippedPatterns,
             workoutStart: workoutStart ?? now(), savedAt: now(),
             fingerprint: WorkoutSnapshot.fingerprint(of: session),
@@ -63,6 +66,7 @@ extension WorkoutSession {
             atExerciseSummary: phase == .exerciseSummary ? true : nil,
             holdDeclaredSec: holdDeclared,
             approxSets: holdApproxSets.isEmpty ? nil : Array(holdApproxSets).sorted(),
+            tapEndedSets: holdTapEndedSets.isEmpty ? nil : Array(holdTapEndedSets).sorted(),
             holdMeasuredSec: holdMeasured.isEmpty ? nil : holdMeasured,
             interrupted: interruptedPattern,
             warmupSec: warmupSec,
@@ -86,6 +90,8 @@ extension WorkoutSession {
         setIndex = min(max(snap.setIndex, 0), max(0, totalSets - 1))
         actuals = snap.facts
         setsSkipped = snap.skips
+        skippedSetIndices = snap.skippedSets
+        skippedWithNumber = snap.skippedWithNumber
         probeActuals = snap.probeFacts
         skippedPatterns = snap.skipped
         workoutStart = snap.workoutStart
@@ -119,6 +125,7 @@ extension WorkoutSession {
         warmupSec = snap.warmupSec
         cooldownSec = snap.cooldownSec
         holdApproxSets = snap.approximateSets
+        holdTapEndedSets = snap.endedByTapSets
         holdMeasured = snap.measuredHold
         // A declared time outlives a process death, and it has to: coming back
         // to the plan's number after saying you would hold longer would undo
@@ -222,6 +229,8 @@ extension WorkoutSession {
         for pattern in settled.skipped {
             actuals.removeValue(forKey: pattern)   // a skip wins over an actual
             probeActuals.removeValue(forKey: pattern)
+            skippedSetIndices.removeValue(forKey: pattern)
+            skippedWithNumber.removeValue(forKey: pattern)
             skippedPatterns.insert(pattern)
         }
         // The cool-down is never reached from here, and a block never begun is

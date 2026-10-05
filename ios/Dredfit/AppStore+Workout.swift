@@ -93,6 +93,8 @@ extension AppStore {
             setActuals: settled.setActuals,
             skipped: settled.skipped,
             setsSkipped: settled.setsSkipped,
+            skippedSets: settled.skippedSets,
+            skippedWithNumber: settled.skippedWithNumber,
             probes: settled.probes,
             durationSec: settled.durationSec,
             warmupSec: settled.warmupSec, cooldownSec: settled.cooldownSec,

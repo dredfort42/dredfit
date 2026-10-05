@@ -21,6 +21,17 @@ extension WorkoutSession {
         setIndex - (setsSkipped[exercise.pattern] ?? 0)
     }
 
+    /// The person entered a number for the set in front of them ("Went
+    /// differently" → OK), which a skip of it keeps (`skippedWithNumber`).
+    /// Read here, at the skip, because later it cannot be: a set recorded
+    /// after the gap fills it with what was in force (`SetFacts.leftOut`).
+    /// The OK says so (`numbersEntered`); a record at this index says so too,
+    /// and is what is left of an OK after a process death.
+    private var setInFrontHasANumber: Bool {
+        numbersEntered[exercise.pattern]?.contains(setIndex) == true
+            || (actuals[exercise.pattern]?.count ?? 0) > setIndex
+    }
+
     /// "Skip this set": the set is not performed and the next one is up.
     ///
     /// No rest on the way out — there is nothing to recover from, and the
@@ -34,12 +45,24 @@ extension WorkoutSession {
         if onProbeSet {
             editing = nil
             probeActuals.removeValue(forKey: exercise.pattern)
+            // A hold's working sets are still owed their summary — where a
+            // thumb's estimate is put right and next time is set — and the
+            // skip promises they lose nothing. So the movement ends as it
+            // does after a probe done: the summary, and its Done into the
+            // rest between movements. A movement in reps has no summary.
+            if exercise.unit == .hold {
+                resetHoldSides()   // as a probe done leaves them: no side left over
+                startExerciseSummary()
+                return
+            }
             advancePastExercise()
             return
         }
         guard skipsLeaveAMovement(1) else { leaveExercise(); return }
         editing = nil
         setsSkipped[exercise.pattern, default: 0] += 1
+        skippedSetIndices[exercise.pattern, default: []].insert(setIndex)
+        if setInFrontHasANumber { skippedWithNumber[exercise.pattern, default: []].insert(setIndex) }
         if isLastSet {
             advancePastExercise()
         } else {
@@ -62,6 +85,10 @@ extension WorkoutSession {
         guard skipsLeaveAMovement(left) else { leaveExercise(); return }
         editing = nil
         setsSkipped[exercise.pattern, default: 0] += left
+        if left > 0 {
+            skippedSetIndices[exercise.pattern, default: []].formUnion(setIndex..<exercise.sets)
+            if setInFrontHasANumber { skippedWithNumber[exercise.pattern, default: []].insert(setIndex) }
+        }
         advancePastExercise()
     }
 }

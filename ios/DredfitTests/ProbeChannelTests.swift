@@ -10,9 +10,9 @@
 //  Everything here is driven through `AppStore`, because the app layer is the
 //  one the engine's fixtures do not reach. The technique offered during the
 //  rest before a probe is `WorkoutSession`'s and is pinned in
-//  WorkoutSessionTests. The rule that stays out of reach — the probe
-//  caption's own wording — lives inside a SwiftUI view as a `private` member;
-//  see the note at the bottom of this file.
+//  WorkoutSessionTests, and so is which outcome the probe's caption states
+//  (`WorkoutSession.probeOutcome`). Only the caption's wording stays out of
+//  reach, inside a SwiftUI view; see the note at the bottom of this file.
 //
 
 import XCTest
@@ -405,12 +405,8 @@ final class ProbeChannelTests: AppStoreTestCase {
     }
 }
 
-// NOT COVERED HERE, and not coverable from a unit test as the code stands:
-//
-//  * `WorkoutFlowView.probeCaption` — the three things the probe set says
-//    under its number ("one set to try it", "next time: X", "not this time").
-//
-// It is a `private` member of a SwiftUI view, so `@testable import` does not
-// reach it, and it has no value-returning form. Making it an internal
-// `var probeCaptionText: String` — the shape `headline`/`subline` were given
-// in the widget after I-8 — would put it under test with no other change.
+// NOT COVERED HERE: the WORDS of `WorkoutFlowView.probeCaption` — "one set
+// to try it", "next time: X", "not this time". It is a `private` member of a
+// SwiftUI view, so `@testable import` does not reach it. Which of them is
+// shown, and which movement "next time" names, is decided by
+// `WorkoutSession.probeOutcome` and pinned in WorkoutSessionTests.

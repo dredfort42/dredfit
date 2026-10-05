@@ -15,10 +15,16 @@ import DredfitCore
 
 struct FeedbackView: View {
     let session: Session
-    /// Per-set, as the flow recorded them. The single number each one
-    /// collapses to for the engine is `overrides` below — computed here so
-    /// the screen and the engine can never be shown different arithmetic.
+    /// Per-set, as the flow recorded them — what "easy" is judged on
+    /// (`didFullPlan`).
     let facts: SetFacts.PerSet
+    /// The single number each movement with a fact collapses to for the
+    /// engine — the flow's own (`WorkoutSession.overrides`), shown here and
+    /// handed over by the flow, so the screen and the engine can never be
+    /// shown different arithmetic.
+    let overrides: [Pattern: Double]
+    /// Each such movement's "actual" as printed (`WorkoutSession.actualSets`).
+    let actualSets: [Pattern: [Int]]
     /// Sets dropped mid-movement. Never reaches `overrides` — a skipped set
     /// is a statement about volume, not about the dose — so it is the one
     /// shortfall the rating still governs at full speed, and the only reason
@@ -31,11 +37,7 @@ struct FeedbackView: View {
     var raised: [Pattern: Int] = [:]
     /// To the engine a skip like the others; the label says "not finished".
     var interrupted: Pattern?
-    let onComplete: (FeedbackResult, [Pattern: Double]) -> Void
-
-    private var overrides: [Pattern: Double] {
-        SetFacts.overrides(facts, in: session.exercises)
-    }
+    let onComplete: (FeedbackResult) -> Void
 
     /// Whether "easy" is on offer. The rule itself is `SetFacts.didFullPlan`,
     /// where a test can reach it.
@@ -153,7 +155,7 @@ struct FeedbackView: View {
                     // The screen shows a whole number. The fraction is
                     // how the engine decides whether the top set was taken; a
                     // person reading "you did 7.33" would learn nothing.
-                    SetFactsLabel(values: SetFacts.allSets(facts, ex),
+                    SetFactsLabel(values: actualSets[ex.pattern] ?? [],
                                   reported: Int((overrides[ex.pattern] ?? 0).rounded()))
                 }
             }
@@ -305,7 +307,7 @@ struct FeedbackView: View {
     private func optionCard(title: String, caption: String,
                             result: FeedbackResult, enabled: Bool) -> some View {
         Button {
-            onComplete(result, overrides)
+            onComplete(result)
         } label: {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)

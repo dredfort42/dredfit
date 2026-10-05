@@ -158,7 +158,7 @@ final class HoldFactsTests: XCTestCase {
                             + "record must not diverge from the plan on its own")
         }
         XCTAssertEqual(SetFacts.allSets(facts, uneven), plan)
-        XCTAssertNil(SetFacts.override(facts, for: uneven), "the rating governs the pattern")
+        XCTAssertNil(SetFacts.override(facts, for: uneven, skipping: []), "the rating governs the pattern")
     }
 
     /// The fill itself, on the set that shows the defect: a third set

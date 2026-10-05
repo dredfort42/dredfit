@@ -49,6 +49,8 @@ enum WorkoutSessionStore {
         var setActuals: SetFacts.PerSet
         var skipped: Set<Pattern>
         var setsSkipped: SetFacts.Skips
+        var skippedSets: SetFacts.SkippedSets
+        var skippedWithNumber: SetFacts.SkippedSets
         var probes: [Pattern: Int]
         var durationSec: Int
         var warmupSec: Int?
@@ -75,16 +77,24 @@ enum WorkoutSessionStore {
         let skipped = settled.skipped.union(snap.skipped)
         var facts = snap.facts
         var probes = snap.probeFacts
+        var skippedSets = snap.skippedSets
+        var skippedWithNumber = snap.skippedWithNumber
         // A skip wins over an actual, the same way it does in the flow.
         for pattern in skipped {
             facts.removeValue(forKey: pattern)
             probes.removeValue(forKey: pattern)
+            skippedSets.removeValue(forKey: pattern)
+            skippedWithNumber.removeValue(forKey: pattern)
         }
         return Settlement(
-            overrides: SetFacts.overrides(facts, in: session.exercises),
+            overrides: SetFacts.overrides(facts,
+                                          skipping: SetFacts.leftOut(skippedSets, keeping: skippedWithNumber),
+                                          in: session.exercises),
             setActuals: facts,
             skipped: skipped,
             setsSkipped: settled.setsSkipped,
+            skippedSets: skippedSets,
+            skippedWithNumber: skippedWithNumber,
             probes: probes,
             // Minus the measured absence, exactly as the flow's own path does
             // it: the same break must not be charged to the workout or not

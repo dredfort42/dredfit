@@ -61,7 +61,7 @@ final class AppStoreTests: AppStoreTestCase {
         // corridor floor is 0 — "minus five" would be clamped there and the
         // assertion would compare two clamps.
         let facts = SetFacts.recording(ex.load - 1, in: [:], ex, set: ex.sets - 1)
-        let overrides = SetFacts.overrides(facts, in: session.exercises)
+        let overrides = SetFacts.overrides(facts, skipping: [:], in: session.exercises)
         store.completeWorkout(session: session, result: .plan,
                               overrides: overrides, setActuals: facts)
 
