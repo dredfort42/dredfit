@@ -139,7 +139,7 @@ jobs = [
     #        variation 1 everywhere, so the caption promises the step only
     #        where one exists (the #238 fix of `plan.techniqueHint`).
     (f"{RAW}/technique_en.png",   ["Technique for", "every movement"], "And an easier variation, whenever there is one below.", f"{OUT}/en/s5.png"),
-    (f"{RAW}/technique_ru.png",   ["Техника", "каждого движения"], "И вариация полегче — если ниже есть ступень.", f"{OUT}/ru/s5.png"),
+    (f"{RAW}/technique_ru.png",   ["Техника", "каждого движения"], "И вариация полегче — если ниже она есть.", f"{OUT}/ru/s5.png"),
     (f"{RAW}/technique_es.png",   ["Técnica para", "cada movimiento"], "Y una variación más fácil, si hay una más abajo.", f"{OUT}/es/s5.png"),
     (f"{RAW}/technique_pt-br.png", ["Técnica de cada", "movimento"], "E uma variação mais fácil, sempre que houver uma abaixo.", f"{OUT}/pt-br/s5.png"),
     (f"{RAW}/technique_de.png",   ["Technik zu", "jeder Bewegung"], "Und eine leichtere Variante, wenn darunter eine liegt.", f"{OUT}/de/s5.png"),
