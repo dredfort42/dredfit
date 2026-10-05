@@ -182,7 +182,7 @@ final class ProbeChannelTests: AppStoreTestCase {
         store.completeWorkout(session: session, result: .plan, probes: [.pull: short])
 
         XCTAssertEqual(store.engineState.position(.pull), before,
-                       "И3: a failed probe changes no coordinate. Staying on a movement you can already do "
+                       "a failed probe changes no coordinate. Staying on a movement you can already do "
                        + "is not a failure and is never charged for")
         XCTAssertEqual(store.engineState.shownDose(.pull, variation: probe.variation), short,
                        "what was honestly shown on the new rung is still recorded — it is a fact either way")

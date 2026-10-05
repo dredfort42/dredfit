@@ -531,7 +531,9 @@ final class DescentSweepTests: XCTestCase {
     ///
     /// The reference's verifier runs this sweep over every position for the
     /// silent decay only; for the comeback it checks narrower things, such as
-    /// a longer break never landing higher.
+    /// a longer break never landing higher. This sweep goes further on purpose,
+    /// and is no stricter rule: the engine already passes it, so it pins what
+    /// the model does rather than raising a bar past it.
     func test_comeback_fromEveryCutAndBandPosition_neverMakesThePlanHeavier() {
         // Both sides of the return table: gaps before its first row walk rungs
         // only, gaps on a row also take the landing ceiling.

@@ -45,7 +45,7 @@ final class GetReadyTests: XCTestCase {
     /// Travelling to another position takes time, turning over inside one does
     /// not — so they part on WHAT they are, not on how long they happen to be,
     /// and the split is pinned in both directions.
-    func testTheTransitionAndTheSideSwitchPauseAreNoLongerTheSame() {
+    func testTheTransitionAndTheSideSwitchPauseKeepTheirOwnLengths() {
         XCTAssertEqual(GetReady.seconds, 8)
         XCTAssertEqual(Cooldown.sideSwitchPauseSec, 4)   // on trial
         XCTAssertNotEqual(GetReady.seconds, Cooldown.sideSwitchPauseSec,

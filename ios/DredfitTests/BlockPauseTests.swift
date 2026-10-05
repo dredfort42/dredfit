@@ -9,8 +9,8 @@ final class BlockPauseTests: XCTestCase {
 
     func testTheWayBackInIsTheCountIn() {
         // A third length would be a third thing to learn: four seconds is the
-        // count-in before a position (#52) and after every start tap, and the
-        // pause between the sides of one (#35). The way back in is the same
+        // count-in after every start tap, and the pause between the sides of
+        // a position (#35). The way back in is the same
         // beat — Resume is tapped by someone already standing in place, so
         // there is no travel to pay for.
         //

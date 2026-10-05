@@ -25,17 +25,17 @@ jobs:
       - name: Run SwiftLint
         run: swiftlint lint --reporter github-actions-logging
 
-      # Comments say why for the code as it is now. A spec section (§41.7), a
-      # review date or a regulation id (R32) points at a document that is not
-      # in the repo, or at a moment that has passed: say the rule it stood for
-      # instead. Runs after a red SwiftLint too, so one push reports both.
+      # Comments say why for the code as it is now. A spec section (§41.7), an
+      # invariant id (И3), a dated review or owner note, or a regulation id
+      # (R32) points at a document that is not in the repo, or at a moment
+      # that has passed: say the rule it stood for instead. Runs after a red SwiftLint too, so one push reports both.
       # grep exits 1 on no match; anything above that is a guard that checked
       # nothing, and fails rather than passing in silence.
       - name: No spec sections, review dates or R-ids in Swift
         if: ${{ !cancelled() }}
         run: |
           set +e
-          grep -rnE 'review,? [0-9]{2}\.[0-9]{2}\.20[0-9]{2}|§[0-9]|(^|[^[:alnum:]_])R[0-9]{2}([^[:alnum:]_]|$)' \
+          grep -rnE '(review|owner|audit|decision),? [0-9]{2}\.[0-9]{2}\.20[0-9]{2}|§ ?[0-9]|И[0-9]|(^|[^[:alnum:]_])R[0-9]{1,2}([^[:alnum:]_]|$)' \
             ios/ --include='*.swift' --exclude-dir=.build
           rc=$?
           case $rc in
