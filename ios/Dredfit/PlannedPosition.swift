@@ -18,7 +18,7 @@ extension RecordedPosition {
     /// that initialiser from outside the engine that its own doc comment
     /// sanctions — and so the two can be compared at all.
     ///
-    /// Two of the six coordinates have to be resolved first. `cut` takes sets
+    /// Two of the five coordinates have to be resolved first. `cut` takes sets
     /// off WITHOUT moving `sets`, so the raw coordinate would read HIGHER than
     /// the plan right after a descent took some away; `sub` is what
     /// makes a plan read "9-8-8" instead of "3×8". Both resolve the way
