@@ -313,8 +313,8 @@ final class AppStore {
 
     /// IMPORTANT: right after a workout is completed the counter has
     /// advanced, so this is the NEXT workout. Never present it under today's
-    /// date — only with nextTrainingDate.
-    var nextSession: Session { Engine.generateSession(engineState) }
+    /// date — only with nextTrainingDate. A workout in progress: `session(for:)`.
+    var nextSession: Session { session(for: engineState) }
 
     /// Conservative on missing data: records without an exercise snapshot
     /// cannot vouch for what was done, so a pattern with no snapshotted

@@ -359,6 +359,24 @@ extension Engine {
         return lift
     }
 
+    /// The plan a build without the pull-cap memory drew from this state: a
+    /// push with no memory gets no one-time release, and everything else is
+    /// `generateSession` — the same plan once every push has the memory. For
+    /// the app, about a workout started on such a build and still in progress
+    /// after the update: its snapshot is keyed on this plan, and the plan drawn
+    /// now would hand a frozen push its sets back between two of them. The
+    /// reference has no twin of it: it never had a build without the memory.
+    public static func sessionWithoutTheOneTimeRelease(_ dirty: EngineState) -> Session {
+        var state = dirty.sanitized()
+        let cap = pullSlotSets(state)
+        // A showing remembered under the cap the plan is drawn under: the cap
+        // has risen by nothing since, so the repair lifts nothing.
+        for p in Pattern.pushSide where state.shownCap[p] == nil {
+            rememberCap(&state, p, state.position(p), cap: cap)
+        }
+        return generateSession(state)
+    }
+
     /// The pull slot's set count caps the push of the same session, and it
     /// reads the WEAKER of the slot's two branches rather than whichever one
     /// stands today: on diverged branches the push plan would otherwise flip

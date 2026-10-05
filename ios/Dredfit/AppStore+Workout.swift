@@ -10,6 +10,23 @@ import DredfitCore
 
 extension AppStore {
 
+    /// The plan the store hands out for `state`: the one the engine draws —
+    /// unless the workout in progress was started on the plan a build without
+    /// the pull-cap memory drew, and the update came in the middle of it. That
+    /// workout carries on as it was started: its snapshot is keyed on that
+    /// plan, and the plan drawn now would hand a frozen push its sets back
+    /// between two of them, so the card would vanish and the work done so far
+    /// would never be recorded. Once the workout is settled, recorded or
+    /// started over, the plan is drawn afresh.
+    func session(for state: EngineState) -> Session {
+        let drawn = Engine.generateSession(state)
+        guard let snap = pendingWorkout,
+              WorkoutSessionStore.valid(snap, plan: drawn, counter: state.counter) == nil
+        else { return drawn }
+        let started = Engine.sessionWithoutTheOneTimeRelease(state)
+        return WorkoutSessionStore.valid(snap, plan: started, counter: state.counter) == nil ? drawn : started
+    }
+
     private func validPendingWorkout() -> (snapshot: WorkoutSnapshot, session: Session)? {
         let session = nextSession
         guard let snap = WorkoutSessionStore.valid(pendingWorkout, plan: session,

@@ -299,6 +299,45 @@ final class PushGateTests: XCTestCase {
         XCTAssertEqual(Array(shown.prefix(5)), [5, 5, 4, 5, 5])
     }
 
+    // MARK: - The plan a build without the memory drew
+
+    /// The frozen press of the legacy state above, redrawn as the build before
+    /// the memory drew it — the plan a workout started on that build is keyed
+    /// on. The press stays on four sets, and nothing else moves.
+    func testThePlanWithoutTheOneTimeReleaseKeepsTheFrozenPush() throws {
+        var s = EngineState.initial
+        put(&s, .pushH, sets: 5, dose: 15)
+        put(&s, .pull, sets: 5, dose: 15)
+        s.shownWork = [.pushH: 4 * 15 * 2]
+        s.shownOrd = [.pushH: Engine.posOrd(.pushH, s.position(.pushH))]
+        let drawn = Engine.generateSession(s)
+        let before = Engine.sessionWithoutTheOneTimeRelease(s)
+        XCTAssertEqual(drawn.exercises.first { $0.pattern == .pushH }?.sets, 5, "drawn now, the press is released")
+        XCTAssertEqual(before.exercises.first { $0.pattern == .pushH }?.sets, 4, "the build before held it on four")
+        XCTAssertEqual(before.exercises.filter { $0.pattern != .pushH },
+                       drawn.exercises.filter { $0.pattern != .pushH }, "only the release differs")
+    }
+
+    /// A push WITH the memory keeps its lift: what is left out is the release
+    /// of a push that has none, not the rule. Once both pushes remember a
+    /// showing, it is the plan drawn now — the showing the cap lifts included.
+    func testWithTheMemoryInPlaceItIsThePlanDrawnNow() {
+        var s = EngineState.initial
+        put(&s, .pushH, sets: 5, dose: 15)
+        put(&s, .pushV, sets: 5, dose: 15)
+        put(&s, .pull, sets: 5, dose: 15)
+        s = train(s, gapDays: 7 / 3)
+        XCTAssertEqual(Set(s.shownCap.keys), [.pushH, .pushV], "workout 1 showed both pushes")
+        var shown: [Int] = []
+        for k in 0..<5 {
+            XCTAssertEqual(Engine.sessionWithoutTheOneTimeRelease(s), Engine.generateSession(s),
+                           "showing \(k + 2)")
+            if let ph = exercise(s, .pushH) { shown.append(ph.sets) }
+            s = train(s, setsSkipped: k == 0 ? [.pull: 1] : [:], gapDays: 7 / 3)
+        }
+        XCTAssertEqual(shown, [4, 5, 5], "capped once while the pull showed four, then lifted back")
+    }
+
     // MARK: - The memory itself
 
     /// The feedback remembers the cap a push was SHOWN under — read off the
