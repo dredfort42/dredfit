@@ -2,7 +2,7 @@
   "generator": "adaptive_engine.js v3.8.0",
   "golden.json": "b3003c244d3381b755d847a73e75bbaf58d81ca0338dac63ab2ff9a046c00cd6",
   "reference": {
-    "SPEC-v2.md": "6877f16a45caa18d6d1fa2c48db6bcee972f333f270bfc492452e52568403d48",
+    "SPEC-v2.md": "be9ccf886d9d883475966ccffa632388a0415174a51f13f1b60f77cece1de7bc",
     "adaptive_engine.js": "9421cd537aca2bd5b4b8d53c97b4739ca58595ed0e1be311702950667e82f01c",
     "make_golden.js": "e6000f0c9114194255d4aa5f59b985569641b07d43516dfa111c30ea84b87712",
     "verify2.js": "b57914ca66e87e5dd06fc18987fcbff9fc90733b92827c0a13c345a52054856d"

@@ -122,9 +122,10 @@ final class ShownPlanTests: AppStoreTestCase {
 
     /// …and writing it down must not change it. The memory keeps the work of
     /// the plan AFTER the postcondition repair, and the repair only trims work
-    /// STRICTLY above what was shown — so the next draw has nothing to trim
-    /// and the plan is a fixed point. Without that the card would shrink under
-    /// the reader's eyes, one set per render.
+    /// STRICTLY above what was shown — so the next draw has nothing to trim —
+    /// and the same write remembers a push's pull cap, so there is no rise of
+    /// it to hand back either: the plan is a fixed point. Without that the card
+    /// would shrink under the reader's eyes, one set per render.
     func testWritingAShowingDownDoesNotChangeThePlan() throws {
         for variation in 1...deepestVariation {
             let store = try advancedStore(variation: variation)

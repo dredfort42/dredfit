@@ -75,9 +75,9 @@ extension Engine {
     /// `bandCeil` is the highest band this growth may enter. A push gets the
     /// pull slot's sets as they stand after the session (`applyFeedback`):
     /// entering a band the pull does not show yet would celebrate a set the
-    /// cap then hides, and cut the volume just done by a quarter. Above it the
-    /// push parks on its band's ceiling like any parking — the remaining
-    /// events burn. Everything else passes the top of the scale.
+    /// cap then hides, and cut the volume just done by a fifth to a quarter.
+    /// Above it the push parks on its band's ceiling like any parking — the
+    /// remaining events burn. Everything else passes the top of the scale.
     static func riseBy(_ p: Pattern, _ pos: Position, _ n: Int,
                        allowSetsBack: Bool, bandCeil: Int) -> Position {
         var cur = fit(p, pos)
@@ -111,7 +111,7 @@ extension Engine {
                 k -= 1
                 continue
             }
-            break   // parked on the ceiling: waiting for a probe, or at the top of the scale
+            break   // parked on the ceiling: waiting for a probe or the pull, or at the top of the scale
         }
         return fit(p, cur)
     }

@@ -365,7 +365,8 @@ extension Engine {
     /// the app, about a workout started on such a build and still in progress
     /// after the update: its snapshot is keyed on this plan, and the plan drawn
     /// now would hand a frozen push its sets back between two of them. The
-    /// reference has no twin of it: it never had a build without the memory.
+    /// reference has no twin of it: a workout in progress across an update is
+    /// the app's case, not the engine's.
     public static func sessionWithoutTheOneTimeRelease(_ dirty: EngineState) -> Session {
         var state = dirty.sanitized()
         let cap = pullSlotSets(state)
@@ -454,10 +455,10 @@ extension Engine {
     ///
     /// A push whose position STANDS gets back what its pull cap has given back
     /// since that showing (`gateLift`), on top of what the repair holds and never
-    /// above what the cap allows. Without it the repair kept the count the cap
-    /// once showed until the position moved — on 5×15, until the push fell — and
-    /// "the sets return once the pull catches up" was not true. A push that
-    /// FELL stays under the repair whole: a descent never adds work.
+    /// above what the cap allows. Without it the repair would keep the count the
+    /// cap once showed until the position moved — on 5×15, until the push fell —
+    /// and "the sets return once the pull catches up" would not be true. A push
+    /// that FELL stays under the repair whole: a descent never adds work.
     private static func repairDescent(_ exercises: [SessionExercise],
                                       shownWork: [Pattern: Int], shownOrd: [Pattern: Int],
                                       ordNow: [Pattern: Int],

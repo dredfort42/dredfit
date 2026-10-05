@@ -225,10 +225,10 @@ public enum Engine {
         if pos.cut > 0 { next.cut[p] = pos.cut } else { next.cut[p] = nil }
     }
 
-    /// The pull cap a push was shown under — the slot's sets on screen then and
-    /// its own sets then — with the trace of a cut taken off it closed: this
-    /// showing is the new reference. One write for both places a showing is
-    /// remembered, the feedback and `recordShown`.
+    /// The pull cap a push was shown under — the slot's sets then (with the bar,
+    /// the weaker branch's) and its own sets then — with the trace of a cut
+    /// taken off it closed: this showing is the new reference. One write for
+    /// both places a showing is remembered, the feedback and `recordShown`.
     static func rememberCap(_ next: inout EngineState, _ p: Pattern, _ pos: Position, cap: Int) {
         guard Pattern.pushSide.contains(p) else { return }
         next.shownCap[p] = cap

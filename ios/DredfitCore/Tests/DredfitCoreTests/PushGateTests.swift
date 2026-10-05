@@ -65,7 +65,7 @@ final class PushGateTests: XCTestCase {
     // MARK: - A push enters a band behind the pull
 
     /// Archer push-ups on their ceiling would enter 4×11 while the pull
-    /// stands on three sets — and the cap would then show 3×11, a third less
+    /// stands on three sets — and the cap would then show 3×11, a quarter less
     /// than the 3×15 just done, under a "Now 4 sets" that is not true. The
     /// push waits on its ceiling instead; with the pull on four it enters.
     func testAPushWaitsOnItsCeilingWhileThePullShowsFewerSets() {
@@ -202,7 +202,7 @@ final class PushGateTests: XCTestCase {
     /// Push and pull on 5×15, one pull set skipped. The press shows 4×15 at
     /// its next appearance — the pull really does show four — and the pull
     /// returns its set in that session. Once the cap has lifted, the press is
-    /// back on 5×15. Before the rule the repair held it on 4×15 at every
+    /// back on 5×15. Without the rule the repair would hold it on 4×15 at every
     /// appearance until the press fell: at the top of the scale it cannot
     /// rise.
     func testALiftedGateGivesAFrozenPushItsSetsBack() throws {

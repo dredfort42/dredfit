@@ -57,13 +57,14 @@ public struct EngineState: Codable, Equatable, Sendable {
     public var shownWork: [Pattern: Int]
     public var shownOrd: [Pattern: Int]
     /// The pull-cap memory of a push, written with the two above at every
-    /// showing: the pull slot's sets on screen then (`shownCap`) and the push's
-    /// own sets then, the band less the cut (`shownOwn`). Their minimum is what
-    /// the cap allowed at that showing, and the repair hands a standing push
-    /// back exactly what the cap has risen since — not what it holds for a
-    /// cause of its own. Pushes only: nothing else is capped. A push with no
-    /// entry was last shown by a build without this memory; it gets its whole
-    /// cap back once, and that showing writes the memory.
+    /// showing: the pull slot's sets then (`shownCap`; with the bar, the weaker
+    /// branch's) and the push's own sets then, the band less the cut
+    /// (`shownOwn`). Their minimum is what the cap allowed at that showing,
+    /// and the repair hands a standing push back exactly what the cap has
+    /// risen since — not what it holds for a cause of its own. Pushes only:
+    /// nothing else is capped. A push with no entry was last shown by a build
+    /// without this memory; it gets its whole cap back once, and that showing
+    /// writes the memory.
     public var shownCap: [Pattern: Int]
     public var shownOwn: [Pattern: Int]
     /// Pushes a set was taken off since their last showing — a skipped set, or

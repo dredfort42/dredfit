@@ -18,9 +18,11 @@ extension AppStore {
     /// between two of them, so the card would vanish and the work done so far
     /// would never be recorded. The held plan is not written down again
     /// (`recordPlanShown`), so starting over still gets the one-time release.
-    /// Carried to its end, the workout spends it: its rating writes the cap
-    /// memory, and the push stays where that build held it until its cap dips
-    /// and rises again or the push itself moves.
+    /// Carried to its end, the workout spends it: its rating remembers the cap
+    /// the workout ran under, and from then on the push gets back only what its
+    /// cap rises above the cap of its last showing. A push that build held
+    /// below its cap stays there until the push itself moves; a showing that
+    /// finds the cap lower gets back only what the cap then rises from it.
     func session(for state: EngineState) -> Session {
         let drawn = Engine.generateSession(state)
         guard let snap = pendingWorkout,
