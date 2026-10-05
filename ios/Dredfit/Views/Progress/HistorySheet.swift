@@ -153,10 +153,13 @@ struct HistorySheet: View {
     /// not one that ran. Without a mid-skip `known <= performed`, and the cut
     /// to the sets that ran is all that applies.
     ///
-    /// The two paragraphs above are how a record that does not say WHICH sets
-    /// were skipped is read. One that does (`skippedSetIndices`) needs neither:
-    /// the line leaves out the skipped sets with no number of their own
-    /// (`leftOutSets`) and holds each of the others against its own plan.
+    /// A record that says WHICH sets were skipped (`skippedSetIndices`) needs
+    /// no guess about where they were: the line leaves out the named ones with
+    /// no number of their own (`leftOutSets`) and holds each of the others
+    /// against its own plan. The sets a workout ended before reaching are
+    /// still counted and not named — `setsSkipped` past the named ones, always
+    /// a trailing block — so they are cut as above, never below what was
+    /// recorded.
     ///
     /// Static and taking the record for the same reason `probeLine` is: a rule
     /// written as a private member of a SwiftUI view is a rule no unit test
@@ -164,9 +167,12 @@ struct HistorySheet: View {
     static func setFacts(_ ex: SessionExercise,
                          in record: WorkoutRecord) -> (values: [Int], reported: Int)? {
         let reported = record.actuals?[ex.pattern]
-        if let facts = record.setActuals, facts[ex.pattern] != nil,
-           record.skippedSets[ex.pattern] != nil {
+        if let facts = record.setActuals, let known = facts[ex.pattern]?.count,
+           let named = record.skippedSets[ex.pattern] {
+            let unreached = max(setsSkipped(ex, in: record) - named.count, 0)
+            let ran = max(ex.sets - unreached, known)
             let done = SetFacts.performed(facts, ex, skipping: record.leftOutSets[ex.pattern] ?? [])
+                .filter { $0.set < ran }
             guard let first = done.first?.value,
                   done.contains(where: { $0.value != ex.plannedLoad(set: $0.set) }) else { return nil }
             return (done.map(\.value), reported ?? first)
