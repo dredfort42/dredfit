@@ -309,11 +309,9 @@ final class WorkoutSession {
 
     var exercise: SessionExercise { exercises[exIndex] }
 
-    /// Working sets plus the probe, when the plan carries one. The probe
-    /// REPLACES a working set upstream — the engine hands back one set fewer —
-    /// so the session's volume is unchanged and this count is what the person
-    /// actually walks through.
-    var totalSets: Int { exercise.sets + (exercise.probe == nil ? 0 : 1) }
+    /// The exercise in front of us, its probe's set included
+    /// (`SessionExercise.totalSets`).
+    var totalSets: Int { exercise.totalSets }
 
     /// The set under way is the probe: one set of the NEXT variation, offered
     /// instead of the last set of the current one.

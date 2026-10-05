@@ -153,9 +153,11 @@ extension AppStore {
 }
 
 extension SessionExercise {
-    /// The sets a row takes, a probe's among them: the probe occupies the
-    /// slot of the working set it replaces rather than adding one, so this is
-    /// what the pull slot's cap and a push's own sets are measured against.
+    /// Working sets plus the probe, when the plan carries one. The probe
+    /// REPLACES a working set upstream — the engine hands back one set fewer —
+    /// so the session's volume is unchanged and this count is what the person
+    /// actually walks through. It is also what the pull slot's cap and a
+    /// push's own sets are measured against.
     var totalSets: Int { sets + (probe == nil ? 0 : 1) }
 }
 
