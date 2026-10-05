@@ -151,7 +151,6 @@ extension WorkoutFlowView {
                 // lock screen — and leaving it out here would announce the
                 // same exercise with two denominators.
                 WorkStatusCaption(secondSide: flow.holdSecondSide,
-                                  settled: flow.holdSettled,
                                   actual: setActual,
                                   setIndex: flow.setIndex, sets: flow.totalSets,
                                   // The SET's number, not the big digit's: that

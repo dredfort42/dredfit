@@ -57,7 +57,7 @@ struct StateFile {
             return .undecodable
         }
         if data.engineStateReset {
-            // A v2 state migrates (§41.7), so reaching here means the state was
+            // A v2 state is carried over, so reaching here means the state was
             // neither v3 NOR v2 — a file from a future build, or one damaged
             // past reading. The journal beside it is whole.
             Self.log.notice("engine state unreadable in both shapes\(when, privacy: .public), journal whole")

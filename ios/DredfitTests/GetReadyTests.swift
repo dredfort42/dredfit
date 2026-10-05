@@ -45,11 +45,11 @@ final class GetReadyTests: XCTestCase {
     /// Travelling to another position takes time, turning over inside one does
     /// not — so they part on WHAT they are, not on how long they happen to be,
     /// and the split is pinned in both directions.
-    func testTheTransitionAndTheSideSwitchPauseAreNoLongerTheSame() {
+    func testTheTransitionAndTheSideSwitchPauseKeepTheirOwnLengths() {
         XCTAssertEqual(GetReady.seconds, 8)
         XCTAssertEqual(Cooldown.sideSwitchPauseSec, 4)   // on trial
         XCTAssertNotEqual(GetReady.seconds, Cooldown.sideSwitchPauseSec,
-                          "the two lengths parted in v2.26 and must stay apart")
+                          "the transition and the switch pause must stay two lengths")
         XCTAssertEqual(GetReady.stageSeconds(needsSetup: false), GetReady.seconds)
         XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.getReady, of: Warmup.moves(sessionNumber: 1)[0]),
                        GetReady.seconds,
@@ -316,7 +316,7 @@ final class GetReadyTests: XCTestCase {
         let bySide = try XCTUnwrap(moves.first { $0.halves == .sides })
         let byDirection = try XCTUnwrap(moves.first { $0.halves == .directions })
         XCTAssertEqual(Warmup.slotSeconds(of: bySide), Warmup.slotSeconds(of: byDirection),
-                       "the two kinds cost the same 15 + 5 + 15")
+                       "the two kinds cost the same: two halves and one switch pause")
     }
 
     func testTheTwoHalvesSplitTheSlotAndThePauseRidesOnTop() throws {

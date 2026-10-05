@@ -67,11 +67,11 @@ final class CooldownTests: XCTestCase {
     /// the reserve also pays for the transitions and the switch pauses that
     /// carry them. The whole-block counterpart lives in BlockReserveTests,
     /// where both blocks are counted together.
-    func testTheHoldsAloneNoLongerFillTheReserve() {
+    func testTheHoldsAloneDoNotFillTheReserve() {
         let holds = Cooldown.positionCount * Cooldown.positionSeconds
         XCTAssertEqual(holds, 180, "six positions of thirty seconds")
         XCTAssertLessThan(holds, EngineConfig.cooldownMin * 60,
-                          "the reserve now carries the transitions as well")
+                          "the reserve carries the transitions as well")
     }
 
     func testAPerSidePositionSplitsIntoTwoWholeSidesPlusThePause() {
@@ -110,7 +110,7 @@ final class CooldownTests: XCTestCase {
         XCTAssertEqual(next?.stage, .getReady)
         XCTAssertEqual(GuidedBlock.step(after: (1, .getReady), positions: positions)?.stage,
                        .firstHalf,
-                       "chest wall is per side too — it tells the user to swap arms")
+                       "chest wall is per side too — the app counts one arm, then the other")
     }
 
     func testTheBlockEndsAfterTheLastPosition() {

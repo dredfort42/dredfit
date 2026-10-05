@@ -102,7 +102,7 @@ final class ProbeChannelTests: AppStoreTestCase {
         let session = store.nextSession
         let pulling = try exercise(.pull, in: session)
         let probe = try XCTUnwrap(pulling.probe,
-                                  "a maxed variation with the journal to match IS the probe condition of §40.4")
+                                  "a maxed variation with the journal to match IS the probe condition")
 
         XCTAssertEqual(probe.variation, pulling.variation + 1,
                        "the probe offers the NEXT rung of the ladder, never one further up")
@@ -124,7 +124,7 @@ final class ProbeChannelTests: AppStoreTestCase {
         XCTAssertEqual(store.engineState.position(.pull).dose, grid.max,
                        "the PLAN did climb to the ceiling — the half of the old gate that still holds")
         XCTAssertNil(pulling.probe,
-                     "§41.4: the gate reads the journal of what was SHOWN, and 14 against a ceiling of 15 "
+                     "the gate reads the journal of what was SHOWN, and 14 against a ceiling of 15 "
                      + "is not a maxed variation — eleven probes in 75 appearances were thrown away this way")
         XCTAssertEqual(pulling.sets, EngineConfig.setsBase, "so the last set stays a working one")
     }
@@ -141,7 +141,7 @@ final class ProbeChannelTests: AppStoreTestCase {
         let store = try seededStore(variation: [.pull: Library.count(.pull)], maxed: [.pull])
 
         XCTAssertNil(try exercise(.pull, in: store.nextSession).probe,
-                     "there is no next variation to try: growth continues in the set bands instead (§40.5)")
+                     "there is no next variation to try: growth continues in the set bands instead")
     }
 
     // MARK: - What the reported number does
@@ -166,7 +166,7 @@ final class ProbeChannelTests: AppStoreTestCase {
         XCTAssertEqual(store.engineState.shownDose(.pull, variation: probe.variation), probe.load,
                        "what the probe showed is what the new rung's journal says")
         XCTAssertEqual(store.engineState.shownDose(.pull, variation: 1), leftBehind,
-                       "and the rung left behind keeps its own number — that is where a descent lands (§40.6)")
+                       "and the rung left behind keeps its own number — a descent back to it takes that as its ceiling")
     }
 
     func test_probe_whenTheReportedNumberFallsShortOfItsTarget_movesNothingButTheJournal() throws {
@@ -182,7 +182,7 @@ final class ProbeChannelTests: AppStoreTestCase {
         store.completeWorkout(session: session, result: .plan, probes: [.pull: short])
 
         XCTAssertEqual(store.engineState.position(.pull), before,
-                       "И3: a failed probe changes no coordinate. Staying on a movement you can already do "
+                       "a failed probe changes no coordinate. Staying on a movement you can already do "
                        + "is not a failure and is never charged for")
         XCTAssertEqual(store.engineState.shownDose(.pull, variation: probe.variation), short,
                        "what was honestly shown on the new rung is still recorded — it is a fact either way")

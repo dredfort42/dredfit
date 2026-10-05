@@ -302,7 +302,7 @@ struct ProgressScreen: View {
 
     private func plot(_ record: WorkoutRecord, _ p: Pattern) -> Plotted? {
         guard let position = record.positionsAfter?[p] else { return nil }
-        // Every recorded coordinate: replotted without `sub` and `cut`, a
+        // All five recorded coordinates: replotted without `sub` and `cut`, a
         // snapshot would sit off the number beside the row. Older records
         // carry neither key and plot with both at zero.
         return Plotted(date: record.date,

@@ -574,7 +574,7 @@ extension HealthExportTests {
 
         let full = try XCTUnwrap(withBlocks.saved.first?.kcal)
         let bare = try XCTUnwrap(declined.saved.first?.kcal)
-        XCTAssertLessThan(bare, full, "nine minutes nobody spent must not be billed")
+        XCTAssertLessThan(bare, full, "ten minutes nobody spent must not be billed")
     }
 
     /// A block half done is charged for the half — not all, not nothing.

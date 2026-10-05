@@ -1,8 +1,8 @@
 //
 //  The weekly window and a number that met the plan, the cross-credit and its
-//  set returns, and the hold armed by sets coming back on screen (§41.16).
-//  Golden pins these through whole scenarios; each test here names one rule,
-//  so a port that breaks it says which.
+//  set returns, and the hold armed by sets coming back on screen. Golden pins
+//  these through whole scenarios; each test here names one rule, so a port
+//  that breaks it says which.
 //
 
 import XCTest
@@ -70,12 +70,12 @@ final class CreditWindowHoldTests: XCTestCase {
         return s
     }
 
-    // MARK: - §41.16 п. 1 · a number that met the plan obeys the weekly window
+    // MARK: - A number that met the plan obeys the weekly window
 
     /// A number that merely meets the plan rises by the engine's +1, as a tap
     /// does, so the window governs it as it governs the tap. Let through, it
-    /// rose past a spent budget where a tap on the same session stood still,
-    /// and a daily logger outgrew the window on the slow tissues by half again.
+    /// would rise past a spent budget where a tap on the same session stands
+    /// still, and a daily logger would outgrow the window.
     func testUnderASpentWindowANumberThatMeetsThePlanStandsLikeATap() throws {
         var spent = placed(.squat, variation: 2, dose: 8, sub: 2, journal: [2: 9])
         spent.weekGain[.squat] = EngineConfig.weeklyRiseFast
@@ -109,7 +109,8 @@ final class CreditWindowHoldTests: XCTestCase {
     }
 
     /// A number for a movement outside the session is discarded whole. Taken
-    /// for a fact, it lifted the window off the credit that branch received.
+    /// for a fact, it would lift the window off the credit that branch
+    /// receives.
     func testANumberForAMovementOutsideTheSessionChangesNothing() throws {
         var s = slot(barVariation: 5, barDose: 8, barCut: 0, barJournal: 15, counter: 0)
         s.weekGain[.pullBar] = EngineConfig.weeklyRiseSlow
@@ -123,11 +124,12 @@ final class CreditWindowHoldTests: XCTestCase {
         XCTAssertEqual(a.feedback(.more, [.pullBar: 20], gapDays: 1), plain)
     }
 
-    // MARK: - §41.16 п. 2 · a set return ends the credit; the window charges what it gave
+    // MARK: - A set return ends the credit; the window charges what it gave
 
     /// A set the credit returns ends the credit, as a set return ends growth
-    /// in `riseBy`. A dose step on top made a jump the weekly window's rebuild
-    /// could not repeat: it kept the set alone and charged both.
+    /// in `riseBy`. A dose step on top would make a jump the weekly window's
+    /// rebuild cannot repeat: that rebuild goes through `riseBy`, which keeps
+    /// the set alone.
     func testACreditThatReturnsASetEndsThere() throws {
         let s = slot(barVariation: 2, barDose: 20, barCut: 1, barJournal: 45, counter: 0)
         var grows = s
@@ -161,7 +163,7 @@ final class CreditWindowHoldTests: XCTestCase {
                              "control: without the window the same answer moves the plan")
     }
 
-    // MARK: - §41.16 п. 3 · the hold is armed by sets coming back on screen
+    // MARK: - The hold is armed by sets coming back on screen
 
     /// A descent off a band carries the cut into the variation below: two
     /// sets on screen before, two after. A hold armed there spaces no return;
@@ -189,10 +191,10 @@ final class CreditWindowHoldTests: XCTestCase {
         XCTAssertEqual(entered.setsHold[.squat], EngineConfig.setsBackHold)
     }
 
-    // MARK: - §41.16 п. 4 · a set the credit returns arms the hold
+    // MARK: - A set the credit returns arms the hold
 
-    /// Without the hold, the branch's own next appearance returned a second
-    /// set at once: 2 → 3 → 4 sets on consecutive appearances.
+    /// Without the hold, the branch's own next appearance would return a
+    /// second set at once: 2 → 3 → 4 sets on consecutive appearances.
     func testASetTheCreditReturnsArmsTheHold() throws {
         let s = slot(barVariation: Library.count(.pullBar), barDose: 9, barSets: EngineConfig.setsMax,
                      barCut: 3, barJournal: 15, counter: 0)
@@ -220,11 +222,11 @@ final class CreditWindowHoldTests: XCTestCase {
         XCTAssertNil(capped.setsHold[.pullBar], "and the hold with it")
     }
 
-    // MARK: - §41.16 п. 5 · the credit repeats what the trained branch kept
+    // MARK: - The credit repeats what the trained branch kept
 
     /// The trained branch stands under its spent window, and the branch it
     /// credits stands with it. Credited before the window, the other branch
-    /// grew for growth the trained one never kept.
+    /// would grow for growth the trained one never kept.
     func testUnderASpentWindowTheCreditRepeatsNothing() throws {
         var s = slot(barVariation: 5, barDose: 8, barCut: 0, barJournal: 15, counter: 0)
         s.weekGain[.pull] = EngineConfig.weeklyRiseSlow

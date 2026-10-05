@@ -391,14 +391,16 @@ final class WorkoutSession {
         animator(reduceMotion ? nil : motion, change)
     }
 
-    // MARK: - The prime after standing still
+    // MARK: - The prime before the ticks come back
 
-    /// Primes a countdown coming back from standing still — a sheet closed,
-    /// a pause ended, time away, ticks held back behind the exit alert. On
-    /// its four or inside its 3-2-1 it is primed here: no tick on the way
-    /// reports the four, or the first tick back may already be past it. Back
-    /// on a four that its next tick then reports, it is primed twice a moment
-    /// apart, which costs nothing. Further out, the tick at the four primes it
+    /// Primes a countdown its ticks have not been following: one that stood
+    /// still — a sheet closed, a pause ended — one that ran on while the app
+    /// was away, and one running on behind the exit alert, whose ticks are
+    /// held back while the clock is not. On its four or inside its 3-2-1 it is
+    /// primed here: no tick on the way reports the four, or the first tick
+    /// back may already be past it. Primed more than once — again by a next
+    /// tick that reports the four, or on every beat behind the exit alert — it
+    /// costs nothing. Further out, the tick at the four primes it
     /// (`primeBeforeTheCount`).
     func primeComingBack() {
         guard store.settings.soundsEnabled, let clock = signallingCountdown else { return }

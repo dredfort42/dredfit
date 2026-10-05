@@ -11,10 +11,10 @@ extension WorkoutSession {
     /// What the lock screen calls the rest it is counting down. Two rests look
     /// identical and end differently — an ordinary one hands the screen back
     /// and waits for a tap, the rest inside a hands-free hold run STARTS the
-    /// next set on its own go — and the tile said "Next up" about both, so the
-    /// one rest that cannot be missed looked exactly like the one that can
-    /// (UX review 05.09.2026). The words are the rest screen's own
-    /// (FlowChrome+Rest), keyed off the same fact, so the two cannot drift.
+    /// next set on its own go — and one word for both would make the one rest
+    /// that cannot be missed look exactly like the one that can. The words are
+    /// the rest screen's own (FlowChrome+Rest), keyed off the same fact, so the
+    /// two cannot drift.
     var restActivityDetail: String {
         restStartsTheNextSet
             ? String(localized: "Starts by itself")
@@ -25,12 +25,12 @@ extension WorkoutSession {
     ///
     /// The sheet covers the screen while the rest keeps counting underneath
     /// it, and on a hands-free run the end of that rest is what STARTS the
-    /// next hold — so the person came back from a technique page into a plank
-    /// already under way. The guided blocks freeze their countdown for exactly
-    /// this tap (`freezeForPositionTechnique`); this is that tap on the one
-    /// rest with something to lose (UX review 05.09.2026). An ordinary rest is
-    /// left running: it hands the screen back and waits, and freezing it would
-    /// only make the workout longer.
+    /// next hold — so the person would come back from a technique page into a
+    /// plank already under way. The guided blocks freeze their countdown for
+    /// exactly this tap (`freezeForPositionTechnique`); this is that tap on
+    /// the one rest with something to lose. An ordinary rest is left running:
+    /// it hands the screen back and waits, and freezing it would only make
+    /// the workout longer.
     func freezeRestForTechnique() {
         // A paused rest is already held and its tile already says so: the
         // sheet has nothing to freeze, and re-sending the tile would replace
@@ -152,7 +152,7 @@ extension WorkoutSession {
         case .ended(let overshoot):
             restClock.stand(at: 0)
             // A suspended app comes back to a rest that ended while it could
-            // sound nothing; the beat is still owed then (R32).
+            // sound nothing; the beat is still owed then.
             let countIn = SetFacts.restHandsOverWithCountIn(endedByTap: false,
                                                             overshootSec: overshoot)
             // THE RUN IS A PROMISE TO SOMEBODY WHO IS HERE. Past the absence
@@ -160,19 +160,19 @@ extension WorkoutSession {
             // starting the next hold one count-in after the app comes back
             // drops a plank on someone who is still walking to the mat. The
             // threshold is `BlockPause.absenceSeconds`, the same one the two
-            // blocks freeze on, and it means the same thing here (UX review
-            // 05.09.2026). The exercise is not over: the work screen comes
-            // back with its own button and one tap buys the sets that are left.
+            // blocks freeze on, and it means the same thing here. The exercise
+            // is not over: the work screen comes back with its own button and
+            // one tap buys the sets that are left.
             if restStartsTheNextSet, overshoot > Double(BlockPause.absenceSeconds) {
                 holdAutoRun = false
             }
             // …and then the go, which marks the end of the rest — and on a
             // hands-free run is also the start of the hold, because the set
             // opens on it. When the rest hands over WITH a count-in instead,
-            // that count-in ends on a go of its own a few seconds later, so
-            // this one announced the same beginning twice (UX review
-            // 05.09.2026). Read AFTER the clearing above, so a dropped run
-            // takes its count-in — and this suppression — with it.
+            // that count-in ends on a go of its own a few seconds later, and
+            // this one would announce the same beginning twice. Read AFTER
+            // the clearing above, so a dropped run takes its count-in — and
+            // this suppression — with it.
             let countInFollows = countIn && restStartsTheNextSet
             if !countInFollows { playGo() }
             // Spoken as well as sounded, for the reason the two blocks state:
@@ -188,8 +188,7 @@ extension WorkoutSession {
             }
             // A second or two BEFORE the signalling window, which is what the
             // generator's `prepare()` is worth: primed at the top of a
-            // two-minute rest it has long gone cold by the 3 (UX review
-            // 05.09.2026).
+            // two-minute rest it has long gone cold by the 3.
             primeBeforeTheCount(showing: second)
             animate(.countdown) { restClock.show(second) }
         }
@@ -208,7 +207,7 @@ extension WorkoutSession {
         guard case .rest = phase else { return }
         if isLastSet {
             // One tap bought ONE exercise: the next movement is a decision of
-            // its own (R23), and the run and the declared time stay behind.
+            // its own, and the run and the declared time stay behind.
             enterNextExercise()
         } else {
             setIndex += 1

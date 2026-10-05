@@ -2,11 +2,14 @@ import XCTest
 import DredfitCore
 @testable import Dredfit
 
-/// The haptic prime before every 3-2-1: once, about a second before its
-/// first tick, never with the sounds off and never for a countdown that
-/// sounds no 3-2-1. A countdown passing its four is primed by that tick; one
-/// that starts on its four, or comes back from standing still with its next
-/// signal less than a second away, is primed where it starts or comes back.
+/// The haptic prime before every 3-2-1: about a second before its first
+/// tick, never with the sounds off and never for a countdown that sounds no
+/// 3-2-1. A countdown passing its four is primed once, by that tick. One that
+/// starts on its four is primed where it starts, and one its ticks come back
+/// to — after a sheet, a pause or time away — with its next signal less than
+/// a second away is primed where they come back. Behind the exit alert, where
+/// the ticks are held back and the clock is not, every beat that finds it on
+/// its four or inside its 3-2-1 primes it again.
 extension WorkoutSessionTests {
 
     /// The second a countdown shows one second before its 3.

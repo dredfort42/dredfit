@@ -1,5 +1,5 @@
 //
-//  The pause of the guided blocks (issue #61) and of a hands-free rest (R32).
+//  The pause of the guided blocks (issue #61) and of a hands-free rest.
 //
 //  The state machine is BlockPause.State; this is the flow's half — the frozen
 //  stage's own clocks, the tones, and the way back in. Two blocks and one rest
@@ -8,9 +8,9 @@
 //  set.
 //
 //  The snapshot: the warm-up writes none by design, the cool-down keeps writing
-//  at position boundaries, and a paused rest is persisted as the rest it will
-//  be when the pause ends (`persistProgress`) — a process death outlives no
-//  pause, and writing nil there would read back as "no rest was running".
+//  at position boundaries, and a paused rest is persisted as the seconds it
+//  froze with (`persistProgress`) — a process death outlives no pause, and
+//  writing nil there would read back as "no rest was running".
 //
 
 import Foundation
@@ -37,8 +37,8 @@ extension WorkoutSession {
         blockPause.hold()
         // The seconds from here to Resume are not seconds of the block, and
         // neither is the absence that led here — `warmupSec`/`cooldownSec` are
-        // wall clock, so both used to be billed to the stretching (UX review
-        // 05.09.2026, see `blockPausedSec`).
+        // wall clock, so without this both would be billed to the stretching
+        // (see `blockPausedSec`).
         beginBlockFreeze(absence: absence)
         warmup.clock.freeze()
         cooldown.clock.freeze()

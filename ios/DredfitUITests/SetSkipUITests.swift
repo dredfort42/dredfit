@@ -97,7 +97,7 @@ final class SetSkipUITests: XCTestCase {
         XCTAssertTrue(left.waitForExistence(timeout: 10),
                       "the work screen must say what is left of the session")
         let before = minutes(in: left.label)
-        XCTAssertGreaterThan(before, 40, "a 55-minute session should read as most of one")
+        XCTAssertGreaterThan(before, 40, "the long-session seed should have more than 40 minutes ahead")
 
         driver.skip(control: AX.exerciseSkipSet)
         XCTAssertTrue(app.staticTexts["set 2 of 4"].waitForExistence(timeout: 5))

@@ -1,8 +1,8 @@
 //
-//  The journal a number that meets the plan leaves (§41.14), the accepted
-//  corner of the sets hold, and the hold the weekly ceiling must not arm
-//  (§41.15). Golden pins these through whole scenarios; the tests here name
-//  each rule on its own, so a port that breaks one says which.
+//  The journal a number that meets the plan leaves, the accepted corner of
+//  the sets hold, and the hold the weekly ceiling must not arm. Golden pins
+//  these through whole scenarios; the tests here name each rule on its own,
+//  so a port that breaks one says which.
 //
 
 import XCTest
@@ -55,7 +55,7 @@ final class JournalAndHoldTests: XCTestCase {
         return s
     }
 
-    // MARK: - §41.14 · a number that meets the plan journals the best set it proves
+    // MARK: - A number that meets the plan journals the best set it proves
 
     /// 9-9-8 done as 10, 8, 8: the plan's sum, so "the plan was met", and the
     /// rise crosses the rung to 3×9. Journalling the fold — 8, the plan's
@@ -76,7 +76,7 @@ final class JournalAndHoldTests: XCTestCase {
     /// A met number journals no more than the plan's top. 3×9 done as 10, 9,
     /// 9 is inside the window (9.33), and the mean rounded up says 10 — but
     /// "met" means the plan was done, and the plan's top here is its base, so
-    /// a uniform plan journals exactly what it did before the rule existed.
+    /// a uniform plan journals its own dose, exactly as a tap does.
     func testAMetFactNeverJournalsAboveThePlansTop() throws {
         let a = try appearance(placed(.squat, variation: 2, dose: 9, journal: 9), .squat)
         XCTAssertNil(a.exercise.loads, "a uniform plan")
@@ -86,9 +86,9 @@ final class JournalAndHoldTests: XCTestCase {
                        a.feedback(.plan).shownDose(.squat, variation: 2), "as a tap")
     }
 
-    /// The probe reads the journal (§41.4). 15-15-14 done as 16, 14, 14 met
-    /// the plan and reached 3×15; with the fold journalled the probe would
-    /// wait an appearance the tapper does not wait.
+    /// The probe reads the journal (`probeAllowed`). 15-15-14 done as 16, 14,
+    /// 14 met the plan and reached 3×15; with the fold journalled the probe
+    /// would wait an appearance the tapper does not wait.
     func testTheLoggerIsOfferedTheProbeWhenTheTapperIs() throws {
         let a = try appearance(placed(.squat, variation: 2, dose: 14, sub: 2, journal: 15), .squat)
         let afterLog = try appearance(a.feedback(.plan, [.squat: 44.0 / 3.0]), .squat).exercise
@@ -122,8 +122,8 @@ final class JournalAndHoldTests: XCTestCase {
 
     /// Holds: the engine sees only the mean of the seconds, and the grid steps
     /// by five. Someone who can hold 44 s and declares 44 on every set of
-    /// 45-45-40 has NOT shown the ceiling: the plan still crosses to 3×45 (the
-    /// named residual), but the journal stays at 40 and no probe comes — the
+    /// 45-45-40 has NOT shown the ceiling: the plan still crosses to 3×45 (an
+    /// accepted residual), but the journal stays at 40 and no probe comes — the
     /// top taken on trust would offer one their working sets then throw out.
     /// 45, 45, 44 proves the top: journal 45, and the probe follows.
     func testAHoldJournalsTheTopOnlyWhenTheSecondsProveIt() throws {
@@ -144,13 +144,13 @@ final class JournalAndHoldTests: XCTestCase {
         XCTAssertNotNil(try appearance(proven, .coreAntiExt).exercise.probe)
     }
 
-    // MARK: - §41.15 · the hold's corner, accepted
+    // MARK: - The hold's corner, accepted
 
     /// Under a cut, while the hold ticks, the next sub-step can land on the
     /// set the cut took off; `fit` clamps it back and "on plan" moves nothing.
-    /// The owner kept this (04.10.2026): every repair measured gave up
-    /// something ranked higher. Pinned both ways — the plan stands, and
-    /// without the hold the same tap brings the set back.
+    /// Kept on purpose: `Engine.riseBy` says what each repair would break.
+    /// Pinned both ways — the plan stands, and without the hold the same tap
+    /// brings the set back.
     func testUnderACutTheHoldCanLeaveTheNextPlanStanding() throws {
         var held = placed(.squat, variation: 2, dose: 8, sub: 1, cut: 1, journal: 9)
         held.setsHold[.squat] = 1
@@ -171,7 +171,7 @@ final class JournalAndHoldTests: XCTestCase {
                      "control: without the hold the same tap returns the set")
     }
 
-    // MARK: - §41.15 · the weekly ceiling arms no hold for a return it undid
+    // MARK: - The weekly ceiling arms no hold for a return it undid
 
     /// The week's budget is spent: the main loop gives a set back and arms
     /// the hold, the ceiling takes the return back. Left armed, the hold

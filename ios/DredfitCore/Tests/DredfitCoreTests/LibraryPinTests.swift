@@ -43,7 +43,8 @@ final class LibraryPinTests: XCTestCase {
                    "Partial pull-up", "Pull-up"],
     ]
 
-    /// An assistance rung (kind `°` in §40.1) and the variation it assists.
+    /// An assistance rung (kind `°` in the fixture's library) and the
+    /// variation it assists.
     private struct Assist {
         let pattern: Pattern
         let rung: Int
@@ -82,7 +83,7 @@ final class LibraryPinTests: XCTestCase {
     }
 
     /// The pin covers the whole library — a new pattern cannot slip past it,
-    /// and the count is the spec's own: 59 positions (§40.1).
+    /// and the count is the catalog's own: 59 positions.
     func testTheCatalogCoversEveryPattern() {
         XCTAssertEqual(Set(Self.catalog.keys), Set(Pattern.allCases))
         XCTAssertEqual(Self.catalog.values.reduce(0) { $0 + $1.count }, 59)
@@ -119,9 +120,9 @@ final class LibraryPinTests: XCTestCase {
         }
     }
 
-    /// И1 (§40.9): `w` rises along every ladder, and no step up is heavier
-    /// than ×1.50. The single exception is the unit boundary, where the ratio
-    /// is undefined — and the ladder is allowed at most one of those.
+    /// The density invariant: `w` rises along every ladder, and no step up is
+    /// heavier than ×1.50. The single exception is the unit boundary, where
+    /// the ratio is undefined — and the ladder is allowed at most one of those.
     func testDensityInvariantHolds() {
         for pattern in Pattern.allCases {
             let entry = ExerciseLibrary.entry(for: pattern)
@@ -142,8 +143,8 @@ final class LibraryPinTests: XCTestCase {
         }
     }
 
-    /// The three movements that left the strength ladders are still here, with
-    /// their text — the warm-up reads them (§40.1, PROMPT-2 §5).
+    /// The three warm-up movements the core carries stand on no strength
+    /// ladder and keep their full text — the warm-up reads them.
     func testWarmupMovementsSurvivedTheLadders() {
         XCTAssertEqual(WarmupTechnique.all.count, 3)
         for move in WarmupTechnique.all {

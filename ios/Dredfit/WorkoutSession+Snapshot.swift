@@ -38,9 +38,9 @@ extension WorkoutSession {
             // A PAUSED rest has no end date, and the snapshot cannot carry the
             // pause: written as nil it reads back as "no rest was running",
             // and `restore` would then hand the person the set they had just
-            // finished a second time. What is persisted instead is the rest
-            // this will be the moment the pause ends — the seconds it froze
-            // with, counted from now. A process death outlives no pause.
+            // finished a second time. What is persisted instead is the seconds
+            // it froze with — at least one — counted from now. A process death
+            // outlives no pause.
             restEnd = restClock.endDate
                 ?? now().addingTimeInterval(TimeInterval(max(restClock.remaining, 1)))
             restTotal = total

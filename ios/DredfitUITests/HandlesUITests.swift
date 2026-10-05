@@ -59,7 +59,7 @@ final class HandlesUITests: XCTestCase {
         XCTAssertEqual(app.buttons.matching(
             NSPredicate(format: "identifier BEGINSWITH %@", AX.easierHandlePrefix)).count, 0,
             "the per-movement variation handle is back on the plan — it lives in the "
-              + "technique sheet now (R30)")
+              + "technique sheet")
 
         rows.firstMatch.tap()
         XCTAssertTrue(app.buttons[AX.techniqueStepDown].waitForExistence(timeout: 5),

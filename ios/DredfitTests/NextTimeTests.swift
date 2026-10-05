@@ -1,11 +1,12 @@
 //
-//  The two tenses of a finished hold's summary (§41.13): the clock as the
-//  ceiling of a correction, and the addition "for next time" — where it is
-//  kept, where it lands, and how every screen after it names it.
+//  The two tenses of a finished hold's summary: the clock as the ceiling of
+//  a correction, and the addition "for next time" — where it is kept, where
+//  it lands, and how every screen after it names it.
 //
 //  Every rule here is a pure function or a store call on purpose. The
-//  summary itself is a SwiftUI view that nothing automated drives; what it
-//  prints comes from these, and these are what a gating test can reach.
+//  summary itself is a SwiftUI view that only the UI suite drives, and the
+//  UI suite gates nothing; what the summary prints comes from these, and
+//  these are what a gating test can reach.
 //
 
 import XCTest
@@ -158,12 +159,12 @@ final class NextTimeTests: AppStoreTestCase {
     }
 
     /// The journal names the share that LANDED and keeps the decision apart
-    /// from it. On the grid's ceiling the engine parks the steps (§41.13):
-    /// "+10 s" on a plan of 3×40 s rated "easy" lands five — the rating's two
-    /// events take the base to 45-45-40, one step turns that into 3×45 and
-    /// the other burns — so tomorrow's plan and the history say five, while
-    /// a changed rating replays the two the person asked for and, under "on
-    /// plan", lands both (review, 12.09.2026).
+    /// from it. On the grid's ceiling the engine parks the steps: "+10 s" on
+    /// a plan of 3×40 s rated "easy" lands five — the rating's two events
+    /// take the base to 45-45-40, one step turns that into 3×45 and the other
+    /// burns — so tomorrow's plan and the history say five, while a changed
+    /// rating replays the two the person asked for and, under "on plan",
+    /// lands both.
     func testTheJournalNamesTheShareThatLandedAndKeepsTheDecision() throws {
         let store = makeStore()
         let pattern = Pattern.coreAntiExt
@@ -205,9 +206,10 @@ final class NextTimeTests: AppStoreTestCase {
     }
 
     /// Under a cut, the step that completes a rung moves the measure by more
-    /// than one event, so a second step burned on the ceiling hid inside the
-    /// first one's jump. A knee plank on 45-40 s with one set cut: the first
-    /// tap makes it 2×45, the second has nowhere to go — one step landed.
+    /// than one event, so a second step burned on the ceiling would hide
+    /// inside the first one's jump. A knee plank on 45-40 s with one set cut:
+    /// the first tap makes it 2×45, the second has nowhere to go — one step
+    /// landed.
     func testAStepBurnedOnTheCeilingUnderACutIsNotCountedAsLanded() {
         var unraised = EngineState.initial
         unraised.vars[.coreAntiExt] = 1
@@ -356,7 +358,7 @@ final class NextTimeTests: AppStoreTestCase {
             raisedSteps: [.coreAntiExt: 1])
         XCTAssertEqual(HistorySheet.factLine(hold, in: record),
                        String(localized: "history.held", defaultValue: "Held: \(hold.withLoads([30, 22, 25]).display)"))
-        // Without a raise the line is what it always was; with one, the
+        // Without a raise the line is the plain "After:"; with one, the
         // same line carries the person's share, through the same key.
         var plain = record
         plain.raisedSteps = nil

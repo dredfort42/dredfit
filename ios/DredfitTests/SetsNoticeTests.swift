@@ -151,7 +151,7 @@ final class SetsNoticeTests: AppStoreTestCase {
     /// The keys are the LIVE ones: a key kept here after its sentence was
     /// reworded on screen pins a dead entry nobody can delete without going
     /// red — a pin that guards the corpse rather than the string.
-    func testTheWavesLinesAreInTheCatalogInEveryLanguage() throws {
+    func testTheListedLinesAreInTheCatalogInEveryLanguage() throws {
         let catalogURL = iosRoot.appendingPathComponent("Dredfit/Localizable.xcstrings")
         let data = try Data(contentsOf: catalogURL)
         let root = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
@@ -276,7 +276,7 @@ final class SetsNoticeTests: AppStoreTestCase {
         }
     }
 
-    /// The general form of `testTheWavesLinesAreInTheCatalogInEveryLanguage`,
+    /// The general form of `testTheListedLinesAreInTheCatalogInEveryLanguage`,
     /// over the whole app: every plain localized literal the sources ask for
     /// is a key the catalog carries.
     ///
