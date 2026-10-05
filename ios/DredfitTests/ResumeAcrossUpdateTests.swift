@@ -112,16 +112,17 @@ final class ResumeAcrossUpdateTests: AppStoreTestCase {
     }
 
     /// Today records every plan it puts on screen, and the plan on screen
-    /// beside the card is the one in progress. Recording it must not cost the
-    /// card.
-    func testRecordingThePlanOnScreenKeepsTheCard() throws {
+    /// beside the card is the one in progress. That plan is not a new showing:
+    /// the build before wrote it down when it drew it. Written again, it would
+    /// carry a cap memory that says the cap allowed what it held back.
+    func testThePlanHeldForTheWorkoutIsNotWrittenDownAgain() throws {
         let state = frozenPushState()
         let snap = snapshot(of: planBeforeTheUpdate(state), age: 5 * 60)
         let store = try launch(state, pending: snap)
 
         store.recordPlanShown(store.nextSession)
-        XCTAssertEqual(store.resumableWorkout(), snap,
-                       "the plan on screen was written down, and the workout must still be offered back")
+        XCTAssertEqual(store.engineState, state, "the held plan must leave the state as the build before left it")
+        XCTAssertEqual(store.resumableWorkout(), snap, "and the workout must still be offered back")
     }
 
     func testPastTheOccasionTheCardStillAsks() throws {
@@ -148,15 +149,21 @@ final class ResumeAcrossUpdateTests: AppStoreTestCase {
         XCTAssertNil(store.pendingWorkout)
     }
 
-    /// Only the workout in progress keeps its plan. Once nothing is in
-    /// progress, the plan is the one drawn now — with the set handed back.
-    func testWithNothingInProgressThePlanIsTheOneDrawnNow() throws {
+    /// Only the workout in progress keeps its plan. Started over from the card
+    /// — after Today has put the held plan on screen, as it always has by
+    /// then — the plan is the one drawn now, with the set handed back, and
+    /// the showing of it writes the memory that keeps it.
+    func testStartingOverRunsThePlanDrawnNow() throws {
         let state = frozenPushState()
         let store = try launch(state, pending: snapshot(of: planBeforeTheUpdate(state), age: 5 * 60))
+        store.recordPlanShown(store.nextSession)
 
         store.clearWorkoutSnapshot()
         XCTAssertEqual(try pushH(store.nextSession).sets, 5,
                        "starting over runs the plan drawn now, and the push has its set back")
+        store.recordPlanShown(store.nextSession)
+        XCTAssertEqual(store.engineState.shownCap[.pushH], 5, "that showing remembers the cap it was shown under")
+        XCTAssertEqual(try pushH(store.nextSession).sets, 5, "and the set stays")
     }
 
     /// A snapshot that is not this state's workout in progress holds nothing
@@ -184,5 +191,18 @@ final class ResumeAcrossUpdateTests: AppStoreTestCase {
         XCTAssertNotNil(store.resumableWorkout(), "the workout must be resumable to begin with")
         XCTAssertFalse(store.barToggleWouldDiscardWorkout(true),
                        "the switch keeps this workout's plan, and the warning would be false")
+    }
+
+    /// The other side: the bar's branch stands on three sets, so switching it
+    /// on caps the push at three — the workout's plan would change under it,
+    /// and the row has to ask.
+    func testTheBarSwitchKnowsWhenItWouldDiscardTheWorkout() throws {
+        let state = frozenPushState()
+        let snap = snapshot(of: planBeforeTheUpdate(state), age: 5 * 60)
+        let store = try launch(state, pending: snap)
+
+        XCTAssertNotNil(store.resumableWorkout(), "the workout must be resumable to begin with")
+        XCTAssertTrue(store.barToggleWouldDiscardWorkout(true),
+                      "a bar on three sets caps the push, and the workout in progress would be lost")
     }
 }

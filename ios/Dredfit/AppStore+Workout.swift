@@ -16,8 +16,11 @@ extension AppStore {
     /// workout carries on as it was started: its snapshot is keyed on that
     /// plan, and the plan drawn now would hand a frozen push its sets back
     /// between two of them, so the card would vanish and the work done so far
-    /// would never be recorded. Once the workout is settled, recorded or
-    /// started over, the plan is drawn afresh.
+    /// would never be recorded. The held plan is not written down again
+    /// (`recordPlanShown`), so starting over still gets the one-time release.
+    /// Carried to its end, the workout spends it: its rating writes the cap
+    /// memory, and the push stays where that build held it until its cap dips
+    /// and rises again or the push itself moves.
     func session(for state: EngineState) -> Session {
         let drawn = Engine.generateSession(state)
         guard let snap = pendingWorkout,

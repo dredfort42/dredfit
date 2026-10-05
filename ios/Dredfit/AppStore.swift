@@ -606,13 +606,18 @@ final class AppStore {
     /// construction — the memory keeps the work of the plan AFTER the
     /// postcondition repair, and the repair only ever trims work STRICTLY
     /// above what was shown, so the second pass has nothing left to trim.
+    ///
+    /// The one showing deliberately NOT written down is a plan held for a
+    /// workout in progress across an update (`session(for:)`), so only the plan
+    /// drawn now is: the build before wrote the held one down, and writing it
+    /// again would spend the release a push without the cap memory is owed.
     func recordPlanShown(_ session: Session) {
         // A frozen journal is a launch that could not READ the state file —
         // before first unlock, usually. The plan on screen was drawn from an
         // empty state and is worth remembering least of all, and writing it
         // would pin the freeze (`mutatedWhileFrozen`) and cost the trainee
         // their journal for the rest of the launch.
-        guard !journalFrozen else { return }
+        guard !journalFrozen, session == Engine.generateSession(engineState) else { return }
         let recorded = Engine.recordShown(state: engineState, session: session)
         guard recorded != engineState else { return }
         engineState = recorded
