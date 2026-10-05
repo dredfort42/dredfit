@@ -373,6 +373,27 @@ extension WorkoutSessionTests {
         XCTAssertEqual(back.phase, .rest(seconds: back.exercise.restExerciseSec))
     }
 
+    /// A per-side probe whose first side a thumb ended and whose second a
+    /// stop inside the grace handed back, then skipped: the summary opens
+    /// with no side left over, as after a probe done.
+    func testASkippedPerSideProbeLeavesNoSideBehind() throws {
+        let (flow, _) = try probingSidePlankFlow()
+        flow.startHoldExercise()
+        run(flow, until: { flow.onProbeSet && flow.phase == .work })
+        XCTAssertEqual(try XCTUnwrap(flow.exercise.probe).perSide, true, "the premise: a per-side probe")
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds + 10)
+        flow.stopHoldEarly()
+        run(flow, until: { flow.holdSecondSide && flow.holding })
+        run(flow, for: 2)
+        flow.stopHoldEarly()
+        XCTAssertTrue(flow.holdSecondSide && !flow.holdUnderWay, "the premise: side 2 handed back")
+        flow.skipSet()
+        XCTAssertEqual(flow.phase, .exerciseSummary)
+        XCTAssertFalse(flow.holdSecondSide)
+        XCTAssertNil(flow.firstSideHeld)
+    }
+
     /// A movement in reps has no summary to open: skipping its probe goes
     /// straight on to the next movement, as it always has.
     func testSkippingARepsProbeGoesStraightOn() throws {

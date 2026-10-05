@@ -40,6 +40,7 @@ extension WorkoutSession {
             // does after a probe done: the summary, and its Done into the
             // rest between movements. A movement in reps has no summary.
             if exercise.unit == .hold {
+                resetHoldSides()   // as a probe done leaves them: no side left over
                 startExerciseSummary()
                 return
             }
