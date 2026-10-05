@@ -58,6 +58,12 @@ struct Golden: Decodable {
         let setsHoldAfter: [Int]
         let shownWorkAfter: [Int]
         let shownOrdAfter: [Int]
+        /// The pull-cap memory of the pushes, by `patternOrder`; zero where a
+        /// pattern has none (a count of sets on screen is never below two, so
+        /// zero cannot be mistaken for a value). The trace of a cut is 0 or 1.
+        let shownCapAfter: [Int]
+        let shownOwnAfter: [Int]
+        let shownSkipAfter: [Int]
         let rampWindowAfter: Int
         let weekGainAfter: [Int]
         let weekAgeDaysAfter: Double
@@ -82,6 +88,12 @@ struct Golden: Decodable {
         let shown: [String: [String: Int]]
         let failStreak: [Int]
         let lastHard: [Int]
+        /// The memory of a showing, keyed by pattern name — present only where
+        /// a scenario starts from a state a build without the pull-cap memory
+        /// wrote: that memory and none of the cap's. A map rather than an
+        /// array, because a remembered position can be zero.
+        let shownWork: [String: Int]?
+        let shownOrd: [String: Int]?
     }
 
     struct Ex: Decodable {

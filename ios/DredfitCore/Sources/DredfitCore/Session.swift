@@ -320,7 +320,8 @@ extension Engine {
         var ordNow: [Pattern: Int] = [:]
         for ex in exercises { ordNow[ex.pattern] = posOrd(ex.pattern, state.position(ex.pattern)) }
         let trimmed = repairDescent(exercises, shownWork: state.shownWork,
-                                    shownOrd: state.shownOrd, ordNow: ordNow)
+                                    shownOrd: state.shownOrd, ordNow: ordNow,
+                                    gateLift: gateLift(patterns, state: state, pullSets: pullSets))
 
         return Session(
             sessionNumber: state.counter + 1,
@@ -329,6 +330,33 @@ extension Engine {
             exercises: trimmed,
             estimatedTotalMin: estimatedMin(
                 exercises: trimmed, ends: EngineConfig.warmupMin + EngineConfig.cooldownMin))
+    }
+
+    /// How many sets each push's pull cap has given back since the push was
+    /// last shown: its cap now, `min(own, pull slot)`, less its cap then from
+    /// the memory of that showing. The rise of the push's OWN cap, not of the
+    /// slot — a cap that never cut the push gives it nothing however far the
+    /// pull climbs, and a hold the repair keeps for a cause of its own stays.
+    ///
+    /// None after a set was taken off the push since that showing, nor when
+    /// its own sets are fewer than then: both are descents, and a descent
+    /// never adds work. A push with no memory at all was last shown by a build
+    /// that kept none — it gets its whole cap back once (the scale's top
+    /// stands for "all of it"), and the showing writes the memory.
+    static func gateLift(_ patterns: [Pattern], state: EngineState, pullSets: Int) -> [Pattern: Int] {
+        var lift: [Pattern: Int] = [:]
+        for p in patterns where Pattern.pushSide.contains(p) && !state.shownSkip.contains(p) {
+            guard let capThen = state.shownCap[p] else {
+                lift[p] = EngineConfig.setsMax
+                continue
+            }
+            let pos = state.position(p)
+            let own = setsAfterCut(sets: pos.sets, cut: pos.cut)
+            guard let ownThen = state.shownOwn[p], own >= ownThen else { continue }
+            let rise = min(own, pullSets) - min(ownThen, capThen)
+            if rise > 0 { lift[p] = rise }
+        }
+        return lift
     }
 
     /// The pull slot's set count caps the push of the same session, and it
@@ -405,9 +433,17 @@ extension Engine {
     ///
     /// The comparison is NON-STRICT: "the position did not rise" covers both
     /// "fell" and "stood still".
+    ///
+    /// A push whose position STANDS gets back what its pull cap has given back
+    /// since that showing (`gateLift`), on top of what the repair holds and never
+    /// above what the cap allows. Without it the repair kept the count the cap
+    /// once showed until the position moved — on 5×15, until the push fell — and
+    /// "the sets return once the pull catches up" was not true. A push that
+    /// FELL stays under the repair whole: a descent never adds work.
     private static func repairDescent(_ exercises: [SessionExercise],
                                       shownWork: [Pattern: Int], shownOrd: [Pattern: Int],
-                                      ordNow: [Pattern: Int]) -> [SessionExercise] {
+                                      ordNow: [Pattern: Int],
+                                      gateLift: [Pattern: Int]) -> [SessionExercise] {
         exercises.map { ex in
             let p = ex.pattern
             if ex.probe != nil { return ex }
@@ -416,6 +452,10 @@ extension Engine {
             var cur = ex
             while cur.sets > cur.setsFloor, exerciseWork(cur) > work {
                 cur = withSets(cur, cur.sets - 1, floor: cur.setsFloor)
+            }
+            let lift = (ordNow[p] ?? 0) == ord ? (gateLift[p] ?? 0) : 0
+            if lift > 0, cur.sets < ex.sets {
+                cur = withSets(ex, min(ex.sets, cur.sets + lift), floor: ex.setsFloor)
             }
             return cur
         }

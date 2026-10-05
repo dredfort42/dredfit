@@ -71,8 +71,15 @@ extension Engine {
     /// Growth NEVER crosses a variation: the only way into a new one is a
     /// probe. On the dose ceiling of a non-top variation growth honestly STANDS
     /// STILL — that is the declared parking.
+    ///
+    /// `bandCeil` is the highest band this growth may enter. A push gets the
+    /// pull slot's sets as they stand after the session (`applyFeedback`):
+    /// entering a band the pull does not show yet would celebrate a set the
+    /// cap then hides, and cut the volume just done by a quarter. Above it the
+    /// push parks on its band's ceiling like any parking — the remaining
+    /// events burn. Everything else passes the top of the scale.
     static func riseBy(_ p: Pattern, _ pos: Position, _ n: Int,
-                       allowSetsBack: Bool) -> Position {
+                       allowSetsBack: Bool, bandCeil: Int) -> Position {
         var cur = fit(p, pos)
         var k = max(0, n)
         let back = allowSetsBack ? min(cur.cut, k, EngineConfig.setsBackPerSession) : 0
@@ -96,7 +103,7 @@ extension Engine {
                 k -= 1
                 continue
             }
-            if Library.isTop(p, cur.variation), cur.sets < EngineConfig.setsMax {
+            if Library.isTop(p, cur.variation), cur.sets < min(EngineConfig.setsMax, bandCeil) {
                 let from = cur.sets
                 cur.sets = from + 1
                 cur.dose = bandEntryDose(unit, setsFrom: from)
@@ -149,7 +156,9 @@ extension Engine {
         }
         var k = max(0, n)
         while k > 0 {
-            let step = riseBy(p, cur, 1, allowSetsBack: allowSetsBack)
+            // Only a pull branch is ever credited, and the cap reaches pushes
+            // alone, so no band here waits for anything.
+            let step = riseBy(p, cur, 1, allowSetsBack: allowSetsBack, bandCeil: EngineConfig.setsMax)
             if same(step, cur) || !allowed(step) { break }
             let returned = step.cut < cur.cut
             cur = step

@@ -39,6 +39,12 @@ extension Engine {
 
     /// "Fewer sets" on one movement (also the entry point a skipped set
     /// arrives through). The floor is the shared one: two sets.
+    ///
+    /// A set taken off a push leaves a trace (`EngineState.shownSkip`): a cut
+    /// is a descent, and a cap that rises before the next showing must not hand
+    /// that set back. A skipped set lands here AFTER the rating, and the same
+    /// session can have grown the position by one event — so the position may
+    /// stand where it stood, and only the trace tells the set was skipped.
     public static func setCut(state dirty: EngineState, pattern p: Pattern,
                               cut: Int) -> EngineState {
         let state = dirty.sanitized()
@@ -46,6 +52,7 @@ extension Engine {
         var pos = state.position(p)
         pos.cut = effCut(sets: state.sets[p] ?? EngineConfig.setsBase, cut: cut)
         setPosition(&next, p, pos)
+        if Pattern.pushSide.contains(p), pos.cut > state.cutOf(p) { next.shownSkip.insert(p) }
         return next
     }
 
