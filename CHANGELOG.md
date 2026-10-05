@@ -4,7 +4,7 @@
 
 This release is about numbers that say what will happen and record what did.
 The plan engine moves from reference **3.5.0 to 3.8.0** in three steps:
-numbers you enter by hand now count exactly as a tap would, and a push no
+numbers you enter by hand for reps now count exactly as a tap would, and a push no
 longer outruns the pulls that balance it. The reference chain ran in full for
 each of the three versions, and the golden trace the Swift port is held to
 grows to 49 scenarios and 413 steps. Around the engine, the hold summary, the
@@ -16,13 +16,13 @@ estimate on Today for it (about 24–32 minutes, re-measured on 3.8.0), the
 Health permissions and data types, the App Privacy answers, and the network,
 which the app still never uses. The saved state and the journal gain only
 optional fields, so there is no migration: history written by 2.4.4 reads as
-it did.
+it did, under the reworded length line.
 
 ### A push waits for the pulls (engine 3.8.0)
 
 - **A push moves up to four or five sets only behind the pulls** (#302). On
   its top variation a push used to enter the next set band without looking
-  at the pulls. Archer push-ups at 3×15 per side went to 4×11 and the summary said
+  at the pulls. Archer push-ups at 3×15 per side went to 4×11 and a milestone said
   "Now 4 sets"; with the rows still on three sets, the pull limit then cut
   the next plan to 3×11, 66 reps against the 90 just done. A push now enters
   a band only when the pulls show at least as many sets. The price, accepted
@@ -92,7 +92,8 @@ it did.
   used to store 5 s.
 - **The big number is the one the clock will count** (#295): with a hold
   time set before the exercise (the screen said 15 while the clock ran 45),
-  and on the second side of a per-side hold.
+  and on a second side handed back by a Stop in its first seconds, which
+  runs for what the first side ran.
 - **An estimate stays an estimate** (#292). After a correction or an OK,
   "set 3 · stopped by hand at about 30 s" turned into "the clock saw 30 s",
   a count the clock never made.
@@ -135,9 +136,11 @@ it did.
 - **A cool-down the workout never reached records 0** (#293). "Finish now"
   before it, a workout of nothing but skips, or one settled later billed
   four minutes of stretching that never happened, in the calorie estimate
-  and in "Took N min".
-- **Settings and Today** (#258). A fresh install on a rest day no longer
-  offers a workout the calendar calls tomorrow. A typo in the body-weight
+  and in the plan History measures a workout against before it shows the
+  "Took N min" line.
+- **Settings and Today** (#258). On a fresh install, the calendar and the
+  next-workout sheet no longer call the workout Today offers "tomorrow":
+  one rule now decides whether the plan rests on a day. A typo in the body-weight
   field no longer erases the weight; only an empty field does. The reminder
   time is built on today's date, so a historical time-zone offset no longer
   shifts it. The share card redraws when its date or curve changes, and an
@@ -171,7 +174,8 @@ it did.
   back-deployed main-actor path** (#283) that crashed the iOS 26.2
   simulator in CI whenever a store was freed.
 - **Comments say why, and match the code** (#264, #273, #276, #277, #284,
-  #285, #287, #288, #301, #303), and CI keeps them that way.
+  #285, #287, #288, #301, #303), and CI's lint now rejects section signs,
+  review dates and R-ids in Swift comments.
 - 743 → 1 069 automated tests: 78 → 118 core, 585 → 871 app units, 80 UI.
 
 ## 2.4.4
