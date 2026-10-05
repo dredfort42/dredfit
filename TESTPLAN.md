@@ -31,7 +31,7 @@ about pixels, not about strings. Walk those on a device before submitting.
 
 | # | Check | Expected |
 |---|---|---|
-| S1 | Cold start on a fresh install | Opens on **Today** with "Workout 1", **≈ 24–32 min**, 6 exercises, one **Start** button with nothing to agree to first, and an **"Easier"** handle on each movement row. Both minutes are engine arithmetic, not decoration — the full plan and the same plan on the sets floor: read them from the reference when they move, never off the screen |
+| S1 | Cold start on a fresh install | Opens on **Today** with "Workout 1", **≈ 24–32 min**, 6 exercises, and one **Start** button with nothing to agree to first. Both minutes are engine arithmetic, not decoration — the full plan and the same plan on the sets floor: read them from the reference when they move, never off the screen |
 | S2 | Full workout: Start → warm-up (opens on its "Get ready" transition) → 6 exercises → cool-down → rating | Rating screen appears; tapping an option returns to Today in the done state |
 | S3 | Today after completion | Checkmark, "Workout 1 completed", a rating caption, and a **Next** card (no Start button) |
 | S4 | Relaunch the app | Still in the done state — the record survived the restart |
@@ -539,7 +539,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 |---|---|---|
 | 32.1 | Every warm-up move and cool-down position | A **technique** affordance under the name; the mini-sheet opens with the name, a block capsule ("warm-up · 30 s" / "cool-down · 30 s" / "cool-down · 15 s per side"), 2–3 numbered steps and **Got it** — all 15 positions |
 | 32.2 | The countdown while the sheet is open | **Frozen** — the number does not move; closing the sheet resumes from the same second. A deliberate divergence from the sheet on an ordinary rest, where the timer keeps ticking (32.6) |
-| 32.3 | Open during a side-switch pause (issue #35) | The 5→1 pause countdown freezes too and resumes on close |
+| 32.3 | Open during a side-switch pause (issue #35) | The 4→1 pause countdown freezes too and resumes on close |
 | 32.4 | Signals under the sheet | No ticks or go while frozen — the countdown is simply not running |
 | 32.5 | es / pt-BR / de / large Dynamic Type | Long strings wrap inside the sheet (scrolls at the biggest accessibility sizes); nothing clips or overlaps |
 | 32.6 | The work and rest screens | Their technique button still opens the full exercise sheet. The timer keeps ticking on an ordinary rest; a rest that starts the next set by itself (3.1a) freezes (3.1d) |
@@ -588,7 +588,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 35.10 | Pause, then **technique**, then **Resume** while the sheet is closed | The way back in runs once, from the seconds that were frozen |
 | 35.11 | Kill the app while paused mid-warm-up | Nothing to resume: the warm-up writes no snapshot by design, and Today offers no "Continue" card for a workout with nothing done |
 | 35.12 | Kill the app while paused mid-cool-down | Restores onto the rating screen, exactly as an unpaused cool-down does (§4 of the spec) |
-| 35.13 | Working sets and rest | Unchanged — no pause control on the work screen or the rest ring. They are self-paced by design, and an over-run rest only grants extra rest |
+| 35.13 | Working sets and rest | No pause control on the work screen, nor on the ring of a rest that waits for a tap: they are self-paced by design, and an over-run rest only grants extra rest. The rest inside a hands-free hold run starts the next set by itself, and it is the one that has **Pause** (3.1c) |
 | 35.14 | Estimate on Today, and the duration written to Health | Unchanged by pausing on screen: "≈ N min" promises an uninterrupted flow, and Health gets the wall-clock truth of the session minus time the app spent in the background (owner, 27.09.2026) |
 | 35.15 | VoiceOver | The control reads "Pause" / "Resume"; toggling announces "Paused" / "Resumed", and the state is also readable under the countdown |
 | 35.16 | All seven languages | «Пауза» / "Pausar" / "Pausar" / "Pausieren" / "Pause" / "Pausa" and «Продолжить» / "Continuar" / "Continuar" / "Fortsetzen" / "Reprendre" / "Riprendi"; the state reads «На паузе» / "En pausa" / "Em pausa" / "Pausiert" / "En pause" / "In pausa" |
@@ -932,7 +932,7 @@ Sets of **reps** are untouched too — walk one exercise of each and compare.
 |---|---|---|
 | 50.1 | Reach a hold exercise | One primary control, reading **Start exercise**. Under the set dots: how many sets and how long the rest between them. Above the button: a promise that the exercise runs itself and you can put the phone down |
 | 50.2 | Tap it once and put the phone down | The whole exercise runs: count-in, hold, finale, rest, and the next set begins on the rest's own go. The phone is not touched again until the movement's last set hands itself back |
-| 50.3 | Time the rest between two sets | It is the planned rest and nothing more, and the start is announced ONCE. Re-marked by R32: this row used to require fifteen seconds of "travel" after the rest, with a second 3-2-1 and a second go — a minute of rest ran a minute and a quarter, and the same set was announced twice. The five-second count-in a TAP earns is unchanged (3.1b) |
+| 50.3 | Time the rest between two sets | It is the planned rest and nothing more, and the start is announced ONCE. Re-marked by R32: this row used to require fifteen seconds of "travel" after the rest, with a second 3-2-1 and a second go — a minute of rest ran a minute and a quarter, and the same set was announced twice. The four-second count-in a TAP earns is unchanged (3.1b) |
 | 50.4 | Read the primary button during a hold | **Stop · N s**, N updating every second, and N is exactly what the tap records. Inside the first three seconds it reads plain **Stop** — that tap cancels the set and stores nothing |
 | 50.5 | Stop a hold past the grace, then check the number | Three seconds lower than the clock showed. The tap lands after the effort stopped — the walk to the phone is not training |
 | 50.6 | The hold screen before any effort | No **Went differently**, and no reserved gap where it stood. On the movement's LAST set, once the hold is behind, it is live again: nothing about that movement comes back |
