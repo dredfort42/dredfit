@@ -58,10 +58,11 @@ final class BrandPaletteTests: XCTestCase {
         let ratio: Double
     }
 
-    /// The acceptance list of the token wave (#116) — dark scheme only. The
-    /// light values predate these floors and are pinned by value instead:
-    /// light hairline-on-bg is 1.17 and ink3-on-bg 2.35 by design (that 2.35
-    /// has its own pin below, because Theme.swift now quotes it in prose).
+    /// The acceptance list the dark values were chosen against (#116) — dark
+    /// scheme only. The light values are pinned by value and their text pairs
+    /// floored in a list of their own below; several light pairs sit under
+    /// these floors, hairline-on-bg at 1.17 and ink3-on-bg at 2.35 by design
+    /// (that 2.35 has its own pin below, because Theme.swift quotes it in prose).
     private static let darkFloors = [
         Floor(ink: "ink", ground: "bg", ratio: 7),
         Floor(ink: "ink", ground: "cardBG", ratio: 7),
@@ -79,34 +80,25 @@ final class BrandPaletteTests: XCTestCase {
         Floor(ink: "cardBG", ground: "bg", ratio: 1.2),
     ]
 
-    // I-21 used to live here as a PIN on 4.20 — accentText on accentSoft,
-    // under the 4.5 small text needs — recorded as a number that holds rather
-    // than a floor, because at the time six places drew that pair and nobody
-    // in that wave was authorised to move a token.
-    //
-    // It is gone because the finding is closed from the other side: no view
-    // draws accentText on accentSoft any more. The summary's "Next time"
-    // kicker was the last, and takes `ink` while its block is filled;
-    // `Theme.badgePillColors` does the same for the pill, which is a bitmap
-    // and cannot be fixed at its call site. Nothing was repainted:
-    // accentText keeps its four values, and every pair still on it
-    // (accentText on bg and on cardBG) keeps its floors.
-    //
-    // A pin on a pair nobody draws gates nothing, so what replaces it is the
-    // floor for the pair that is now drawn everywhere — see `lightTextFloors`
-    // below, which was the one appearance of ink-on-accentSoft with no gate.
+    // accentText on accentSoft (I-21: 4.20:1 in dark and just under 4.5 in
+    // light, short of what small text needs) has neither a pin nor a floor,
+    // because no view draws it: no text on an accentSoft fill is set in
+    // accentText — the "Next time" kicker takes `ink` there — and
+    // `Theme.badgePillColors` hands the pill, a bitmap, ink on accentSoft. A
+    // pin on a pair nobody draws gates nothing; ink on accentSoft is floored
+    // in all three lists.
 
     /// The light scheme has no acceptance list of its own — but these pairs
-    /// are what the text rule in Theme.swift rests on since `Kicker` moved off
-    /// ink3 (UX review 05.09.2026: ink3 text was an oversight). Lightening
-    /// light ink2 would quietly take every kicker, every card sub-line and the
-    /// accented figures back under 4.5:1; it fails here instead.
+    /// are what the text rule in Theme.swift rests on: words take ink2, never
+    /// ink3 (`Kicker`). Lightening light ink2 would quietly take every kicker
+    /// and every card sub-line under 4.5:1, and lightening accentText the
+    /// accented figures; it fails here instead.
     ///
     /// ink-on-accentSoft is the pair the accented fills set their words in.
     /// Dark gates it at 4.5 and Increased Contrast at 7 in the two lists
-    /// beside this one; the light scheme was the appearance nothing measured,
-    /// which is where the badge pill is read most. It stands at 15.23:1, so 7
-    /// is a floor with room, not a value pinned to today's hexes.
+    /// beside this one, and this one gates the light scheme, so no appearance
+    /// of it goes unmeasured. It stands at 15.23:1, so 7 is a floor with room,
+    /// not a value pinned to today's hexes.
     private static let lightTextFloors = [
         Floor(ink: "ink", ground: "bg", ratio: 7),
         Floor(ink: "ink", ground: "cardBG", ratio: 7),
@@ -121,14 +113,13 @@ final class BrandPaletteTests: XCTestCase {
         try assertFloors(Self.lightTextFloors, style: .light, contrast: .normal)
     }
 
-    /// ink3 is quoted by number in two places in Theme.swift — its own doc and
-    /// the `Kicker` default that stopped using it — and the rule those numbers
-    /// decide is "ink3 never carries text" (UX review 05.09.2026). The old
-    /// justification mixed schemes ("4.96:1 against 3.02:1": light ink2 against
-    /// DARK ink3), which is exactly the failure a pin prevents: prose cannot
-    /// go stale beside a moved token without a red test. A pin on the value
-    /// that HOLDS, both directions — a floor would say nothing about the
-    /// sentence being true.
+    /// ink3's ratios on `bg` are quoted by number in Theme.swift's prose — the
+    /// palette header, its own doc, `targetStroke`'s and the `Kicker` default,
+    /// which takes ink2 instead — and its own doc and `Kicker`'s decide the
+    /// rule "ink3 never carries text". So that prose cannot go stale beside a
+    /// moved token without a red test, this is a pin on the value that HOLDS,
+    /// both directions — a floor would say nothing about the sentence being
+    /// true.
     func testInk3StandsWhereTheTextRuleQuotesIt() throws {
         try assertRatio("ink3", on: "bg", equals: 2.35, style: .light, contrast: .normal)
         try assertRatio("ink3", on: "bg", equals: 4.68, style: .light, contrast: .high)
@@ -264,8 +255,8 @@ final class BrandPaletteTests: XCTestCase {
 
     // MARK: - WCAG arithmetic
 
-    /// The same formula the wave's acceptance table was computed with
-    /// (WCAG 2.x relative luminance).
+    /// WCAG 2.x relative luminance — the formula the floors above and the
+    /// ratios Theme.swift quotes are stated in.
     private func contrast(_ ink: RGB, on ground: RGB) -> Double {
         let lighter = max(luminance(of: ink), luminance(of: ground))
         let darker = min(luminance(of: ink), luminance(of: ground))

@@ -180,7 +180,7 @@ final class BlockReserveTests: XCTestCase {
 
     func testTheWorstCompositionFitsTheEngineReserve() {
         let reserve = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
-        XCTAssertEqual(reserve, 600, "§41.12: the reserve is 10:00")
+        XCTAssertEqual(reserve, 600, "the reserve is 10:00")
         XCTAssertLessThanOrEqual(
             worstWarmupSec() + worstCooldownSec(), reserve,
             "the worst composition of the two blocks overruns the engine's reserve")
@@ -259,7 +259,7 @@ final class BlockReserveTests: XCTestCase {
             XCTAssertEqual(warmupSec(session: session, hiding: []),
                            slotsSec + GetReady.setupSupplementSec
                                + split * Cooldown.sideSwitchPauseSec,
-                           "§41.12: composition \(session) draws \(split) split moves")
+                           "composition \(session) draws \(split) split moves")
             XCTAssertGreaterThanOrEqual(split, 2,
                                         "arm circles are permanent and cat-cow is not split, "
                                         + "so every composition pays at least the circles")
@@ -283,7 +283,7 @@ final class BlockReserveTests: XCTestCase {
             }
         }
         XCTAssertEqual(worstWarmupSec(hiding: []), 244,
-                       "§41.12: with nothing set aside the dearest warm-up is 244 s")
+                       "with nothing set aside the dearest warm-up is 244 s")
         XCTAssertEqual(worstWarmupSec(), 248,
                        "the dearest warm-up the APP can compose is 248 s — a set-aside move "
                        + "widens the rotation's window onto a fourth split move")
@@ -337,7 +337,7 @@ final class BlockReserveTests: XCTestCase {
         }
         XCTAssertEqual(seen.count, 9, "all nine moves of the pool are reachable")
         XCTAssertTrue(seen.isSuperset(of: ["y-t-w", "bird-dog", "single-leg-rdl"]),
-                      "the three §40.1 sent here are in the block")
+                      "the three movements the ladders leave to the warm-up are in the block")
     }
 
     /// Six on screen whatever is set aside — the `Warmup.honoured` guarantee.

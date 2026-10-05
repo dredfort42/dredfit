@@ -82,7 +82,7 @@ extension AppStoreTests {
 
     /// The onboarding and review fields must round-trip through a save/reload
     /// like every other setting — the onboarding must not reappear after a relaunch.
-    func testWaveFourSettingsSurviveReload() {
+    func testOnboardingAndReviewSettingsSurviveReload() {
         let store = makeStore()
         XCTAssertFalse(store.settings.onboardingCompleted)
         store.completeOnboarding()

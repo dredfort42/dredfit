@@ -96,7 +96,7 @@ final class MigrationV2Tests: AppStoreTestCase {
             "core_rot L=26: 72 -> 90",
             "core_rot L=27: 78 -> 90",
             "core_rot L=28: 84 -> 90",
-        ], "§41.6 item 4 accepts exactly these ten: a hold v2 set below v3's floor of 15 s comes UP to "
+        ], "the accepted gap is exactly these ten: a hold v2 set below v3's floor of 15 s comes UP to "
            + "the floor, because there is nothing lower in the product to land on")
     }
 

@@ -86,7 +86,7 @@ final class SetSkipTests: AppStoreTestCase {
             let store = try store(variation: variation, sets: sets)
             let shown = try XCTUnwrap(nextShown(store, .squat))
             XCTAssertEqual(shown.sets, sets,
-                           "v\(variation): the plan is not the one §38.2 describes")
+                           "v\(variation): the plan does not show the sets the seed wrote")
             XCTAssertNil(shown.probe, "v\(variation): a probe set is not a working set")
 
             _ = store.completeWorkout(session: store.nextSession, result: .plan,
@@ -116,8 +116,8 @@ final class SetSkipTests: AppStoreTestCase {
                                              result: .plan, overrides: [:], skipped: [],
                                              gapDays: nil)
             XCTAssertEqual(wrong.cutOf(.squat), 0,
-                           "v\(variation): the wrong order no longer loses the skip — §38.2 "
-                           + "rule 1 has stopped describing the engine")
+                           "v\(variation): the wrong order no longer loses the skip — rule 1 "
+                           + "has stopped describing the engine")
         }
     }
 

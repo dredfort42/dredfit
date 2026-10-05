@@ -46,7 +46,7 @@ extension AppStoreTests {
         // Pre-bar files load with the bar module off and the branch at zero —
         // because this file predates the pattern and carries no level for it,
         // NOT because the state was discarded. A file that does carry one keeps
-        // it: `testV13SettingsFileLoadsWithWaveFourDefaults` is that case.
+        // it: `testV13SettingsFileLoadsWithOnboardingAndReviewDefaults` is that case.
         XCTAssertFalse(store.engineState.hasBar, "legacy files must decode with hasBar off")
         XCTAssertEqual(store.engineState.vars[.pullBar], 1)
         XCTAssertEqual(store.engineState.failStreak[.pullBar], 0)
@@ -111,7 +111,7 @@ extension AppStoreTests {
         XCTAssertNil(store.settings.lastReviewRequestAt, "v1.4 review stamp defaults to never")
     }
 
-    func testV13SettingsFileLoadsWithWaveFourDefaults() throws {
+    func testV13SettingsFileLoadsWithOnboardingAndReviewDefaults() throws {
         let v13 = """
         {"engineState":{"counter":4,
           "levels":["squat",3,"push_h",2,"hinge",1,"pull",4,"push_v",0,"lunge",2,

@@ -48,7 +48,7 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
         XCTAssertEqual(relaunched.records.count, 1,
                        "the workout happened; it must exist in the journal")
         XCTAssertEqual(relaunched.records.first?.result, .plan,
-                       "an unrated workout counts as on plan (owner, 05.09.2026)")
+                       "an unrated workout counts as on plan")
         XCTAssertNil(relaunched.pendingWorkout, "settled means no longer pending")
     }
 

@@ -110,7 +110,7 @@ final class CooldownTests: XCTestCase {
         XCTAssertEqual(next?.stage, .getReady)
         XCTAssertEqual(GuidedBlock.step(after: (1, .getReady), positions: positions)?.stage,
                        .firstHalf,
-                       "chest wall is per side too — it tells the user to swap arms")
+                       "chest wall is per side too — the app counts one arm, then the other")
     }
 
     func testTheBlockEndsAfterTheLastPosition() {

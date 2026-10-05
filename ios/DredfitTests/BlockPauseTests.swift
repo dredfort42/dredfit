@@ -8,24 +8,20 @@ final class BlockPauseTests: XCTestCase {
     // MARK: - The way back in
 
     func testTheWayBackInIsTheCountIn() {
-        // A third length would be a third thing to learn: the app counts you
-        // in over four seconds before a position (#52), between the sides of
-        // one (#35), and after every start tap. The way back in is the same
+        // A third length would be a third thing to learn: four seconds is the
+        // count-in before a position (#52) and after every start tap, and the
+        // pause between the sides of one (#35). The way back in is the same
         // beat — Resume is tapped by someone already standing in place, so
-        // there is no travel to pay for. It followed the TRANSITION until
-        // 27.08.2026, which made it ten and put two opposite reasons in the
-        // tree at once; owner's decision settled it on the count-in.
+        // there is no travel to pay for.
         //
-        // Pinned twice, per §41.8: once against the constant it is wired to,
-        // and once against the NUMBER — a pin that only says "equals that
-        // other symbol" moves silently when the symbol does.
+        // Pinned twice: once against the constant it is wired to, and once
+        // against the NUMBER — a pin that only says "equals that other
+        // symbol" moves silently when the symbol does.
         XCTAssertEqual(BlockPause.reentrySeconds, GetReady.countInSeconds)
         XCTAssertEqual(BlockPause.reentrySeconds, 4)
-        // Five together, then four together (owner, 06.09.2026): the switch
-        // pause went on trial and the count-in followed it down, so the two
-        // are one number again. Pinned as an equality AND by value above, per
-        // §41.8 — a pin that only says "equals that other symbol" moves
-        // silently when the symbol does, and one of these two is under trial.
+        // The switch pause is the same beat, so the two are one number. It is
+        // on trial and may move, and the value pin above keeps the count-in
+        // from following it silently.
         XCTAssertEqual(BlockPause.reentrySeconds, Cooldown.sideSwitchPauseSec,
                        "the way back in and the switch are the same beat")
         XCTAssertLessThan(BlockPause.reentrySeconds, GetReady.seconds,
@@ -39,7 +35,7 @@ final class BlockPauseTests: XCTestCase {
         XCTAssertGreaterThan(BlockPause.reentrySeconds, 3)
     }
 
-    /// R32: a REST resumes into itself — no lead-in, because a rest is time
+    /// A REST resumes into itself — no lead-in, because a rest is time
     /// being given rather than a position to be counted back into, and its own
     /// 3-2-1 is still ahead of it. What it takes instead is a floor: on a
     /// hands-free hold run the rest STARTS the next set, and resuming with two
@@ -180,7 +176,7 @@ final class BlockPauseTests: XCTestCase {
         XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.firstHalf, of: warmup[0]), Warmup.halfSeconds)
         XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.switchPause, of: warmup[0]),
                        Cooldown.sideSwitchPauseSec,
-                       "§41.12: one gesture, one length — the cool-down's constant")
+                       "one gesture, one length — the cool-down's constant")
         XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.whole, of: positions[0]),
                        Cooldown.positionSeconds)
         XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.firstHalf, of: positions[0]),

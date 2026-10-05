@@ -111,7 +111,7 @@ final class WeakLinkPromptTests: AppStoreTestCase {
         let before = store.engineState
         store.dismissSuspectPrompt()
         XCTAssertFalse(store.shouldAskAboutSuspect(), "asked once per session")
-        XCTAssertEqual(store.engineState, before, "a dismissal touches no state")
+        XCTAssertEqual(store.engineState, before, "a dismissal touches no engine state")
 
         var applied = false
         for _ in 0..<8 where !applied {

@@ -84,13 +84,13 @@ final class CleanStartTests: AppStoreTestCase {
             XCTAssertEqual(ex.variation, earned,
                            "\(ex.pattern.rawValue): the rung v2's tier 4 was earned on, not the first one")
             XCTAssertEqual(ex.sets, 3,
-                           "\(ex.pattern.rawValue): v2 planned three sets at L=24, and §40.5 lets no band "
-                           + "ride below the top rung anyway")
+                           "\(ex.pattern.rawValue): v2 planned three sets at L=24, and sets above the base "
+                           + "exist only on the top rung anyway")
             XCTAssertEqual(ex.load, Dose.grid(ex.unit).min,
                            "\(ex.pattern.rawValue): the bottom of v2's tier 4 is already v3's grid floor — "
                            + "this is the dose they were doing, not a reset")
             XCTAssertNil(ex.probe,
-                         "\(ex.pattern.rawValue): a probe is offered from the dose CEILING (§40.4), and they "
+                         "\(ex.pattern.rawValue): a probe is offered from the dose CEILING, and they "
                          + "stand at the floor")
         }
     }
@@ -119,7 +119,7 @@ final class CleanStartTests: AppStoreTestCase {
         XCTAssertEqual(squat.pattern, .squat)
         XCTAssertEqual(squat.load, 9)
         XCTAssertEqual(squat.variation, 0,
-                       "a record from before §40.1 marks itself as predating the ladders")
+                       "a record from before v3 marks itself as predating the ladders")
         XCTAssertNil(squat.probe)
     }
 
