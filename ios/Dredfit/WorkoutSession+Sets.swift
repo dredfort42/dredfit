@@ -336,6 +336,7 @@ extension WorkoutSession {
             // This set only — the ones behind keep what they ran at.
             actuals = SetFacts.recording(adjustValue, in: actuals,
                                          exercise, set: setIndex)
+            numbersEntered[exercise.pattern, default: []].insert(setIndex)
             noteMaximumOutOfOrder()
             // The hint above is spent HERE, on a number actually
             // reported — not when the panel opens. Opening it

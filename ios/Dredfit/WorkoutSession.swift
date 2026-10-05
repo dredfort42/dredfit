@@ -159,6 +159,15 @@ final class WorkoutSession {
     /// discarded (`SetFacts.leftOut`). Kept, persisted and cleared with them.
     var skippedWithNumber: SetFacts.SkippedSets = [:]
 
+    /// Sets the person entered a number for ("Went differently" → OK), by
+    /// index: the OK itself, not the record it leaves, because a number on
+    /// the plan leaves none (`SetFacts.recording`) and a skip of that set
+    /// still has to keep it. In the session only: after a process death the
+    /// record in `actuals` still says so for a number off the plan, while one
+    /// on the plan, entered before the death, reads as nothing said — keeping
+    /// that one too would take one more field in the snapshot.
+    var numbersEntered: [Pattern: Set<Int>] = [:]
+
     /// What the PROBE set showed, per movement. Kept apart from
     /// `actuals` on purpose and for the same reason the engine keeps `probes`
     /// apart from `overrides`: the probe is a different exercise, and folding

@@ -25,8 +25,11 @@ extension WorkoutSession {
     /// differently" → OK), which a skip of it keeps (`skippedWithNumber`).
     /// Read here, at the skip, because later it cannot be: a set recorded
     /// after the gap fills it with what was in force (`SetFacts.leftOut`).
+    /// The OK says so (`numbersEntered`); a record at this index says so too,
+    /// and is what is left of an OK after a process death.
     private var setInFrontHasANumber: Bool {
-        (actuals[exercise.pattern]?.count ?? 0) > setIndex
+        numbersEntered[exercise.pattern]?.contains(setIndex) == true
+            || (actuals[exercise.pattern]?.count ?? 0) > setIndex
     }
 
     /// "Skip this set": the set is not performed and the next one is up.
