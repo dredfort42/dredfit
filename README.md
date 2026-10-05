@@ -201,7 +201,7 @@ The engine was first written and verified as a JavaScript reference, then ported
 to Swift. The reference suite currently runs **1 762 742 property checks with 0
 failures**, alongside an acceptance script of 33 blocks and a model sweep that
 walks **59 264 transitions** without once assigning more than "what you showed,
-plus one". `golden.json` is the reference's recorded trace — **48 scenarios, 404
+plus one". `golden.json` is the reference's recorded trace — **49 scenarios, 413
 steps**, stamped `adaptive_engine.js v3.8.0` — and the Swift port must reproduce
 it exactly. Changing engine behavior means changing the spec first, then the
 reference, re-verifying, regenerating fixtures, then porting. Plausible-but-

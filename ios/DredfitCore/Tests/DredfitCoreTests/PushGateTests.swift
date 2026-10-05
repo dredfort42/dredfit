@@ -145,6 +145,33 @@ final class PushGateTests: XCTestCase {
         XCTAssertEqual(short.position(.pushH).sets, 3, "the weaker branch keeps the push waiting")
     }
 
+    /// The other branch's weekly window comes before the push too. The credit
+    /// carries the bar's branch into band 4, its spent window takes that back,
+    /// and the push reads the branch on three: it waits. Read before that
+    /// window, both pushes entered 4×11 and the next plan capped one at 3×11.
+    /// The control has budget left: the band stands, and the pushes follow.
+    func testThePullIsReadAfterTheOtherBranchsWindow() {
+        var s = EngineState.initial
+        s.hasBar = true
+        put(&s, .pushH, dose: 15)
+        put(&s, .pushV, dose: Dose.grid(Library.unit(.pushV, Library.count(.pushV))).max)
+        put(&s, .pull, sets: 4, dose: Dose.grid(Library.unit(.pull, Library.count(.pull))).min)
+        put(&s, .pullBar, dose: Dose.grid(Library.unit(.pullBar, Library.count(.pullBar))).max)
+        s.weekAgeDays = 1
+        var spent = s
+        spent.weekGain[.pullBar] = EngineConfig.weeklyRiseSlow
+
+        let waits = train(spent, gapDays: 0.5)
+        XCTAssertEqual(onScreen(waits, .pullBar), 3, "the bar's window took back the band the credit gave it")
+        XCTAssertEqual([waits.position(.pushH).sets, waits.position(.pushV).sets], [3, 3],
+                       "the pushes wait for the branch the window kept")
+
+        let follows = train(s, gapDays: 0.5)
+        XCTAssertEqual(onScreen(follows, .pullBar), 4, "with budget left the credit's band stands")
+        XCTAssertEqual([follows.position(.pushH).sets, follows.position(.pushV).sets], [4, 4],
+                       "and the pushes enter behind it")
+    }
+
     /// The pull caps pushes only: a squat on its ceiling enters its band
     /// whatever the pull shows.
     func testOnlyAPushWaitsForThePull() {
