@@ -270,6 +270,7 @@ extension WorkoutSession {
         holdDeclared = nil
         holdApproxSets.removeAll()
         holdMeasured.removeAll()
+        holdTapEndedSets.removeAll()
     }
 
     /// Past the exercise in front of us, however it ended — into the next one,

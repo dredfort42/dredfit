@@ -330,6 +330,12 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// on the card since (`WorkoutSession.holdApproxSets`). An array
     /// because a `Set<Int>` is one on the wire anyway; read back as a set.
     var approxSets: [Int]?
+    /// Of those, the sets whose LAST side a thumb ended
+    /// (`WorkoutSession.holdTapEndedSets`), read back by `endedByTapSets`.
+    /// Optional with a nil default, like every field added to a persisted
+    /// type; without it no set reads as ended by a thumb, and a correction's
+    /// ceiling falls back to the estimate itself — never above what was held.
+    var tapEndedSets: [Int]?
     /// What the clock wrote for each set of the exercise in front of us, by
     /// set index (`WorkoutSession.holdMeasured`). The summary's ceiling is
     /// read off it, so a kill on that screen must not turn a corrected
@@ -419,6 +425,11 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// where it is read for the same reason as everything above it.
     var approximateSets: Set<Int> {
         Set((approxSets ?? []).filter { (0..<EngineConfig.setsMax).contains($0) })
+    }
+
+    /// The sets a thumb ended, bounded like the marks.
+    var endedByTapSets: Set<Int> {
+        Set((tapEndedSets ?? []).filter { (0..<EngineConfig.setsMax).contains($0) })
     }
 
     /// Whether anything happened worth keeping. A snapshot from the moment the

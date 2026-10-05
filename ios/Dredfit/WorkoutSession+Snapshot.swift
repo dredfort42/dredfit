@@ -66,6 +66,7 @@ extension WorkoutSession {
             atExerciseSummary: phase == .exerciseSummary ? true : nil,
             holdDeclaredSec: holdDeclared,
             approxSets: holdApproxSets.isEmpty ? nil : Array(holdApproxSets).sorted(),
+            tapEndedSets: holdTapEndedSets.isEmpty ? nil : Array(holdTapEndedSets).sorted(),
             holdMeasuredSec: holdMeasured.isEmpty ? nil : holdMeasured,
             interrupted: interruptedPattern,
             warmupSec: warmupSec,
@@ -123,6 +124,7 @@ extension WorkoutSession {
         warmupSec = snap.warmupSec
         cooldownSec = snap.cooldownSec
         holdApproxSets = snap.approximateSets
+        holdTapEndedSets = snap.endedByTapSets
         holdMeasured = snap.measuredHold
         // A declared time outlives a process death, and it has to: coming back
         // to the plan's number after saying you would hold longer would undo

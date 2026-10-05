@@ -127,12 +127,14 @@ extension WorkoutSession {
     ///
     /// A rest started on the signal of every set but the movement's very
     /// last one, its probe counted — so on this screen, on the last working
-    /// set of a probing hold.
+    /// set of a probing hold. What ended the set is its last side
+    /// (`holdTapEndedSets`), not the mark, which a first side stopped by hand
+    /// also leaves.
     func summaryRange(set index: Int) -> ClosedRange<Int> {
         SetFacts.correctionRange(measured: summaryMeasured(set: index),
                                  isLastSet: isLastSummarySet(index),
                                  restFollowed: index < totalSets - 1,
-                                 endedByTap: holdApproxSets.contains(index))
+                                 endedByTap: holdTapEndedSets.contains(index))
     }
 
     /// The plan this movement will get with `steps` additions — the engine's

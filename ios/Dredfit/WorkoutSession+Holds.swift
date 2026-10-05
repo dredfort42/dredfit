@@ -206,6 +206,10 @@ extension WorkoutSession {
         // not a measurement, and a number the app guessed at must not be
         // printed with the same confidence as one the clock produced.
         holdApproxSets.insert(setIndex)
+        // …and when this side is the one that ends the set, its correction
+        // ceiling is the thumb's reading rather than a clock's. A first side
+        // ended here hands the set to the second side's clock.
+        if !current.perSide || holdSecondSide { holdTapEndedSets.insert(setIndex) }
         finishHold(heldSeconds: records)
     }
 
@@ -383,6 +387,7 @@ extension WorkoutSession {
         guard phase == .exerciseSummary else { return }
         holdApproxSets.removeAll()
         holdMeasured.removeAll()
+        holdTapEndedSets.removeAll()
         completeSet()
     }
 

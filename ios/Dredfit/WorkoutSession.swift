@@ -292,6 +292,14 @@ final class WorkoutSession {
     /// and carried across a process death with them.
     var holdMeasured: [Int: Int] = [:]
 
+    /// Sets of the exercise in front of us whose LAST side a thumb ended. On
+    /// a per-side hold the mark (`holdApproxSets`) also covers a first side
+    /// stopped by hand, but then the second side ran on its own clock and
+    /// ended the set — and the ceiling of a correction is what the side that
+    /// ended the set ran (`summaryRange`). Per exercise, like the marks, and
+    /// carried across a process death with them.
+    var holdTapEndedSets: Set<Int> = []
+
     /// The exercise was started by ONE tap and continues itself: the rest
     /// after each set opens the next set with nobody touching the phone. It
     /// belongs to the exercise it was started for, so it is cleared on the

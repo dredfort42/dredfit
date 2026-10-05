@@ -295,12 +295,16 @@ nonisolated enum SetFacts {
     /// signal, and the person may have kept holding — the corridor is the
     /// ceiling: the "Went differently" of the last hold, on its card. A set a
     /// REST followed — the last working set of a probing hold, whose signal
-    /// starts the rest before the probe — ended where the clock says it did,
-    /// and the ceiling is what the clock ran: its seconds when the clock ended
-    /// it, and when a thumb did, the estimate plus the reach allowance it paid
-    /// (`holdReachSeconds`), which is the clock's own reading at the tap.
-    /// More would be seconds nobody could have held, and on a probing hold one
-    /// step of them can decide whether the probe counts at all.
+    /// starts the rest before the probe — ended where its LAST side ended, and
+    /// the ceiling is what that side's clock ran. When its clock ended it,
+    /// that is the seconds recorded. When a thumb did (`endedByTap`), it is
+    /// the estimate plus the reach allowance it paid (`holdReachSeconds`):
+    /// the clock's reading at the tap everywhere but the corridor's floor,
+    /// where a tap at 4–7 s records 5 and the ceiling of 8 can lie up to 4 s
+    /// over the reading — only the reading itself would be exact, and nothing
+    /// keeps it. More would be seconds nobody could have held, and on a
+    /// probing hold one step of them can decide whether the probe counts at
+    /// all.
     ///
     /// What is wanted next time is a different channel (`raisedSteps`): a
     /// number entered on a card is written down as HELD (`recordingSet`), so

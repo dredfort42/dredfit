@@ -105,6 +105,97 @@ extension WorkoutSessionTests {
         XCTAssertEqual(flow.summaryRange(set: 2), SetFacts.corridor(for: .hold))
     }
 
+    // MARK: - A per-side set's ceiling
+
+    /// The kneeling side plank on its ceiling and journalled there: session 2
+    /// hands it out as 2×45 s per side and a probe of the next variation.
+    func probingSidePlankFlow() throws -> (WorkoutSession, AppStore) {
+        var state = EngineState.initial
+        state.counter = 1
+        state.doses[.coreRot] = Dose.hold.max
+        state.shown[.coreRot] = [1: Dose.hold.max]
+        let store = makeStore()
+        store.update(refreshWidget: false) { $0.engineState = state }
+        let flow = makeFlow(store)
+        flow.declineWarmup()
+        flow.exIndex = try index(of: .coreRot, in: flow)
+        XCTAssertTrue(flow.exercise.perSide, "the premise: per side")
+        XCTAssertEqual(flow.exercise.sets, 2, "the premise: two working sets")
+        XCTAssertNotNil(flow.exercise.probe, "the premise: a probe")
+        return (flow, store)
+    }
+
+    /// Set 1 on its clock, both sides, and the rest after it, up to set 2's
+    /// first side, which the rest's go opens.
+    func walkToTheSecondSetsFirstSide(_ flow: WorkoutSession) {
+        flow.startHoldExercise()
+        run(flow, until: { flow.phase == .rest(seconds: flow.exercise.restSetSec) })
+        run(flow, until: { flow.phase == .work })
+        XCTAssertEqual(flow.setIndex, 1)
+        XCTAssertTrue(flow.holding && !flow.holdSecondSide, "set 2's first side runs")
+    }
+
+    /// From set 2's end — the rest before the probe — to the probe's screen,
+    /// and the probe skipped onto the summary.
+    func skipTheProbeToTheSummary(_ flow: WorkoutSession) {
+        XCTAssertEqual(flow.phase, .rest(seconds: flow.exercise.restSetSec))
+        run(flow, until: { flow.phase == .work })
+        XCTAssertTrue(flow.onProbeSet)
+        flow.skipSet()
+        XCTAssertEqual(flow.phase, .exerciseSummary)
+    }
+
+    /// Side 1 stopped by hand at 44 s (≈41), side 2 run out on its clock at
+    /// the 41 it was handed: the set ended on a clock that ran 41, and the
+    /// rest began on its signal. The ceiling is 41, whatever the mark says.
+    func testAPerSideSetWhoseSecondSideRanOutGoesNoHigherThanThatClock() throws {
+        let (flow, _) = try probingSidePlankFlow()
+        walkToTheSecondSetsFirstSide(flow)
+        run(flow, for: 44)
+        flow.stopHoldEarly()
+        XCTAssertTrue(flow.holdSecondSide, "the first side handed over to the second")
+        run(flow, until: { flow.phase != .work })
+        XCTAssertEqual(flow.actuals[.coreRot]?[1], 41)
+        XCTAssertTrue(flow.holdApproxSets.contains(1), "the set carries the thumb's mark")
+        skipTheProbeToTheSummary(flow)
+        XCTAssertEqual(flow.summaryRange(set: 1), SetFacts.corridor(for: .hold).lowerBound...41,
+                       "side 2's clock ran 41 and ended the set")
+    }
+
+    /// Side 1 on its clock, side 2 stopped by hand at 40 s (≈37): the thumb
+    /// ended the set, and the ceiling is the estimate plus the allowance it
+    /// paid, 40. A process death on the summary keeps it, and the movement
+    /// takes the record of which side ended the set with it.
+    func testAPerSideSetWhoseSecondSideAThumbEndedGoesUpToThatReading() throws {
+        let (flow, store) = try probingSidePlankFlow()
+        walkToTheSecondSetsFirstSide(flow)
+        run(flow, until: { flow.holdSecondSide && flow.holding })
+        run(flow, for: 40)
+        flow.stopHoldEarly()
+        XCTAssertEqual(flow.actuals[.coreRot]?[1], 37)
+        skipTheProbeToTheSummary(flow)
+        let ceiling = SetFacts.corridor(for: .hold).lowerBound...40
+        XCTAssertEqual(flow.summaryRange(set: 1), ceiling)
+
+        let back = makeFlow(store, resume: try XCTUnwrap(store.pendingWorkout))
+        XCTAssertEqual(back.phase, .exerciseSummary)
+        XCTAssertEqual(back.summaryRange(set: 1), ceiling, "a process death keeps which side ended the set")
+        back.leaveExerciseSummary()
+        XCTAssertTrue(back.holdTapEndedSets.isEmpty, "it goes with the movement")
+        flow.finishNow()
+        XCTAssertTrue(flow.holdTapEndedSets.isEmpty, "…however the movement is left")
+    }
+
+    /// Off disk, a set a thumb ended is one the scale has, or it is dropped.
+    func testTheSetsAThumbEndedComeBackOffDiskBounded() {
+        var snap = WorkoutSnapshot(sessionNumber: 3, exIndex: 0, setIndex: 0,
+                                   restEndDate: nil, restTotalSec: nil,
+                                   workoutStart: .now, savedAt: .now)
+        XCTAssertEqual(snap.endedByTapSets, [])
+        snap.tapEndedSets = [1, 9, -1]
+        XCTAssertEqual(snap.endedByTapSets, [1])
+    }
+
     // MARK: - What is promised about next time
 
     /// The plan the engine hands `pattern` on its next appearance.
