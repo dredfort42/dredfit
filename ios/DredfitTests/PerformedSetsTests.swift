@@ -205,8 +205,9 @@ extension WorkoutSessionTests {
         XCTAssertEqual(try XCTUnwrap(flow.overrides[.squat]), 22.0 / 3.0, accuracy: 1e-9)
     }
 
-    /// The skeptic's (c): "8, 8, entered 6 then Skip the remaining sets" is
-    /// 7.33, as "Finish now" on the same set folds it.
+    /// The skeptic's (c): "8, 8, entered 6 then Skip the remaining sets",
+    /// called on the last set of 3×8 — the screen offers "Skip this set"
+    /// there, which names the same set — keeps the 6: 8, 8, 6, 7.33.
     func testSkippingTheRemainingSetsKeepsTheNumberEnteredForTheSetInFront() throws {
         let (flow, _) = try squatFlow()
         doTwoSetsAtPlanAndEnterSixOnTheThird(flow)
