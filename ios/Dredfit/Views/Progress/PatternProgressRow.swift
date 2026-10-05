@@ -19,10 +19,13 @@ struct PatternProgressRow: View {
     /// the current one is where the engine starts offering a PROBE — the only
     /// door into the next variation — so that is what the countdown counts to.
     /// On the top variation the same ceiling buys a set instead, and on five
-    /// sets (`EngineConfig.setsMax`) there is no set left to promise.
+    /// sets (`EngineConfig.setsMax`) there is no set left to promise. A push's
+    /// set waits for the pulls as well, and no count of steps says when they
+    /// catch up.
     private enum NextMilestone {
         case probe(in: Int)
         case set(in: Int)
+        case setOncePullsCatchUp
         case ceiling
     }
 
@@ -37,7 +40,7 @@ struct PatternProgressRow: View {
         let steps = Engine.stepsToVariationCeiling(store.engineState, p) + position.cut + 1
         guard position.variation == Library.count(p) else { return .probe(in: steps) }
         guard position.sets < EngineConfig.setsMax else { return .ceiling }
-        return .set(in: steps)
+        return store.nextSetWaitsForThePulls(p) ? .setOncePullsCatchUp : .set(in: steps)
     }
 
     var body: some View {
@@ -224,6 +227,7 @@ struct PatternProgressRow: View {
         // it, one event earlier, so the honest words are the glossary's two.
         case .probe(let steps): Text("next variation probe in \(steps)")
         case .set(let steps): Text("+1 set in \(steps)")
+        case .setOncePullsCatchUp: Text("+1 set once pulling catches up")
         case .ceiling: EmptyView()
         }
     }

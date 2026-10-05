@@ -1856,6 +1856,47 @@
       },
       "comment": "Progress row, beside the step count of a pattern at the top of its ladder: N is the number of STEPS until a set comes back — not days, not workouts."
     },
+    "+1 set once pulling catches up": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+1 Satz, sobald das Ziehen aufholt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+1 serie cuando la tracción se ponga al día"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+1 série quand le tirage aura rattrapé son retard"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+1 serie quando la tirata si mette in pari"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+1 série quando a puxada alcançar o empurrão"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+1 подход, когда тяга догонит"
+          }
+        }
+      },
+      "comment": "Progress row, beside the step count of a push on the top variation of its ladder whose next set waits for the pull slot: the pulls must show that many sets first, and no count of steps can say when they will."
+    },
     "≈ %lld min · %lld exercises": {
       "localizations": {
         "de": {
