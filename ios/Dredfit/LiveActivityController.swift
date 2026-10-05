@@ -80,9 +80,9 @@ final class WorkoutActivityController {
     static func staleDate(for state: RestActivityAttributes.ContentState,
                           now: Date = .now) -> Date {
         // Any phase that carries an end date, not just the rest: a hold sends
-        // its own through the same field, and dimming a finished hold only
-        // after the flat 20 minutes below is the same defect the rest was
-        // given this branch for (UX review 05.09.2026).
+        // its own through the same field, and a finished hold would otherwise
+        // stay undimmed for the flat 20 minutes below, as a finished rest
+        // would.
         if state.phase != .work, let end = state.restEndDate {
             return end.addingTimeInterval(60)
         }

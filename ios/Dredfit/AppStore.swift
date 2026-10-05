@@ -29,8 +29,8 @@ struct AppData: Codable {
         case engineState, records, settings, pendingWorkout
     }
 
-    /// True when the engine state on disk was neither v3 nor v2 (§41.7
-    /// migrates v2) and the engine started clean; the loader copies the
+    /// True when the engine state on disk was neither v3 nor v2 (a v2 state
+    /// is carried over) and the engine started clean; the loader copies the
     /// original aside, and an import refuses the file.
     var engineStateReset = false
 
@@ -39,7 +39,7 @@ struct AppData: Codable {
     /// refuses the file instead.
     var settingsUnreadable = false
 
-    /// True when a state written before v3 was read and carried over (§41.7).
+    /// True when a state written before v3 was read and carried over.
     /// A property of THIS decode, not of the file: the loader turns it into
     /// `settings.migrationNoticePending`, which is what the file carries and
     /// what the card on Today is spent against.
@@ -48,23 +48,18 @@ struct AppData: Codable {
     /// The journal decodes record-by-record — one unreadable entry (e.g.
     /// written by a newer version) must not throw away the whole file.
     ///
-    /// And the ENGINE STATE decodes leniently for the same reason, since v3:
-    /// a state written by an older build carries `levels` instead of positions.
-    /// It is now READ and carried over (§41.7); the lenient shape stays because
-    /// a state from some future build still must not take the journal and the
-    /// settings down with it.
+    /// And the ENGINE STATE decodes leniently for the same reason: a state
+    /// written before v3 carries `levels` instead of positions and is read and
+    /// carried over, and a state from some future build must not take the
+    /// journal and the settings down with it.
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         if let state = try? c.decode(EngineState.self, forKey: .engineState) {
             engineState = state
         } else if let migrated = try? c.decode(V2EngineState.self, forKey: .engineState),
                   let carried = Engine.migrateFromV2(migrated.asEngineInput) {
-            // §41.7: a state written before v3 is READ and carried over, not
-            // thrown away. §40.8 used to hand the engine `initState` here; the
-            // decision was reversed on 26.08.2026 because the way back it
-            // counted on — entering facts — is explained by exactly one line in
-            // the app, and that line shows only when the journal is empty.
-            // An upgrading trainee's journal is intact, so they never saw it.
+            // A state written before v3 is READ and carried over, not thrown
+            // away: an upgrade must never start anyone over (`MigrationV2`).
             engineState = carried
             engineStateMigrated = true
         } else {
@@ -142,7 +137,7 @@ final class AppStore {
     /// Its only reader is `settleAbandonedWorkout` — `activate()` fires on
     /// every foreground, including one that lands straight back INTO a running
     /// workout, and the store cannot otherwise tell that case from a session
-    /// nobody is holding (self-review 06.09.2026).
+    /// nobody is holding.
     private(set) var workoutIsOnScreen = false
 
     func workoutFlowAppeared() { workoutIsOnScreen = true }
@@ -314,15 +309,6 @@ final class AppStore {
         }
     }
 
-    // There is no default time budget, because there is no budget. The audit
-    // measured what the rungs actually did: 10, 15 and 20 produced the SAME
-    // plan, and the "20" rung missed its own target in 100 % of sessions. The
-    // engine now announces how long a session takes and the person shortens it
-    // with the handle. What stood here was `defaultTimeBudgetMin` and the
-    // argument for it (#136): a length nobody chose was 45 minutes rather than
-    // "no limit", because the budget shipped switched off and so protected
-    // only the people who went looking for it.
-
     // MARK: - Derived
 
     /// IMPORTANT: right after a workout is completed the counter has
@@ -356,14 +342,8 @@ final class AppStore {
         return debuts
     }
 
-    // `restingPatterns` is gone with the freeze. Nothing rests any more — a
-    // movement the person finds too hard stays in the plan and gets an easier
-    // variation or fewer sets, which is the whole point of the wave: the
-    // channel that removed movements removed them for weeks.
-
-    /// How far along their ladders every movement stands, summed — the scale
-    /// §40.2 puts in place of the total level. A clean start reads zero, just
-    /// as the old total did.
+    /// How far along their ladders every movement stands, summed. A clean
+    /// start reads zero.
     var totalProgress: Int { Engine.totalProgress(engineState) }
 
     /// The position of every movement right now, in the form the journal
@@ -396,11 +376,11 @@ final class AppStore {
     /// what `WorkoutRecord.id` already says out loud — so the first record
     /// whose number does not exceed its predecessor's opens the new run.
     ///
-    /// The curve is cut here rather than at each caller because the milestone
-    /// card and the share card drew the pre-reset PEAK above a plan that had
-    /// just been wiped (UX review 05.09.2026, finding 36). Progress cut its own
-    /// chart and nothing else did. The workout COUNT still spans the whole
-    /// journal: the history really does stay, which is what the reset promises.
+    /// The curve is cut here rather than at each caller because every chart
+    /// of it needs the cut: the milestone card and the share card would
+    /// otherwise draw the pre-reset PEAK above a plan that has just been wiped.
+    /// The workout COUNT still spans the whole journal: the history really
+    /// does stay, which is what the reset promises.
     var recordsSinceReset: [WorkoutRecord] {
         let resumed = records.indices.dropFirst().last {
             records[$0].sessionNumber <= records[$0 - 1].sessionNumber
@@ -409,9 +389,9 @@ final class AppStore {
         // `resetProgress` writes no record of its own, it just returns the
         // engine to `.initial` and leaves the journal standing. In the window
         // between the reset and the first workout after it there is no pair to
-        // find, so the whole journal came back while `totalProgress` was
-        // already 0 — the chart drew the old peak under a headline saying zero
-        // (self-review 05.09.2026). The counter moves at the reset itself.
+        // find, and the whole journal would come back while `totalProgress` is
+        // already 0 — the old peak under a headline saying zero. The counter
+        // moves at the reset itself.
         return records[(resumed ?? records.startIndex)...]
             .filter { $0.sessionNumber <= engineState.counter }
     }
@@ -459,10 +439,10 @@ final class AppStore {
                          /// The ones among those that keep the number the
                          /// person entered for them, for the journal.
                          skippedWithNumber: SetFacts.SkippedSets = [:],
-                         /// What the PROBE set showed, per movement (§40.4).
-                         /// Its own argument, never folded into `overrides`:
-                         /// the probe is a different exercise, and averaging
-                         /// two variations is exactly what §40 forbids.
+                         /// What the PROBE set showed, per movement. Its own
+                         /// argument, never folded into `overrides`: the probe
+                         /// is a different exercise, and an average of two
+                         /// variations measures neither of them.
                          probes: [Pattern: Int] = [:],
                          durationSec: Int? = nil,
                          /// Seconds the guided blocks actually ran; nil when
@@ -471,13 +451,13 @@ final class AppStore {
                          /// The movement left half-done, if any. Already
                          /// inside `skipped` for the engine; this names which,
                          /// so the history can tell "not finished" from
-                         /// "skipped" (owner, 05.09.2026).
+                         /// "skipped".
                          interrupted: Pattern? = nil,
-                         /// Steps added "for next time" per movement
-                         /// (§41.13). Landed by the engine AFTER the rating
-                         /// and the skipped sets — the composed entry point
-                         /// owns that order, which is why the app never
-                         /// applies the raise itself.
+                         /// Steps added "for next time" per movement. Landed
+                         /// by the engine AFTER the rating and the skipped
+                         /// sets — the composed entry point owns that order,
+                         /// which is why the app never applies the raise
+                         /// itself.
                          raised: [Pattern: Int] = [:],
                          date: Date = .now) -> [Milestone] {
         // Mirror of the engine's replay guard: a session that does not belong
@@ -489,11 +469,9 @@ final class AppStore {
         // training from multiplying its way around the per-session growth caps
         // — the gap since the last workout. Nil on the first workout: there is
         // nothing to measure from. The FRACTION of a day, not whole days.
-        // Floored, a second workout on the same day reported a zero gap and
-        // the weekly window stopped ageing for good. SEVEN arguments. Every
-        // optional is passed explicitly — the wave's rule, kept because the
-        // arity shift is exactly the defect that has now happened twice in the
-        // harnesses.
+        // Floored, a second workout on the same day would report a zero gap
+        // and the weekly window would stop ageing for good. Every optional is
+        // passed explicitly, so none can fall back to its default unnoticed.
         //
         // The overload that takes the skipped sets is the ONE that settles
         // their order against the rating: the app cannot write them itself,
@@ -527,8 +505,7 @@ final class AppStore {
         // it actually eased. Both are facts of THIS moment and of no other:
         // the state before the rating cannot be reconstructed from the journal
         // — the silent decay and an accepted comeback move it between entries
-        // — and neither can the list the descent landed on (UX review
-        // 05.09.2026, findings 25 and 27).
+        // — and neither can the list the descent landed on.
         settings.lastRatingUndo = RatingUndo(state: before, session: session)
         noteRatingLanded(session: session, before: before)
         records.append(WorkoutRecord(
@@ -537,16 +514,15 @@ final class AppStore {
             result: result,
             totalProgressAfter: totalProgress,
             exercises: session.exercises,
-            // §41.3: the journal of workouts keeps INTEGERS. The fraction is a
+            // The journal of workouts keeps INTEGERS. The fraction is a
             // judge for the engine, not a fact for a person to read, and the
             // record is persisted — changing its wire type would break every
             // saved file for the sake of a decimal nobody wants to see.
             actuals: overrides.isEmpty ? nil : overrides.mapValues { Int($0.rounded()) },
             setActuals: setActuals.isEmpty ? nil : setActuals,
-            // The same argument the engine was already given. It used to stop
-            // here: the number reached `applyFeedback` and nothing wrote it
-            // down, so what a probe showed was unrecoverable the moment the
-            // rating landed.
+            // The same argument the engine was given. Written down here, or
+            // what a probe showed is unrecoverable the moment the rating
+            // lands.
             probes: probes.isEmpty ? nil : probes,
             setsSkipped: setsSkipped.isEmpty ? nil : setsSkipped,
             skippedSetIndices: SetFacts.stored(skippedSets),
@@ -568,8 +544,7 @@ final class AppStore {
         // yesterday. Reminders look forward, and scheduling them from a
         // past `now` re-opens the very hole the `fire > now` guard exists
         // to close: today's slot, already gone, passes the check against
-        // yesterday and sits in the pending list where it can never fire
-        // (self-review 05.09.2026).
+        // yesterday and sits in the pending list where it can never fire.
         rescheduleReminders()
         if settings.healthEnabled {
             // Same contiguous path as the manual backfill: an older failed
@@ -590,12 +565,9 @@ final class AppStore {
             Engine.progress(engineState, $0) < Engine.progress(before, $0)
         }
         // The plan ahead has become the plan behind, so the hand's list for
-        // this session moves with the rating into the slot History reads. It
-        // used to stay in the ONE shared slot, stamped one session below what
-        // `noteEasedByHand` asks for: the next tap on "easier" found no match,
-        // started a fresh record and erased both lists — the named promise the
-        // athlete had just been shown fell back to the generic wording, for
-        // good and in silence (review 06.09.2026). `ratingMoves` first so a
+        // this session moves with the rating into the slot History reads: from
+        // here on `planMoves` belongs to the next plan, and its next "easier"
+        // starts that slot over (`noteEasedByHand`). `ratingMoves` first so a
         // rating changed by `changeLastRating` re-enters on its own record.
         var moves = ratingMoves(for: session.sessionNumber)
             ?? planMoves(for: session.sessionNumber)
@@ -610,9 +582,9 @@ final class AppStore {
     /// The plan a handle moves is the one AHEAD — `counter + 1` — and stays
     /// that until it is rated. A tap against an older stamp starts the list
     /// over rather than adding to it, so a movement eased two sessions ago
-    /// cannot be credited to this one. What that start-over used to take with
-    /// it was the last rating's list, sharing the slot; it has its own now
-    /// (`ratingMoves`), so this writes about the plan ahead and nothing else.
+    /// cannot be credited to this one. The last rating's list has a slot of
+    /// its own (`ratingMoves`), so the start-over takes nothing else with it:
+    /// this writes about the plan ahead and nothing else.
     private func noteEasedByHand(_ pattern: Pattern) {
         let session = engineState.counter + 1
         var moves = planMoves(for: session) ?? PlanMoves(session: session)
@@ -622,13 +594,10 @@ final class AppStore {
 
     // MARK: - The shown plan
 
-    /// The plan is on screen — the engine gets to remember it. Until this call
-    /// the "a descent never adds load" guarantee held only BETWEEN COMPLETED
-    /// SESSIONS: a plan a person saw and did not train could be beaten by the
-    /// next one by up to ×1.47, in 16–22 % of the "showed, skipped a week,
-    /// opened again" episodes on budgets of 30–35. That was the last accepted
-    /// gap of the wave and this call is the whole of its fix — `recordShown`
-    /// has been exported since the port, waiting for a caller.
+    /// The plan is on screen — the engine gets to remember it. Without this
+    /// call the "a descent never adds load" guarantee would hold only BETWEEN
+    /// COMPLETED SESSIONS: a plan a person saw and did not train could be
+    /// beaten by the next one.
     ///
     /// ONE WRITE PER SHOWING, not one per render. The guard is the memory
     /// itself: writing down a plan that is already written down changes
@@ -637,11 +606,6 @@ final class AppStore {
     /// construction — the memory keeps the work of the plan AFTER the
     /// postcondition repair, and the repair only ever trims work STRICTLY
     /// above what was shown, so the second pass has nothing left to trim.
-    ///
-    /// The one showing deliberately NOT written down is the illness lens.
-    /// Its plan is a VIEW: the base has to stay the last ordinary showing, or
-    /// coming off the lens reads as a rise and the repair takes sets off
-    /// someone who has only just recovered.
     func recordPlanShown(_ session: Session) {
         // A frozen journal is a launch that could not READ the state file —
         // before first unlock, usually. The plan on screen was drawn from an
@@ -717,8 +681,8 @@ final class AppStore {
     }
 
     /// Deliberately not called when the pager merely appears: an app killed
-    /// mid-pager shows it again. Since #101 the only path here is the care
-    /// card's explicit button — Skip jumps to that card instead of past it —
+    /// mid-pager shows it again. The only path here is the care card's
+    /// explicit button (#101) — Skip jumps to that card instead of past it —
     /// so completing also records the acknowledgement.
     func completeOnboarding() {
         settings.onboardingCompleted = true
@@ -741,11 +705,10 @@ final class AppStore {
               Calendar.current.isDate(decided, inSameDayAs: last.date) else { return true }
         // Once per break — unless the break has since grown a door the answer
         // could not have been about. "Start from scratch" appears only from
-        // `comebackFreshStartDays`, so someone who declined on day 20 of a
-        // break that ran to three months never saw the one offer meant for
-        // exactly them: the threshold was unreachable by anyone who answered
-        // early (UX review 05.09.2026, finding 8). At most ONE extra ask —
-        // closing the question again stamps the gap it was answered at.
+        // `comebackFreshStartDays`, so without this someone who declined on
+        // day 20 of a break that ran to three months would never see the one
+        // offer meant for exactly them. At most ONE extra ask — closing the
+        // question again stamps the gap it was answered at.
         guard let answeredAt = settings.comebackDecidedAtGap else { return false }
         return answeredAt < Self.comebackFreshStartDays && gap >= Self.comebackFreshStartDays
     }
@@ -801,21 +764,19 @@ final class AppStore {
 
     /// The handle goes through the ENGINE. Writing a level or a cut into the
     /// state here would skip the floor, the sanitizer and the position measure
-    /// the postcondition repair reads — the bypass of `applyFeedback` the audit
-    /// counts as a finding. What the handle may do is asked in
+    /// the postcondition repair reads. What the handle may do is asked in
     /// AppStore+Handles; what it does is here.
     ///
-    /// One handle, singular: the two that moved VOLUME are gone from the
-    /// plan, and the volume is decided inside the workout instead.
-    /// The `cut` axis they wrote is untouched — `completeWorkout` carries the
-    /// sets skipped along the way, and the engine writes them there.
+    /// One handle, singular: the volume is decided inside the workout, not on
+    /// the plan — `completeWorkout` carries the sets skipped along the way,
+    /// and the engine writes them into the `cut` axis there.
 
     func makeEasier(_ pattern: Pattern) {
         guard canMakeEasier(pattern) else { return }
         engineState = Engine.easierVariation(state: engineState, pattern: pattern)
         // A step down taken by hand looks exactly like one the engine took,
-        // and history explained neither (finding 64). This is the only moment
-        // that knows which it was.
+        // and this is the only moment that knows which it was — so it is
+        // noted here, for History to tell the two apart.
         noteEasedByHand(pattern)
         persist()
     }
@@ -823,13 +784,6 @@ final class AppStore {
     func declineComeback(now: Date? = nil) {
         closeComebackQuestion(now: now)
     }
-
-    // `setTimeBudget`, the "what's new" notice about its default, and
-    // `markIllness` are all gone. The budget trimmed the WORKOUT to fit a
-    // number the person picked once and forgot; the lens made the plan heavier
-    // than it was. What answers "how long will this take" now is the announced
-    // range, and what shortens a session is the skip on the work screen, taken
-    // one set at a time while the workout is running.
 
     /// Only the engine resets; the journal and settings survive. `hasBar` is
     /// kept — the bar did not disappear from the doorway. The fields of the
@@ -864,7 +818,7 @@ final class AppStore {
     }
 
     /// From 90 days — a quarter away is long enough that "as it was" can be
-    /// blind and "from scratch" must be reachable. Was 180.
+    /// blind and "from scratch" must be reachable.
     static let comebackFreshStartDays = 90
 
     // MARK: - App Store review
@@ -956,15 +910,9 @@ final class AppStore {
 /// `AppStore+Signals`.
 extension AppStore {
 
-    /// Records the answer: yes, it is this movement. The engine's contract
-    /// keeps pain reports inside a session, so the answer is held and spent on
-    /// the next session the movement appears in — exactly what the mid-workout
-    /// "Something hurt" button would have done, answered early. The answer
-    /// used to be "it hurts", and it queued a pain report for the movement's
-    /// next appearance. There is no pain channel, and the honest replacement
-    /// is not another diagnosis but the control the person would have wanted
-    /// either way: drop this movement to an easier variation, now, and keep it
-    /// in the plan.
+    /// Records the answer — yes, it is this movement — and acts on it at once
+    /// with the control the person would want either way: the movement drops
+    /// to an easier variation and stays in the plan.
     ///
     /// It goes through the ENGINE (`easierVariation`), never by writing the
     /// state here: a level written by hand skips the gate that guarantees the
@@ -973,44 +921,39 @@ extension AppStore {
         settings.weakLinkPromptAnsweredFor = records.last?.sessionNumber
         engineState = Engine.easierVariation(state: engineState, pattern: pattern)
         // The second door of the same event, and it must be attributed the
-        // same way (finding 64).
+        // same way.
         noteEasedByHand(pattern)
         persist()
     }
 
-    /// The third answer — "it is just hard" — is gone. It armed a hold, and
-    /// the hold is cancelled: the case it served (the plan ran ahead of what
-    /// the trainee can do) is what the sub-step fixes, and fixes without
-    /// asking. The prompt is down to the diagnosis and a dismissal.
-    ///
     /// Dismisses the prompt for this session without changing the plan.
     func dismissSuspectPrompt() {
         settings.weakLinkPromptAnsweredFor = records.last?.sessionNumber
         persist()
     }
 
-    /// The one line on Today that says a plan row is a door (R30). It is the
-    /// whole price the plan pays for the handle that left it: the variation one
-    /// step below now lives behind the technique sheet, and a control nobody
-    /// knows about is a control nobody has.
+    /// The one line on Today that says a plan row is a door: the variation one
+    /// step below lives behind the technique sheet, and a control nobody knows
+    /// about is a control nobody has.
     ///
     /// Gated on having been through the door, never on `records.isEmpty`: the
     /// person carried over from v2 has a full journal and is exactly the person
-    /// the sentence is for — every one of their movements sits above the first
-    /// variation, so every one of them has a step below it.
+    /// the sentence is for — the carry-over keeps their positions, and any
+    /// movement above its first variation has a step below it.
     var showsTechniqueHint: Bool { !settings.hasOpenedTechnique }
 
-    /// Spent by the first technique sheet opened from ANY of its three doors —
-    /// the plan row, the work screen and the rest screen. `persist` only on the
-    /// transition: the sheet is opened many times over a life of the app and
-    /// this is a one-way flag.
+    /// Spent by the first technique sheet that keeps the hint's promise
+    /// (`TechniqueSheet`'s `.task`): one opened from a plan row whose movement
+    /// has a step below — or any technique sheet, when no movement of the plan
+    /// has a rung below. `persist` only on the transition: the sheet is opened
+    /// many times over a life of the app and this is a one-way flag.
     func markTechniqueOpened() {
         guard !settings.hasOpenedTechnique else { return }
         settings.hasOpenedTechnique = true
         persist()
     }
 
-    /// The one-shot card on Today explaining what an upgrade did (§41.7).
+    /// The one-shot card on Today explaining what an upgrade did.
     var showsMigrationNotice: Bool { settings.migrationNoticePending == true }
 
     func dismissMigrationNotice() {
@@ -1071,14 +1014,3 @@ extension AppStore {
         return milestones
     }
 }
-
-// The pending pain report is gone. It existed to carry a "yes, it hurts"
-// answered on Today into the movement's next appearance; the answer is now
-// applied immediately, because an easier variation needs no appearance to wait
-// for.
-
-// `--uitest-weak-link` and the journal it seeded are gone. The prompt itself
-// stays — `shouldAskAboutSuspect`, `unnamedLessSuspect` and the two buttons on
-// Today are all live. What went is the hook: no test ever passed the flag, and
-// the flag did not even raise the screen it seeded, so it read as coverage
-// while covering nothing.
