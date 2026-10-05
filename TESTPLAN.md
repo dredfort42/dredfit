@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (743 tests: 78 core + 585 app units + 80 UI tests, all confirmed green — the UI run is a single `** TEST SUCCEEDED **`, no `Failing tests:`, zero relaunches, so its own closing tally is trustworthy) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (1 069 tests: 118 core + 871 app units + 80 UI tests, all confirmed green — the UI run is a single `** TEST SUCCEEDED **`, no `Failing tests:`, zero relaunches, so its own closing tally is trustworthy) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
