@@ -1,8 +1,8 @@
 //
-//  What v3 added, tested where golden cannot reach: the clean start with no
-//  migration, the probe and its three outcomes, the entry of 3×4, adaptation
-//  by honest facts, the ceiling on any assignment (И2), and the one unit
-//  boundary in the library.
+//  What v3 added, tested where golden cannot reach: the clean start and the
+//  v2 state the v3 decode refuses, the probe and its three outcomes, the entry
+//  of 3×4, adaptation by honest facts, the ceiling on any assignment, and the
+//  one unit boundary in the library.
 //
 
 import XCTest
@@ -15,8 +15,8 @@ final class EngineV3Tests: XCTestCase {
     // MARK: - Helpers
 
     /// A state with one pattern moved and everything else fresh. Everything
-    /// past the position travels in `Seed` — the position is six coordinates
-    /// now, and nine loose parameters is a parameter list nobody reads.
+    /// past the variation and the dose travels in `Seed` — a position is five
+    /// coordinates, and nine loose parameters is a parameter list nobody reads.
     private struct Seed {
         var sets = EngineConfig.setsBase
         var shown: [Int: Int] = [:]
@@ -49,9 +49,9 @@ final class EngineV3Tests: XCTestCase {
     // MARK: - A v2 state does not decode as v3 (it is dispatched to MigrationV2)
 
     /// A state written by v2 carries `levels` and no `vars`, and the decode
-    /// FAILS on it. That failure is the DISPATCH: since §41.7 the app then
-    /// reads the v2 shape and migrates it (`Engine.migrateFromV2`); only a
-    /// state that is neither shape starts from `initial`.
+    /// FAILS on it. That failure is the DISPATCH: the app then reads the v2
+    /// shape and migrates it (`Engine.migrateFromV2`); only a state that is
+    /// neither shape starts from `initial`.
     func testStateFromV2FailsToDecode() throws {
         let v2 = #"""
         {"counter":42,"levels":["squat",34,"push_h",20],"failStreak":["squat",0],
@@ -62,8 +62,8 @@ final class EngineV3Tests: XCTestCase {
             "a v2 state must not decode as v3 — it is dispatched to the v2 reader")
     }
 
-    /// And a clean start is exactly what §40.8 promises: every pattern on its
-    /// first rung, 3×4 (3×15 s), nothing shown yet.
+    /// And a clean start: every pattern on its first rung, 3×4 (3×15 s),
+    /// nothing shown yet.
     func testCleanStartIsEveryPatternAtThreeByFour() throws {
         let session = Engine.generateSession(.initial)
         XCTAssertEqual(session.exercises.count, EngineConfig.patternsPerSession)
@@ -93,7 +93,7 @@ final class EngineV3Tests: XCTestCase {
         XCTAssertEqual(back.lastHard, [.pull])
     }
 
-    // MARK: - §40.4 · the probe
+    // MARK: - The probe
 
     /// The probe replaces the LAST of the remaining sets: one working set
     /// fewer, one set of the next variation, and the session's volume does not
@@ -160,8 +160,8 @@ final class EngineV3Tests: XCTestCase {
     }
 
     /// Outcome two: the number came back BELOW the floor — the variation is
-    /// out of reach. И3: nothing moves but the journal of facts, and the
-    /// appearance still counted as an ordinary one.
+    /// out of reach. Nothing moves but the journal of facts, and the
+    /// appearance still counts as an ordinary one.
     func testProbeFailedMovesNothingButTheJournal() throws {
         let start = squatAtCeiling()
         let session = Engine.generateSession(start)
@@ -218,11 +218,11 @@ final class EngineV3Tests: XCTestCase {
         XCTAssertNil(after.shown[.squat]?[2])
     }
 
-    // MARK: - §40.3 · honest numbers, both ways
+    // MARK: - Honest numbers, both ways
 
     /// A fact ABOVE the plan sets the next dose to what was shown — not to
     /// "plan + 1". This is the one mechanism that walks a person back to their
-    /// own level after the clean start of 3.0, and `maxUp` does not bound it.
+    /// own level after a clean start, and `maxUp` does not bound it.
     func testFactAbovePlanAdoptsWhatWasShown() throws {
         let start = EngineState.initial
         let session = Engine.generateSession(start)
@@ -236,15 +236,14 @@ final class EngineV3Tests: XCTestCase {
     }
 
     /// A fact BELOW the floor of the variation sends the pattern one variation
-    /// down, landing in the journal — not on the floor of a tier, because
+    /// down, landing under the journal — not on the floor of a tier, because
     /// there are no tier floors.
     ///
-    /// RE-MARKED §41.1 (v3.1, 26.08.2026), class: change of semantics. The old
-    /// expectation was `doses == 11`, the journal's CEILING. The trainee is
-    /// leaving "Bulgarian split squats" at 3×8 per side — work 48; landing on
-    /// 3×11 would be 66, a 37 % rise straight after they showed a fact below
-    /// the variation's floor. The landing now walks down and stops at 8: work
-    /// 48, exactly what they were doing.
+    /// The journal's 11 is a CEILING, not the landing. The trainee is leaving
+    /// "Bulgarian split squats" at 3×8 per side — work 48; landing on 3×11
+    /// would be 66, a 37 % rise straight after they showed a fact below the
+    /// variation's floor. The landing walks down and stops at 8: work 48,
+    /// exactly what they were doing.
     func testFactBelowTheFloorLandsNoHeavier() throws {
         let start = state(.squat, variation: 3, dose: 8, Seed(shown: [2: 11, 3: 8]))
         let session = Engine.generateSession(start)
@@ -252,7 +251,7 @@ final class EngineV3Tests: XCTestCase {
                                          overrides: [.squat: 2], skipped: [], gapDays: nil,
                                          probes: [:])
         XCTAssertEqual(after.vars[.squat], 2)
-        XCTAssertEqual(after.doses[.squat], 8, "the point of return, but never heavier (§41.1)")
+        XCTAssertEqual(after.doses[.squat], 8, "the point of return, but never heavier")
         XCTAssertTrue(Engine.noHarder(.squat, from: start.position(.squat),
                                       to: after.position(.squat), shown: start.shown),
                       "a descent may not add work")
@@ -260,8 +259,8 @@ final class EngineV3Tests: XCTestCase {
         XCTAssertTrue(after.lastHard.contains(.squat))
     }
 
-    /// Two appearances per variation is what §40.8 promises the walk back
-    /// costs, and here it is: floor → own numbers → ceiling → probe.
+    /// Two appearances per variation is what the walk back costs, and here it
+    /// is: floor → own numbers → ceiling → probe.
     func testWalkingBackTakesTwoAppearancesPerVariation() throws {
         var s = EngineState.initial
         var appearances = 0
@@ -285,10 +284,10 @@ final class EngineV3Tests: XCTestCase {
                                      probes: probes)
         }
         XCTAssertEqual(s.vars[.squat], 3, "the Bulgarian split squat")
-        XCTAssertEqual(appearances, 4, "§40.8 promised «about five»; the engine does it in four")
+        XCTAssertEqual(appearances, 4, "two appearances per variation, four to the Bulgarian split squat")
     }
 
-    // MARK: - И2 · nothing is ever assigned that was not shown
+    // MARK: - Nothing is ever assigned that was not shown
 
     /// The ceiling on every assignment, swept over a long mixed trajectory:
     /// the highest dose in any plan is at most one rung above the journal of
@@ -349,7 +348,7 @@ final class EngineV3Tests: XCTestCase {
         XCTAssertGreaterThan(entries, 20, "the sweep must actually reach some entries")
     }
 
-    // MARK: - §40.1 · the one unit boundary
+    // MARK: - The one unit boundary
 
     /// `pull_bar` 2→3 crosses from seconds to reps. The ratio of `w` is
     /// undefined there, so the density invariant skips it and the only way
@@ -378,14 +377,13 @@ final class EngineV3Tests: XCTestCase {
         XCTAssertEqual(up.shown[.pullBar]?[3], 5)
 
         // Down: an honest zero on the negative sends the branch back to the
-        // hang — at the seconds the journal remembers, but never at a load
-        // heavier than the one just refused.
+        // hang, under the seconds the journal remembers.
         //
-        // RE-MARKED §41.1 (v3.1, 26.08.2026), class: change of semantics. The
-        // old expectation was 45 s, the journal's ceiling. This is one of the
-        // three boundaries of accepted gap §41.6 item 1 — a unit change, where
-        // reps and seconds have no defined ratio — so the landing takes the
-        // grid floor of the hold, which is the lightest thing that exists.
+        // The journal's 45 s is only the ceiling, and nothing on the hold's
+        // grid fits under the 3×4 reps just refused: this is one of the three
+        // accepted gaps — a unit change, where reps and seconds have no
+        // defined ratio — so the landing takes the grid floor of the hold,
+        // which is the lightest thing that exists.
         var back = up
         back.counter = 1
         let session2 = Engine.generateSession(back)
@@ -397,7 +395,7 @@ final class EngineV3Tests: XCTestCase {
         XCTAssertEqual(Library.unit(.pullBar, down.vars[.pullBar]!), .hold)
     }
 
-    // MARK: - §41.13: "next time, more"
+    // MARK: - "Next time, more"
 
     /// One step is one growth event along the dose: a sub-step, then the
     /// rung. Two steps from 3×8 give 9-9-8; the raise touches nothing else.

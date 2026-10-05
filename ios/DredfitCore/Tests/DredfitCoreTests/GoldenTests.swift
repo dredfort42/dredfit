@@ -35,8 +35,9 @@ final class GoldenTests: XCTestCase {
                        "golden.json regenerated from an unexpected reference version")
     }
 
-    /// TEN patterns now, in one order for everything: the reference's
-    /// `ALL_PATTERNS`. Separate `bar*` fields are gone, and with them the
+    /// TEN patterns, in one order for everything: the reference's
+    /// `ALL_PATTERNS`. The vertical pull rides in the same arrays as the other
+    /// nine, never in `bar*` fields of its own — which leaves no room for the
     /// defect class "nine patterns have the field, the tenth was forgotten".
     func testPatternOrderMatchesReference() throws {
         let g = try loadGolden()
@@ -63,7 +64,7 @@ final class GoldenTests: XCTestCase {
     func testLaddersMatchReference() throws {
         let g = try loadGolden()
         XCTAssertEqual(g.library.values.reduce(0) { $0 + $1.count }, 59,
-                       "§40.1: 59 positions across ten ladders")
+                       "59 positions across ten ladders")
         for p in Pattern.allCases {
             let rungs = try XCTUnwrap(g.library[p.rawValue], "\(p.rawValue) missing from the fixture")
             let entry = ExerciseLibrary.entry(for: p)
@@ -171,13 +172,13 @@ final class GoldenTests: XCTestCase {
 
     /// The feedback of one step, and the sets skipped while doing it.
     ///
-    /// Rule 1 (§38.2): a skip lands through the entry point that owns the
-    /// order, so this replay cannot get it wrong even by accident. A step
-    /// without `skipSets` goes through the plain call.
+    /// A skip lands through the entry point that owns the order, so this
+    /// replay cannot get it wrong even by accident. A step with neither
+    /// `skipSets` nor `raiseDose` goes through the plain call.
     ///
-    /// SEVEN arguments on that plain call, every optional passed explicitly —
-    /// the rule of the wave, kept because a default silently shifting is
-    /// exactly what an arity change does to a caller nobody updated.
+    /// SEVEN arguments on that plain call, every optional passed explicitly:
+    /// a default silently shifting is exactly what an arity change does to a
+    /// caller nobody updated.
     private func replayFeedback(_ step: Golden.Step, from state: EngineState,
                                 session: Session, order: [Pattern],
                                 ctx: String) throws -> EngineState {
@@ -203,7 +204,7 @@ final class GoldenTests: XCTestCase {
             XCTAssertEqual(order.map { feedbackOnly.cutOf($0) }, before,
                            ctx + " (cut before the skip)")
         }
-        // §41.13: the raise lands after the feedback AND after the skip. The
+        // The raise lands after the feedback AND after the skip. The
         // position it found is asserted first, for the reason the cut before
         // the skip is: a fact above the plan makes fast adaptation zero the
         // sub-step, so a raise applied earlier is erased, and only this
@@ -269,7 +270,7 @@ final class GoldenTests: XCTestCase {
     /// Every coordinate of every position, plus the journal and the counters
     /// a snapshot carries. Written once and called from the step, the break
     /// and the handle pull alike — gating a field by the shape of the record
-    /// is exactly the hole P0-5 of the 2026-08-20 audit came through.
+    /// would leave it unchecked on every record of another shape.
     private func assertState(_ state: EngineState, _ snap: Golden.Snapshot,
                              order: [Pattern], ctx: String) {
         XCTAssertEqual(order.map { state.vars[$0] ?? -1 }, snap.varsAfter, ctx + " (vars)")
@@ -332,7 +333,7 @@ final class GoldenTests: XCTestCase {
         return out
     }
 
-    /// §41.3: the same, for facts that arrive fractional.
+    /// The same, for facts that arrive fractional.
     private func patternKeyedDouble(_ src: [String: Double]) throws -> [Pattern: Double] {
         var out: [Pattern: Double] = [:]
         for (raw, value) in src { out[try XCTUnwrap(Pattern(rawValue: raw))] = value }
