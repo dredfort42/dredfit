@@ -78,11 +78,11 @@ extension DredfitUITests {
         XCTAssertFalse(app.buttons[AX.holdStartExercise].exists,
                        "the exercise was started once — it must not ask again")
         // The correction comes AFTER the effort, never before it — and the
-        // screen it comes on carries EVERY set of the movement, not only the
-        // last one (#220); the last card is the one that takes it.
+        // screen it comes on carries every set of the movement that was done,
+        // not only the last one (#220); the last card is the one that takes it.
         XCTAssertTrue(app.buttons[AX.summarySet(1)].exists,
-                      "the first set must be correctable too — that is the "
-                        + "whole reason this screen replaced the settled hold")
+                      "the first set must be on the summary too — the screen "
+                        + "carries every set that was done, not only the last")
         coordinateTap(done)
         XCTAssertTrue(app.buttons[AX.summarySet(1)].waitForNonExistence(timeout: 10),
                       "the logged movement did not leave the summary")
