@@ -549,9 +549,8 @@ final class AppStore {
             // rating landed.
             probes: probes.isEmpty ? nil : probes,
             setsSkipped: setsSkipped.isEmpty ? nil : setsSkipped,
-            skippedSetIndices: skippedSets.isEmpty ? nil : skippedSets.mapValues { $0.sorted() },
-            skippedWithNumberIndices: skippedWithNumber.isEmpty
-                ? nil : skippedWithNumber.mapValues { $0.sorted() },
+            skippedSetIndices: SetFacts.stored(skippedSets),
+            skippedWithNumberIndices: SetFacts.stored(skippedWithNumber),
             skipped: skipped.isEmpty ? nil : skipped,
             positionsAfter: currentPositions,
             durationSec: durationSec,

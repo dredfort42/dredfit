@@ -59,6 +59,13 @@ nonisolated enum SetFacts {
     /// and its number counts like any other (`leftOut`).
     typealias SkippedSets = [Pattern: Set<Int>]
 
+    /// What the journal and the snapshot keep of them: sorted indices, and
+    /// nothing at all when no set was skipped, so a record without a skip is
+    /// written exactly as before the field existed.
+    static func stored(_ sets: SkippedSets) -> [Pattern: [Int]]? {
+        sets.isEmpty ? nil : sets.mapValues { $0.sorted() }
+    }
+
     /// The skipped sets the fold and every display leave out: the ones with
     /// no number the person entered for them before the skip (`numbered`).
     ///

@@ -51,10 +51,8 @@ extension WorkoutSession {
             exIndex: exIndex, setIndex: setIndex,
             restEndDate: restEnd, restTotalSec: restTotal, restPlannedSec: restPlan,
             setActuals: actuals, setsSkipped: setsSkipped,
-            skippedSetIndices: skippedSetIndices.isEmpty
-                ? nil : skippedSetIndices.mapValues { $0.sorted() },
-            skippedWithNumberIndices: skippedWithNumber.isEmpty
-                ? nil : skippedWithNumber.mapValues { $0.sorted() },
+            skippedSetIndices: SetFacts.stored(skippedSetIndices),
+            skippedWithNumberIndices: SetFacts.stored(skippedWithNumber),
             probes: probeActuals,
             skipped: skippedPatterns,
             workoutStart: workoutStart ?? now(), savedAt: now(),
