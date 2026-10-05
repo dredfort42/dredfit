@@ -486,9 +486,30 @@ final class WorkoutSession {
         liveActivity.end()
     }
 
+    /// The number each movement with a fact of its own hands the engine: the
+    /// fold of its sets, the skipped ones left out (`SetFacts.overrides`).
+    /// Computed here and not on the rating screen, which only shows it: the
+    /// screen and the engine cannot be shown different arithmetic, and the
+    /// skipped sets reach the fold without riding on a view's argument.
+    var overrides: [Pattern: Double] {
+        SetFacts.overrides(actuals, skipping: skippedSetIndices, in: exercises)
+    }
+
+    /// Each such movement's sets as the rating screen prints its "actual":
+    /// in set order, the skipped ones left out (`SetFacts.performed`).
+    var actualSets: [Pattern: [Int]] {
+        var out: [Pattern: [Int]] = [:]
+        for ex in exercises where actuals[ex.pattern] != nil {
+            out[ex.pattern] = SetFacts.performed(actuals, ex,
+                                                 skipping: skippedSetIndices[ex.pattern] ?? [])
+                .map(\.value)
+        }
+        return out
+    }
+
     /// The rating lands: the workout goes to the engine with everything it
     /// recorded, and what it earned comes back.
-    func rate(_ result: FeedbackResult, overrides: [Pattern: Double]) -> [Milestone] {
+    func rate(_ result: FeedbackResult) -> [Milestone] {
         store.completeWorkout(
             session: session, result: result,
             overrides: overrides,

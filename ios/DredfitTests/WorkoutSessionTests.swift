@@ -343,7 +343,7 @@ final class WorkoutSessionTests: AppStoreTestCase {
         flow.sceneCameBack()
         XCTAssertEqual(flow.awaySec, 1_200)
         flow.finishNow()
-        _ = flow.rate(.plan, overrides: [:])
+        _ = flow.rate(.plan)
         XCTAssertEqual(try XCTUnwrap(store.records.last).durationSec, 600)
         XCTAssertNil(store.pendingWorkout, "a rated workout leaves nothing to resume")
     }

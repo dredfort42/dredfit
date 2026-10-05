@@ -93,12 +93,13 @@ struct WorkoutFlowView: View {
                 cooldownView
             case .feedback:
                 FeedbackView(session: session, facts: flow.actuals,
+                             overrides: flow.overrides,
+                             actualSets: flow.actualSets,
                              setsSkipped: flow.setsSkipped,
-                             skippedSets: flow.skippedSetIndices,
                              skipped: flow.skippedPatterns,
                              raised: flow.raisedSteps,
-                             interrupted: flow.interruptedPattern) { result, overrides in
-                    let earned = flow.rate(result, overrides: overrides)
+                             interrupted: flow.interruptedPattern) { result in
+                    let earned = flow.rate(result)
                     if earned.isEmpty {
                         dismiss()
                     } else {

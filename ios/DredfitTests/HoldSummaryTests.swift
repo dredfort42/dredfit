@@ -232,7 +232,7 @@ extension WorkoutSessionTests {
         let promised = try XCTUnwrap(flow.nextPlan(withAdditions: 0))
 
         flow.leaveExerciseSummary()
-        _ = flow.rate(.plan, overrides: SetFacts.overrides(flow.actuals, skipping: flow.skippedSetIndices, in: flow.exercises))
+        _ = flow.rate(.plan)
         let next = try XCTUnwrap(nextAppearance(of: .coreAntiExt, in: store))
         XCTAssertNotNil(next.probe, "the premise: the engine probes again")
         XCTAssertEqual(promised.probe, next.probe)
@@ -261,6 +261,37 @@ extension WorkoutSessionTests {
         let next = try XCTUnwrap(flow.nextPlan(withAdditions: 0))
         XCTAssertEqual(next.load, 30, "the premise: the plan steps down to what was held")
         XCTAssertNil(next.probe)
+        XCTAssertEqual(flow.probeOutcome, .planMoves(Library.name(.coreAntiExt, 1)))
+    }
+
+    /// The High plank on its ceiling, probing the plank above it, with "Set
+    /// the time" 10 on its working sets — under the grid's floor of 15 s, so
+    /// the plan drops back a variation whatever the probe shows. The caption
+    /// names that lower movement, not the one just held.
+    func testAProbeAfterWorkingSetsThatDropAVariationNamesTheLowerMovement() throws {
+        var state = EngineState.initial
+        state.counter = 1
+        state.vars[.coreAntiExt] = 2
+        state.doses[.coreAntiExt] = Dose.hold.max
+        state.shown[.coreAntiExt] = [2: Dose.hold.max]
+        let store = makeStore()
+        store.update(refreshWidget: false) { $0.engineState = state }
+        let flow = makeFlow(store)
+        flow.declineWarmup()
+        flow.exIndex = try index(of: .coreAntiExt, in: flow)
+        XCTAssertEqual(flow.exercise.variation, 2, "the premise: the second variation")
+        XCTAssertNotNil(flow.exercise.probe, "the premise: a probe")
+        flow.startDeclaringHoldTime()
+        flow.adjustValue = 10
+        flow.commitSetEdit()
+        flow.startHoldExercise()
+        run(flow, until: { flow.onProbeSet && flow.phase == .work })
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds + Dose.hold.min)
+        XCTAssertNotNil(flow.probeActuals[.coreAntiExt])
+
+        let next = try XCTUnwrap(flow.nextPlan(withAdditions: 0))
+        XCTAssertEqual(next.variation, 1, "the premise: the plan drops a variation")
         XCTAssertEqual(flow.probeOutcome, .planMoves(Library.name(.coreAntiExt, 1)))
     }
 
@@ -314,7 +345,7 @@ extension WorkoutSessionTests {
         walkToTheProbe(flow)
         flow.skipSet()
         flow.leaveExerciseSummary()
-        _ = flow.rate(.plan, overrides: SetFacts.overrides(flow.actuals, skipping: flow.skippedSetIndices, in: flow.exercises))
+        _ = flow.rate(.plan)
         let record = try XCTUnwrap(store.records.last)
         XCTAssertNil(record.probes?[.coreAntiExt], "no number for a probe nobody did")
         XCTAssertEqual(store.engineState.position(.coreAntiExt).variation, 1, "not promoted")

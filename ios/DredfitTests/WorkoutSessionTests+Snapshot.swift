@@ -371,7 +371,7 @@ extension WorkoutSessionTests {
         XCTAssertEqual(store.pendingWorkout?.cooldownSec, ran, "a process death on the rating keeps it")
         XCTAssertEqual(signals.tones.last, .workoutDone)
         XCTAssertEqual(tile.ended, 1)
-        _ = flow.rate(.plan, overrides: [:])
+        _ = flow.rate(.plan)
         XCTAssertEqual(store.records.last?.cooldownSec, ran, "the record keeps what the block ran")
     }
 
@@ -385,7 +385,7 @@ extension WorkoutSessionTests {
         flow.declineCooldown()
         XCTAssertEqual(flow.phase, .feedback)
         XCTAssertEqual(flow.cooldownSec, 0)
-        _ = flow.rate(.plan, overrides: [:])
+        _ = flow.rate(.plan)
         XCTAssertEqual(store.records.last?.cooldownSec, 0)
     }
 
@@ -404,7 +404,7 @@ extension WorkoutSessionTests {
         flow.finishNow()
         XCTAssertEqual(store.pendingWorkout?.cooldownSec, 0,
                        "a process death on the rating must not bring the planned minutes back")
-        _ = flow.rate(.plan, overrides: [:])
+        _ = flow.rate(.plan)
         try assertNoCoolDownBilled(XCTUnwrap(store.records.last))
     }
 
@@ -420,7 +420,7 @@ extension WorkoutSessionTests {
         flow.beginCooldown()
         let ran = run(flow, until: { flow.phase == .feedback }, limit: 1_000)
         flow.finishNow()
-        _ = flow.rate(.plan, overrides: [:])
+        _ = flow.rate(.plan)
         XCTAssertEqual(try XCTUnwrap(store.records.last).cooldownSec, ran)
     }
 
@@ -449,7 +449,7 @@ extension WorkoutSessionTests {
         flow.declineWarmup()
         for _ in flow.exercises { flow.leaveExercise() }
         XCTAssertEqual(flow.phase, .feedback)
-        _ = flow.rate(.plan, overrides: [:])
+        _ = flow.rate(.plan)
         try assertNoCoolDownBilled(XCTUnwrap(store.records.last))
     }
 
@@ -469,7 +469,7 @@ extension WorkoutSessionTests {
 
         let flow = makeFlow(store, resume: snapshot)
         XCTAssertEqual(flow.phase, .feedback)
-        _ = flow.rate(.plan, overrides: [:])
+        _ = flow.rate(.plan)
         try assertNoCoolDownBilled(XCTUnwrap(store.records.last))
     }
 

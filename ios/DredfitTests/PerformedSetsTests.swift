@@ -103,7 +103,7 @@ extension WorkoutSessionTests {
         declareAndSkipTheMiddleSet(flow)
         let plank = flow.exercise
         flow.leaveExerciseSummary()
-        _ = flow.rate(.plan, overrides: [:])
+        _ = flow.rate(.plan)
         let record = try XCTUnwrap(store.records.last)
         XCTAssertEqual(HistorySheet.setFacts(plank, in: record)?.values, [45, 45])
         let reread = try XCTUnwrap(makeStore().records.last)
@@ -117,8 +117,21 @@ extension WorkoutSessionTests {
         let (flow, store) = try plankFlow()
         declareAndSkipTheMiddleSet(flow)
         flow.leaveExerciseSummary()
-        _ = flow.rate(.plan, overrides: [:])
+        _ = flow.rate(.plan)
         store.changeLastRating(to: .less)
+        XCTAssertEqual(store.records.last?.actuals?[.coreAntiExt], 45)
+    }
+
+    /// The rating hands the engine the session's own fold, the skipped set
+    /// left out, and the screen prints the same sets: no view argument
+    /// carries the skipped sets to either.
+    func testTheRatingHandsTheEngineTheFoldWithoutTheSkippedSet() throws {
+        let (flow, store) = try plankFlow()
+        declareAndSkipTheMiddleSet(flow)
+        flow.leaveExerciseSummary()
+        XCTAssertEqual(flow.overrides[.coreAntiExt], 45)
+        XCTAssertEqual(flow.actualSets[.coreAntiExt], [45, 45])
+        _ = flow.rate(.plan)
         XCTAssertEqual(store.records.last?.actuals?[.coreAntiExt], 45)
     }
 
