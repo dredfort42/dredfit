@@ -111,13 +111,13 @@ extension WorkoutSession {
         }
         let overshoot = Int(late)
         // A boundary crossed while the phone was elsewhere is not a boundary
-        // the person was at (UX review 05.09.2026). A block that swallowed the
-        // stages an absence covered would put someone into the first working
-        // set cold, announced by a signal nobody could hear. The rest already
-        // refuses that — `SetFacts.restHandsOverWithCountIn` hands the next set
-        // a count-in when its go went nowhere — and a block needs no new screen
-        // to do the same: freeze on the stage that was running, and the way
-        // back in is Resume.
+        // the person was at. A block that swallowed the stages an absence
+        // covered would put someone into the first working set cold, announced
+        // by a signal nobody could hear. The rest already refuses that —
+        // `SetFacts.restHandsOverWithCountIn` hands the next set a count-in
+        // when its go went nowhere — and a block needs no new screen to do the
+        // same: freeze on the stage that was running, and the way back in is
+        // Resume.
         // Compared to the fraction, as the rest compares it: rounded down
         // first, 4.9 s away would read as 4 and not count as an absence.
         if late > Double(BlockPause.absenceSeconds) {
@@ -148,11 +148,11 @@ extension WorkoutSession {
         // to what is on screen. The switch is its own tone: a done only where
         // a whole position ended, never at the halfway point of a split one.
         //
-        // Each audible boundary is SPOKEN as well (UX review 05.09.2026).
-        // VoiceOver stays where it was and the subtree it was in has just been
-        // replaced, so nothing is read: the tone was the only channel, and it
-        // is behind the same switch as the haptic. The words are the ones the
-        // new screen already shows — no string of their own to drift.
+        // Each audible boundary is SPOKEN as well. VoiceOver stays where it
+        // was and the subtree it was in has just been replaced, so nothing is
+        // read: the tone was the only channel, and it is behind the same
+        // switch as the haptic. The words are the ones the new screen already
+        // shows — no string of their own to drift.
         let position = positions[next.index]
         switch (next.entered, next.stage) {
         case (.getReady, .getReady):

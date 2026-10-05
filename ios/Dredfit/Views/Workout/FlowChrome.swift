@@ -127,11 +127,10 @@ struct CountdownNumber: View {
     /// already localized by the caller, which is why it prints verbatim.
     ///
     /// nil is the ordinary case. The transition passes "Get ready", because
-    /// without it the transition and a running move would be the same
-    /// picture — the same name, the same big number, the same dots — on a
-    /// phone the block has told the person to put on the floor. The word goes
-    /// under the digit, where the eye is, as the work screen's own caption
-    /// does (`WorkoutFlowView.loadCaption`).
+    /// it shares the name and the big number with a running move, and it is
+    /// read by someone on the way into a position. The word goes under the
+    /// digit, where the eye is, as the work screen's own caption does
+    /// (`WorkoutFlowView.loadCaption`).
     var caption: String?
 
     var body: some View {

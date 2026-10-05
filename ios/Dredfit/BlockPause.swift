@@ -1,9 +1,10 @@
 //
-//  The pause of the guided blocks (issue #61). Warm-up and cool-down are the
-//  only part of a workout that runs strictly on timers — working sets are
-//  self-paced, and a rest timer that ran out while you answered the door only
-//  granted extra rest — so they are the only part that needs a way to stand
-//  still.
+//  The pause of the guided blocks (issue #61) and of a hands-free hold run's
+//  rest. Warm-up and cool-down run strictly on timers, and so does a
+//  hands-free run: its rest STARTS the next set when it ends. Working sets are
+//  self-paced, and any other rest that runs out while you answer the door
+//  only grants extra rest — so these are the only parts that need a way to
+//  stand still.
 //
 //  Orthogonal to the blocks' stage machine: `GuidedBlock` knows nothing of a
 //  pause. The frozen seconds stay with the block; this owns only the fact
@@ -17,29 +18,24 @@ enum BlockPause {
     /// The way back into a frozen position: the COUNT-IN — four seconds, the
     /// same beat a start tap buys before any clock runs.
     ///
-    /// It was the base transition length (ten), and the tree carried two
-    /// opposite reasons for that at once: this comment already said "Resume is
-    /// tapped by someone already back in place, so this is a count-in, not
-    /// travel time", while the test pinning it said being counted back into a
-    /// position you walked away from IS travel. Ten seconds is a long wait for
-    /// someone standing on the mat with a thumb on Resume. Owner's decision,
-    /// 27.08.2026: it is a count-in — and it is whatever the count-in is,
-    /// which went 5 → 4 on 06.09.2026.
+    /// A count-in, not travel time: Resume is tapped by someone already back
+    /// in place, standing on the mat with a thumb on it, and a transition's
+    /// length would be a long wait for them. The owner's decision, and it is
+    /// whatever the count-in is, so the two cannot drift apart.
     ///
-    /// The 3-2-1 still fits, now with ONE beat to spare rather than two
-    /// (`countdownSignalSeconds` is 3), and the reserve the two blocks are
-    /// budgeted against is untouched: a pause is not part of the announced
-    /// duration, and this can only make a paused session shorter.
+    /// The 3-2-1 fits with one beat to spare (`countdownSignalSeconds` is 3),
+    /// and the reserve the two blocks are budgeted against does not pay for
+    /// it: a pause is not part of the announced duration.
     static var reentrySeconds: Int { GetReady.countInSeconds }
 
     /// How far past a stage boundary a block may run and still just carry on.
     ///
     /// Beyond it the phone was somewhere else — a call, another app, a pocket
     /// — and the block freezes instead of absorbing the stages the absence
-    /// covered (UX review 05.09.2026). The threshold is the count-in for the
-    /// reason the rest uses three seconds for its own version of this: past
-    /// it, whatever the block would have said was said to nobody, and a
-    /// signal nobody could hear must not be what started a position.
+    /// covered. The threshold is the count-in for the reason the rest uses
+    /// three seconds for its own version of this: past it, whatever the block
+    /// would have said was said to nobody, and a signal nobody could hear must
+    /// not be what started a position.
     ///
     /// One value for both blocks, and the DEBUG override is not cosmetic:
     /// under `--uitest-fast` a whole stage is one second, so the real
@@ -54,7 +50,7 @@ enum BlockPause {
     }
 
     /// The seconds a REST picks up when the pause ends or the technique sheet
-    /// closes (R32).
+    /// closes.
     ///
     /// A rest is not a position to be counted back into — it is time being
     /// given — so it resumes into itself with no lead-in of its own. What it

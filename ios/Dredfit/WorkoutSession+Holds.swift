@@ -146,8 +146,9 @@ extension WorkoutSession {
             }
             // Never fires while the count-in is four seconds — the start has
             // primed it — but a longer count-in reaches its four here, so the
-            // prime does not hang on the count-in's length: a length change
-            // silently stopping a prime keyed to one second is how it broke.
+            // prime does not hang on the count-in's length: asked from only
+            // one of the two places, a change of that length could stop it in
+            // silence.
             primeBeforeTheCount(showing: second)
             animate(.countdown) { holdCountInClock.show(second) }
         }

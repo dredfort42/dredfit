@@ -27,7 +27,7 @@ import DredfitCore
 
 /// One tappable number. 44 pt is the floor for the target, not for the card:
 /// the number alone is 40 pt tall at the default text size and a card that
-/// only just cleared it would fail the moment somebody turned text up (R18).
+/// only just cleared it would fail the moment somebody turned text up.
 struct HeldSetCard: View {
     let held: HeldSet
     let action: () -> Void
@@ -46,7 +46,7 @@ struct HeldSetCard: View {
                 // Verbatim: a bare numeral with a maths sign carries no words
                 // to translate, and the "≈" is drawn in the number's OWN
                 // colour rather than a quieter one — a mark that says "this
-                // figure is an estimate" is not decoration (R16).
+                // figure is an estimate" is not decoration.
                 Text(verbatim: held.approximate ? "≈\(held.seconds)" : "\(held.seconds)")
                     .dredfitFont(34, weight: .heavy, cap: 46)
                     .monospacedDigit()
