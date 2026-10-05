@@ -155,8 +155,8 @@ struct HistorySheet: View {
     ///
     /// The two paragraphs above are how a record that does not say WHICH sets
     /// were skipped is read. One that does (`skippedSetIndices`) needs neither:
-    /// the line leaves the skipped sets out (`SetFacts.performed`) and holds
-    /// each of the others against its own plan.
+    /// the line leaves out the skipped sets with no number of their own
+    /// (`leftOutSets`) and holds each of the others against its own plan.
     ///
     /// Static and taking the record for the same reason `probeLine` is: a rule
     /// written as a private member of a SwiftUI view is a rule no unit test
@@ -165,8 +165,8 @@ struct HistorySheet: View {
                          in record: WorkoutRecord) -> (values: [Int], reported: Int)? {
         let reported = record.actuals?[ex.pattern]
         if let facts = record.setActuals, facts[ex.pattern] != nil,
-           let skipped = record.skippedSets[ex.pattern] {
-            let done = SetFacts.performed(facts, ex, skipping: skipped)
+           record.skippedSets[ex.pattern] != nil {
+            let done = SetFacts.performed(facts, ex, skipping: record.leftOutSets[ex.pattern] ?? [])
             guard let first = done.first?.value,
                   done.contains(where: { $0.value != ex.plannedLoad(set: $0.set) }) else { return nil }
             return (done.map(\.value), reported ?? first)

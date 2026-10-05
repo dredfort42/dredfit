@@ -98,7 +98,7 @@ extension WorkoutFlowView {
                 NextTimeBlock(exercise: flow.exercise,
                               steps: flow.raisedSteps[flow.exercise.pattern] ?? 0,
                               factEntered: SetFacts.override(flow.actuals, for: flow.exercise,
-                                                             skipping: flow.skippedHere) != nil,
+                                                             skipping: flow.leftOutHere) != nil,
                               preview: flow.nextPlan(withAdditions:),
                               onChange: flow.setRaise)
                     .padding(.bottom, 18)

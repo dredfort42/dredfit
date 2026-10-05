@@ -21,6 +21,14 @@ extension WorkoutSession {
         setIndex - (setsSkipped[exercise.pattern] ?? 0)
     }
 
+    /// The person entered a number for the set in front of them ("Went
+    /// differently" → OK), which a skip of it keeps (`skippedWithNumber`).
+    /// Read here, at the skip, because later it cannot be: a set recorded
+    /// after the gap fills it with what was in force (`SetFacts.leftOut`).
+    private var setInFrontHasANumber: Bool {
+        (actuals[exercise.pattern]?.count ?? 0) > setIndex
+    }
+
     /// "Skip this set": the set is not performed and the next one is up.
     ///
     /// No rest on the way out — there is nothing to recover from, and the
@@ -51,6 +59,7 @@ extension WorkoutSession {
         editing = nil
         setsSkipped[exercise.pattern, default: 0] += 1
         skippedSetIndices[exercise.pattern, default: []].insert(setIndex)
+        if setInFrontHasANumber { skippedWithNumber[exercise.pattern, default: []].insert(setIndex) }
         if isLastSet {
             advancePastExercise()
         } else {
@@ -75,6 +84,7 @@ extension WorkoutSession {
         setsSkipped[exercise.pattern, default: 0] += left
         if left > 0 {
             skippedSetIndices[exercise.pattern, default: []].formUnion(setIndex..<exercise.sets)
+            if setInFrontHasANumber { skippedWithNumber[exercise.pattern, default: []].insert(setIndex) }
         }
         advancePastExercise()
     }

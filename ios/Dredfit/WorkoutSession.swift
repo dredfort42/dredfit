@@ -150,8 +150,14 @@ final class WorkoutSession {
 
     /// The ones among those the person skipped, by index
     /// (`SetFacts.SkippedSets`): kept, persisted and cleared with the count,
-    /// so that what reads the sets leaves them out.
+    /// so that what reads the sets leaves out the ones with no number of
+    /// their own (`skippedWithNumber`).
     var skippedSetIndices: SetFacts.SkippedSets = [:]
+
+    /// The ones among those that carry a number the person entered for the
+    /// set before skipping it: counted in every fold and display, never
+    /// discarded (`SetFacts.leftOut`). Kept, persisted and cleared with them.
+    var skippedWithNumber: SetFacts.SkippedSets = [:]
 
     /// What the PROBE set showed, per movement. Kept apart from
     /// `actuals` on purpose and for the same reason the engine keeps `probes`
@@ -486,22 +492,30 @@ final class WorkoutSession {
         liveActivity.end()
     }
 
+    /// The skipped sets every fold and display leaves out — the ones without
+    /// a number of their own (`SetFacts.leftOut`).
+    var leftOutSets: SetFacts.SkippedSets {
+        SetFacts.leftOut(skippedSetIndices, keeping: skippedWithNumber)
+    }
+
     /// The number each movement with a fact of its own hands the engine: the
-    /// fold of its sets, the skipped ones left out (`SetFacts.overrides`).
-    /// Computed here and not on the rating screen, which only shows it: the
-    /// screen and the engine cannot be shown different arithmetic, and the
-    /// skipped sets reach the fold without riding on a view's argument.
+    /// fold of its sets, the skipped ones without a number left out
+    /// (`SetFacts.overrides`). Computed here and not on the rating screen,
+    /// which only shows it: the screen and the engine cannot be shown
+    /// different arithmetic, and the skipped sets reach the fold without
+    /// riding on a view's argument.
     var overrides: [Pattern: Double] {
-        SetFacts.overrides(actuals, skipping: skippedSetIndices, in: exercises)
+        SetFacts.overrides(actuals, skipping: leftOutSets, in: exercises)
     }
 
     /// Each such movement's sets as the rating screen prints its "actual":
-    /// in set order, the skipped ones left out (`SetFacts.performed`).
+    /// in set order, the skipped ones without a number left out
+    /// (`SetFacts.performed`).
     var actualSets: [Pattern: [Int]] {
+        let leftOut = leftOutSets
         var out: [Pattern: [Int]] = [:]
         for ex in exercises where actuals[ex.pattern] != nil {
-            out[ex.pattern] = SetFacts.performed(actuals, ex,
-                                                 skipping: skippedSetIndices[ex.pattern] ?? [])
+            out[ex.pattern] = SetFacts.performed(actuals, ex, skipping: leftOut[ex.pattern] ?? [])
                 .map(\.value)
         }
         return out
@@ -521,6 +535,7 @@ final class WorkoutSession {
             // against the rating — after it, never before.
             setsSkipped: setsSkipped,
             skippedSets: skippedSetIndices,
+            skippedWithNumber: skippedWithNumber,
             // The probe's own channel: a number about one set of a movement
             // that is not in the plan yet.
             probes: probeActuals,

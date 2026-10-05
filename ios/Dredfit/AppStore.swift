@@ -456,6 +456,9 @@ final class AppStore {
                          /// journal: the fold in `overrides` already left them
                          /// out.
                          skippedSets: SetFacts.SkippedSets = [:],
+                         /// The ones among those that keep the number the
+                         /// person entered for them, for the journal.
+                         skippedWithNumber: SetFacts.SkippedSets = [:],
                          /// What the PROBE set showed, per movement (§40.4).
                          /// Its own argument, never folded into `overrides`:
                          /// the probe is a different exercise, and averaging
@@ -547,6 +550,8 @@ final class AppStore {
             probes: probes.isEmpty ? nil : probes,
             setsSkipped: setsSkipped.isEmpty ? nil : setsSkipped,
             skippedSetIndices: skippedSets.isEmpty ? nil : skippedSets.mapValues { $0.sorted() },
+            skippedWithNumberIndices: skippedWithNumber.isEmpty
+                ? nil : skippedWithNumber.mapValues { $0.sorted() },
             skipped: skipped.isEmpty ? nil : skipped,
             positionsAfter: currentPositions,
             durationSec: durationSec,
@@ -1034,16 +1039,16 @@ extension AppStore {
         engineState = redo.undo.state
         records.removeLast()
         let facts = redo.record.setActuals ?? [:]
-        let skippedSets = redo.record.skippedSets
         let milestones = completeWorkout(
             session: redo.undo.session,
             result: result,
-            overrides: SetFacts.overrides(facts, skipping: skippedSets,
+            overrides: SetFacts.overrides(facts, skipping: redo.record.leftOutSets,
                                           in: redo.undo.session.exercises),
             setActuals: facts,
             skipped: redo.record.skipped ?? [],
             setsSkipped: redo.record.setsSkipped ?? [:],
-            skippedSets: skippedSets,
+            skippedSets: redo.record.skippedSets,
+            skippedWithNumber: redo.record.skippedWithNumber,
             probes: redo.record.probes ?? [:],
             durationSec: redo.record.durationSec,
             warmupSec: redo.record.warmupSec, cooldownSec: redo.record.cooldownSec,

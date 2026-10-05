@@ -135,6 +135,104 @@ extension WorkoutSessionTests {
         XCTAssertEqual(store.records.last?.actuals?[.coreAntiExt], 45)
     }
 
+    // MARK: - A number entered before a skip
+
+    /// "Went differently" → 6 on the set in front of the person, then "Skip
+    /// this set".
+    func enterSixAndSkipTheSet(_ flow: WorkoutSession) {
+        flow.startAdjusting()
+        flow.adjustValue = 6
+        flow.commitSetEdit()
+        flow.skipSet()
+    }
+
+    /// "8, entered 6 then Skip this set, 6" on 3×8: the 6 the person entered
+    /// is theirs and counts — 8, 6, 6 is 6.67 — while the set still goes off
+    /// the plan as a skipped one. A workout settled from there folds the same.
+    func testASkippedSetKeepsTheNumberEnteredForIt() throws {
+        let (flow, store) = try squatFlow()
+        flow.completeSet()
+        flow.skipRest()
+        enterSixAndSkipTheSet(flow)
+        flow.completeSet()
+        XCTAssertEqual(flow.setsSkipped[.squat], 1)
+        XCTAssertEqual(flow.skippedSetIndices[.squat], [1], "still a skipped set, for the count and the cut")
+        XCTAssertEqual(try XCTUnwrap(flow.overrides[.squat]), 20.0 / 3.0, accuracy: 1e-9)
+        XCTAssertEqual(flow.actualSets[.squat], [8, 6, 6])
+
+        let snap = try XCTUnwrap(store.pendingWorkout)
+        let back = makeFlow(store, resume: snap)
+        XCTAssertEqual(try XCTUnwrap(back.overrides[.squat]), 20.0 / 3.0, accuracy: 1e-9,
+                       "a process death keeps the number")
+        let settled = WorkoutSessionStore.settlement(of: snap, in: flow.session)
+        XCTAssertEqual(try XCTUnwrap(settled.overrides[.squat]), 20.0 / 3.0, accuracy: 1e-9)
+        XCTAssertTrue(store.settleAbandonedWorkout(now: snap.savedAt + WorkoutSessionStore.forgottenAfter))
+        let squat = try XCTUnwrap(flow.exercises.first { $0.pattern == .squat })
+        XCTAssertEqual(HistorySheet.setFacts(squat, in: try XCTUnwrap(store.records.last))?.values, [8, 6, 6])
+    }
+
+    /// "8, 8, entered 6 then Skip this set" on the last set: 8, 8, 6 is 7.33,
+    /// the history reads 8-8-6, and a changed rating folds it the same.
+    func testTheLastSetSkippedKeepsTheNumberEnteredForIt() throws {
+        let (flow, store) = try squatFlow()
+        for _ in 0..<2 {
+            flow.completeSet()
+            flow.skipRest()
+        }
+        enterSixAndSkipTheSet(flow)
+        XCTAssertNotEqual(flow.exercise.pattern, .squat, "the last set skipped moves on")
+        XCTAssertEqual(try XCTUnwrap(flow.overrides[.squat]), 22.0 / 3.0, accuracy: 1e-9)
+        let squat = try XCTUnwrap(flow.exercises.first { $0.pattern == .squat })
+        flow.finishNow()
+        _ = flow.rate(.plan)
+        XCTAssertEqual(HistorySheet.setFacts(squat, in: try XCTUnwrap(store.records.last))?.values, [8, 8, 6])
+        store.changeLastRating(to: .less)
+        XCTAssertEqual(store.records.last?.actuals?[.squat], 7, "8, 8, 6 again, not 8, 8")
+        XCTAssertEqual(HistorySheet.setFacts(squat, in: try XCTUnwrap(store.records.last))?.values, [8, 8, 6],
+                       "and the changed record still keeps the number")
+    }
+
+    /// The skeptic's (b): "8, entered 6 then skipped, entered 8" — 8, 6, 8.
+    func testANumberEnteredBeforeASkipCountsBesideTheSetsAfterIt() throws {
+        let (flow, _) = try squatFlow()
+        flow.completeSet()
+        flow.skipRest()
+        enterSixAndSkipTheSet(flow)
+        flow.startAdjusting()
+        flow.adjustValue = 8
+        flow.commitSetEdit()
+        XCTAssertEqual(flow.actuals[.squat], [8, 6, 8])
+        XCTAssertEqual(try XCTUnwrap(flow.overrides[.squat]), 22.0 / 3.0, accuracy: 1e-9)
+    }
+
+    /// The skeptic's (c): "8, 8, entered 6 then Skip the remaining sets" is
+    /// 7.33, as "Finish now" on the same set folds it.
+    func testSkippingTheRemainingSetsKeepsTheNumberEnteredForTheSetInFront() throws {
+        let (flow, _) = try squatFlow()
+        doTwoSetsAtPlanAndEnterSixOnTheThird(flow)
+        flow.skipRestOfExercise()
+        XCTAssertEqual(flow.skippedSetIndices[.squat], [2])
+        XCTAssertEqual(try XCTUnwrap(flow.overrides[.squat]), 22.0 / 3.0, accuracy: 1e-9)
+    }
+
+    /// No number for the skipped set: what a later set's record fills its gap
+    /// with is what was in force, not the person's, and stays out — "10,
+    /// skipped, entered 8" is 9, though the facts read 10, 8, 8.
+    func testAGapFilledAfterASkipIsNotANumberEnteredForIt() throws {
+        let (flow, _) = try squatFlow()
+        flow.startAdjusting()
+        flow.adjustValue = 10
+        flow.commitSetEdit()
+        flow.completeSet()
+        flow.skipRest()
+        flow.skipSet()
+        flow.startAdjusting()
+        flow.adjustValue = 8
+        flow.commitSetEdit()
+        XCTAssertEqual(flow.actuals[.squat], [10, 8, 8], "the premise: the gap reads what was in force")
+        XCTAssertEqual(flow.overrides[.squat], 9)
+    }
+
     // MARK: - The summary's cards
 
     /// No card for the skipped set, and the others keep their own numbers:
@@ -166,7 +264,7 @@ extension WorkoutSessionTests {
             HeldSet(index: 0, seconds: 30, planned: 30, approximate: false, correctable: false),
             HeldSet(index: 2, seconds: 17, planned: 30, approximate: true, correctable: true),
         ])
-        XCTAssertEqual(SetFacts.override(flow.actuals, for: flow.exercise, skipping: flow.skippedHere), 23.5)
+        XCTAssertEqual(SetFacts.override(flow.actuals, for: flow.exercise, skipping: flow.leftOutHere), 23.5)
     }
 
     /// A process death on that summary keeps the set off it: the indices
@@ -311,26 +409,31 @@ extension WorkoutSessionTests {
     /// them for. The same for a forgotten workout.
     func testAMovementLeftUntrainedKeepsNoSkippedSets() throws {
         let (flow, store) = try squatFlow()
-        flow.skipSet()
+        enterSixAndSkipTheSet(flow)
         XCTAssertEqual(flow.skippedSetIndices[.squat], [0])
+        XCTAssertEqual(flow.skippedWithNumber[.squat], [0])
         let snap = try XCTUnwrap(store.pendingWorkout)
         let settled = WorkoutSessionStore.settlement(of: snap, in: flow.session)
         XCTAssertTrue(settled.skipped.contains(.squat))
         XCTAssertNil(settled.skippedSets[.squat])
+        XCTAssertNil(settled.skippedWithNumber[.squat])
 
         flow.finishNow()
         XCTAssertEqual(flow.interruptedPattern, .squat)
         XCTAssertNil(flow.skippedSetIndices[.squat])
+        XCTAssertNil(flow.skippedWithNumber[.squat])
     }
 
     /// Leaving the movement takes its skipped sets with it, like the count:
-    /// a movement not trained has no sets to name.
+    /// a movement not trained has no sets to name, numbered or not.
     func testLeavingAMovementDropsItsSkippedSets() throws {
         let (flow, _) = try squatFlow()
-        flow.skipSet()
+        enterSixAndSkipTheSet(flow)
         XCTAssertEqual(flow.skippedSetIndices[.squat], [0])
+        XCTAssertEqual(flow.skippedWithNumber[.squat], [0])
         flow.leaveExercise()
         XCTAssertNil(flow.skippedSetIndices[.squat])
+        XCTAssertNil(flow.skippedWithNumber[.squat])
         XCTAssertTrue(flow.skippedPatterns.contains(.squat))
     }
 }
@@ -405,11 +508,13 @@ final class PerformedSetsFoldTests: AppStoreTestCase {
         XCTAssertEqual(snap.skippedSets, [.squat: [1]])
         let json = """
         {"sessionNumber": 3, "date": 1000, "result": "plan",
-         "skippedSetIndices": ["core_anti_ext", [1, 7, -2]]}
+         "skippedSetIndices": ["core_anti_ext", [1, 7, -2]],
+         "skippedWithNumberIndices": ["core_anti_ext", [1, 6]]}
         """
         let record = try JSONDecoder().decode(WorkoutRecord.self, from: Data(json.utf8))
         XCTAssertEqual(record.skippedSetIndices, [.coreAntiExt: [1]])
         XCTAssertEqual(record.skippedSets, [.coreAntiExt: [1]])
+        XCTAssertEqual(record.skippedWithNumberIndices, [.coreAntiExt: [1]])
     }
 
     /// A record written without the indices reads as it always did: the

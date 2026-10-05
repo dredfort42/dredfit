@@ -53,6 +53,8 @@ extension WorkoutSession {
             setActuals: actuals, setsSkipped: setsSkipped,
             skippedSetIndices: skippedSetIndices.isEmpty
                 ? nil : skippedSetIndices.mapValues { $0.sorted() },
+            skippedWithNumberIndices: skippedWithNumber.isEmpty
+                ? nil : skippedWithNumber.mapValues { $0.sorted() },
             probes: probeActuals,
             skipped: skippedPatterns,
             workoutStart: workoutStart ?? now(), savedAt: now(),
@@ -91,6 +93,7 @@ extension WorkoutSession {
         actuals = snap.facts
         setsSkipped = snap.skips
         skippedSetIndices = snap.skippedSets
+        skippedWithNumber = snap.skippedWithNumber
         probeActuals = snap.probeFacts
         skippedPatterns = snap.skipped
         workoutStart = snap.workoutStart
@@ -229,6 +232,7 @@ extension WorkoutSession {
             actuals.removeValue(forKey: pattern)   // a skip wins over an actual
             probeActuals.removeValue(forKey: pattern)
             skippedSetIndices.removeValue(forKey: pattern)
+            skippedWithNumber.removeValue(forKey: pattern)
             skippedPatterns.insert(pattern)
         }
         // The cool-down is never reached from here, and a block never begun is

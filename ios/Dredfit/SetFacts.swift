@@ -48,12 +48,32 @@ nonisolated enum SetFacts {
     /// down (`inForce`), a number nobody did, and folded in it pulls the mean
     /// toward the plan from either side. So the fold the engine takes, the
     /// rating screen's "actual" and the history line leave these sets out
-    /// (`performed`), and the summary has no card for them.
+    /// (`performed`, `leftOut`), and the summary has no card for them.
     ///
     /// A set the workout ended before reaching is not among them: nobody
     /// skipped it, and it folds at what was in force for it — a number
     /// entered for the set in progress included.
+    ///
+    /// Nor is a number the person ENTERED for a set before skipping it ever
+    /// discarded: such a set stays a skipped one for the count and the cut,
+    /// and its number counts like any other (`leftOut`).
     typealias SkippedSets = [Pattern: Set<Int>]
+
+    /// The skipped sets the fold and every display leave out: the ones with
+    /// no number the person entered for them before the skip (`numbered`).
+    ///
+    /// The numbered ones are known only at the skip. Read off the facts
+    /// afterwards the two kinds look alike: a set recorded later fills the
+    /// gap before it with what was in force (`recording`), so "6, entered 6
+    /// then skipped, 10" and "6, skipped, 10" both leave 6, 6, 10.
+    static func leftOut(_ skipped: SkippedSets, keeping numbered: SkippedSets) -> SkippedSets {
+        var out: SkippedSets = [:]
+        for (pattern, sets) in skipped {
+            let left = sets.subtracting(numbered[pattern] ?? [])
+            if !left.isEmpty { out[pattern] = left }
+        }
+        return out
+    }
 
     // MARK: - The corridors
 
@@ -193,9 +213,10 @@ nonisolated enum SetFacts {
         return (0..<sets).map { inForce(facts, ex, set: $0) }
     }
 
-    /// Every set (`allSets`) but the ones the person skipped, in set order,
-    /// each with its index. With every set skipped there is nothing to set
-    /// apart, and every set reads as it does in `allSets`.
+    /// Every set (`allSets`) but the ones `skipped` names — the skipped sets
+    /// with no number of their own (`leftOut`) — in set order, each with its
+    /// index. With every set skipped there is nothing to set apart, and every
+    /// set reads as it does in `allSets`.
     static func performed(_ facts: PerSet, _ ex: SessionExercise,
                           skipping skipped: Set<Int>) -> [(set: Int, value: Int)] {
         let every = allSets(facts, ex).enumerated().map { (set: $0.offset, value: $0.element) }
@@ -489,9 +510,11 @@ nonisolated enum SetFacts {
     /// 45 / 45 / 30 against 3×45 s reports 40. The snap to the grid is the
     /// engine's, not this one's — see the last paragraph below.
     ///
-    /// Without the sets the person SKIPPED (`performed`): 10, a skipped set
-    /// and 8 against 3×8 report 9 — the skipped set has no number to fold,
-    /// and the one `allSets` reads for it would pull the mean toward the plan.
+    /// Without the sets SKIPPED with no number of their own (`performed`,
+    /// `leftOut`): 10, a skipped set and 8 against 3×8 report 9 — that set has
+    /// no number to fold, and the one `allSets` reads for it would pull the
+    /// mean toward the plan. A number entered for a set before its skip folds
+    /// like any other.
     ///
     /// A shortfall is never reported as MEETING the plan, however close the
     /// mean lands: a session that fell short is no proof the plan was met.

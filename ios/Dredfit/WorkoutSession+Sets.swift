@@ -223,6 +223,7 @@ extension WorkoutSession {
         // so there is no volume to take off it next time.
         setsSkipped.removeValue(forKey: exercise.pattern)
         skippedSetIndices.removeValue(forKey: exercise.pattern)
+        skippedWithNumber.removeValue(forKey: exercise.pattern)
         skippedPatterns.insert(exercise.pattern)
         advancePastExercise()
     }

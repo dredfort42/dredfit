@@ -33,20 +33,22 @@ struct HeldSet: Identifiable, Equatable {
 
 extension WorkoutSession {
 
-    /// The sets of the exercise in front of us that were skipped.
-    var skippedHere: Set<Int> { skippedSetIndices[exercise.pattern] ?? [] }
+    /// The sets of the exercise in front of us that were skipped with no
+    /// number of their own — the ones its folds and cards leave out.
+    var leftOutHere: Set<Int> { leftOutSets[exercise.pattern] ?? [] }
 
     /// Every set of the movement that was DONE, as the summary prints it, in
-    /// set order. A skipped set has no card: what would stand on it is a
-    /// number nobody held. The cards keep their sets' own numbers, so the
-    /// gap shows as "set 1", "set 3" without a word about it.
+    /// set order. A set skipped with no number of its own has no card: what
+    /// would stand on it is a number nobody held. The cards keep their sets'
+    /// own numbers, so the gap shows as "set 1", "set 3" without a word about
+    /// it.
     ///
     /// `SetFacts.allSets` underneath deliberately: it is what the work
     /// screen showed for each set as it ran, so the summary and the flow
     /// cannot disagree about a number — and `recordingSet` freezes exactly
     /// that list before it changes one of them.
     var heldSets: [HeldSet] {
-        SetFacts.performed(actuals, exercise, skipping: skippedHere).map { done in
+        SetFacts.performed(actuals, exercise, skipping: leftOutHere).map { done in
             HeldSet(index: done.set, seconds: done.value,
                     planned: exercise.plannedLoad(set: done.set),
                     approximate: summaryCardIsApproximate(set: done.set),
@@ -144,7 +146,7 @@ extension WorkoutSession {
         var raised = raisedSteps
         raised[exercise.pattern] = steps > 0 ? steps : nil
         return store.previewPlan(after: session, pattern: exercise.pattern,
-                                 overrides: SetFacts.overrides(actuals, skipping: skippedSetIndices,
+                                 overrides: SetFacts.overrides(actuals, skipping: leftOutSets,
                                                                in: exercises),
                                  skipped: skippedPatterns, setsSkipped: setsSkipped,
                                  probes: probeActuals, raised: raised)
@@ -196,7 +198,7 @@ extension WorkoutSession {
     /// most that can be said then.
     var probeOutcome: ProbeOutcome? {
         guard let entered = probeActuals[exercise.pattern] else { return nil }
-        if SetFacts.foldFallsShort(actuals, of: exercise, skipping: skippedHere) {
+        if SetFacts.foldFallsShort(actuals, of: exercise, skipping: leftOutHere) {
             return .planMoves(nextPlan(withAdditions: 0)?.name ?? exercise.name)
         }
         return entered >= current.planned ? .passed(current.name) : .stays
