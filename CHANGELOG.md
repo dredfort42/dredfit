@@ -10,7 +10,7 @@ each of the three versions, and the golden trace the Swift port is held to
 grows to 49 scenarios and 413 steps. Around the engine, the hold summary, the
 Stop button and the work screen now agree with the clock, every 3-2-1 is felt
 in full in Silent mode, and a save that fails says so. Six new strings come
-with it, in all seven languages. What this release does not touch: the entry
+with it, and two captions are reworded, in all seven languages. What this release does not touch: the entry
 plan of three sets of four in the gentlest variation of six movements and the
 estimate on Today for it (about 24–32 minutes, re-measured on 3.8.0), the
 Health permissions and data types, the App Privacy answers, and the network,
@@ -142,6 +142,15 @@ it did.
   time is built on today's date, so a historical time-zone offset no longer
   shifts it. The share card redraws when its date or curve changes, and an
   exported backup leaves at most one temporary copy behind.
+- **History says the length counts time in the app.** Since 2.4.4 the
+  length leaves out the time the phone spent away from the app, while an
+  on-screen Pause still counts. "Took N min, pauses included" let a locked
+  phone read as a pause; the line now says "Took N min in the app, pauses
+  included".
+- **The weight caption names where the weight goes.** "It stays on this
+  device." was untrue once a backup was exported: the weight is kept with
+  the settings, and every exported backup carries it. The caption now says
+  "Kept on this device and in the backups you export."
 
 ### Housekeeping
 
