@@ -531,12 +531,21 @@ extension WorkoutFlowView {
     /// 23 pt is no more legible from the floor than 17 (both under the 5' a
     /// letter needs); what carries at that distance is the colour, and the
     /// size is what puts the line where it belongs in the hierarchy.
-    private var loadCaptionEmphasis: (size: CGFloat, weight: Font.Weight, color: Color) {
-        if flow.holdCountingIn || flow.holdSwitchPausing { return (17, .semibold, Theme.accentText) }
-        if flow.holding { return (17, .medium, Theme.ink2) }
+    private var loadCaptionEmphasis: LoadCaptionEmphasis {
+        if flow.holdCountingIn || flow.holdSwitchPausing {
+            return LoadCaptionEmphasis(size: 17, weight: .semibold, color: Theme.accentText)
+        }
+        if flow.holding { return LoadCaptionEmphasis(size: 17, weight: .medium, color: Theme.ink2) }
         return flow.current.perSide
-            ? (23, .semibold, Theme.accentText)
-            : (17, .medium, Theme.ink2)
+            ? LoadCaptionEmphasis(size: 23, weight: .semibold, color: Theme.accentText)
+            : LoadCaptionEmphasis(size: 17, weight: .medium, color: Theme.ink2)
     }
 
+}
+
+/// How loud the load caption under the big number is set (`loadCaptionEmphasis`).
+private struct LoadCaptionEmphasis {
+    let size: CGFloat
+    let weight: Font.Weight
+    let color: Color
 }

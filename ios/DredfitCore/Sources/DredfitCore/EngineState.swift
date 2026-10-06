@@ -276,15 +276,7 @@ public struct EngineState: Codable, Equatable, Sendable {
             let value = Engine.effCut(sets: cleanSets[p] ?? EngineConfig.setsBase, cut: raw)
             if value > 0 { cleanCut[p] = value }
         }
-        var cleanSub: [Pattern: Int] = [:]
-        for (p, raw) in sub {
-            let pos = Position(variation: cleanVars[p] ?? 1,
-                               sets: cleanSets[p] ?? EngineConfig.setsBase,
-                               dose: cleanDoses[p] ?? 0, sub: raw,
-                               cut: cleanCut[p] ?? 0)
-            let value = Engine.effSub(p, pos, sets: nil)
-            if value > 0 { cleanSub[p] = value }
-        }
+        let cleanSub = cleanedSub(vars: cleanVars, sets: cleanSets, doses: cleanDoses, cut: cleanCut)
         return EngineState(
             counter: Self.clamped(counter, 0, EngineConfig.countMax),
             vars: cleanVars, doses: cleanDoses, failStreak: cleanStreaks, hasBar: hasBar,
@@ -304,6 +296,22 @@ public struct EngineState: Codable, Equatable, Sendable {
             weekGain: weekGain.filter { $0.value >= 1 }
                 .mapValues { Self.clamped($0, 1, EngineConfig.countMax) },
             weekAgeDays: Self.clamped(weekAgeDays, 0, Double(EngineConfig.countMax)))
+    }
+
+    /// The sub-step of `sanitized`, read last because it needs the other
+    /// four coordinates already clean.
+    private func cleanedSub(vars cleanVars: [Pattern: Int], sets cleanSets: [Pattern: Int],
+                            doses cleanDoses: [Pattern: Int], cut cleanCut: [Pattern: Int]) -> [Pattern: Int] {
+        var cleanSub: [Pattern: Int] = [:]
+        for (p, raw) in sub {
+            let pos = Position(variation: cleanVars[p] ?? 1,
+                               sets: cleanSets[p] ?? EngineConfig.setsBase,
+                               dose: cleanDoses[p] ?? 0, sub: raw,
+                               cut: cleanCut[p] ?? 0)
+            let value = Engine.effSub(p, pos, sets: nil)
+            if value > 0 { cleanSub[p] = value }
+        }
+        return cleanSub
     }
 
     /// The journal, healed. A value is snapped and capped by the SCALE of the

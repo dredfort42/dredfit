@@ -8,116 +8,6 @@ import Observation
 import os
 import DredfitCore
 
-struct AppData: Codable {
-    var engineState: EngineState
-    var records: [WorkoutRecord]
-    var settings: AppSettings?
-    var pendingWorkout: WorkoutSnapshot?
-    // How many journal entries failed to decode (not encoded) — the caller
-    // keeps the original file aside when this is nonzero.
-    var droppedRecordCount = 0
-
-    init(engineState: EngineState, records: [WorkoutRecord],
-         settings: AppSettings?, pendingWorkout: WorkoutSnapshot? = nil) {
-        self.engineState = engineState
-        self.records = records
-        self.settings = settings
-        self.pendingWorkout = pendingWorkout
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case engineState, records, settings, pendingWorkout
-    }
-
-    /// True when the engine state on disk was neither v3 nor v2 (a v2 state
-    /// is carried over) and the engine started clean; the loader copies the
-    /// original aside, and an import refuses the file.
-    var engineStateReset = false
-
-    /// True when a settings block was present but not an object this build
-    /// can read. On launch it costs the settings their defaults; an import
-    /// refuses the file instead.
-    var settingsUnreadable = false
-
-    /// True when a state written before v3 was read and carried over.
-    /// A property of THIS decode, not of the file: the loader turns it into
-    /// `settings.migrationNoticePending`, which is what the file carries and
-    /// what the card on Today is spent against.
-    var engineStateMigrated = false
-
-    /// The journal decodes record-by-record — one unreadable entry (e.g.
-    /// written by a newer version) must not throw away the whole file.
-    ///
-    /// And the ENGINE STATE decodes leniently for the same reason: a state
-    /// written before v3 carries `levels` instead of positions and is read and
-    /// carried over, and a state from some future build must not take the
-    /// journal and the settings down with it.
-    init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: CodingKeys.self)
-        if let state = try? c.decode(EngineState.self, forKey: .engineState) {
-            engineState = state
-        } else if let migrated = try? c.decode(V2EngineState.self, forKey: .engineState),
-                  let carried = Engine.migrateFromV2(migrated.asEngineInput) {
-            // A state written before v3 is READ and carried over, not thrown
-            // away: an upgrade must never start anyone over (`MigrationV2`).
-            engineState = carried
-            engineStateMigrated = true
-        } else {
-            engineState = .initial
-            engineStateReset = true
-        }
-        // try?, and every field inside it too: one setting of a shape this
-        // build does not know must cost that setting, never the journal.
-        settings = try? c.decodeIfPresent(AppSettings.self, forKey: .settings)
-        settingsUnreadable = settings == nil && c.contains(.settings)
-            && !((try? c.decodeNil(forKey: .settings)) ?? false)
-        // try?, not try: a snapshot written by a newer version must degrade
-        // to "nothing to resume", never to a quarantined journal.
-        pendingWorkout = try? c.decodeIfPresent(WorkoutSnapshot.self, forKey: .pendingWorkout)
-        var decoded: [WorkoutRecord] = []
-        var uc = try c.nestedUnkeyedContainer(forKey: .records)
-        while !uc.isAtEnd {
-            let index = uc.currentIndex
-            if let record = try? uc.decode(WorkoutRecord.self) {
-                decoded.append(record)
-            } else {
-                // Discard's empty init always succeeds, consuming the element.
-                _ = try? uc.decode(Discard.self)
-                droppedRecordCount += 1
-            }
-            if uc.currentIndex == index { break }   // safety: never spin in place
-        }
-        records = decoded
-    }
-
-    private struct Discard: Decodable { init(from decoder: Decoder) {} }
-}
-
-/// The four things the store persists, as one value a change is made to —
-/// see `AppStore.update`.
-struct PersistedState {
-    var engineState: EngineState
-    var records: [WorkoutRecord]
-    var settings: AppSettings
-    var pendingWorkout: WorkoutSnapshot?
-
-    /// Legacy high-water mark → per-record flags. The mark keeps being
-    /// written so a downgraded build still sees a sane value. Runs only on a
-    /// journal that carries no flags at all — a pre-flag legacy file. Once
-    /// any record is flagged, the flags are the source of truth, and
-    /// re-applying the mark could stamp workouts it was never about: a
-    /// foreign import's records, or a post-reset session 1 sitting under an
-    /// old high mark (issue #103).
-    mutating func migrateHealthMarkToFlags() {
-        guard settings.healthExportedThrough > 0,
-              !records.contains(where: { $0.healthExported != nil }) else { return }
-        for i in records.indices
-        where records[i].sessionNumber <= settings.healthExportedThrough {
-            records[i].healthExported = true
-        }
-    }
-}
-
 @Observable
 final class AppStore {
 
@@ -172,8 +62,10 @@ final class AppStore {
     var backfillInFlight = false   // guards concurrent Health backfills
     /// Held so tests can await the fire-and-forget path instead of sleeping.
     private(set) var healthExportTask: Task<Void, Never>?
-    private(set) var reminderAuthTask: Task<Void, Never>?
-    private(set) var bodyMassTask: Task<Void, Never>?
+    /// Internal setters: they are set by `setReminderEnabled` and `activate`,
+    /// which live in AppStore+SettingsWrites and AppStore+Activation.
+    var reminderAuthTask: Task<Void, Never>?
+    var bodyMassTask: Task<Void, Never>?
 
     private static let log = Logger(subsystem: "app.dredfit", category: "store")
 
@@ -259,160 +151,12 @@ final class AppStore {
         assign(state)
     }
 
-    /// Re-anchors only when the day actually rolled over — mutating `today`
-    /// on every activation would re-render for nothing.
-    func refreshDay(now: Date = .now) {
-        reanchorToday(now: now)
-        // The blind-zone decay rides the same pulse, so by the time Today
-        // renders the plan is already corrected.
-        applySilentDecayIfNeeded(now: now)
-    }
-
     /// The date half of `refreshDay` and nothing else, for a midnight that
     /// passes inside a live scene (a workout's cover keeps it active, so no
     /// activation comes). Never the decay: this fires under a running workout
     /// too, and can land before `activate()`, whose order it must not break.
     func reanchorToday(now: Date = .now) {
         if !Calendar.current.isDate(today, inSameDayAs: now) { today = now }
-    }
-
-    /// Everything a scene becoming `.active` must run, in one seam — a cold
-    /// launch renders already active without a phase transition, so `onAppear`
-    /// has to run the same sequence or the blind-zone decay never fires.
-    /// Order matters: the decay can only correct a journal that has loaded.
-    func activate(now: Date = .now) {
-        reloadIfNeeded()
-        // The disk may have recovered while the app was away (storage freed,
-        // protection lifted); without this a failed write waits for the next
-        // unrelated change, and a quiet session never gets one.
-        if lastPersistError != nil { retryPersist() }
-        // BEFORE the day is re-anchored, never after: the settlement writes a
-        // journal entry dated to the day it happened, and the silent decay and
-        // the comeback both measure their gap from the last record. Settling
-        // afterwards would decay a state that had just been trained.
-        settleAbandonedWorkout(now: now)
-        refreshDay(now: now)
-        rescheduleReminders(now: now)
-        // Off the sequence, because it is the only step that leaves the
-        // device: a HealthKit query must not hold the plan's re-anchoring
-        // behind it. The weight is the owner's, and the owner may have
-        // weighed themselves since the last foreground.
-        // A share taken back since the last foreground turns the switch off
-        // here, before the read below would query Health for nothing.
-        reconcileHealthAuthorization()
-        if settings.healthEnabled {
-            // Cancelled, not just replaced: two foregrounds in a row leave two
-            // queries in flight, and HealthKit decides which returns first —
-            // without this the older reading could land last and stick.
-            bodyMassTask?.cancel()
-            bodyMassTask = Task { await self.refreshBodyMassFromHealth() }
-        }
-    }
-
-    // MARK: - Derived
-
-    /// IMPORTANT: right after a workout is completed the counter has
-    /// advanced, so this is the NEXT workout. Never present it under today's
-    /// date — only with nextTrainingDate. A workout in progress: `session(for:)`.
-    var nextSession: Session { session(for: engineState) }
-
-    /// Conservative on missing data: records without an exercise snapshot
-    /// cannot vouch for what was done, so a pattern with no snapshotted
-    /// history is never badged — better a missed badge than "new variation"
-    /// on an exercise the user has done for weeks.
-    var debutPatterns: Set<Pattern> {
-        var maxPerformed: [Pattern: Int] = [:]
-        for record in records {
-            guard let exercises = record.exercises else { continue }
-            // A painful exercise was not performed either. A record written by
-            // an older build keeps its pain reports, and they were "not
-            // performed" exactly as a skip was — so reading history has to
-            // count both. Nothing writes `discomfort` any more.
-            let skipped = (record.skipped ?? []).union(record.discomfort ?? [])
-            for ex in exercises where !skipped.contains(ex.pattern) {
-                maxPerformed[ex.pattern] = max(maxPerformed[ex.pattern] ?? 0, ex.variation)
-            }
-        }
-        var debuts: Set<Pattern> = []
-        for ex in nextSession.exercises {
-            if let seen = maxPerformed[ex.pattern], ex.variation > seen {
-                debuts.insert(ex.pattern)
-            }
-        }
-        return debuts
-    }
-
-    /// How far along their ladders every movement stands, summed. A clean
-    /// start reads zero.
-    var totalProgress: Int { Engine.totalProgress(engineState) }
-
-    /// The position of every movement right now, in the form the journal
-    /// records it.
-    var currentPositions: [Pattern: RecordedPosition] { Self.positions(of: engineState) }
-
-    static func positions(of state: EngineState) -> [Pattern: RecordedPosition] {
-        var out: [Pattern: RecordedPosition] = [:]
-        for p in Pattern.allCases {
-            let pos = state.position(p)
-            out[p] = RecordedPosition(variation: pos.variation, sets: pos.sets, dose: pos.dose,
-                                      sub: pos.sub > 0 ? pos.sub : nil,
-                                      cut: pos.cut > 0 ? pos.cut : nil)
-        }
-        return out
-    }
-
-    /// Oldest first. `through` cuts it at a date: a milestone card must not
-    /// draw a curve running past the event it celebrates. Records written
-    /// before v3 carry no point on this scale and are left out rather than
-    /// plotted on the wrong one.
-    func progressCurve(through date: Date? = nil) -> [Int] {
-        let run = recordsSinceReset
-        let history = date.map { cut in run.filter { $0.date <= cut } } ?? run
-        return history.compactMap(\.totalProgressAfter)
-    }
-
-    /// Where the journal starts describing the CURRENT plan. `resetProgress`
-    /// restarts the session counter and leaves the journal standing — which is
-    /// what `WorkoutRecord.id` already says out loud — so the first record
-    /// whose number does not exceed its predecessor's opens the new run.
-    ///
-    /// The curve is cut here rather than at each caller because every chart
-    /// of it needs the cut: the milestone card and the share card would
-    /// otherwise draw the pre-reset PEAK above a plan that has just been wiped.
-    /// The workout COUNT still spans the whole journal: the history really
-    /// does stay, which is what the reset promises.
-    var recordsSinceReset: [WorkoutRecord] {
-        let resumed = records.indices.dropFirst().last {
-            records[$0].sessionNumber <= records[$0 - 1].sessionNumber
-        }
-        // The falling pair finds a reset only from the NEXT workout on:
-        // `resetProgress` writes no record of its own, it just returns the
-        // engine to `.initial` and leaves the journal standing. In the window
-        // between the reset and the first workout after it there is no pair to
-        // find, and the whole journal would come back while `totalProgress` is
-        // already 0 — the old peak under a headline saying zero. The counter
-        // moves at the reset itself.
-        return records[(resumed ?? records.startIndex)...]
-            .filter { $0.sessionNumber <= engineState.counter }
-    }
-
-    var lastRecord: WorkoutRecord? { records.last }
-
-    var doneToday: Bool { isDone(on: today) }
-
-    func isDone(on date: Date) -> Bool {
-        guard let last = records.last else { return false }
-        return Calendar.current.isDate(last.date, inSameDayAs: date)
-    }
-
-    func isRestDay(_ date: Date) -> Bool {
-        settings.restWeekdays.contains(Calendar.current.component(.weekday, from: date))
-    }
-
-    /// The workout completed on the given day, if any (for calendar history).
-    func record(on date: Date) -> WorkoutRecord? {
-        let cal = Calendar.current
-        return records.last { cal.isDate($0.date, inSameDayAs: date) }
     }
 
     // MARK: - The only mutation
@@ -629,96 +373,10 @@ final class AppStore {
 
     // MARK: - Settings
 
-    /// Refuses to turn the last training day into rest: at least one training
-    /// day must remain, nextTrainingDate relies on it.
-    func toggleRestDay(_ weekday: Int) {
-        var days = settings.restWeekdays
-        if days.contains(weekday) {
-            days.remove(weekday)
-        } else {
-            days.insert(weekday)
-            guard days.count < 7 else { return }
-        }
-        settings.restWeekdays = days
-        persist()
-        rescheduleReminders()
-    }
-
-    func setSounds(_ on: Bool) {
-        settings.soundsEnabled = on
-        persist()
-    }
-
     /// Turning it off freezes the vertical branch; its level is kept.
     func setHasBar(_ on: Bool) {
         engineState.hasBar = on
         persist()
-    }
-
-    func setReminderEnabled(_ on: Bool) {
-        settings.reminderEnabled = on
-        persist()
-        guard on else { return rescheduleReminders() }
-        reminderAuthTask = Task { [weak self] in
-            guard let self else { return }
-            if await self.reminderScheduler.requestAuthorization() {
-                self.rescheduleReminders()
-            } else {
-                // the system said no — reflect reality in the toggle
-                self.settings.reminderEnabled = false
-                self.persist()
-            }
-        }
-    }
-
-    func setReminderTime(hour: Int, minute: Int) {
-        settings.reminderHour = hour
-        settings.reminderMinute = minute
-        persist()
-        rescheduleReminders()
-    }
-
-    // MARK: - Onboarding
-
-    /// Genuinely new installs only.
-    var shouldShowOnboarding: Bool {
-        // A frozen launch knows nothing about the user — never mistake it
-        // for a fresh install.
-        !journalFrozen && records.isEmpty && engineState.counter == 0
-            && !settings.onboardingCompleted
-    }
-
-    /// Deliberately not called when the pager merely appears: an app killed
-    /// mid-pager shows it again. The only path here is the care card's
-    /// explicit button (#101) — Skip jumps to that card instead of past it —
-    /// so completing also records the acknowledgement.
-    func completeOnboarding() {
-        settings.onboardingCompleted = true
-        settings.careAcknowledgedAt = .now
-        persist()
-    }
-
-    // MARK: - Comeback after a break
-
-    // gapDays and the training-day anchor live in AppStore+Cadence.
-
-    /// Asked once per break: the answer is stamped against the last workout's
-    /// date, so it goes stale by itself instead of needing to be cleared. A
-    /// break inside the trainee's own rhythm is not a break at all (#134) — no
-    /// card, and so no comeback either.
-    func shouldOfferComeback(now: Date? = nil) -> Bool {
-        guard let last = records.last, let gap = gapDays(now: now) else { return false }
-        guard gap >= EngineConfig.comebackMinGapDays, !isRhythmBreak(gap) else { return false }
-        guard let decided = settings.comebackDecidedFor,
-              Calendar.current.isDate(decided, inSameDayAs: last.date) else { return true }
-        // Once per break — unless the break has since grown a door the answer
-        // could not have been about. "Start from scratch" appears only from
-        // `comebackFreshStartDays`, so without this someone who declined on
-        // day 20 of a break that ran to three months would never see the one
-        // offer meant for exactly them. At most ONE extra ask — closing the
-        // question again stamps the gap it was answered at.
-        guard let answeredAt = settings.comebackDecidedAtGap else { return false }
-        return answeredAt < Self.comebackFreshStartDays && gap >= Self.comebackFreshStartDays
     }
 
     // MARK: - Silent decay for the 7–13 day blind zone (issue #37)
@@ -737,19 +395,6 @@ final class AppStore {
         engineState = Engine.applySilentDecay(state: engineState, gapDays: gap)
         settings.silentDecayAppliedFor = last.date
         persist()
-    }
-
-    /// Drives both the once-per-break guard and the comeback's
-    /// `alreadyDecayed`: the two drops must not stack. Internal so the
-    /// read-only preview in AppStore+Comeback sees the same weakening.
-    var silentDecayAppliedForCurrentBreak: Bool {
-        guard let applied = settings.silentDecayAppliedFor,
-              let last = records.last?.date else { return false }
-        return Calendar.current.isDate(applied, inSameDayAs: last)
-    }
-
-    func offersFreshStart(now: Date? = nil) -> Bool {
-        (gapDays(now: now) ?? 0) >= Self.comebackFreshStartDays
     }
 
     /// Nothing is written to the journal — the next record's levelsAfter
@@ -789,10 +434,6 @@ final class AppStore {
         persist()
     }
 
-    func declineComeback(now: Date? = nil) {
-        closeComebackQuestion(now: now)
-    }
-
     /// Only the engine resets; the journal and settings survive. `hasBar` is
     /// kept — the bar did not disappear from the doorway. The fields of the
     /// sets handle — the cut, the hold and the shown-plan pair — are exactly
@@ -812,42 +453,6 @@ final class AppStore {
         settings.ratingMoves = nil
         closeComebackQuestion()
     }
-
-    private func closeComebackQuestion(now: Date? = nil) {
-        settings.comebackDecidedFor = records.last?.date
-        // How long the break was when it was answered, so a break that keeps
-        // growing can ask once more (see shouldOfferComeback).
-        settings.comebackDecidedAtGap = gapDays(now: now)
-        // persist() already mirrors to the widget — accepting a comeback moves
-        // the levels the plan is drawn from, and it reaches the snapshot on
-        // that one write. A second call here is a second reloadAllTimelines()
-        // for the same content.
-        persist()
-    }
-
-    /// From 90 days — a quarter away is long enough that "as it was" can be
-    /// blind and "from scratch" must be reachable.
-    static let comebackFreshStartDays = 90
-
-    // MARK: - App Store review
-
-    /// Pure and injectable so the gate is unit-testable without StoreKit.
-    /// A `.less` rating disqualifies the session outright.
-    func shouldRequestReview(lastResult: FeedbackResult?, now: Date = .now) -> Bool {
-        guard engineState.counter >= Self.reviewMinWorkouts else { return false }
-        guard let lastResult, lastResult != .less else { return false }
-        guard let previous = settings.lastReviewRequestAt else { return true }
-        let days = Calendar.current.dateComponents([.day], from: previous, to: now).day ?? 0
-        return days >= Self.reviewMinDaysBetween
-    }
-
-    func recordReviewRequest(at date: Date = .now) {
-        settings.lastReviewRequestAt = date
-        persist()
-    }
-
-    static let reviewMinWorkouts = 5
-    static let reviewMinDaysBetween = 60
 
     // MARK: - Persistence
 
@@ -912,10 +517,11 @@ final class AppStore {
 
 // MARK: - The weak-link prompt (#135)
 
-/// The mutating half of the prompt lives here: `settings` and `persist` are
-/// the store's own, and an extension in another file cannot reach them. The
-/// read-only half — who the suspect is, whether to ask — is in
-/// `AppStore+Signals`.
+/// The half of the prompt that moves the engine lives here: `engineState` and
+/// `persist` are the store's own, and an extension in another file cannot
+/// reach them. The read-only half — who the suspect is, whether to ask — is in
+/// `AppStore+Signals`; a dismissal writes only the settings and is in
+/// `AppStore+SettingsWrites`.
 extension AppStore {
 
     /// Records the answer — yes, it is this movement — and acts on it at once
@@ -933,42 +539,6 @@ extension AppStore {
         noteEasedByHand(pattern)
         persist()
     }
-
-    /// Dismisses the prompt for this session without changing the plan.
-    func dismissSuspectPrompt() {
-        settings.weakLinkPromptAnsweredFor = records.last?.sessionNumber
-        persist()
-    }
-
-    /// The one line on Today that says a plan row is a door: the variation one
-    /// step below lives behind the technique sheet, and a control nobody knows
-    /// about is a control nobody has.
-    ///
-    /// Gated on having been through the door, never on `records.isEmpty`: the
-    /// person carried over from v2 has a full journal and is exactly the person
-    /// the sentence is for — the carry-over keeps their positions, and any
-    /// movement above its first variation has a step below it.
-    var showsTechniqueHint: Bool { !settings.hasOpenedTechnique }
-
-    /// Spent by the first technique sheet that keeps the hint's promise
-    /// (`TechniqueSheet`'s `.task`): one opened from a plan row whose movement
-    /// has a step below — or any technique sheet, when no movement of the plan
-    /// has a rung below. `persist` only on the transition: the sheet is opened
-    /// many times over a life of the app and this is a one-way flag.
-    func markTechniqueOpened() {
-        guard !settings.hasOpenedTechnique else { return }
-        settings.hasOpenedTechnique = true
-        persist()
-    }
-
-    /// The one-shot card on Today explaining what an upgrade did.
-    var showsMigrationNotice: Bool { settings.migrationNoticePending == true }
-
-    func dismissMigrationNotice() {
-        settings.migrationNoticePending = false
-        persist()
-    }
-
 }
 
 // MARK: - Taking a rating back

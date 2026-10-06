@@ -63,13 +63,13 @@ final class JournalSanitizationTests: AppStoreTestCase {
         XCTAssertNotNil(recorded[.squat])
         XCTAssertNotNil(recorded[.pull])
         // Measuring any of them answers a number rather than trapping — on the
-        // SIX-coordinate form, which is what the chart and the retrospective
+        // whole-`Position` form, which is what the chart and the retrospective
         // both call. On the short one `sub` and `cut` are never read, so
         // the two that carry Int.min here would go untouched.
         for (p, position) in recorded {
-            let steps = Engine.progress(p, variation: position.variation,
-                                        sets: position.sets, dose: position.dose,
-                                        sub: position.sub ?? 0, cut: position.cut ?? 0)
+            let steps = Engine.progress(p, Position(variation: position.variation,
+                                                    sets: position.sets, dose: position.dose,
+                                                    sub: position.sub ?? 0, cut: position.cut ?? 0))
             XCTAssertGreaterThanOrEqual(steps, 0)
             XCTAssertLessThanOrEqual(steps, Engine.ladderSpan(p))
         }

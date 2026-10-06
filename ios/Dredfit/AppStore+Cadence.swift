@@ -3,7 +3,7 @@
 // is not a break: when a new gap lands within ±1 day of any of the last eight
 // gaps between workouts, the silent decay and the comeback card both stand
 // down — the plan simply waits as it is. Everything here is read-only; the
-// callers in AppStore proper make the mutating decisions.
+// callers that write make the mutating decisions.
 //
 
 import Foundation

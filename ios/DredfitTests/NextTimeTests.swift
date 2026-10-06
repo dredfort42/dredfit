@@ -91,11 +91,13 @@ final class NextTimeTests: AppStoreTestCase {
 
         let without = try XCTUnwrap(alone.currentPositions[hold.pattern])
         let with = try XCTUnwrap(store.currentPositions[hold.pattern])
-        XCTAssertEqual(Engine.progress(hold.pattern, variation: with.variation, sets: with.sets,
-                                       dose: with.dose, sub: with.sub ?? 0, cut: with.cut ?? 0),
-                       Engine.progress(hold.pattern, variation: without.variation,
-                                       sets: without.sets, dose: without.dose,
-                                       sub: without.sub ?? 0, cut: without.cut ?? 0) + 1,
+        XCTAssertEqual(Engine.progress(hold.pattern, Position(variation: with.variation, sets: with.sets,
+                                                              dose: with.dose, sub: with.sub ?? 0,
+                                                              cut: with.cut ?? 0)),
+                       Engine.progress(hold.pattern, Position(variation: without.variation,
+                                                              sets: without.sets, dose: without.dose,
+                                                              sub: without.sub ?? 0,
+                                                              cut: without.cut ?? 0)) + 1,
                        "one step for next time is one growth event over the rating's")
         let record = try XCTUnwrap(makeStore().records.last)
         XCTAssertEqual(record.raisedSteps, [hold.pattern: 1], "the journal keeps the decision")

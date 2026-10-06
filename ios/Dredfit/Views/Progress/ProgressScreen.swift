@@ -306,10 +306,10 @@ struct ProgressScreen: View {
         // snapshot would sit off the number beside the row. Older records
         // carry neither key and plot with both at zero.
         return Plotted(date: record.date,
-                       value: Engine.progress(p, variation: position.variation,
-                                              sets: position.sets, dose: position.dose,
-                                              sub: position.sub ?? 0,
-                                              cut: position.cut ?? 0),
+                       value: Engine.progress(p, Position(variation: position.variation,
+                                                          sets: position.sets, dose: position.dose,
+                                                          sub: position.sub ?? 0,
+                                                          cut: position.cut ?? 0)),
                        result: record.result,
                        ownNumber: record.actuals?[p] != nil,
                        ownSkips: record.setsSkipped?[p] != nil)
