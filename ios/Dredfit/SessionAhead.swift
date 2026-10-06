@@ -84,19 +84,15 @@ nonisolated enum SessionAhead {
     /// announces, and the live header calls the form that takes the facts.
     static func minutes(_ exercises: [SessionExercise], exIndex: Int,
                         setsBehind: Int, ends: Int) -> Int {
-        minutes(exercises, exIndex: exIndex, setsBehind: setsBehind, ends: ends,
-                facts: [:], declared: nil)
+        minutes(of: remaining(exercises, exIndex: exIndex, setsBehind: setsBehind), ends: ends)
     }
 
-    /// …and the same arithmetic over the list the person is actually walking.
-    /// The engine still does the counting — only the numbers going into it
-    /// change, so the header and the line on Today cannot drift apart.
-    static func minutes(_ exercises: [SessionExercise], exIndex: Int,
-                        setsBehind: Int, ends: Int,
-                        facts: SetFacts.PerSet, declared: Int?) -> Int {
-        let ahead = remaining(exercises, exIndex: exIndex, setsBehind: setsBehind,
-                              facts: facts, declared: declared)
-        return Int(Engine.estimatedMin(exercises: ahead, ends: max(0, ends)).rounded())
+    /// …and the same arithmetic over the list the person is actually walking
+    /// (`remaining` with the facts). The engine still does the counting — only
+    /// the numbers going into it change, so the header and the line on Today
+    /// cannot drift apart.
+    static func minutes(of ahead: [SessionExercise], ends: Int) -> Int {
+        Int(Engine.estimatedMin(exercises: ahead, ends: max(0, ends)).rounded())
     }
 
     /// The same exercise with only its last `sets` sets left. Rebuilt rather

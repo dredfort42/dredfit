@@ -92,19 +92,7 @@ extension WorkoutSession {
         case .unchanged:
             return
         case .second(let second):
-            // No 3-2-1 inside the switch pause: the ticks would bury the tone
-            // the pause opened with, so there is nothing to prime either. The
-            // transition is the opposite — the 3-2-1 IS its signal.
-            if self[run: block].stage != .switchPause {
-                if self[run: block].clock.signals(second, within: Self.countdownSignalSeconds) { playTick() }
-                // A stage that reaches its four by a tick runs eight to thirty
-                // seconds, opened by a done, a go or the silence of a skip:
-                // the engine is cold by its 3-2-1.
-                primeBeforeTheCount(showing: second)
-            }
-            // Animated so contentTransition(.numericText) rolls the digits —
-            // a bare mutation swaps them with no transaction.
-            animate(.countdown) { self[run: block].clock.show(second) }
+            show(second, of: block)
             return
         case .ended(let seconds):
             late = max(0, seconds)
@@ -130,16 +118,47 @@ extension WorkoutSession {
         let positions = positions(of: block)
         guard let next = block.advance(from: (self[run: block].index, self[run: block].stage),
                                        overshoot: overshoot, positions: positions) else {
-            switch block {
-            // Done, not go — a tap starts the first exercise (#186).
-            case .warmup: playDone()
-            // The whole workout is assembled — the finale, not another start
-            // (#84). Skipping the cool-down stays silent: a tap is a tap.
-            case .cooldown: playWorkoutDone()
-            }
-            finish(block)
+            endByItself(block)
             return
         }
+        signal(next, landingOn: positions[next.index])
+        enterStage(index: next.index, stage: next.stage, remaining: next.remaining, of: block)
+        // Re-stamped so a long cool-down keeps the session resumable — it
+        // restores onto the rating, never into a stretch. The warm-up writes
+        // no snapshot of its own (see +BlockPause).
+        if block == .cooldown, next.entered == .getReady { persistProgress() }
+    }
+
+    /// A second of a running stage, shown.
+    private func show(_ second: Int, of block: GuidedBlock) {
+        // No 3-2-1 inside the switch pause: the ticks would bury the tone
+        // the pause opened with, so there is nothing to prime either. The
+        // transition is the opposite — the 3-2-1 IS its signal.
+        if self[run: block].stage != .switchPause {
+            if self[run: block].clock.signals(second, within: Self.countdownSignalSeconds) { playTick() }
+            // A stage that reaches its four by a tick runs eight to thirty
+            // seconds, opened by a done, a go or the silence of a skip:
+            // the engine is cold by its 3-2-1.
+            primeBeforeTheCount(showing: second)
+        }
+        // Animated so contentTransition(.numericText) rolls the digits —
+        // a bare mutation swaps them with no transaction.
+        animate(.countdown) { self[run: block].clock.show(second) }
+    }
+
+    /// The block ran out on its own clock.
+    private func endByItself(_ block: GuidedBlock) {
+        switch block {
+        // Done, not go — a tap starts the first exercise (#186).
+        case .warmup: playDone()
+        // The whole workout is assembled — the finale, not another start
+        // (#84). Skipping the cool-down stays silent: a tap is a tap.
+        case .cooldown: playWorkoutDone()
+        }
+        finish(block)
+    }
+
+    private func signal(_ next: GuidedBlock.Advance, landingOn position: any GuidedPosition) {
         // A transition opening is the done of the position before it; the go
         // marks where a position starts, the end of the transition. `entered`
         // names the first boundary crossed and `stage` where the overshoot
@@ -153,7 +172,6 @@ extension WorkoutSession {
         // read: the tone was the only channel, and it is behind the same
         // switch as the haptic. The words are the ones the new screen already
         // shows — no string of their own to drift.
-        let position = positions[next.index]
         switch (next.entered, next.stage) {
         case (.getReady, .getReady):
             playDone()
@@ -173,10 +191,5 @@ extension WorkoutSession {
                 announce(position.name)
             }
         }
-        enterStage(index: next.index, stage: next.stage, remaining: next.remaining, of: block)
-        // Re-stamped so a long cool-down keeps the session resumable — it
-        // restores onto the rating, never into a stretch. The warm-up writes
-        // no snapshot of its own (see +BlockPause).
-        if block == .cooldown, next.entered == .getReady { persistProgress() }
     }
 }

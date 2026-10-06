@@ -64,10 +64,10 @@ extension WorkoutSession {
         // `index` still points at it: past the last set the flow is standing
         // in front of the next movement, and a time set for the plank says
         // nothing about the side plank (`resetHoldExercise`).
-        return SessionAhead.minutes(exercises, exIndex: index, setsBehind: behind,
-                                    ends: session.cooldownMin,
-                                    facts: actuals,
-                                    declared: index == exIndex ? holdDeclared : nil)
+        let ahead = SessionAhead.remaining(exercises, exIndex: index, setsBehind: behind,
+                                           facts: actuals,
+                                           declared: index == exIndex ? holdDeclared : nil)
+        return SessionAhead.minutes(of: ahead, ends: session.cooldownMin)
     }
 
     /// The technique sheet of a guided block is open. Freezes the running

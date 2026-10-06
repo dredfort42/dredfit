@@ -26,6 +26,23 @@ extension AppStoreTests {
         XCTAssertEqual(reloaded.settings.reminderMinute, 30)
     }
 
+    /// The technique hint is spent once and stays spent: the flag survives a
+    /// reload, and a second open writes nothing, because the sheet is opened
+    /// many times over the life of the app.
+    func testOpeningTheTechniqueSheetSpendsTheHintOnce() throws {
+        let store = makeStore()
+        XCTAssertTrue(store.showsTechniqueHint)
+
+        store.markTechniqueOpened()
+        XCTAssertFalse(store.showsTechniqueHint)
+        XCTAssertFalse(makeStore().showsTechniqueHint, "the spent hint survives a reload")
+
+        try FileManager.default.removeItem(at: tempURL)
+        store.markTechniqueOpened()
+        XCTAssertFalse(FileManager.default.fileExists(atPath: tempURL.path),
+                       "a second open must not write the state file again")
+    }
+
     func testRestDaysFollowSettings() {
         let store = makeStore()
         XCTAssertFalse(store.isRestDay(date(2026, 7, 16)), "Thursday is not rest by default")

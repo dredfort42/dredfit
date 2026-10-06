@@ -266,15 +266,14 @@ public enum Engine {
     /// All five coordinates: a snapshot replotted without `sub` and `cut` would
     /// sit off the number beside it by its sub-steps less its cut. A record
     /// that carries neither passes zeros, which is all the shorter form below
-    /// does.
-    public static func progress(_ p: Pattern, variation: Int, sets: Int, dose: Int,
-                                sub: Int, cut: Int) -> Int {
-        posOrd(p, fit(p, Position(variation: variation, sets: sets, dose: dose,
-                                  sub: sub, cut: cut)))
+    /// does. The coordinates arrive as one `Position` so the call stays within
+    /// the parameter-count limit.
+    public static func progress(_ p: Pattern, _ position: Position) -> Int {
+        posOrd(p, fit(p, position))
     }
 
     public static func progress(_ p: Pattern, variation: Int, sets: Int, dose: Int) -> Int {
-        progress(p, variation: variation, sets: sets, dose: dose, sub: 0, cut: 0)
+        progress(p, Position(variation: variation, sets: sets, dose: dose, sub: 0, cut: 0))
     }
 
     /// The sum of those ordinals — the total progress across all patterns.

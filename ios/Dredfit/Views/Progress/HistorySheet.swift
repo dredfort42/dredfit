@@ -39,7 +39,7 @@ struct HistorySheet: View {
                     .foregroundStyle(Theme.ink2)
                     .fixedSize(horizontal: false, vertical: true)
                 if let minutes = clockMinutes {
-                    Text("Took \(minutes) min, pauses included")
+                    Text("Took \(minutes) min in the app, pauses included")
                         .dredfitFont(13.5)
                         .monospacedDigit()
                         .foregroundStyle(Theme.ink2)

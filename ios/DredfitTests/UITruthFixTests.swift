@@ -244,9 +244,9 @@ final class UITruthFixTests: XCTestCase {
     // MARK: - The snapshot carries the sparse coordinates into the chart
 
     func testProgressOverloadReadsSubAndCut() {
-        XCTAssertEqual(Engine.progress(.squat, variation: 1, sets: 3, dose: 8, sub: 2, cut: 0),
+        XCTAssertEqual(Engine.progress(.squat, Position(variation: 1, sets: 3, dose: 8, sub: 2, cut: 0)),
                        Engine.progress(.squat, variation: 1, sets: 3, dose: 8) + 2)
-        XCTAssertEqual(Engine.progress(.squat, variation: 1, sets: 3, dose: 8, sub: 0, cut: 1),
+        XCTAssertEqual(Engine.progress(.squat, Position(variation: 1, sets: 3, dose: 8, sub: 0, cut: 1)),
                        Engine.progress(.squat, variation: 1, sets: 3, dose: 8) - 1)
     }
 

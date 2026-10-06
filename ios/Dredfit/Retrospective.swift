@@ -59,9 +59,9 @@ struct Retrospective: Equatable {
     /// celebrate a movement that has gone down. A record without either key
     /// measures it as 0.
     private static func progress(_ pattern: Pattern, _ position: RecordedPosition) -> Int {
-        Engine.progress(pattern, variation: position.variation,
-                        sets: position.sets, dose: position.dose,
-                        sub: position.sub ?? 0, cut: position.cut ?? 0)
+        Engine.progress(pattern, Position(variation: position.variation,
+                                          sets: position.sets, dose: position.dose,
+                                          sub: position.sub ?? 0, cut: position.cut ?? 0))
     }
 
     /// Movement, sets and dose exactly as the plan stated them.

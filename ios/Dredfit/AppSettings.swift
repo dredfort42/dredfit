@@ -267,10 +267,10 @@ struct RatingUndo: Codable, Equatable {
 // MARK: - The switches that touch nothing but the settings
 
 /// Here rather than in AppStore.swift for the same reason `AppStore+Backup`,
-/// `+Health` and `+Reminders` are where they are: that file sits against the
-/// linter's 1200-line ceiling, which is a CI error rather than a style
-/// opinion. Every one of these writes ONE field through `update` — each
-/// decision that also moves the engine stays in AppStore.swift proper.
+/// `+Health`, `+Reminders` and `+SettingsWrites` are where they are: that file
+/// is kept under the linter's 600-line warning. Every one of these writes ONE
+/// field through `update` — each decision that also moves the engine stays in
+/// AppStore.swift proper.
 extension AppStore {
 
     /// Writes the choice and nothing else. The audio category follows from

@@ -132,15 +132,19 @@ jobs = [
     (f"{RAW}/probe_fr.png",      ["Rien ne se débloque", "tout seul"], "Une série de la variante suivante décide, pas le calendrier.", f"{OUT}/fr/s4.png"),
     (f"{RAW}/probe_it.png",      ["Niente si sblocca", "da solo"], "Decide una serie del movimento nuovo, non il calendario.", f"{OUT}/it/s4.png"),
     # --- 5. technique_ — new in 2.1.0. The sheet FROM THE PLAN: `planned:
-    #        true` lives in one place in the project (TodayView.swift:101) and
+    #        true` lives in one place in the project (TodayView.swift:98) and
     #        is what draws the step below, so no other door composes this.
-    (f"{RAW}/technique_en.png",   ["Always a version", "you can do"], "Technique for every movement — and the easier version.", f"{OUT}/en/s5.png"),
-    (f"{RAW}/technique_ru.png",   ["Всегда есть", "вариация полегче"], "У каждого движения — техника и вариация полегче.", f"{OUT}/ru/s5.png"),
-    (f"{RAW}/technique_es.png",   ["Siempre hay una versión", "que puedes hacer"], "Técnica para cada movimiento — y la variación más fácil.", f"{OUT}/es/s5.png"),
-    (f"{RAW}/technique_pt-br.png", ["Sempre existe uma", "variação possível"], "Técnica para cada movimento — e a variação mais fácil.", f"{OUT}/pt-br/s5.png"),
-    (f"{RAW}/technique_de.png",   ["Immer eine", "leichtere Variante"], "Technik zu jeder Bewegung – und die leichtere Variante.", f"{OUT}/de/s5.png"),
-    (f"{RAW}/technique_fr.png",   ["Toujours une", "variante plus facile"], "La technique de chaque mouvement — et la variante plus facile.", f"{OUT}/fr/s5.png"),
-    (f"{RAW}/technique_it.png",   ["Sempre c’è una", "variante che puoi fare"], "Tecnica per ogni movimento — e la variante più facile.", f"{OUT}/it/s5.png"),
+    #        2.5.0: "Always a version you can do" was false — variation 1 has
+    #        nothing below it (`Handles.swift:27`), and a clean start is
+    #        variation 1 everywhere, so the caption promises the step only
+    #        where one exists (the #238 fix of `plan.techniqueHint`).
+    (f"{RAW}/technique_en.png",   ["Technique for", "every movement"], "And an easier variation, whenever there is one below.", f"{OUT}/en/s5.png"),
+    (f"{RAW}/technique_ru.png",   ["Техника", "каждого движения"], "И вариация полегче — если ниже она есть.", f"{OUT}/ru/s5.png"),
+    (f"{RAW}/technique_es.png",   ["Técnica para", "cada movimiento"], "Y una variación más fácil, si hay una más abajo.", f"{OUT}/es/s5.png"),
+    (f"{RAW}/technique_pt-br.png", ["Técnica de cada", "movimento"], "E uma variação mais fácil, sempre que houver uma abaixo.", f"{OUT}/pt-br/s5.png"),
+    (f"{RAW}/technique_de.png",   ["Technik zu", "jeder Bewegung"], "Und eine leichtere Variante, wenn darunter eine liegt.", f"{OUT}/de/s5.png"),
+    (f"{RAW}/technique_fr.png",   ["La technique de", "chaque mouvement"], "Et une variante plus facile, s’il y en a une en dessous.", f"{OUT}/fr/s5.png"),
+    (f"{RAW}/technique_it.png",   ["Tecnica per", "ogni movimento"], "E una variante più facile, quando ce n’è una sotto.", f"{OUT}/it/s5.png"),
     # --- 6. summary_ — new in 2.4.2, replaces `set_` (see the slot history
     #        below). The summary of a finished hold (§41.13): every set as the
     #        clock counted it, the plan beside each, and the "Next time" block
@@ -249,7 +253,7 @@ jobs = [
 # that rung "Incline push-up", `unit: .reps` — a reps screen, so "Did fewer
 # reps?" was true of it; (3) the shipped 2.0.0 raw showed exactly that screen,
 # a big 6 over "reps" with the `− 6 + OK` strip open. `WentDifferentlyButton`
-# is on every reps set to this day (`WorkoutFlowView+Work.swift:245`). It lost
+# is on every reps set to this day (`WorkoutFlowView+Work.swift:320`). It lost
 # its slot ON VALUE: the control is already legible as a button on slots 6 and
 # 7, and the promise behind it ("it bends to you") is what slot 2 sells with a
 # whole screen. A future wave that wants it back needs no repair — it needs a

@@ -49,7 +49,7 @@ struct HealthSection: SettingsGroup {
             Button(String(localized: "Save")) { commitBodyMass() }
             Button(String(localized: "Cancel"), role: .cancel) { }
         } message: {
-            Text("Used only to estimate the calories of each workout. It stays on this device.")
+            Text("Used only to estimate the calories of each workout. Kept on this device and in the backups you export.")
         }
     }
 
