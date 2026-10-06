@@ -176,7 +176,7 @@ def place_phone(canvas, raw_path, x, y, height):
     w = round(dev.width * height / dev.height)
     small = dev.resize((w, height), Image.LANCZOS)
     canvas.paste(small, (x, y), small)
-    return w
+    return (x, y, x + w, y + height)
 
 
 def phone_width(height):
@@ -206,7 +206,13 @@ class Clipped(Exception):
 # fails `--check`: it would otherwise silently stop applying.
 BREAKS = {
     # header: the store subtitle
-    "План подстраивается под тебя": ["План подстраивается", "под тебя"],
+    "Home training that adapts": ["Home training", "that adapts"],
+    "План подстраивается под тебя": ["План", "подстраивается", "под тебя"],
+    "El plan se adapta a ti": ["El plan", "se adapta a ti"],
+    "O plano se adapta a você": ["O plano", "se adapta", "a você"],
+    "Der Plan passt sich dir an": ["Der Plan", "passt sich", "dir an"],
+    "Le plan s’adapte à toi": ["Le plan", "s’adapte à toi"],
+    "Il piano si adatta a te": ["Il piano", "si adatta a te"],
     # search: slot 2 subtitle
     "One tap after the workout — the next one adapts.":
         ["One tap after the workout —", "the next one adapts."],
@@ -223,6 +229,11 @@ BREAKS = {
     "Un tocco dopo l’allenamento — il prossimo si adatta.":
         ["Un tocco dopo l’allenamento —", "il prossimo si adatta."],
 }
+
+# Breaks the owner signed off although they break a rule above — the way
+# compose.py's own `headline_lines` are trusted as written. «План» stands
+# alone because the header column is fixed (owner, 06.10.2026).
+REVIEWED_BREAKS = {"План подстраивается под тебя"}
 
 ARTICLES = {
     "en": {"a", "an", "the"},
@@ -263,7 +274,7 @@ def lines_for(text, font, width, loc):
     for line in lines:
         if d.textlength(line, font=font) > width:
             raise Clipped(f"{line!r} wider than {width}px")
-        why = bad_break(line, loc)
+        why = None if text in REVIEWED_BREAKS else bad_break(line, loc)
         if why:
             raise Clipped(f"{line!r}: {why}")
     return lines
@@ -286,12 +297,16 @@ def text_block(blocks, width, loc):
 
 
 def draw_rows(canvas, rows, x, top, width):
+    """Draws the rows; returns the ink box of each, for the zone check."""
     d = ImageDraw.Draw(canvas)
+    inks = []
     for line, font, colour, dy in rows:
         d.text((x, top + dy), line, font=font, fill=colour)
         ink = d.textbbox((x, top + dy), line, font=font)
         if ink[0] < x - 1 or ink[2] > x + width + 1 or ink[1] < 0 or ink[3] > canvas.height:
             raise Clipped(f"{line!r} ink {ink} outside column {x}..{x + width}")
+        inks.append((repr(line), ink))
+    return inks
 
 
 # --- the two layouts the owner chose -------------------------------------
@@ -304,21 +319,89 @@ HEADER = (3840, 1646)
 SEARCH = (3840, 2560)
 
 
+# Where the header is really seen. Measured by the owner in App Store
+# Connect's Device Preview (iPhone, Product Page, 06.10.2026), in asset px:
+# the iPhone shows only x 330…3530 of the 3840, and draws a back button and a
+# share button OVER the image. The 2.5.0 draft lost the "D" of the wordmark
+# and the top of the third phone to exactly these. SAFE is that crop with a
+# margin; the button circles are widened to whole rectangles. The page also
+# stretches the image's top edge, blurred, behind the status bar — so the top
+# edge is left as plain background.
+HEADER_SAFE = (520, 0, 3320, 1646)
+HEADER_BUTTONS = [(0, 0, 900, 470), (2900, 0, 3840, 470)]
+# At the ~0.2x the iPhone shows it, a 110 px cap height is ~22 px on screen.
+HEADER_MIN_CAP = 110
+HEADER_WORDMARK = head(300)
+HEADER_SUB_SIZE = 154
+# One phone size and position in every locale (owner, 06.10.2026): en's.
+HEADER_PHONE_H = 1116
+# The one exception, with its reason (owner, 06.10.2026): ru's subtitle
+# breaks «План / подстраивается / под тебя», and «подстраивается» is 1177 px
+# at the 154 px subtitle — wider than the 1004 px column en's phones leave.
+# 994 is the tallest phone that leaves room for it. Bottom edge and step stay
+# en's, so only the top of the cascade moves.
+HEADER_PHONE_H_BY_LOCALE = {"ru": 994}
+
+
+def check_zones(boxes, safe, buttons):
+    """boxes: (what, (x0, y0, x1, y1)). Raises on anything outside `safe` or
+    overlapping a button rectangle."""
+    for what, (x0, y0, x1, y1) in boxes:
+        if x0 < safe[0] or y0 < safe[1] or x1 > safe[2] or y1 > safe[3]:
+            raise Clipped(f"{what} {(x0, y0, x1, y1)} leaves the safe zone {safe}")
+        for bx0, by0, bx1, by1 in buttons:
+            if x0 < bx1 and x1 > bx0 and y0 < by1 and y1 > by0:
+                raise Clipped(f"{what} {(x0, y0, x1, y1)} enters a button zone "
+                              f"{(bx0, by0, bx1, by1)}")
+
+
 def header(loc, raw):
     """Brand line + a workout in three screens: the plan, the hands-free
-    hold, the one-tap rating (slots 1, 3, 2)."""
+    hold, the one-tap rating (slots 1, 3, 2), stepping down left to right in
+    the order a workout meets them. The step also keeps the third phone below
+    the share button while the first two use the height between the buttons.
+
+    Phones are the same in every locale but those in HEADER_PHONE_H_BY_LOCALE
+    (same bottom edge and step); the text column is the room left of them. A subtitle that does not fit breaks by sense (BREAKS), then
+    shrinks — never below HEADER_MIN_CAP, and never by shrinking the phones."""
     w, h = HEADER
+    sx0, _sy0, sx1, _sy1 = HEADER_SAFE
     cv = background(w, h)
-    ph = 1360
-    pw, gap = phone_width(ph), 90
-    px = w - 200 - (3 * pw + 2 * gap)
-    for i, slot in enumerate(["today", "handsfree", "rating"]):
-        place_phone(cv, raw(slot), px + i * (pw + gap), (h - ph) // 2, ph)
     _name, subtitle = STORE[loc]
-    col_x, col_w = 220, px - 220 - 140
-    rows, th = text_block([("Dredfit", head(230), C.HEAD_C, 40),
-                           (subtitle, sub(96), C.SUB_C, 0)], col_w, loc)
-    draw_rows(cv, rows, col_x, (h - th) // 2, col_w)
+    gap_text, gap = 120, 40
+    step = round(HEADER_PHONE_H * 0.13)
+    below = HEADER_BUTTONS[1][3]           # the third phone starts under the button
+    bottom = max(below - 2 * step, (h - (HEADER_PHONE_H + 2 * step)) // 2) \
+        + 2 * step + HEADER_PHONE_H        # the third phone's bottom edge, en's
+    ph = HEADER_PHONE_H_BY_LOCALE.get(loc, HEADER_PHONE_H)
+    if ph > HEADER_PHONE_H:
+        raise Clipped(f"phone override {ph} is taller than the default {HEADER_PHONE_H}")
+    pw = phone_width(ph)
+    top = bottom - 2 * step - ph
+    px = sx1 - (3 * pw + 2 * gap)
+    col_w = px - gap_text - sx0
+    last = None
+    for size in range(HEADER_SUB_SIZE, 0, -1):
+        font = sub(size)
+        cap = font.getbbox("H")
+        if cap[3] - cap[1] < HEADER_MIN_CAP:
+            raise Clipped(f"{last} — even at the {HEADER_MIN_CAP} px cap floor")
+        try:
+            lines_for(subtitle, font, col_w, loc)
+            break
+        except Clipped as e:
+            last = e
+    boxes = []
+    for i, slot in enumerate(["today", "handsfree", "rating"]):
+        boxes.append((f"phone {slot}",
+                      place_phone(cv, raw(slot), px + i * (pw + gap), top + i * step, ph)))
+    rows, th = text_block([("Dredfit", HEADER_WORDMARK, C.HEAD_C, 50),
+                           (subtitle, font, C.SUB_C, 0)], col_w, loc)
+    # centred on the phones, but a three-line subtitle must not lift the
+    # wordmark into the back button's zone
+    text_top = max(top + (ph + 2 * step - th) // 2, below + 20)
+    boxes += draw_rows(cv, rows, sx0, text_top, col_w)
+    check_zones(boxes, HEADER_SAFE, HEADER_BUTTONS)
     return cv
 
 
