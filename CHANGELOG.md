@@ -176,7 +176,11 @@ it did, under the reworded length line.
 - **Comments say why, and match the code** (#264, #273, #276, #277, #284,
   #285, #287, #288, #301, #303), and CI's lint now rejects section signs,
   review dates and R-ids in Swift comments.
-- 743 → 1 069 automated tests: 78 → 118 core, 585 → 871 app units, 80 UI.
+- **SwiftLint reports no warnings** (11 before): long files are split, two
+  six-argument signatures take a value instead, and the store's settings-only
+  writes go through the same `update` every other extension uses. Behaviour
+  is unchanged; one new test pins the one-time technique hint.
+- 743 → 1 070 automated tests: 78 → 118 core, 585 → 872 app units, 80 UI.
 
 ## 2.4.4
 
