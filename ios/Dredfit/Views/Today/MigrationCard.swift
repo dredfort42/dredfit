@@ -1,13 +1,11 @@
 //
-//  Shown once on Today after an upgrade from a build before v3 (§41.7).
+//  Shown on Today after an upgrade from a build before v3, until dismissed.
 //
-//  The migration is positional (§41.7) — movements, doses, the bar and the
-//  counter come across — but not to the digit: doses snap down to the new
-//  grids, ten hold cells of 480 rise to the 15 s floor, and a band above a
-//  non-top variation comes off. So the card names the step moves instead of
-//  promising "same numbers" (UI-truth audit, 27.08.2026). It
-//  exists because the only line in the app that ever explained the new shape
-//  shows on an EMPTY journal, and an upgrading trainee's journal is full.
+//  The migration is positional — movements, doses, the bar and the counter
+//  come across — but not to the digit: doses snap down to the new grids,
+//  holds below the 15 s floor rise to it, and a band above a non-top
+//  variation comes off. So the card names the step moves instead of
+//  promising "same numbers".
 //
 
 import SwiftUI

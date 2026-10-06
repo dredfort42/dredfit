@@ -1,10 +1,9 @@
 //
-//  Everything §40.7 lists under "not touched": the rotation and the slots, the
-//  bar gate, the counter and the double-feedback guard, the skip, the breaks,
-//  the sanitizer — plus the double-feedback invariant И6.
+//  The rotation and the slots, the bar gate, growth and parking, the skip,
+//  determinism, the counter and the double-feedback guard, the breaks, the
+//  handles, the sanitizer, and what the plan says.
 //
-//  И4 ("no path of descent makes the plan heavier") used to live here as a
-//  sweep that ran over one shape of position only. It now lives in
+//  "No path of descent makes the plan heavier" is swept in
 //  `DescentSweepTests`, over the whole domain and all four paths down.
 //
 
@@ -139,7 +138,7 @@ final class EngineTests: XCTestCase {
         state.doses[.squat] = 12
         state.shown[.squat] = [1: 12]
         for round in 1...3 {
-            // The squat only stands in the odd sessions of the rotation, and a
+            // The squat does not stand in every session of the rotation, and a
             // streak is counted in APPEARANCES — so put it back in every time
             // rather than letting the rotation silently skip a round.
             state.counter = 0
@@ -159,7 +158,7 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(state.doses[.squat], 6)
     }
 
-    // MARK: - The skip (v2.1.1)
+    // MARK: - The skip
 
     func testSkippedPatternKeepsItsPositionAndStreak() {
         var state = EngineState.initial
@@ -212,7 +211,7 @@ final class EngineTests: XCTestCase {
         XCTAssertNil(after.shown[.calf])
     }
 
-    // MARK: - Determinism and the double-feedback guard (И6)
+    // MARK: - Determinism and the double-feedback guard
 
     func testDeterminism() {
         var a = EngineState.initial
@@ -240,8 +239,8 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(twice, once)
     }
 
-    /// И6 for the composed entry point too: the skipped sets and the raise
-    /// must not land a second time on a replayed session.
+    /// The guard holds for the composed entry point too: the skipped sets and
+    /// the raise must not land a second time on a replayed session.
     func testReplayedFeedbackWithCutsAndRaisesIsANoOp() {
         let state = EngineState.initial
         let session = Engine.generateSession(state)
@@ -269,8 +268,8 @@ final class EngineTests: XCTestCase {
         }
     }
 
-    /// §14.2, and now BY CONSTRUCTION: a decay plus a weakened comeback is the
-    /// plain comeback. Walking one step and then drop−1 steps is walking drop
+    /// BY CONSTRUCTION, a decay plus a weakened comeback is the plain
+    /// comeback. Walking one step and then drop−1 steps is walking drop
     /// steps, because every mechanism walks the same rungs.
     func testDecayPlusWeakenedComebackEqualsPlainComeback() {
         var state = EngineState.initial
@@ -301,18 +300,16 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(after.rampWindow, EngineConfig.rampWindowSessions)
     }
 
-    // MARK: - Handles (§37.4 rewritten by §40.6)
+    // MARK: - Handles
 
-    /// "Give me something easier" lands in the JOURNAL of the variation below,
-    /// not on a floor — there are no tier floors in v3.
+    /// "Give me something easier" lands under the JOURNAL of the variation
+    /// below, not on a floor — there are no tier floors.
     ///
-    /// RE-MARKED §41.1 (v3.1, 26.08.2026), class: change of semantics. The old
-    /// expectation was `doses == 11` — the journal's CEILING. That is exactly
-    /// what handed a trainee the largest volume they had ever done right after
-    /// they asked for something easier. The landing now walks the journal DOWN
-    /// until the work stops growing, so the assertion becomes a bound, plus a
-    /// direct check that a button labelled "easier" is in fact easier — which
-    /// nothing asserted before.
+    /// The journal is a CEILING, not the landing: landing on it would hand a
+    /// trainee the largest volume they had ever done there right after they
+    /// asked for something easier. The landing walks the journal DOWN until
+    /// the work stops growing, so the assertion is a bound, plus a direct
+    /// check that a button labelled "easier" is in fact easier.
     func testEasierVariationLandsNoHeavier() {
         var state = EngineState.initial
         state.vars[.squat] = 3
@@ -381,11 +378,11 @@ final class EngineTests: XCTestCase {
 
     /// Reading the library is TOTAL — the rule `ExerciseEntry.variation` is
     /// written for: "a plan built from a dirty state has to stay a valid input
-    /// to `applyFeedback` (§17.4), and the sanitizer is not the only door into
-    /// this type". Nothing in the suite ever asked the catalog for a variation
+    /// to `applyFeedback`, and the sanitizer is not the only door into this
+    /// type". Nothing else in this package's tests asks the catalog for a variation
     /// off the end of a ladder, so a `variations[v - 1]` written in place of
-    /// the clamp would have shipped green and trapped on the first dirty state
-    /// that reached a plan.
+    /// the clamp would pass every other test here and trap on the first dirty
+    /// state that reached a plan.
     func test_libraryRead_withAVariationOffTheLadder_clampsInsteadOfTrapping() {
         for p in Pattern.allCases {
             let entry = ExerciseLibrary.entry(for: p)

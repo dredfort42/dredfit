@@ -1,9 +1,9 @@
 //
-//  Settings persistence and the export/import backup round trip, moved out
-//  of AppStoreTests.swift to keep it under the linter's file and type-body
-//  ceilings. Grouped together because both are the same claim about the same
-//  data: the persisted settings survive a reload, and survive a full
-//  export/import intact too. The code moved unchanged.
+//  Settings persistence and the export/import backup round trip, in their
+//  own file to keep AppStoreTests.swift under the linter's file and
+//  type-body ceilings. Grouped together because both are the same claim about
+//  the same data: the persisted settings survive a reload, and survive a full
+//  export/import intact too.
 //
 
 import XCTest
@@ -14,20 +14,37 @@ import DredfitCore
 extension AppStoreTests {
 
     func testSettingsPersistAcrossReload() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.toggleRestDay(3)          // Tuesday joins the Mon+Wed+Fri default
         store.setSounds(false)
         store.setReminderTime(hour: 7, minute: 30)
 
-        let reloaded = AppStore(storageURL: tempURL)
+        let reloaded = makeStore()
         XCTAssertEqual(reloaded.settings.restWeekdays, [2, 3, 4, 6])
         XCTAssertFalse(reloaded.settings.soundsEnabled)
         XCTAssertEqual(reloaded.settings.reminderHour, 7)
         XCTAssertEqual(reloaded.settings.reminderMinute, 30)
     }
 
+    /// The technique hint is spent once and stays spent: the flag survives a
+    /// reload, and a second open writes nothing, because the sheet is opened
+    /// many times over the life of the app.
+    func testOpeningTheTechniqueSheetSpendsTheHintOnce() throws {
+        let store = makeStore()
+        XCTAssertTrue(store.showsTechniqueHint)
+
+        store.markTechniqueOpened()
+        XCTAssertFalse(store.showsTechniqueHint)
+        XCTAssertFalse(makeStore().showsTechniqueHint, "the spent hint survives a reload")
+
+        try FileManager.default.removeItem(at: tempURL)
+        store.markTechniqueOpened()
+        XCTAssertFalse(FileManager.default.fileExists(atPath: tempURL.path),
+                       "a second open must not write the state file again")
+    }
+
     func testRestDaysFollowSettings() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertFalse(store.isRestDay(date(2026, 7, 16)), "Thursday is not rest by default")
         store.toggleRestDay(5)          // Thursday (Calendar weekday 5)
         XCTAssertTrue(store.isRestDay(date(2026, 7, 16)), "Thursday must follow the setting")
@@ -36,7 +53,7 @@ extension AppStoreTests {
     }
 
     func testAtLeastOneTrainingDayRemains() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         for weekday in 1...7 { store.toggleRestDay(weekday) }   // tries to rest all week
         XCTAssertLessThanOrEqual(store.settings.restWeekdays.count, 6,
                                  "the last training day must not become rest")
@@ -47,7 +64,7 @@ extension AppStoreTests {
     // MARK: - Backup
 
     func testExportImportRoundTrip() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.completeWorkout(session: store.nextSession, result: .more,
                               date: date(2026, 7, 16))
         store.toggleRestDay(2)
@@ -58,7 +75,7 @@ extension AppStoreTests {
         let otherURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-import-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: otherURL) }
-        let fresh = AppStore(storageURL: otherURL)
+        let fresh = makeStore(storageURL: otherURL)
         XCTAssertTrue(fresh.records.isEmpty)
         try fresh.importBackup(from: backup)
 
@@ -66,7 +83,21 @@ extension AppStoreTests {
         XCTAssertEqual(fresh.records, store.records)
         XCTAssertEqual(fresh.settings, store.settings)
         // and the import persisted
-        XCTAssertEqual(AppStore(storageURL: otherURL).records.count, 1)
+        XCTAssertEqual(makeStore(storageURL: otherURL).records.count, 1)
+    }
+
+    /// The file carries the weight: an export replaces the previous one
+    /// instead of leaving a copy behind in tmp.
+    func testExportKeepsOnlyTheLatestFile() throws {
+        let store = makeStore()
+        let first = try store.exportURL()
+        let second = try store.exportURL()
+        defer { try? FileManager.default.removeItem(at: second.deletingLastPathComponent()) }
+        let folder = second.deletingLastPathComponent()
+        XCTAssertEqual(first.deletingLastPathComponent(), folder)
+        let left = try FileManager.default.contentsOfDirectory(atPath: folder.path)
+        XCTAssertEqual(left, [second.lastPathComponent])
+        XCTAssertNoThrow(try Data(contentsOf: second))
     }
 
     func testImportRejectsForeignFile() throws {
@@ -74,16 +105,16 @@ extension AppStoreTests {
         let otherURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-badimport-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: otherURL) }
-        let store = AppStore(storageURL: otherURL)
+        let store = makeStore(storageURL: otherURL)
         XCTAssertThrowsError(try store.importBackup(from: tempURL),
                              "a foreign JSON must not import")
         XCTAssertTrue(store.records.isEmpty, "state must stay intact after a failed import")
     }
 
     /// One setting of an unexpected shape costs that setting, never the
-    /// journal beside it (it used to fail the whole file into quarantine).
+    /// journal beside it.
     func testAMalformedSettingDoesNotCostTheJournal() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.completeWorkout(session: store.nextSession, result: .plan)
         var json = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(contentsOf: tempURL))
             as? [String: Any])
@@ -93,19 +124,19 @@ extension AppStoreTests {
         json["settings"] = settings
         try JSONSerialization.data(withJSONObject: json).write(to: tempURL)
 
-        let relaunched = AppStore(storageURL: tempURL)
+        let relaunched = makeStore()
         XCTAssertEqual(relaunched.records.count, 1, "the journal must survive")
         XCTAssertTrue(relaunched.settings.soundsEnabled, "the bad field falls back to its default")
         XCTAssertEqual(relaunched.settings.reminderHour, 23, "held to the clock")
     }
 
     /// The lenient launch decode reads `{"records":[]}` as a clean start. As
-    /// an import it would have replaced a whole history with nothing.
+    /// an import it would replace a whole history with nothing.
     func testImportRefusesAFileItCannotReadInFull() throws {
         let otherURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-partial-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: otherURL) }
-        let store = AppStore(storageURL: otherURL)
+        let store = makeStore(storageURL: otherURL)
         store.completeWorkout(session: store.nextSession, result: .plan)
         let before = store.engineState
         for junk in [#"{"records":[]}"#, #"{"engineState":{"nonsense":true},"records":[]}"#] {

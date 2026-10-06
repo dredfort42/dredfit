@@ -6,16 +6,15 @@
 import Foundation
 import DredfitCore
 
-/// Where a pattern stood, in the terms v3 states a position in. Three numbers
-/// and no measure: the measure is derived from them when it is needed, and
-/// deriving it the other way round is impossible on purpose.
+/// Where a pattern stood, in the terms v3 states a position in. Its
+/// coordinates and no measure: the measure is derived from them when it is
+/// needed, and deriving it the other way round is impossible on purpose.
 struct RecordedPosition: Codable, Equatable {
     let variation: Int
     let sets: Int
     let dose: Int
-    /// The two sparse coordinates, recorded since the UI-truth audit
-    /// (27.08.2026): without them the per-pattern chart replotted a snapshot
-    /// up to two steps off the number beside it. Optional with a nil default,
+    /// The two sparse coordinates: without them the per-pattern chart would
+    /// replot a snapshot off the number beside it. Optional with a nil default,
     /// like every field added to a persisted type — a record written by an
     /// older build carries neither key, and a nil encodes to nothing, so a
     /// position that never saw a sub-step stays byte-identical on disk.
@@ -30,12 +29,10 @@ struct RecordedPosition: Codable, Equatable {
         self.cut = cut
     }
 
-    /// Clamped on the way in, for the reason `WorkoutRecord` states below and
-    /// was the one field here that did not honour: these five go straight into
-    /// `Engine.progress`, and `Dose.rung` SUBTRACTS the grid floor from the
-    /// dose before anything clamps it. A hand-edited `Int.min` trapped there
-    /// (SIGTRAP, confirmed) — the app died opening Progress rather than
-    /// drawing a silly number.
+    /// Clamped on the way in, for the reason `WorkoutRecord` states below:
+    /// these five go straight into `Engine.progress` — the per-pattern chart
+    /// and the milestone retrospective — and a hand-edited number must not
+    /// reach that arithmetic unbounded.
     ///
     /// `dose` keeps its sign: a descent legitimately reads BELOW a grid's
     /// floor and `Dose.rung` documents the negative term. Every real value
@@ -62,33 +59,43 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     let date: Date
     let result: FeedbackResult
     /// How far along their ladders every pattern stood after this session,
-    /// summed — what "total level" used to be, in the one scale v3 has
-    /// (§40.2). OPTIONAL: a record written before v3 carries a number on a
-    /// different scale entirely, and pretending otherwise would put a
-    /// meaningless delta on the week card.
+    /// summed, on the one scale v3 has. OPTIONAL: a record written before v3
+    /// carries its total under another key and on a different scale entirely,
+    /// and pretending otherwise would put a meaningless delta on the week card.
     var totalProgressAfter: Int?
     // Optional so older records still decode.
     var exercises: [SessionExercise]?
+    /// The push rows of `exercises` that showed fewer sets than the push's
+    /// own position stood on when the plan was built — the pull slot's cap,
+    /// or the repair that keeps a lifted cap's work until the push rises. A
+    /// probe's slot counts as a set: it borrows one, it does not take one.
+    ///
+    /// Stamped when the workout is recorded because the journal cannot
+    /// answer it afterwards: a card keeps the sets it showed, never the sets
+    /// the position stood on. Without it a set the pulls give back reaches
+    /// the push row as an unexplained rise. Optional with a nil default like
+    /// every field added to a persisted type; nil — no push held back, or a
+    /// record from before the stamp — claims nothing.
+    var heldBack: Set<Pattern>?
     /// The number the ENGINE was given for each adjusted pattern — the mean
-    /// of its sets (`SetFacts.override`). Kept under its old name and shape
-    /// so records written by any earlier build keep reading true.
+    /// of its sets (`SetFacts.override`), rounded: the journal keeps
+    /// integers. Kept under its old name and shape so records written by any
+    /// earlier build keep reading true.
     var actuals: [Pattern: Int]?
     /// The sets behind that mean, in order. The detail the history line
     /// shows when the sets did not all run the same.
     var setActuals: [Pattern: [Int]]?
-    /// What the PROBE set showed, per movement (§40.4) — and the fact that it
-    /// was performed at all: a probe that was skipped, or whose movement was,
-    /// leaves no entry (`WorkoutFlowView` clears it on both paths).
+    /// What the PROBE set showed, per movement — and the fact that it was
+    /// performed at all: a probe that was skipped, or whose movement was,
+    /// leaves no entry (`WorkoutSession` clears it on both paths).
     ///
     /// Its own key rather than a fold into `actuals`, for the reason the
     /// engine keeps the two apart: the probe is a DIFFERENT exercise, and one
-    /// number covering two variations is exactly what §40 forbids.
+    /// number covering two variations is exactly what the model forbids.
     ///
-    /// It was not written at all before this wave. The engine was handed the
-    /// number and the journal dropped it, so the one question nobody could
-    /// answer afterwards was how often a probe is actually passed — and the
-    /// history sheet, reading a record that carried the probe in its plan and
-    /// nothing about the outcome, said nothing about either.
+    /// Without it no record keeps the number: the history sheet can still
+    /// read the verdict off `positionsAfter`, but not what the probe set
+    /// showed.
     var probes: [Pattern: Int]?
     /// Sets skipped DURING the session, per movement — the count the engine
     /// turned into a cut. Written because it is part of what happened: a plan
@@ -98,24 +105,35 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// dominant price is still an open question, and this is the only place
     /// it can ever be answered from.
     var setsSkipped: [Pattern: Int]?
+    /// The ones among those the person skipped, by index, sorted
+    /// (`SetFacts.SkippedSets`): the fold — again on a changed rating
+    /// (`changeLastRating`) — and the history line leave out the ones with no
+    /// number of their own (`skippedWithNumberIndices`). Optional with a nil
+    /// default like every field added to a persisted type; a record written
+    /// without it is read the way it always was.
+    var skippedSetIndices: [Pattern: [Int]]?
+    /// The ones among those that carry a number the person entered for the
+    /// set before skipping it, by index, sorted (`SetFacts.leftOut`): the
+    /// fold and the history line count them. Optional with a nil default
+    /// like every field added to a persisted type.
+    var skippedWithNumberIndices: [Pattern: [Int]]?
     var skipped: Set<Pattern>?
-    /// Reported as painful mid-workout: to the engine a skip, to the journal a
-    /// different fact — and the reason the pattern is resting afterwards.
-    /// LEGACY, read-only. The pain report is gone, and nothing writes this any
-    /// more — but a journal on disk still carries it, and a record that loses
-    /// the fact is a record that lies about what happened. Kept so history
-    /// stays readable; never populated again.
+    /// Reported as painful mid-workout, by a build that had the pain report:
+    /// to the engine a skip, to the journal a different fact. LEGACY and
+    /// read-only: nothing writes it, but a journal on disk may still carry it,
+    /// and a record that loses the fact is a record that lies about what
+    /// happened. Kept so history stays readable.
     var discomfort: Set<Pattern>?
-    /// The position of every pattern after the session. A scalar can no longer
-    /// stand in for it: the measure of §40.2 has NO INVERSE by construction,
-    /// so "what was I doing then" has to be recorded as the movement and the
+    /// The position of every pattern after the session. A scalar cannot stand
+    /// in for it: the measure (`posOrd`) has NO INVERSE by construction, so
+    /// "what was I doing then" has to be recorded as the movement and the
     /// dose it actually was.
     var positionsAfter: [Pattern: RecordedPosition]?
     var durationSec: Int?
     /// Seconds the two guided blocks ACTUALLY ran. Both end on one tap of a
     /// footer button, so their planned lengths are an intention, not a fact —
-    /// and the calorie estimate was charging nine planned minutes to people
-    /// who may have declined both. Optional with a nil default like every
+    /// and the calorie estimate must not charge planned minutes to people who
+    /// may have declined both. Optional with a nil default like every
     /// field added to a persisted type: a record written by an older build
     /// carries neither key, and nil reads as "never measured", which is not
     /// the same as the zero a declined block writes.
@@ -126,31 +144,29 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// The movement left half-done, when the workout was cut short on it.
     ///
     /// To the engine it is a skip like any other and it is inside `skipped`;
-    /// this names WHICH one, so the history can say "not finished" where it
-    /// used to say "skipped" about a movement the athlete did start (owner,
-    /// 05.09.2026 — the difference is worth seeing). Optional with a nil
-    /// default like every field added to a persisted type.
+    /// this names WHICH one, so the history can say "not finished" rather
+    /// than "skipped" about a movement the athlete did start — the difference
+    /// is worth seeing. Optional with a nil default like every field added to
+    /// a persisted type.
     var interrupted: Pattern?
-    /// Steps the athlete ADDED for next time, per movement (§41.13) — the
-    /// count handed to the engine's raise after the rating landed. Written
-    /// so the plan that follows can say which part of it was the person's
-    /// own decision rather than the engine's: without it the retrospective
-    /// and tomorrow's plan would show a step nobody could account for.
-    /// Optional with a nil default like every field added to a persisted
-    /// type.
+    /// Steps the athlete ADDED for next time, per movement — the count handed
+    /// to the engine's raise after the rating landed. Written so the plan that
+    /// follows can say which part of it was the person's own decision rather
+    /// than the engine's: without it the retrospective and tomorrow's plan
+    /// would show a step nobody could account for. Optional with a nil
+    /// default like every field added to a persisted type.
     var raisedSteps: [Pattern: Int]?
     /// The share of `raisedSteps` that MOVED the position, per movement —
     /// the part of the plan after this record that may be called the
-    /// person's own. The engine parks a raise on the grid's ceiling
-    /// (§41.13): a fact above the plan or a "more" rating lands the base on
-    /// the top rung and the steps burn, and a note reading "+10 s — your
-    /// addition" about a rise the fact took inverts the sentence
-    /// `raisedSteps` exists for (review, 12.09.2026). Kept apart from it
-    /// because a changed rating replays the DECISION (`changeLastRating`)
-    /// and the share can differ under the new rating. Written whenever
-    /// `raisedSteps` is, empty when nothing landed; nil only on a record
-    /// from before the field, where `raisedShare` falls back to the
-    /// decision. Optional with a nil default like every field added to a
+    /// person's own. The engine parks a raise on the grid's ceiling: a fact
+    /// above the plan or a "more" rating lands the base on the top rung and
+    /// the steps burn, and a note reading "+10 s — your addition" about a
+    /// rise the fact took inverts the sentence `raisedSteps` exists for.
+    /// Kept apart from it because a changed rating replays the DECISION
+    /// (`changeLastRating`) and the share can differ under the new rating.
+    /// Written whenever `raisedSteps` is, empty when nothing landed; nil only
+    /// on a record from before the field, where `raisedShare` falls back to
+    /// the decision. Optional with a nil default like every field added to a
     /// persisted type.
     var raisedLanded: [Pattern: Int]?
 
@@ -159,6 +175,21 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// decision where it predates the share.
     func raisedShare(_ pattern: Pattern) -> Int {
         (raisedLanded ?? raisedSteps)?[pattern] ?? 0
+    }
+
+    /// Which sets were skipped, as the readers of the sets take it.
+    var skippedSets: SetFacts.SkippedSets {
+        SetFacts.sanitized(skippedSets: skippedSetIndices ?? [:])
+    }
+
+    /// Which of those keep the number entered for them.
+    var skippedWithNumber: SetFacts.SkippedSets {
+        SetFacts.sanitized(skippedSets: skippedWithNumberIndices ?? [:])
+    }
+
+    /// The skipped sets the fold and the history line leave out.
+    var leftOutSets: SetFacts.SkippedSets {
+        SetFacts.leftOut(skippedSets, keeping: skippedWithNumber)
     }
 
     /// The journal is an input too. The engine heals the state it is handed,
@@ -178,6 +209,7 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         totalProgressAfter = try c.decodeIfPresent(Int.self, forKey: .totalProgressAfter)
             .map { clamp($0, 0, EngineConfig.countMax) }
         exercises = try c.decodeIfPresent([SessionExercise].self, forKey: .exercises)
+        heldBack = try c.decodeIfPresent(Set<Pattern>.self, forKey: .heldBack)
         actuals = try c.decodeIfPresent([Pattern: Int].self, forKey: .actuals)?
             .mapValues { clamp($0, 0, EngineConfig.countMax) }
         // No exercise has more sets than the scale has bands, so a longer
@@ -189,6 +221,13 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
             .mapValues { clamp($0, 0, EngineConfig.countMax) }
         setsSkipped = try c.decodeIfPresent([Pattern: Int].self, forKey: .setsSkipped)?
             .mapValues { clamp($0, 0, EngineConfig.setsMax) }
+        // An index is not clamped, it is kept or dropped: clamped, it would
+        // name a different set.
+        skippedSetIndices = try c.decodeIfPresent([Pattern: [Int]].self, forKey: .skippedSetIndices)?
+            .mapValues { $0.filter { (0..<EngineConfig.setsMax).contains($0) } }
+        skippedWithNumberIndices = try c.decodeIfPresent([Pattern: [Int]].self,
+                                                         forKey: .skippedWithNumberIndices)?
+            .mapValues { $0.filter { (0..<EngineConfig.setsMax).contains($0) } }
         skipped = try c.decodeIfPresent(Set<Pattern>.self, forKey: .skipped)
         discomfort = try c.decodeIfPresent(Set<Pattern>.self, forKey: .discomfort)
         positionsAfter = try c.decodeIfPresent([Pattern: RecordedPosition].self,
@@ -213,6 +252,8 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
          exercises: [SessionExercise]? = nil, actuals: [Pattern: Int]? = nil,
          setActuals: [Pattern: [Int]]? = nil, probes: [Pattern: Int]? = nil,
          setsSkipped: [Pattern: Int]? = nil,
+         skippedSetIndices: [Pattern: [Int]]? = nil,
+         skippedWithNumberIndices: [Pattern: [Int]]? = nil,
          skipped: Set<Pattern>? = nil, discomfort: Set<Pattern>? = nil,
          positionsAfter: [Pattern: RecordedPosition]? = nil,
          durationSec: Int? = nil,
@@ -230,6 +271,8 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         self.setActuals = setActuals
         self.probes = probes
         self.setsSkipped = setsSkipped
+        self.skippedSetIndices = skippedSetIndices
+        self.skippedWithNumberIndices = skippedWithNumberIndices
         self.skipped = skipped
         self.discomfort = discomfort
         self.positionsAfter = positionsAfter
@@ -245,9 +288,8 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
 
 /// How long one guided block ran, resolved once at its ending.
 ///
-/// Pure, and here rather than inline in the flow, because the flow's own call
-/// sites sit inside a SwiftUI view that nothing automated drives — this is the
-/// part of the measurement that can be held to a test.
+/// Pure, and here rather than inline in the flow, so the measurement can be
+/// held to a test on its own.
 nonisolated enum BlockRun {
     /// No start means the block was DECLINED: zero, not unknown. The whole
     /// downstream model turns on that difference — unknown falls back to the
@@ -280,8 +322,16 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// Sets skipped so far, per movement. Optional like everything
     /// below it: a snapshot written before the skip existed still decodes.
     var setsSkipped: [Pattern: Int]?
-    /// What the PROBE set showed, per movement (§40.4). Its own field for the
-    /// same reason it is its own argument to the engine: it is a number about
+    /// The ones among those the person skipped, by index, sorted
+    /// (`WorkoutSession.skippedSetIndices`). Optional with a nil default, like
+    /// every field added to a persisted type.
+    var skippedSetIndices: [Pattern: [Int]]?
+    /// The ones among those that keep the number entered for them
+    /// (`WorkoutSession.skippedWithNumber`). Optional with a nil default, like
+    /// every field added to a persisted type.
+    var skippedWithNumberIndices: [Pattern: [Int]]?
+    /// What the PROBE set showed, per movement. Its own field for the same
+    /// reason it is its own argument to the engine: it is a number about
     /// a movement that is not in the plan yet, and folding it into the per-set
     /// facts would average two variations. Optional — a snapshot written
     /// before the probe existed decodes without it.
@@ -292,11 +342,8 @@ struct WorkoutSnapshot: Codable, Equatable {
     var actuals: [Pattern: Int] = [:]
     var skipped: Set<Pattern> = []
     /// Optional, like the fields below: a snapshot written by an older build
-    /// must still decode rather than take the whole file down with it. LEGACY,
-    /// read-only. The pain report is gone, and nothing writes this any more —
-    /// but a journal on disk still carries it, and a record that loses the
-    /// fact is a record that lies about what happened. Kept so history stays
-    /// readable; never populated again.
+    /// must still decode rather than take the whole file down with it. LEGACY
+    /// and read-only: the pain reports of an older build; nothing writes it.
     var discomfort: Set<Pattern>?
     var workoutStart: Date
     var savedAt: Date
@@ -316,41 +363,48 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// before doing it. Restored so that coming back after a process death
     /// does not quietly put the plan's number back on the clock.
     var holdDeclaredSec: Int?
-    /// Sets of the exercise in front of us whose number is an ESTIMATE — the
-    /// set ended under a thumb, so it carries a guessed reach allowance. An
-    /// array
+    /// Sets of the exercise in front of us that a thumb ended, so what they
+    /// recorded carries a guessed reach allowance, whatever a correction put
+    /// on the card since (`WorkoutSession.holdApproxSets`). An array
     /// because a `Set<Int>` is one on the wire anyway; read back as a set.
     var approxSets: [Int]?
+    /// Of those, the sets whose LAST side a thumb ended
+    /// (`WorkoutSession.holdTapEndedSets`), read back by `endedByTapSets`.
+    /// Optional with a nil default, like every field added to a persisted
+    /// type; without it no set reads as ended by a thumb, and a correction's
+    /// ceiling falls back to the estimate itself — never above what was held.
+    var tapEndedSets: [Int]?
     /// What the clock wrote for each set of the exercise in front of us, by
-    /// set index (`WorkoutFlowView.holdMeasured`). The summary's ceiling is
+    /// set index (`WorkoutSession.holdMeasured`). The summary's ceiling is
     /// read off it, so a kill on that screen must not turn a corrected
     /// number into "what the clock saw". Optional with a nil default, like
     /// every field added to a persisted type.
     var holdMeasuredSec: [Int: Int]?
     var interrupted: Pattern?
     /// The two blocks as measured so far, carried across a process death so a
-    /// declined warm-up is not silently restored as a performed one. A kill
-    /// DURING a block leaves its field nil — the block never reached its own
-    /// ending — and the record then falls back to the planned length. That is
-    /// the one case this does not rescue, and it is the old behaviour rather
-    /// than a new claim.
+    /// declined warm-up is not silently restored as a performed one. The
+    /// cool-down's offer carries zero: a restore from it lands on the rating,
+    /// where the block can no longer begin. A kill DURING a block leaves its
+    /// field nil — the block never reached its own ending — and the record
+    /// then falls back to the planned length. That is the one process death
+    /// this does not rescue.
     var warmupSec: Int?
     var cooldownSec: Int?
     /// Seconds the athlete spent AWAY across resumes, accumulated.
     ///
     /// `durationSec` is wall clock from `workoutStart`, and `workoutStart`
-    /// survives a resume — so a workout interrupted for two hours and picked
-    /// up again claimed two extra hours in Health, which is what a person
-    /// actually reads there (UX review 05.09.2026). The guided blocks already
-    /// cap their measured length at the planned one for the same reason:
-    /// idle time is not effort. Optional with a nil default, like every field
-    /// added to a persisted type.
+    /// survives a resume — so without this a workout interrupted for two
+    /// hours and picked up again would claim two extra hours in Health, which
+    /// is what a person actually reads there. The calorie estimate caps each
+    /// guided block at its planned length for the same reason: idle time is
+    /// not effort. Optional with a nil default, like every field added to a
+    /// persisted type.
     var awaySec: Int?
     /// Steps added "for next time" on the summaries of the movements already
-    /// behind (§41.13), carried to the rating. A kill between a summary and
-    /// the rating must not drop a decision the person has already made on
-    /// screen. Optional with a nil default, like every field added to a
-    /// persisted type.
+    /// behind, carried to the rating. A kill between a summary and the rating
+    /// must not drop a decision the person has already made on screen.
+    /// Optional with a nil default, like every field added to a persisted
+    /// type.
     var raisedSteps: [Pattern: Int]?
 
     /// What the flow restores into. A snapshot from before this shape kept
@@ -375,6 +429,16 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// has no decoder of its own and everything here comes back off disk.
     var skips: SetFacts.Skips {
         SetFacts.sanitized(skips: setsSkipped ?? [:])
+    }
+
+    /// Which sets were skipped, sanitized where it is read like the count.
+    var skippedSets: SetFacts.SkippedSets {
+        SetFacts.sanitized(skippedSets: skippedSetIndices ?? [:])
+    }
+
+    /// Which of those keep the number entered for them, read alike.
+    var skippedWithNumber: SetFacts.SkippedSets {
+        SetFacts.sanitized(skippedSets: skippedWithNumberIndices ?? [:])
     }
 
     /// The additions, sanitized where they are read like everything above:
@@ -406,12 +470,18 @@ struct WorkoutSnapshot: Codable, Equatable {
         Set((approxSets ?? []).filter { (0..<EngineConfig.setsMax).contains($0) })
     }
 
+    /// The sets a thumb ended, bounded like the marks.
+    var endedByTapSets: Set<Int> {
+        Set((tapEndedSets ?? []).filter { (0..<EngineConfig.setsMax).contains($0) })
+    }
+
     /// Whether anything happened worth keeping. A snapshot from the moment the
     /// warm-up ended has nothing to offer and nothing to settle.
     ///
     /// Named once because it answers two questions that must never disagree:
     /// whether to OFFER this workout back, and whether to RECORD it when the
-    /// occasion has passed. Two inline copies were one copy that could drift.
+    /// occasion has passed. Two inline copies would be one copy that could
+    /// drift.
     var hasProgress: Bool {
         atFeedback == true || atExerciseSummary == true || restEndDate != nil
             || exIndex > 0 || setIndex > 0
@@ -427,7 +497,7 @@ struct WorkoutSnapshot: Codable, Equatable {
                 // the split squat" and "2×15" are different plans with the
                 // same base dose and set count, and resuming a snapshot into
                 // the wrong one would put a probe on screen that nobody was
-                // offered (§40.4).
+                // offered.
                 if let probe = ex.probe { head += ":p\(probe.variation)-\(probe.load)" }
                 // The per-set doses belong in it as well. Without them 3×8
                 // and 9-8-8 share a fingerprint — same variation, same base

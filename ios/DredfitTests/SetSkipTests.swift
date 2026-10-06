@@ -1,9 +1,9 @@
 //
 //  The skip that happens DURING the workout — the app's half of the rule.
 //
-//  The engine's half is pinned in EngineV227Tests: the order is a contract,
-//  the floor is not a place to record a dose of 0, and one tap per movement is
-//  what makes a long session fit. What is left for this suite is everything
+//  The engine's half: the order is a contract, the floor is not a place to
+//  record a dose of 0, and one tap per movement is what makes a long session
+//  fit. What is left for this suite is everything
 //  between the tap and the engine — that the app hands the skip over through
 //  the one entry point that settles the order, that a movement it could not
 //  record travels as a skipped exercise instead, and that neither the journal
@@ -20,15 +20,15 @@ final class SetSkipTests: AppStoreTestCase {
     override var tempURLPrefix: String { "dredfit-skip" }
 
     /// Seeded through the state file, like the app's own load — in the v3
-    /// shape, because a v2 state no longer decodes at all (§40.8) and a seed
-    /// the store quietly replaced with a clean start would make the assertions
-    /// here true for the wrong reason.
+    /// shape, so it loads as written rather than through the v2 migration: a
+    /// seed the store quietly replaced would make the assertions here true for
+    /// the wrong reason.
     ///
     /// `variation` rungs up every ladder, one rung BELOW the dose ceiling —
-    /// a ceiling would offer a PROBE (§40.4), and a probe set is not a working
-    /// set a skip can take, so the plan under test would stop being the plan
-    /// §38.2 describes. `sets` opens a band, which exists only on the top
-    /// variation (§40.5).
+    /// a ceiling would offer a PROBE, and a probe set is not a working set a
+    /// skip can take, so the plan under test would stop being a plan of
+    /// working sets. `sets` opens a band, which exists only on the top
+    /// variation.
     private func store(variation: Int, sets: Int = EngineConfig.setsBase) throws -> AppStore {
         func at(_ p: Pattern) -> Int { min(variation, Library.count(p)) }
         func dose(_ p: Pattern) -> Int {
@@ -49,7 +49,7 @@ final class SetSkipTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        return AppStore(storageURL: tempURL)
+        return makeStore()
     }
 
     /// Rotation does not show every movement every session, so "the next
@@ -68,8 +68,8 @@ final class SetSkipTests: AppStoreTestCase {
 
     // MARK: - Rule 1: the order, from the app's side
 
-    /// The rule's two worked examples, walked through the STORE: a session
-    /// completed on plan with one set skipped comes back one set shorter.
+    /// The rule on two cases, walked through the STORE: a session completed
+    /// on plan with one set skipped comes back one set shorter.
     ///
     /// This is the app's half of rule 1 and it is a real guard, not a copy of
     /// the engine's. The store cannot express the wrong order — it hands the
@@ -80,13 +80,13 @@ final class SetSkipTests: AppStoreTestCase {
     /// so the first half cannot be read as passing by luck.
     func testASkippedSetReachesTheNextPlanThroughTheRating() throws {
         // The base band and a real band: a movement partway up its ladder,
-        // and one at the very top of it where §40.5 opens the set bands.
+        // and one at the very top of it, where the set bands open.
         for (variation, sets) in [(2, EngineConfig.setsBase),
                                   (Library.count(.squat), EngineConfig.setsMax)] {
             let store = try store(variation: variation, sets: sets)
             let shown = try XCTUnwrap(nextShown(store, .squat))
             XCTAssertEqual(shown.sets, sets,
-                           "v\(variation): the plan is not the one §38.2 describes")
+                           "v\(variation): the plan does not show the sets the seed wrote")
             XCTAssertNil(shown.probe, "v\(variation): a probe set is not a working set")
 
             _ = store.completeWorkout(session: store.nextSession, result: .plan,
@@ -116,8 +116,8 @@ final class SetSkipTests: AppStoreTestCase {
                                              result: .plan, overrides: [:], skipped: [],
                                              gapDays: nil)
             XCTAssertEqual(wrong.cutOf(.squat), 0,
-                           "v\(variation): the wrong order no longer loses the skip — §38.2 "
-                           + "rule 1 has stopped describing the engine")
+                           "v\(variation): the wrong order no longer loses the skip — rule 1 "
+                           + "has stopped describing the engine")
         }
     }
 
@@ -162,9 +162,67 @@ final class SetSkipTests: AppStoreTestCase {
                        "a single set performed is not a trained movement")
     }
 
+    /// A probing exercise never has more working sets than the shared floor,
+    /// so none of them can be skipped on its own and the work screen offers
+    /// "Skip exercise" in place of "Skip this set". That is what keeps the one
+    /// card a hold summary lets a person correct, the last working set, a set
+    /// the clock ran: the probe still ends on that summary, and a working set
+    /// skipped before it would stand on the card under a line saying what the
+    /// clock saw.
+    ///
+    /// The engine holds it by construction — a probe needs a variation below
+    /// the top, where the sets stay at the base band, the probe takes one of
+    /// them, and the pull slot's set count may only lower the push it caps —
+    /// so it is swept rather than taken on trust: every rung of every ladder
+    /// on its ceiling, every band asked for and one past the last, every cut,
+    /// a full turn of the rotation, both branches of the pull slot, and that
+    /// slot also on the top of its own ladder, in a band above any push that
+    /// can probe.
+    func testTheEngineNeverGivesAProbingExerciseThreeWorkingSets() {
+        // Every movement on the ceiling of `rung` and journalled there; the
+        // pull slot on the top of its own ladder instead when `pullOnTop`.
+        func onTheCeiling(rung: Int, sets: Int, cut: Int, pullOnTop: Bool) -> EngineState {
+            var state = EngineState.initial
+            for p in Pattern.allCases {
+                let v = pullOnTop && Pattern.pullSide.contains(p) ? Library.count(p) : min(rung, Library.count(p))
+                let ceiling = Dose.grid(Library.unit(p, v)).max
+                state.vars[p] = v
+                state.doses[p] = ceiling
+                state.sets[p] = sets
+                state.cut[p] = cut
+                state.shown[p] = [v: ceiling]
+            }
+            return state
+        }
+        let longestLadder = Pattern.allCases.map { Library.count($0) }.max() ?? 1
+        var probing: [SessionExercise] = []
+        for rung in 1...longestLadder {
+            for sets in 1...EngineConfig.setsMax + 1 {
+                for cut in 0...EngineConfig.setsMax - EngineConfig.setsFloor {
+                    for pullOnTop in [false, true] {
+                        var state = onTheCeiling(rung: rung, sets: sets, cut: cut, pullOnTop: pullOnTop)
+                        for counter in 0..<8 {   // eight sessions is one full turn of the rotation
+                            state.counter = counter
+                            for hasBar in [false, true] {
+                                state.hasBar = hasBar
+                                probing += Engine.generateSession(state).exercises.filter { $0.probe != nil }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        XCTAssertTrue(probing.contains { $0.unit == .hold },
+                      "the sweep met no probing hold, so it says nothing about the summary")
+        let widest = probing.max { $0.sets < $1.sets }
+        XCTAssertLessThanOrEqual(widest?.sets ?? 0, EngineConfig.setsFloor,
+                                 "\(widest?.pattern.rawValue ?? "?") v\(widest?.variation ?? 0) has "
+                                 + "\(widest?.sets ?? 0) working sets beside its probe: one can be skipped alone")
+    }
+
     /// What the app does instead, and the reason rule 2 exists: the movement
     /// travels as an ordinary skipped exercise, and NOT as a dose of 0. The
-    /// engine costs one of them nothing and the other a whole tier.
+    /// engine costs one of them nothing and the other a whole variation.
     func testOnTheFloorTheMovementTravelsAsASkipAndNotAsAZero() throws {
         let store = try store(variation: 2, sets: EngineConfig.setsBase)
         // On the floor: every movement cut as far as the axis goes.
@@ -203,15 +261,15 @@ final class SetSkipTests: AppStoreTestCase {
 
     // MARK: - The journal and the interrupted workout
 
-    /// What happened is what the journal keeps. The post-release audit asks
-    /// whether the mid-workout skip has become the dominant price, and a
-    /// record that kept only the rating could not answer it.
+    /// What happened is what the journal keeps: a record that kept only the
+    /// rating could not tell whether the mid-workout skip has become the
+    /// dominant price.
     func testTheJournalRemembersTheSkippedSetsAcrossARelaunch() throws {
         let store = try store(variation: 3, sets: EngineConfig.setsBase)
         store.completeWorkout(session: store.nextSession, result: .plan,
                               setsSkipped: [.squat: 2])
 
-        let reloaded = AppStore(storageURL: tempURL)
+        let reloaded = makeStore()
         XCTAssertEqual(reloaded.records.last?.setsSkipped, [.squat: 2],
                        "the journal lost the sets that were skipped")
     }

@@ -22,7 +22,7 @@ struct Golden: Decodable {
     /// The ladders, straight from the reference — so the port can be checked
     /// against them instead of the numbers being retyped here.
     let library: [String: [LibraryRung]]
-    /// The two dose grids of §40.2.
+    /// The two dose grids.
     let dose: [String: Grid]
     let scenarios: [Scenario]
 
@@ -33,7 +33,7 @@ struct Golden: Decodable {
         let perSide: Bool
         let kind: String
         let prov: String
-        /// The one unit boundary И1 skips.
+        /// The one unit boundary the density invariant skips.
         let probeOnly: Bool?
     }
 
@@ -58,6 +58,12 @@ struct Golden: Decodable {
         let setsHoldAfter: [Int]
         let shownWorkAfter: [Int]
         let shownOrdAfter: [Int]
+        /// The pull-cap memory of the pushes, by `patternOrder`; zero where a
+        /// pattern has none (a count of sets on screen is never below two, so
+        /// zero cannot be mistaken for a value). The trace of a cut is 0 or 1.
+        let shownCapAfter: [Int]
+        let shownOwnAfter: [Int]
+        let shownSkipAfter: [Int]
         let rampWindowAfter: Int
         let weekGainAfter: [Int]
         let weekAgeDaysAfter: Double
@@ -82,6 +88,12 @@ struct Golden: Decodable {
         let shown: [String: [String: Int]]
         let failStreak: [Int]
         let lastHard: [Int]
+        /// The memory of a showing, keyed by pattern name — present only where
+        /// a scenario starts from a state a build without the pull-cap memory
+        /// wrote: that memory and none of the cap's. A map rather than an
+        /// array, because a remembered position can be zero.
+        let shownWork: [String: Int]?
+        let shownOrd: [String: Int]?
     }
 
     struct Ex: Decodable {
@@ -96,7 +108,7 @@ struct Golden: Decodable {
         /// Per-set doses, present only on an uneven plan — the wire form
         /// mirrors `[Int]?` exactly, so its absence is a claim too.
         let loads: [Int]?
-        /// §40.4. Present only where the plan carries a probe.
+        /// Present only where the plan carries a probe.
         let probe: Probe?
     }
 
@@ -129,19 +141,19 @@ struct Golden: Decodable {
         let cooldownMin: Int
         let exercises: [Ex]
         let result: String
-        // §41.3: a fact arrives as a FRACTION — the mean of an uneven plan sits
-        // between its base and its top, and that fraction is what says whether the
-        // top set was taken. Decoding it as Int would collapse 7.33 and 7.00 into
-        // the same seven and silently un-test the whole change.
+        // A fact arrives as a FRACTION — the mean of an uneven plan sits between
+        // its base and its top, and that fraction is what says whether the top
+        // set was taken. Decoding it as Int would collapse 7.33 and 7.00 into the
+        // same seven and silently un-test everything the fraction decides.
         let overrides: [String: Double]
-        /// The SEVENTH argument of applyFeedback (§40.4). Absent means no
-        /// probe number was reported, which pins the unresolved outcome
-        /// just as a present one pins the resolved.
+        /// The SEVENTH argument of applyFeedback. Absent means no probe
+        /// number was reported, which pins the unresolved outcome just as a
+        /// present one pins the resolved.
         let probes: [String: Int]?
         let skipped: [String]?
         let hasBar: Bool?
         /// The gap. Absent means nil, which pins the calendar-blind path.
-        /// SIXTH, deliberately (§40.11 п. 2).
+        /// SIXTH, deliberately — `Engine.applyFeedback` says why.
         let gapDays: Double?
         let handles: Handles?
         /// Sets skipped DURING this session. Landed AFTER the feedback.
@@ -151,8 +163,8 @@ struct Golden: Decodable {
         /// itself: a port that skipped first would have to reproduce this
         /// number too, and it cannot.
         let cutBeforeSkip: [Int]?
-        /// §41.13: steps added "for next time", landed LAST — after the
-        /// feedback and after the skip.
+        /// Steps added "for next time", landed LAST — after the feedback and
+        /// after the skip.
         let raiseDose: [String: Int]?
         /// The dose and sub-step the raise found, per pattern in
         /// `patternOrder`. Present exactly when `raiseDose` is: a port

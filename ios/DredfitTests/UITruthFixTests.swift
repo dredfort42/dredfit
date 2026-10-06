@@ -1,9 +1,8 @@
 //
-//  Pins for the UI-truth audit fixes (27.08.2026). Each test here failed
-//  against the code as it stood before its fix — the flat-load comparisons
-//  that showed a plan as a fact and hid a recorded shortfall, the milestone
-//  label one point short of its own tick, and the snapshot that dropped the
-//  sparse coordinates the row's number includes.
+//  Pins that keep what the UI says true: comparisons against each set's own
+//  plan (a flat-load comparison shows a plan as a fact and hides a recorded
+//  shortfall), the milestone label that lands on its own tick, and the
+//  snapshot that carries the sparse coordinates the row's number includes.
 //
 
 import XCTest
@@ -48,17 +47,17 @@ final class UITruthFixTests: XCTestCase {
         XCTAssertFalse(SetFacts.differs([9, 8, 8], from: ex))
     }
 
-    // MARK: - The probe caption's knowable gate (§40.4)
+    // MARK: - The probe caption's knowable gate
 
     func testFoldBelowThePlanMeansTheProbeWillNotCount() {
         let ex = unevenExercise()
         var short = SetFacts.PerSet()
         for set in 0..<3 { short = SetFacts.recording(8, in: short, ex, set: set) }
-        XCTAssertTrue(SetFacts.foldFallsShort(short, of: ex))
+        XCTAssertTrue(SetFacts.foldFallsShort(short, of: ex, skipping: []))
         // 9-8-8 done as written collapses to nothing said at all — the
         // caption may promise, and the engine will keep the promise.
         let onPlan = SetFacts.recording(9, in: [:], ex, set: 0)
-        XCTAssertFalse(SetFacts.foldFallsShort(onPlan, of: ex))
+        XCTAssertFalse(SetFacts.foldFallsShort(onPlan, of: ex, skipping: []))
     }
 
     // MARK: - The next-milestone label counts the crossing, not the ceiling
@@ -109,7 +108,7 @@ final class UITruthFixTests: XCTestCase {
         XCTAssertEqual(SetFacts.holdSideSeconds(planned: 3, firstSideHeld: 3), 3)
     }
 
-    // MARK: - The maximum-out-of-order note (owner, 27.08.2026)
+    // MARK: - The maximum-out-of-order note
 
     func testTheMaximumNoteFiresOnlyAboveThisSetsOwnPlan() {
         let ex = unevenExercise()                    // 9-8-8, three sets
@@ -127,8 +126,8 @@ final class UITruthFixTests: XCTestCase {
 
     /// The claim the note must NOT make. The fold is the mean, so the order of
     /// the sets does not reach the engine: a maximum first and a maximum last
-    /// land the same next plan. Measured, because the note's old copy advised
-    /// exactly this and the advice was not what the model does.
+    /// land the same next plan. Measured, because a note advising an order
+    /// would advise something the model does not do.
     func testTheOrderOfAMaximumDoesNotReachTheEngine() throws {
         var state = EngineState.initial
         state.doses[.pull] = 8
@@ -139,7 +138,7 @@ final class UITruthFixTests: XCTestCase {
         func nextPlan(_ sets: [Int]) throws -> String {
             var facts = SetFacts.PerSet()
             for (i, v) in sets.enumerated() { facts = SetFacts.recording(v, in: facts, ex, set: i) }
-            let fold = SetFacts.override(facts, for: ex)
+            let fold = SetFacts.override(facts, for: ex, skipping: [])
             let next = Engine.applyFeedback(state: state, session: session, result: .plan,
                                             overrides: fold.map { [.pull: $0] } ?? [:])
             return try XCTUnwrap(Engine.generateSession(next).exercises
@@ -153,10 +152,10 @@ final class UITruthFixTests: XCTestCase {
                           "what DOES move the plan is the total, which is what the note now says")
     }
 
-    // MARK: - §41.10/§41.11: what a descent off a probing appearance may do
+    // MARK: - What a descent off a probing appearance may do
 
-    /// The state the comeback card was caught on: every pattern at the ceiling
-    /// of its variation with the journal to prove it, so every one is probing.
+    /// Every pattern at the ceiling of its variation with the journal to prove
+    /// it, so every one is probing.
     private func toppedOutOnEveryVariation() -> EngineState {
         var state = EngineState.initial
         state.counter = 11
@@ -176,9 +175,9 @@ final class UITruthFixTests: XCTestCase {
     }
 
     /// The bound is the plan the POSITION holds, not the working sets that
-    /// happened to be on screen while the probe borrowed one of them (§41.11).
-    /// Against the working sets this asserted that a descent must come back as
-    /// TWO sets, which is exactly how the borrowed slot was being kept.
+    /// happened to be on screen while the probe borrowed one of them. Against
+    /// the working sets this would assert that a descent must come back as
+    /// TWO sets — the borrowed slot kept for good.
     func testADescentNeverAsksMoreThanThePlanThePositionHolds() throws {
         let state = toppedOutOnEveryVariation()
         // What Today records the moment it draws the plan.
@@ -206,10 +205,10 @@ final class UITruthFixTests: XCTestCase {
     }
 
     /// And the promise the comeback card makes in words: the longer the break,
-    /// the lower the plan meets you. It broke on exactly this state — 84 days
-    /// met a person higher than 56 — because the trim stopped firing once the
-    /// dose had fallen far enough for three sets to fit under the depressed
-    /// base again.
+    /// the lower the plan meets you. Against a base of the working sets alone
+    /// it breaks on exactly this state — 84 days would meet a person higher
+    /// than 56 — because the trim stops firing once the dose has fallen far
+    /// enough for three sets to fit under the depressed base again.
     func testAComebackNeverRisesWithTheLengthOfTheBreak() throws {
         let shown = Engine.recordShown(state: toppedOutOnEveryVariation(),
                                        session: Engine.generateSession(toppedOutOnEveryVariation()))
@@ -245,9 +244,9 @@ final class UITruthFixTests: XCTestCase {
     // MARK: - The snapshot carries the sparse coordinates into the chart
 
     func testProgressOverloadReadsSubAndCut() {
-        XCTAssertEqual(Engine.progress(.squat, variation: 1, sets: 3, dose: 8, sub: 2, cut: 0),
+        XCTAssertEqual(Engine.progress(.squat, Position(variation: 1, sets: 3, dose: 8, sub: 2, cut: 0)),
                        Engine.progress(.squat, variation: 1, sets: 3, dose: 8) + 2)
-        XCTAssertEqual(Engine.progress(.squat, variation: 1, sets: 3, dose: 8, sub: 0, cut: 1),
+        XCTAssertEqual(Engine.progress(.squat, Position(variation: 1, sets: 3, dose: 8, sub: 0, cut: 1)),
                        Engine.progress(.squat, variation: 1, sets: 3, dose: 8) - 1)
     }
 

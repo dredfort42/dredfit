@@ -16,4 +16,5 @@
 
 - [ ] Localization: new user-facing strings are translated for de, es, fr, it, pt-BR, ru (Localization check is green)
 - [ ] CHANGELOG.md updated (for user-facing changes)
+- [ ] Comments say why for the code as it is — no dates, no § spec sections, no R-ids
 - [ ] No secrets, keys, or tokens committed

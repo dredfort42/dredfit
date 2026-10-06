@@ -20,9 +20,8 @@ nonisolated struct RestActivityAttributes: ActivityAttributes {
     }
     /// `hold` is work that owns an end date. A separate case rather than a
     /// `work` carrying a date, because both the tile's countdown and
-    /// `staleDate` key off it: the hold — the one phase whose copy asks you to
-    /// put the phone down — was the phase showing a static dot
-    /// (UX review 05.09.2026).
+    /// `staleDate` key off it: the hold is the one phase whose copy asks you
+    /// to put the phone down, so it must show a countdown, not a static dot.
     enum Phase: String, Codable, Hashable { case work, rest, hold }
     var sessionNumber: Int
 }

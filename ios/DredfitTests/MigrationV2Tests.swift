@@ -1,9 +1,6 @@
 //
-//  §41.7: a state written before v3 is read and carried over.
-//
-//  These tests guard the two halves the audit of 26.08.2026 found broken and
-//  the owner then reversed: the engine used to be handed `initState` here
-//  (§40.8), and the person was told nothing about it.
+//  A state written before v3 is read and carried over rather than started
+//  over, and the person is told about it: the two halves these tests guard.
 //
 
 import XCTest
@@ -43,8 +40,8 @@ final class MigrationV2Tests: AppStoreTestCase {
                        "the rung v2's tier 3 was earned on, not the first one")
         XCTAssertEqual(loaded.engineState.doses[.squat], 9,
                        "and the dose they were doing there, carried across unchanged")
-        // The journal records it: without that the first descent would send
-        // them to the floor of a movement they had long since passed.
+        // The journal records it: a descent back into this variation lands
+        // under its journal entry, and on its floor without one.
         XCTAssertEqual(loaded.engineState.shown[.squat]?[5], 9,
                        "the journal has to say they were there, or a descent starts from the floor")
     }
@@ -53,19 +50,17 @@ final class MigrationV2Tests: AppStoreTestCase {
     /// both sides of the upgrade — `sets × dose × sides`, the quantity
     /// `Engine.planLoad` computes for v3.
     ///
-    /// The measure used to be two half-measures and saw neither thing that can
-    /// go wrong here. The "before" side read `Engine.v2LevelTable`, the very
-    /// table the migration takes its dose from, so an error in that snapshot
-    /// cancelled itself out on both sides of the comparison. The "after" side
-    /// left out `Library.sides`, so a two-sided v2 tier landing on a one-sided
-    /// v3 rung — the same rep count, twice the session — read as no change at
-    /// all. `V2FormatSnapshot` now supplies an independent "before", including
-    /// v2's own sidedness, which v3 cannot reconstruct: v2's library is gone.
+    /// The "before" side comes from `V2FormatSnapshot`, not from
+    /// `Engine.v2LevelTable` — the very table the migration takes its dose
+    /// from, so an error in it would cancel itself out on both sides of the
+    /// comparison. Both sides count sides: a two-sided v2 tier landing on a
+    /// one-sided v3 rung — the same rep count, twice the session — must not
+    /// read as no change. v2's own sidedness comes from the snapshot too,
+    /// because v3 cannot reconstruct it: v2's library is gone.
     ///
     /// Ten cells land heavier, and only because v2 could hand out a hold below
-    /// v3's grid floor (accepted gap §41.6 item 4, worst ×1.50). They are
-    /// LISTED and not counted: "at most ten" is satisfied by ten completely
-    /// different cells.
+    /// v3's grid floor (an accepted gap, worst ×1.50). They are LISTED and not
+    /// counted: "at most ten" is satisfied by ten completely different cells.
     func test_migration_acrossTheWholeV2Scale_landsHeavierOnlyOnTheTenAcceptedCells() throws {
         var heavier: [String] = []
         var carryingVolumeHandles: [String] = []
@@ -101,7 +96,7 @@ final class MigrationV2Tests: AppStoreTestCase {
             "core_rot L=26: 72 -> 90",
             "core_rot L=27: 78 -> 90",
             "core_rot L=28: 84 -> 90",
-        ], "§41.6 item 4 accepts exactly these ten: a hold v2 set below v3's floor of 15 s comes UP to "
+        ], "the accepted gap is exactly these ten: a hold v2 set below v3's floor of 15 s comes UP to "
            + "the floor, because there is nothing lower in the product to land on")
     }
 
@@ -133,38 +128,37 @@ final class MigrationV2Tests: AppStoreTestCase {
         try v2Payload(levels: ["squat": 20, "pull": 8], counter: 4, hasBar: true)
             .write(to: tempURL)
 
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertTrue(store.showsMigrationNotice, "the upgrade must be announced")
-        store.persist()   // the file is v3 from here on — the flag has to carry itself
+        store.update { _ in }   // any write: the file is v3 from here on — the flag has to carry itself
 
         let onDisk = try JSONDecoder().decode(AppData.self, from: Data(contentsOf: tempURL))
         XCTAssertFalse(onDisk.engineStateMigrated,
                        "the file is v3 from here on, so nothing migrates a second time")
-        XCTAssertTrue(AppStore(storageURL: tempURL).showsMigrationNotice,
+        XCTAssertTrue(makeStore().showsMigrationNotice,
                       "and the card is still owed")
     }
 
     func testDismissingTheCardSpendsItForGood() throws {
         try v2Payload(levels: ["squat": 20], counter: 4, hasBar: false).write(to: tempURL)
 
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.dismissMigrationNotice()
         XCTAssertFalse(store.showsMigrationNotice)
-        XCTAssertFalse(AppStore(storageURL: tempURL).showsMigrationNotice,
+        XCTAssertFalse(makeStore().showsMigrationNotice,
                        "and it must not come back on the next launch")
     }
 
     func testAFreshInstallIsNeverToldAboutAMigration() {
-        XCTAssertFalse(AppStore(storageURL: tempURL).showsMigrationNotice,
+        XCTAssertFalse(makeStore().showsMigrationNotice,
                        "there is nothing to announce to someone with no history")
     }
 
-    /// The THIRD door into the same decode. `AppStore.init` and
-    /// `reloadIfNeeded` both stamp the card; `importBackup` did not — and it
-    /// then overwrote the flag with the settings out of the very pre-v3 file
-    /// it had just migrated. Someone who backs up on 1.9.x, updates, resets
-    /// and restores gets their positions carried over and is told nothing —
-    /// exactly the silence §41.7 reversed §40.8 to end.
+    /// The THIRD door into the same decode, beside `AppStore.init` and
+    /// `reloadIfNeeded`. The settings a restore brings come out of the very
+    /// pre-v3 file it migrates, so the card is stamped after them or they
+    /// would overwrite it. Someone who backs up on 1.9.x, updates, resets and
+    /// restores gets their positions carried over and has to be told so.
     func testRestoringAPreV3BackupAnnouncesTheMigrationToo() throws {
         let backup = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-v2-backup-\(UUID().uuidString).json")
@@ -172,7 +166,7 @@ final class MigrationV2Tests: AppStoreTestCase {
         try v2Payload(levels: ["squat": 20, "pull": 8], counter: 4, hasBar: true)
             .write(to: backup)
 
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertFalse(store.showsMigrationNotice, "nothing to announce before the restore")
 
         try store.importBackup(from: backup)
@@ -181,7 +175,7 @@ final class MigrationV2Tests: AppStoreTestCase {
                        "the restore really did carry the positions over")
         XCTAssertTrue(store.showsMigrationNotice,
                       "restoring a pre-v3 backup is an upgrade too, and has to say so")
-        XCTAssertTrue(AppStore(storageURL: tempURL).showsMigrationNotice,
+        XCTAssertTrue(makeStore().showsMigrationNotice,
                       "and the card outlives the launch that owed it, like the other two doors")
     }
 }

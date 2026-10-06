@@ -3,26 +3,24 @@
 //  mistakes.
 //
 //  It is addressed by (pattern, variation) rather than by a planned exercise,
-//  because §40.4 gave it a second caller: the PROBE offers one set of the NEXT
-//  variation, and the person has to be able to read how that movement is done
-//  before doing it. An exercise-shaped sheet could not show a movement that is
-//  not in the plan.
+//  because the PROBE offers one set of the NEXT variation, and the person has
+//  to be able to read how that movement is done before doing it. An
+//  exercise-shaped sheet could not show a movement that is not in the plan.
 //
-//  That same property is why the easier-variation handle moved here off the
-//  plan (R30). A control that swaps the movement for the one below it needs a
-//  screen that can show a movement which is not in the plan — this is the only
-//  one — and the sheet already owns the ladder as a concept: the tag above the
-//  block says "variation 3 of 7", so the rung under it is a fact the screen was
-//  already stating, not a suggestion it starts making.
+//  That same property is why the easier-variation handle lives here. A control
+//  that swaps the movement for the one below it needs a screen that can show a
+//  movement which is not in the plan, and the sheet already owns the ladder as
+//  a concept: the tag above the block says "variation 3 of 7", so the rung
+//  under it is a fact the screen is already stating, not a suggestion.
 //
 //  It is offered only where the sheet describes the UPCOMING workout, which is
-//  Today (owner, 01.09.2026). The same sheet opens inside a running session and
-//  there it carries nothing: the session is snapshotted at Start, so a switch
-//  taken mid-workout moves the state under a plan already in flight and the
-//  rating lands on the pair — measured, squat v6 3×15 switched to v5 and rated
-//  "on plan" writes 15 into the journal of v5 where the person had shown 4, and
-//  a probe passed later in the same session promotes past the rung they had
-//  just chosen. `planned` is what keeps the two states from moving at once.
+//  Today. The same sheet opens inside a running session and there it carries
+//  nothing: the session is snapshotted at Start, so a switch taken mid-workout
+//  would move the state under a plan already in flight and the rating would
+//  land on the pair — the lower rung's journal would get a dose the person
+//  never showed on it, and a probe passed later in the same session would
+//  promote past the rung they had just chosen. `planned` is what keeps the two
+//  states from moving at once.
 //
 
 import SwiftUI
@@ -47,7 +45,7 @@ struct TechniqueTarget: Identifiable, Equatable {
     }
 
     /// The movement a probe offers — a different variation of the same
-    /// pattern, and possibly in a different unit (§40.1, `pull_bar` 2→3).
+    /// pattern, and possibly in a different unit (`pull_bar` 2→3).
     init(probe: SessionProbe, of pattern: Pattern) {
         self.init(pattern: pattern, variation: probe.variation, unit: probe.unit)
     }
@@ -88,8 +86,8 @@ struct TechniqueSheet: View {
     }
 
     /// Follows `shownVariation` for the same reason: on `pull_bar` the rungs
-    /// are not all in the same unit (§40.1), so a switch can change what the
-    /// tag's range should say.
+    /// are not all in the same unit, so a switch can change what the tag's
+    /// range should say.
     private var unit: LoadUnit {
         planned ? Library.unit(target.pattern, shownVariation) : target.unit
     }
@@ -97,9 +95,8 @@ struct TechniqueSheet: View {
     /// The rung under the one being shown, and the whole condition for the
     /// block that offers it: only the door that may take the step (`planned`,
     /// i.e. Today) and only where the ladder has somewhere to go. Named
-    /// because the technique HINT is spent on this same question now — a
-    /// promise is kept or it is not, and the block is what keeps it
-    /// (UX review 05.09.2026).
+    /// because Today's technique HINT is spent on this same question — a
+    /// promise is kept or it is not, and the block is what keeps it.
     private var stepBelow: AppStore.EasierStep? {
         planned ? store.easierStep(target.pattern) : nil
     }
@@ -128,8 +125,7 @@ struct TechniqueSheet: View {
                     // Under the tag and above the technique, because the tag
                     // has just said which rung this is and the rung below it
                     // finishes that sentence. In the footer it would have to be
-                    // scrolled to, and a handle nobody reaches is the state
-                    // this block was moved here to leave behind.
+                    // scrolled to, and a handle nobody reaches is no handle.
                     if let step = stepBelow {
                         stepDown(step)
                             .padding(.top, 18)
@@ -181,9 +177,8 @@ struct TechniqueSheet: View {
                 .padding(.horizontal, 24)
             }
 
-            // Four sheets in this app close on a button reading "Got it", and
-            // a workout can have two of them stacked. Each names its own, the
-            // way `how-it-works-done` and `milestone-done` already do.
+            // Several sheets in this app close on a button reading "Got it",
+            // so each names its own, the way `how-it-works-done` does.
             PrimaryButton(title: String(localized: "Got it")) { dismiss() }
                 .accessibilityIdentifier("technique-done")
                 .padding(.horizontal, 24)
@@ -192,29 +187,21 @@ struct TechniqueSheet: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Theme.bg)
-        // Spends the one line on Today ONLY when this sheet delivered what
-        // that line promised — "and for the version one step below it". Any
-        // open used to spend it, and the doors are FOUR, not the three the
-        // comment here used to count: the work screen, the rest screen and the
-        // next-workout preview all open this sheet without `planned`, so none
-        // of them ever carries the block. Worse, on a fresh install no door
-        // does — all ten movements start on variation 1, where `easierStep` is
-        // nil — so the sentence was reliably burned by the one case in which it
-        // was false (UX review 05.09.2026).
-        // Spent when the sheet delivered what the SHOWN line promised, and
-        // there are two lines: with no rung below anywhere in today's plan
-        // Today prints `plan.techniqueHintNoStep`, whose whole promise is the
-        // sheet itself. Gating only on `stepBelow` left that hint standing
-        // forever on a fresh install, where all ten movements are on variation
-        // 1 — the two halves of one wave landed in two files and missed each
-        // other (self-review 05.09.2026).
+        // Spends the hint on Today only when this sheet delivered what the
+        // SHOWN line promised, and there are two lines. "And for the version
+        // one step below it" is kept only by the block above, which the work
+        // screen, the rest screen and the next-workout preview never carry —
+        // they open this sheet without `planned`. With no rung below anywhere
+        // in today's plan Today prints `plan.techniqueHintNoStep` instead,
+        // whose whole promise is the sheet itself: the fresh install, where
+        // all ten movements are on variation 1.
         .task {
             let promisedARungBelow = store.nextSession.exercises
                 .contains { store.canMakeEasier($0.pattern) }
             if stepBelow != nil || !promisedARungBelow { store.markTechniqueOpened() }
         }
         // The same guard the four skips carry, and for the same reason: this
-        // plan has no undo (owner, 01.09.2026). An ALERT, like them — iOS 26
+        // plan has no undo. An ALERT, like them — iOS 26
         // draws a confirmationDialog as an anchored popover, which suppresses
         // its own cancel and treats the stray tap as an answer.
         .alert(pendingStepDown.map(confirmTitle) ?? "",
@@ -224,7 +211,7 @@ struct TechniqueSheet: View {
             Button(String(localized: "Keep going"), role: .cancel) { }
             // The verb of the control that raised it, and no `.destructive`
             // role: a movement that goes down a rung is an ordinary answer to
-            // an ordinary day, not damage. Same position the skips took.
+            // an ordinary day, not damage. The same as the skips.
             Button(String(localized: "technique.stepDown.switch", defaultValue: "Switch")) {
                 store.makeEasier(target.pattern)
             }
@@ -240,7 +227,7 @@ struct TechniqueSheet: View {
                defaultValue: "Switch to \(step.name)?")
     }
 
-    /// What is actually spent. The way back up is the probe (§40.4), and the
+    /// What is actually spent. The way back up is the probe, and the
     /// probe is offered only once the dose has climbed to the ceiling of the
     /// variation again — several appearances, never a tap. A message that said
     /// "you can always go back" would be the lie this alert exists to prevent.
@@ -254,29 +241,25 @@ struct TechniqueSheet: View {
 
     // MARK: - One step below
 
-    /// The handle, in the only place it can carry more than a name (R30).
+    /// The handle, in a place where it can carry more than a name.
     ///
     /// The block is NOT a button and the capsule is: a step down is one-way —
-    /// the way back up is a probe, and a probe is several appearances away
-    /// (§40.4) — so the target of the tap is the word, never the card around
-    /// it. A stray tap on the description or a drag that starts on it must not
-    /// rewrite the plan.
+    /// the way back up is a probe, and a probe is several appearances away —
+    /// so the target of the tap is the word, never the card around it. A stray
+    /// tap on the description or a drag that starts on it must not rewrite the
+    /// plan.
     ///
-    /// And the capsule ASKS before it acts (owner, 01.09.2026, reversing this
-    /// wave's own "the redraw is feedback enough"). It is the argument the four
-    /// skips already settled: the plan has no undo, the way back up is measured
-    /// in appearances rather than in taps, and a guard against a stray thumb
-    /// has to stand in FRONT of the state change. Same alert, same two answers,
-    /// same words.
+    /// And the capsule ASKS before it acts, for the reason the four skips do:
+    /// the plan has no undo, the way back up is measured in appearances rather
+    /// than in taps, and a guard against a stray thumb has to stand in FRONT
+    /// of the state change.
     @ViewBuilder
     private func stepDown(_ step: AppStore.EasierStep) -> some View {
         let description = VStack(alignment: .leading, spacing: 4) {
-            // Half of the comparison this block exists to make was missing.
-            // The capsule above prints the grid the whole library shares
-            // ("4–15 reps"), never today's number, so the only precise dose on
-            // the screen was the one being OFFERED — and the plan row carrying
-            // the other one sits behind a .large sheet, two taps away
-            // (UX review 05.09.2026).
+            // Today's dose, the other half of the comparison this block
+            // exists to make: the capsule above prints the grid the whole
+            // library shares ("4–15 reps"), never today's number, and the plan
+            // row carrying it sits behind this .large sheet.
             if let now = nowLine {
                 Text(now)
                     .dredfitFont(13)
@@ -284,11 +267,9 @@ struct TechniqueSheet: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.bottom, 2)
             }
-            // The tone is no longer said here: `Kicker` defaults to ink2 for
-            // every kicker in the app now, because 12 pt semibold is small
-            // text and ink3 reads 2.35:1 in light (UX review 05.09.2026,
-            // finding 68). Passing it again would only hide the day that
-            // default moves.
+            // No `color:` here: `Kicker` defaults to ink2, because 12 pt
+            // semibold is small text and ink3 reads 2.35:1 in light. Passing
+            // it again would only hide the day that default moves.
             Kicker(text: String(localized: "technique.stepDown.kicker",
                                 defaultValue: "One step below"))
             Text(step.name)
@@ -351,7 +332,7 @@ struct TechniqueSheet: View {
     /// "3×20 sec · holds instead of reps". The unit note is the half of the
     /// step a name and a number cannot carry: `pull_bar` 3 → 2 drops from
     /// negatives to a hang, and the seconds beside it read as a smaller number
-    /// rather than as a different kind of work (§40.1).
+    /// rather than as a different kind of work.
     private func doseLine(_ step: AppStore.EasierStep) -> String {
         guard step.unitChanged else { return step.dose }
         let note = unit == .reps
@@ -386,20 +367,17 @@ struct TechniqueSheet: View {
     }
 
     /// "variation 3 of 7 · pull · 4–15 reps". The total comes from the library
-    /// — the ladders are four to seven rungs long now (§40.1) — and the range
-    /// is the grid the whole library shares (§40.2), not a per-tier one.
+    /// — the ladders are four to seven rungs long — and the range is the grid
+    /// the whole library shares, not a per-variation one.
     private var variationTag: String {
         let range = unit == .reps
             ? String(localized: "4–15 reps")
             : String(localized: "15–45 s")
         let total = Library.count(target.pattern)
         // The catalog value verbatim, NEVER lowercased. German capitalises
-        // every noun as grammar, not as style, so `.lowercased()` turned the
-        // catalog's correct "Horizontales Drücken" into a misspelling —
-        // harmless in the other six languages and wrong in the seventh
-        // (App Store frame review, de/s9 against de/s8, which prints the same
-        // pattern correctly). The catalog is the terminology fixed by the
-        // glossary and is right in every language by definition; no
+        // every noun as grammar, not as style, so `.lowercased()` would turn
+        // the catalog's correct "Horizontales Drücken" into a misspelling.
+        // The catalog is the terminology fixed by the glossary; no
         // locale-aware lowering can help German here.
         let movement = target.pattern.displayName
         return String(localized: "variation \(shownVariation) of \(total) · \(movement) · \(range)")

@@ -1856,6 +1856,47 @@
       },
       "comment": "Progress row, beside the step count of a pattern at the top of its ladder: N is the number of STEPS until a set comes back — not days, not workouts."
     },
+    "+1 set once pulling catches up": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+1 Satz, sobald das Ziehen aufholt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+1 serie cuando la tracción se ponga al día"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+1 série quand le tirage aura rattrapé son retard"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+1 serie quando la tirata si mette in pari"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+1 série quando a puxada alcançar o empurrão"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+1 подход, когда тяга догонит"
+          }
+        }
+      },
+      "comment": "Progress row, beside the step count of a push on the top variation of its ladder whose next set waits for the pull slot: the pulls must show that many sets first, and no count of steps can say when they will."
+    },
     "≈ %lld min · %lld exercises": {
       "localizations": {
         "de": {
@@ -16534,42 +16575,42 @@
         }
       }
     },
-    "Used only to estimate the calories of each workout. It stays on this device.": {
+    "Used only to estimate the calories of each workout. Kept on this device and in the backups you export.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dient nur dazu, die Kalorien jedes Trainings zu schätzen. Bleibt auf diesem Gerät."
+            "value": "Dient nur dazu, die Kalorien jedes Trainings zu schätzen. Bleibt auf diesem Gerät und in den Backups, die du exportierst."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Solo se usa para estimar las calorías de cada entrenamiento. No sale de este dispositivo."
+            "value": "Solo se usa para estimar las calorías de cada entrenamiento. Se guarda en este dispositivo y en los respaldos que exportes."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sert uniquement à estimer les calories de chaque séance. Reste sur cet appareil."
+            "value": "Sert uniquement à estimer les calories de chaque séance. Conservé sur cet appareil et dans les sauvegardes que tu exportes."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Serve solo a stimare le calorie di ogni allenamento. Resta su questo dispositivo."
+            "value": "Serve solo a stimare le calorie di ogni allenamento. Resta su questo dispositivo e nei backup che esporti."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usado apenas para estimar as calorias de cada treino. Fica neste dispositivo."
+            "value": "Usado apenas para estimar as calorias de cada treino. Fica neste dispositivo e nos backups que você exportar."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Нужен только для оценки калорий каждой тренировки. Остается на этом устройстве."
+            "value": "Нужен только для оценки калорий каждой тренировки. Хранится на этом устройстве и в резервных копиях, которые ты экспортируешь."
           }
         }
       }
@@ -19573,6 +19614,52 @@
         }
       }
     },
+    "plan.heldBackByPulls": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorerst weniger Sätze – das Drücken hält mit dem Ziehen Schritt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fewer sets for now — pushes keep pace with your pulls."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menos series por ahora: los empujes siguen el ritmo de tus tracciones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moins de séries pour l’instant — les poussées suivent le rythme de tes tirages."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meno serie per ora – le spinte tengono il passo con le tue tirate."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menos séries por enquanto — os empurrões acompanham o ritmo das suas puxadas."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пока подходов меньше — жимы идут в ногу с тягами."
+          }
+        }
+      }
+    },
     "plan.techniqueHintNoStep": {
       "localizations": {
         "de": {
@@ -20617,42 +20704,42 @@
         }
       }
     },
-    "Took %lld min, pauses included": {
+    "Took %lld min in the app, pauses included": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hat %lld min gedauert, Pausen eingerechnet"
+            "value": "Hat %lld min in der App gedauert, Pausen eingerechnet"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Duró %lld min, pausas incluidas"
+            "value": "Duró %lld min en la app, pausas incluidas"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "A duré %lld min, repos et pauses compris"
+            "value": "A duré %lld min dans l’app, repos et pauses compris"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "È durato %lld min, pause comprese"
+            "value": "È durato %lld min nell’app, pause comprese"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Durou %lld min, pausas incluídas"
+            "value": "Durou %lld min no app, pausas incluídas"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Заняла %lld мин, вместе с паузами"
+            "value": "Заняла %lld мин в приложении, вместе с паузами"
           }
         }
       }
@@ -21013,6 +21100,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "факт %@"
+          }
+        }
+      }
+    },
+    "Couldn't save your latest changes. They'll be lost if the app closes before a save works.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine letzten Änderungen konnten nicht gespeichert werden. Sie gehen verloren, wenn die App sich schließt, bevor das Speichern klappt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron guardar tus últimos cambios. Se perderán si la app se cierra antes de que se pueda guardar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d’enregistrer tes derniers changements. Ils seront perdus si l’app se ferme avant qu’un enregistrement réussisse."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile salvare le tue ultime modifiche. Andranno perse se l’app si chiude prima che il salvataggio riesca."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível salvar suas últimas alterações. Elas serão perdidas se o app fechar antes de um salvamento funcionar."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось сохранить последние изменения. Они пропадут, если приложение закроется раньше, чем сохранение получится."
           }
         }
       }
@@ -21637,6 +21764,126 @@
           "stringUnit": {
             "state": "translated",
             "value": "Приложение поставит %@."
+          }
+        }
+      }
+    },
+    "Try again": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut versuchen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reintentar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réessayer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riprova"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tentar de novo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повторить"
+          }
+        }
+      }
+    },
+    "Your history couldn't be read": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Verlauf konnte nicht gelesen werden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo leer tu historial"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ton historique n’a pas pu être lu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è stato possibile leggere il tuo storico"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível ler seu histórico"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось прочитать историю"
+          }
+        }
+      }
+    },
+    "Your saved history can't be read right now, so a workout started now can't be saved. Try again, or close Dredfit and open it again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein gespeicherter Verlauf lässt sich gerade nicht lesen, deshalb kann ein jetzt gestartetes Training nicht gespeichert werden. Versuche es erneut oder schließe Dredfit und öffne es noch einmal."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu historial guardado no se puede leer ahora, así que un entrenamiento empezado ahora no se puede guardar. Inténtalo de nuevo o cierra Dredfit y ábrelo otra vez."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ton historique enregistré est illisible pour le moment, donc une séance commencée maintenant ne peut pas être enregistrée. Réessaie, ou ferme Dredfit et rouvre-le."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo storico salvato non si può leggere al momento, quindi un allenamento iniziato ora non può essere salvato. Riprova, oppure chiudi Dredfit e riaprilo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seu histórico salvo não pode ser lido agora, então um treino começado agora não pode ser salvo. Tente de novo ou feche o Dredfit e abra de novo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохраненную историю сейчас не удается прочитать, поэтому начатая сейчас тренировка не сохранится. Повтори попытку или закрой Dredfit и открой его заново."
           }
         }
       }

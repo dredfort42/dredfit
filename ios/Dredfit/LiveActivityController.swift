@@ -15,6 +15,12 @@ final class WorkoutActivityController {
     /// (rest → "Skip rest" → work) race and strand a stale countdown.
     private var chain: Task<Void, Never>?
 
+    /// Nonisolated for the reason `WorkoutSession`'s deinit gives: an implicit
+    /// deinit here is an isolated one, on the back-deployed path that crashed
+    /// on the iOS 26.2 simulator, and this controller is freed with every
+    /// workout screen. Nothing here needs the main actor to be torn down.
+    nonisolated deinit {}
+
     private func enqueue(_ op: @escaping @Sendable () async -> Void) {
         let previous = chain
         chain = Task.detached {
@@ -74,12 +80,23 @@ final class WorkoutActivityController {
     static func staleDate(for state: RestActivityAttributes.ContentState,
                           now: Date = .now) -> Date {
         // Any phase that carries an end date, not just the rest: a hold sends
-        // its own through the same field, and dimming a finished hold only
-        // after the flat 20 minutes below is the same defect the rest was
-        // given this branch for (UX review 05.09.2026).
+        // its own through the same field, and a finished hold would otherwise
+        // stay undimmed for the flat 20 minutes below, as a finished rest
+        // would.
         if state.phase != .work, let end = state.restEndDate {
             return end.addingTimeInterval(60)
         }
         return now.addingTimeInterval(20 * 60)
     }
 }
+
+/// The lock-screen tile as the workout flow drives it, so a test can watch
+/// what the tile would show without ActivityKit.
+@MainActor
+protocol WorkoutActivityDriving: AnyObject {
+    func start(sessionNumber: Int, state: RestActivityAttributes.ContentState)
+    func update(_ state: RestActivityAttributes.ContentState)
+    func end()
+}
+
+extension WorkoutActivityController: WorkoutActivityDriving {}

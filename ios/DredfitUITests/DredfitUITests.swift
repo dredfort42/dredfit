@@ -1,8 +1,8 @@
 //
 //  English locale, clean state — and where a walk must instead read back what
 //  it just wrote, it says so by name (`launchedOnStoredState`). Both forms
-//  live in AccessibilityID.swift because two tests here used to assign
-//  `launchArguments` outright and drop --uitest-reset with it.
+//  live in AccessibilityID.swift so that no test assigns `launchArguments`
+//  outright: an assigned list drops --uitest-reset with it.
 //
 
 import XCTest
@@ -10,18 +10,27 @@ import XCTest
 @MainActor
 final class DredfitUITests: XCTestCase {
 
-    var app: XCUIApplication!
+    nonisolated(unsafe) var app: XCUIApplication!
 
-    // `async throws`, and that is the whole of the fix for sixteen build
-    // warnings: a synchronous `setUp()` override inherits XCTestCase's
-    // non-isolated declaration whatever the class is annotated with, so
-    // main-actor `XCUIApplication` was reached from a non-isolated context.
-    // Only the async form may add the class's isolation.
-    override func setUp() async throws {
-        try await super.setUp()
+    // Synchronous, on purpose. An async `setUp()` together with
+    // `continueAfterFailure = false` trips Apple's XCTest defect #108565878:
+    // a failed assertion kills the runner process, xcodebuild resumes at the
+    // NEXT test, and `-retry-tests-on-failure` never re-runs the one that
+    // failed — one timing flake and the whole CI run is red. #59 made setUp
+    // synchronous for that; #212 made it async again to silence isolation
+    // warnings, and for a month no failed assertion was retried.
+    // A synchronous override is non-isolated whatever the class says, so the
+    // app is built in `assumeIsolated` (XCTest calls setUp on the main thread,
+    // and this traps if it ever does not) and `app` is `nonisolated(unsafe)`:
+    // it is written here and read by the tests, all on that one thread.
+    override func setUp() {
+        super.setUp()
         continueAfterFailure = false
-        app = XCUIApplication()
-        app.seedLaunchArguments()
+        app = MainActor.assumeIsolated {
+            let app = XCUIApplication()
+            app.seedLaunchArguments()
+            return app
+        }
     }
 
     // Thin wrappers over WorkoutDriver. Internal, not private:
@@ -33,8 +42,8 @@ final class DredfitUITests: XCTestCase {
     }
 
     /// Adds seed flags to the clean-state launch `setUp` prepared instead of
-    /// replacing it: the two that replaced it lost `--uitest-reset` and ran on
-    /// the leftovers of the test before them, which ends mid-workout.
+    /// replacing it: a replaced list loses `--uitest-reset`, and the test then
+    /// runs on the leftovers of the test before it.
     func seed(_ flags: String...) {
         app.launchArguments.append(contentsOf: flags)
     }
@@ -80,20 +89,21 @@ final class DredfitUITests: XCTestCase {
         let skip = app.buttons[AX.exerciseSkip]
         // 30 s per exercise, not 15. One skip is a tap, an answer and two
         // queries of the tree, and on the nightly runner a single query has
-        // taken seconds — the walk was running out of budget before it ran out
-        // of exercises, and what failed then was the assertion AFTER this
-        // helper (nightly 2026-09-02, `testBarWorkoutFlowsToRating`). The
-        // widening costs nothing in the ordinary case because of the exit
-        // below: the loop now leaves as soon as there is nothing left to skip,
-        // instead of spinning out whatever budget it was given.
+        // taken seconds — at 15 the walk ran out of budget before it ran out
+        // of exercises, and what failed was the assertion AFTER this helper
+        // (`testBarWorkoutFlowsToRating`, I-22). The widening costs nothing in
+        // the ordinary case because of the exit below: the loop leaves as soon
+        // as there is nothing left to skip, instead of spinning out whatever
+        // budget it was given.
         let deadline = Date.now.addingTimeInterval(TimeInterval(limit) * 30)
         // The block the work ends on. Reached with every exercise behind, and
         // it is the CALLER's question to answer (`declineCooldownIfAsked`) —
-        // so arriving here is this loop's exit, not a state to wait out. It
-        // used to spin against it until the deadline whenever `limit` was
-        // generous, which is most call sites: `limit: 6` on a session of six
-        // with one exercise already done burned forty seconds doing nothing,
-        // in a suite whose whole problem is that it runs out of runner.
+        // so arriving here is this loop's exit, not a state to wait out.
+        // Without this exit the loop would spin against the question until
+        // the deadline whenever `limit` is generous, which is most call sites:
+        // `limit: 6` on a session of six with one exercise already done would
+        // spend the rest of its budget doing nothing, in a suite whose whole
+        // problem is that it runs out of runner.
         let cooldownAsks = app.buttons[AX.cooldownIntroSkip]
         var skips = 0
         while !goal.exists && skips < limit && Date.now < deadline {
@@ -105,12 +115,10 @@ final class DredfitUITests: XCTestCase {
             if driver.confirmSkip(timeout: 0) {
                 skips += 1
             } else if skip.exists && skip.isEnabled {
-                // `isEnabled`, not `exists` alone. The escapes stand down
-                // during a count-in, a hold and a side switch as
-                // `.opacity(0).disabled()` — reserved height keeps the layout
-                // still — so they stay in the tree with a degenerate frame,
-                // and since a hold exercise runs itself now, a skip-through
-                // meets that state on the way past every hold.
+                // `isEnabled`, not `exists` alone: while a hold is under way
+                // or settled the escapes stand down as `.opacity(0).disabled()`
+                // (reserved height keeps the layout still) and are
+                // `accessibilityHidden` as well.
                 coordinateTap(skip)
             }
             _ = goal.waitForExistence(timeout: 1)   // settle + goal check
@@ -143,9 +151,9 @@ final class DredfitUITests: XCTestCase {
         startWorkout()
 
         if adjustFirstExercise {
-            // Plan 4 → 3. A clean start IS the bottom of the grid (§40.8),
-            // so a first-session actual can only be BELOW it — there is no
-            // "lower but still on the ladder" number to type here any more.
+            // Plan 4 → 3. A clean start IS the bottom of the grid, so a
+            // first-session actual can only be BELOW it — there is no "lower
+            // but still on the ladder" number to type here.
             openAdjuster(AX.adjustMinus).tap()
             app.buttons[AX.adjustConfirm].tap()
             XCTAssertTrue(app.staticTexts["actual 3"].exists, "the actual marker did not appear")
@@ -244,131 +252,6 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 3))
     }
 
-    // MARK: - Exit and data integrity
-
-    /// One set logged and the dialog open over it — the arrange of the three
-    /// tests below, which differ only in which answer they take.
-    ///
-    /// No `.firstMatch` on the exit tap any more, and that is a fix rather
-    /// than tidying: the header carries TWO controls reading "Exit" — the real
-    /// one and a hidden twin balancing the title — so the query was ambiguous
-    /// and `.firstMatch` resolved it by tree order. Named now
-    /// (`workout-exit`, `workout-exit-spacer`).
-    private func exitDialogOverOneLoggedSet() {
-        app.launch()
-        startWorkout()
-        app.buttons[AX.exerciseDone].tap()
-        XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 3),
-                      "the set has to be logged first, or there is nothing to confirm")
-        app.buttons[AX.workoutExit].tap()
-    }
-
-    func testExitDiscardsWorkoutAfterConfirmation() {
-        exitDialogOverOneLoggedSet()
-        let discard = app.buttons["Discard workout"]
-        XCTAssertTrue(discard.waitForExistence(timeout: 3),
-                      "Exit with progress must ask for confirmation")
-        discard.tap()
-        XCTAssertTrue(app.buttons[AX.startWorkout].waitForExistence(timeout: 3),
-                      "after a discard the workout must not count as completed")
-    }
-
-    func testExitWithNoProgressNeedsNoConfirmation() {
-        app.launch()
-        startWorkout()
-        app.buttons[AX.workoutExit].tap()
-        XCTAssertTrue(app.buttons[AX.startWorkout].waitForExistence(timeout: 3),
-                      "an empty workout should exit without a dialog")
-    }
-
-    /// The stray tap, and what it must NOT cost. A question that can throw a
-    /// workout away has to survive being brushed against.
-    ///
-    /// The behaviour asserted here INVERTED on 27.08.2026, so its history is
-    /// worth keeping straight. As a `confirmationDialog` this question was
-    /// presented as an anchored POPOVER, and a popover IS dismissed by the tap
-    /// outside — that was the cancel, and the only way back, because a popover
-    /// suppresses its cancel action and the declared `Button(role: .cancel)`
-    /// was drawn nowhere and stood nowhere in the accessibility tree.
-    ///
-    /// It is an `.alert` now, and an alert is modal: the tap outside is
-    /// swallowed whole. It does not answer the question, and it does not reach
-    /// the rest screen underneath. That is the stronger behaviour — the escape
-    /// is a button a person can SEE, pinned by the test below — so what this
-    /// one pins is the other half: the tap that misses costs nothing.
-    ///
-    /// The old name said "dismissed without answering", which an alert has no
-    /// way to be; the assertion it carried could only go red.
-    func test_exitDialog_aTapOutsideNeitherAnswersItNorReachesTheScreenUnder() {
-        exitDialogOverOneLoggedSet()
-        let dialog = app.alerts["Leave the workout?"]
-        XCTAssertTrue(dialog.waitForExistence(timeout: 3),
-                      "exiting over a logged set must ask before it throws the set away")
-        // dy 0.95 is below the alert and over the rest screen it covers — the
-        // one place a stray tap could both miss the alert and land on
-        // something. Waiting for a non-existence that must NOT arrive, rather
-        // than reading `exists` straight after the tap: a dismissal the tap
-        // wrongly started would be animating, not instant.
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95)).tap()
-        XCTAssertFalse(dialog.waitForNonExistence(timeout: 2),
-                       "a modal question must not be answered by a tap that missed it")
-        app.buttons["Keep training"].tap()
-        XCTAssertTrue(dialog.waitForNonExistence(timeout: 3),
-                      "the visible way back must close the question")
-        // Today's controls stay in the tree under the workout cover, so the
-        // proof of "still inside" is the rest screen, not the absence of Start.
-        XCTAssertTrue(app.buttons[AX.skipRest].exists,
-                      "the rest screen the dialog covered must be exactly as it was")
-        app.buttons[AX.workoutExit].tap()
-        XCTAssertTrue(app.buttons["Discard workout"].waitForExistence(timeout: 3),
-                      "the set logged before the stray tap must still be there — an "
-                        + "empty workout is not asked to confirm")
-    }
-
-    /// The visible way back out. Before 27.08.2026 the only one was the tap
-    /// outside, which nothing on screen mentions — and both buttons that WERE
-    /// drawn led out of the workout, one of them destructively. It carries the
-    /// `.cancel` role as well now, so the escape gesture and the button people
-    /// can see are the same thing.
-    func test_exitDialog_keepTrainingIsDrawnAndLeavesTheWorkoutStanding() {
-        exitDialogOverOneLoggedSet()
-        let keep = app.buttons["Keep training"]
-        XCTAssertTrue(keep.waitForExistence(timeout: 3),
-                      "the question must offer a VISIBLE way to stay, not only a tap outside")
-        keep.tap()
-
-        XCTAssertTrue(app.alerts["Leave the workout?"].waitForNonExistence(timeout: 3),
-                      "the way to stay must close the question")
-        XCTAssertTrue(app.buttons[AX.skipRest].exists,
-                      "staying must leave the rest screen the dialog covered as it was")
-        app.buttons[AX.workoutExit].tap()
-        XCTAssertTrue(app.buttons["Discard workout"].waitForExistence(timeout: 3),
-                      "the set logged before is still there — an empty workout is not asked")
-    }
-
-    func testExitCanFinishNowThroughTheRating() {
-        exitDialogOverOneLoggedSet()
-        let finishNow = app.buttons["Finish now"]
-        XCTAssertTrue(finishNow.waitForExistence(timeout: 3))
-        finishNow.tap()
-
-        // 15 s, not 3: the rating is the screen a whole workout ends on, and
-        // every wait for it stands at the end of a chain of taps. Three
-        // seconds is not a check on a loaded runner, it is a coin toss —
-        // I-22, and the nightly has now lost this transition twice.
-        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 15),
-                      "Finish now must lead to the rating screen")
-        // "not finished" is the one per-row word that differs from the section
-        // header and therefore stays visible.
-        XCTAssertTrue(app.staticTexts.matching(
-            NSPredicate(format: "label CONTAINS 'not finished'")).firstMatch.exists,
-            "the interrupted exercise must read 'not finished', not 'skipped'")
-        XCTAssertTrue(app.staticTexts["SKIPPED"].exists,
-                      "the skips section carries its header")
-
-        rate()
-    }
-
     // MARK: - Calendar and history
 
     func testCalendarShowsHistoryAfterWorkout() {
@@ -381,9 +264,9 @@ final class DredfitUITests: XCTestCase {
         app.buttons[AX.day(day)].tap()
         XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 3),
                       "history did not open on the day tap")
-        // In the plan's own spelling and named (§41.13): the first set was
-        // corrected to 3 and the number carries down the sets that followed,
-        // so the row prints a uniform fact the way a plan prints one.
+        // In the plan's own spelling and named: the first set was corrected
+        // to 3 and the number carries down the sets that followed, so the row
+        // prints a uniform fact the way a plan prints one.
         XCTAssertTrue(app.staticTexts["Actual: 3×3"].exists, "the actual is not shown in the history")
         app.buttons[AX.historyDone].tap()
     }
@@ -395,8 +278,7 @@ final class DredfitUITests: XCTestCase {
         app.tabBars.buttons["Progress"].tap()
         XCTAssertTrue(app.staticTexts["steps"].waitForExistence(timeout: 3))
         // 6 patterns × (+2) = 12, on the identified element. The scale is
-        // an ordinal along each ladder now (§40.2); the identifier kept
-        // its old name, the CAPTION did not.
+        // an ordinal along each ladder.
         let totalLevel = app.staticTexts[AX.totalSteps]
         XCTAssertEqual(totalLevel.label, "12", "the total level after \"easy\" should be 12")
         XCTAssertTrue(app.staticTexts["1 workout"].exists,
@@ -406,8 +288,10 @@ final class DredfitUITests: XCTestCase {
     // MARK: - Warm-up
 
     func testWarmupShowsAndSkips() {
-        // Both transition labels below are asserted while it is on screen — a
-        // five-second window at its real length, so it is held open instead.
+        // Both transition labels below are asserted while their transition is
+        // on screen. The flag holds the automatic one ("Arm circles") open;
+        // the first is the count-in the offer's tap opens, which lasts
+        // `GetReady.countInSeconds` whatever the flag says.
         seed("--uitest-long-transition")
         app.launch()
         app.buttons[AX.startWorkout].tap()
@@ -415,8 +299,8 @@ final class DredfitUITests: XCTestCase {
                       "the workout must open with the warm-up")
         // The block is offered, not started — say yes before walking it.
         app.buttons[AX.warmupStart].tap()
-        // Since #52 the block opens on the transition announcing the first
-        // move; this label is the one VoiceOver reads.
+        // The block opens on the transition announcing the first move (#52);
+        // this label is the one VoiceOver reads.
         XCTAssertTrue(app.staticTexts["Get ready: Marching in place"].exists,
                       "the first warm-up move is missing")
         // one impossible move must not cost the other five
@@ -471,12 +355,12 @@ final class DredfitUITests: XCTestCase {
 
     // MARK: - Settings
 
-    /// The chip has to CHANGE STATE, not merely absorb the tap: it used to be
-    /// tapped twice with nothing asserted in between, so the test stayed green
-    /// through a chip that had stopped doing anything. `isSelected` is the
-    /// claim rather than a colour — the chip carries that trait because colour
-    /// alone does not reach VoiceOver — and it is asserted on the chip, not on
-    /// Today, because whether Monday is today is the calendar's business.
+    /// The chip has to CHANGE STATE, not merely absorb the tap: two taps with
+    /// nothing asserted in between stay green through a chip that has stopped
+    /// doing anything. `isSelected` is the claim rather than a colour — the
+    /// chip carries that trait because colour alone does not reach VoiceOver
+    /// — and it is asserted on the chip, not on Today, because whether Monday
+    /// is today is the calendar's business.
     func testSettingsTogglesRestDay() {
         app.launch()
         // the settings icon overlays every tab — reachable straight from Today
@@ -523,7 +407,7 @@ final class DredfitUITests: XCTestCase {
                       "the explainer did not open")
         for section in ["What your answer does", "Deload", "Rotation",
                         "Weekly rhythm",   // issue #36
-                        "Trying the next variation",   // §40.4
+                        "Trying the next variation",
                         "Skips", "Why there are no questionnaires"] {
             XCTAssertTrue(app.staticTexts[section].exists,
                           "section \"\(section)\" is missing")
@@ -538,19 +422,16 @@ final class DredfitUITests: XCTestCase {
 
 // An extension rather than more class body, and the reason is a hard gate
 // rather than taste: SwiftLint bounds a type's OWN body at 600 lines as an
-// error and that body had reached 599. An extension weighs nothing against it
-// — splitting the FILE would not have moved the number at all. Same file, so
-// every private helper above stays reachable.
+// error, and an extension weighs nothing against it — splitting the FILE
+// would not move that number at all. Same file, so every private helper above
+// stays reachable.
 extension DredfitUITests {
 
     // MARK: - About section
-    //
-    // Was "Pull-up bar" until testBarWorkoutFlowsToRating moved to
-    // DredfitUITests+HoldTimer.swift — it is a hold-timer walk in substance
-    // (maximiseHold, holdStart/holdStop), and this test is what was left.
 
-    /// Both deliberate ways to leave a review live in settings, so a user
-    /// never has to wait for the automatic ask.
+    /// Both deliberate ways to recommend the app live in settings — a review
+    /// on the App Store and a share — so a user never has to wait for the
+    /// automatic ask.
     func testAboutSectionOffersBothWaysToRecommend() {
         app.launch()
         app.buttons[AX.settings].tap()
@@ -567,10 +448,9 @@ extension DredfitUITests {
     //
     // Both walks seed a WORKOUT as well as the marked weekday, and the second
     // flag is the arrange, not belt-and-braces: rest is rest FROM something,
-    // so since the UX review of 05.09.2026 `restApplies` is "weekday marked
-    // AND journal not empty" — a fresh install is no longer told to come back
-    // on Tuesday. `--uitest-restday` marks today and writes nothing, so alone
-    // it now draws the PLAN, which is how both of these failed.
+    // so `restApplies` is "weekday marked AND journal not empty" — a fresh
+    // install is not told to come back on Tuesday. `--uitest-restday` marks
+    // today and writes nothing, so alone it draws the PLAN.
     // `--uitest-session2` is the cheapest journal there is (session 1 done
     // YESTERDAY: one record, no break, nothing done today), and the hook order
     // makes the pair safe — applyUITestHooks sets the rest weekday after the
@@ -625,15 +505,14 @@ extension DredfitUITests {
             "both set-band rows should be listed")
         // NO life line here, and that is the rule, not a gap: the line belongs
         // to a NEW VARIATION (issue #25), and both rows above are SET BANDS —
-        // since v3 a seed can only plant those, because entering a variation
-        // needs a probe passed inside the workout (§40.4). Their kicker says
-        // "More sets" since the UX review of 05.09.2026, and the two earlier
-        // words were each a different lie: "New variation" about WHICH
-        // movement (the UI-truth audit, 27.08.2026), then "More volume" about
-        // the amount — entering a band cuts the dose per set, so total work
-        // at the transition holds or falls. Sets are the axis that moves, so
-        // that is the word this assert pins. The variation-up row and its
-        // life line stay covered by MilestoneTests at unit level.
+        // a seed can only plant those, because entering a variation needs a
+        // probe passed inside the workout. Their kicker says "More sets", and
+        // either neighbouring word would be a lie: "New variation" about WHICH
+        // movement, "More volume" about the amount — entering a band cuts the
+        // dose per set, so total work at the transition holds or falls. Sets
+        // are the axis that moves, so that is the word this assert pins. The
+        // variation-up row stays covered by MilestoneTests at unit level, and
+        // the text of its life line by LifeBenefitTests.
         XCTAssertEqual(
             app.staticTexts.matching(identifier: AX.milestoneLife).count, 0,
             "a set band is the same ability grown — it carries no life line")

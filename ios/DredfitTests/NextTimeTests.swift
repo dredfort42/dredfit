@@ -1,11 +1,12 @@
 //
-//  The two tenses of a finished hold's summary (§41.13): the clock as the
-//  ceiling of a correction, and the addition "for next time" — where it is
-//  kept, where it lands, and how every screen after it names it.
+//  The two tenses of a finished hold's summary: the clock as the ceiling of
+//  a correction, and the addition "for next time" — where it is kept, where
+//  it lands, and how every screen after it names it.
 //
 //  Every rule here is a pure function or a store call on purpose. The
-//  summary itself is a SwiftUI view that nothing automated drives; what it
-//  prints comes from these, and these are what a gating test can reach.
+//  summary itself is a SwiftUI view that only the UI suite drives, and the
+//  UI suite gates nothing; what the summary prints comes from these, and
+//  these are what a gating test can reach.
 //
 
 import XCTest
@@ -18,18 +19,46 @@ final class NextTimeTests: AppStoreTestCase {
     // MARK: - The clock is the ceiling
 
     /// Every set but the last stands as it ran — its range is the number
-    /// itself. The last: the whole corridor — nothing follows it, and the
-    /// person may have kept holding.
+    /// itself, a rest after it or not. The last: the whole corridor when
+    /// nothing follows it, and the person may have kept holding.
     func testOnlyTheLastSetOpensARange() {
         let corridor = SetFacts.corridor(for: .hold)
-        XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: false), 30...30)
-        XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: true), corridor)
+        for restFollowed in [false, true] {
+            for endedByTap in [false, true] {
+                XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: false,
+                                                        restFollowed: restFollowed,
+                                                        endedByTap: endedByTap), 30...30)
+            }
+        }
+        XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: true,
+                                                restFollowed: false, endedByTap: false), corridor)
+        XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: true,
+                                                restFollowed: false, endedByTap: true), corridor)
         // Off the corridor either way, the number is still one the panel
         // could stand on.
-        XCTAssertEqual(SetFacts.correctionRange(measured: 2, isLastSet: false),
+        XCTAssertEqual(SetFacts.correctionRange(measured: 2, isLastSet: false,
+                                                restFollowed: true, endedByTap: false),
                        corridor.lowerBound...corridor.lowerBound)
-        XCTAssertEqual(SetFacts.correctionRange(measured: 500, isLastSet: false),
+        XCTAssertEqual(SetFacts.correctionRange(measured: 500, isLastSet: false,
+                                                restFollowed: true, endedByTap: false),
                        corridor.upperBound...corridor.upperBound)
+    }
+
+    /// The last set with a rest after it — the one before a probe — goes
+    /// down to the floor and up to what the clock ran: its seconds, or the
+    /// thumb's estimate plus the allowance the estimate took off.
+    func testALastSetARestFollowedGoesNoHigherThanTheClockRan() {
+        let corridor = SetFacts.corridor(for: .hold)
+        XCTAssertEqual(SetFacts.correctionRange(measured: 45, isLastSet: true,
+                                                restFollowed: true, endedByTap: false),
+                       corridor.lowerBound...45)
+        XCTAssertEqual(SetFacts.correctionRange(measured: 41, isLastSet: true,
+                                                restFollowed: true, endedByTap: true),
+                       corridor.lowerBound...(41 + SetFacts.holdReachSeconds))
+        // Still a range the panel can stand on at the corridor's top.
+        XCTAssertEqual(SetFacts.correctionRange(measured: 89, isLastSet: true,
+                                                restFollowed: true, endedByTap: true),
+                       corridor)
     }
 
     // MARK: - The addition through the store
@@ -42,7 +71,7 @@ final class NextTimeTests: AppStoreTestCase {
     }
 
     private func storeWithHold() throws -> HoldFixture {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         // The second session is the first with a hold in it (the rotation).
         store.completeWorkout(session: store.nextSession, result: .plan)
         let session = store.nextSession
@@ -56,19 +85,21 @@ final class NextTimeTests: AppStoreTestCase {
     func testTheAdditionLandsOverTheRatingAndIsRecorded() throws {
         let fx = try storeWithHold()
         let (store, session, hold) = (fx.store, fx.session, fx.hold)
-        let alone = AppStore(storageURL: tempURL)
+        let alone = makeStore()
         alone.completeWorkout(session: session, result: .plan)
         store.completeWorkout(session: session, result: .plan, raised: [hold.pattern: 1])
 
         let without = try XCTUnwrap(alone.currentPositions[hold.pattern])
         let with = try XCTUnwrap(store.currentPositions[hold.pattern])
-        XCTAssertEqual(Engine.progress(hold.pattern, variation: with.variation, sets: with.sets,
-                                       dose: with.dose, sub: with.sub ?? 0, cut: with.cut ?? 0),
-                       Engine.progress(hold.pattern, variation: without.variation,
-                                       sets: without.sets, dose: without.dose,
-                                       sub: without.sub ?? 0, cut: without.cut ?? 0) + 1,
+        XCTAssertEqual(Engine.progress(hold.pattern, Position(variation: with.variation, sets: with.sets,
+                                                              dose: with.dose, sub: with.sub ?? 0,
+                                                              cut: with.cut ?? 0)),
+                       Engine.progress(hold.pattern, Position(variation: without.variation,
+                                                              sets: without.sets, dose: without.dose,
+                                                              sub: without.sub ?? 0,
+                                                              cut: without.cut ?? 0)) + 1,
                        "one step for next time is one growth event over the rating's")
-        let record = try XCTUnwrap(AppStore(storageURL: tempURL).records.last)
+        let record = try XCTUnwrap(makeStore().records.last)
         XCTAssertEqual(record.raisedSteps, [hold.pattern: 1], "the journal keeps the decision")
         // …and the store the record came from says so on tomorrow's plan.
         XCTAssertEqual(store.raisedForNextPlan(hold.pattern), 1)
@@ -81,16 +112,36 @@ final class NextTimeTests: AppStoreTestCase {
         let fx = try storeWithHold()
         let (store, session, hold) = (fx.store, fx.session, fx.hold)
         let overrides: [Pattern: Double] = [hold.pattern: Double(hold.load) - 5]
-        let preview = try XCTUnwrap(store.previewPosition(
+        let preview = try XCTUnwrap(store.previewPlan(
             after: session, pattern: hold.pattern, overrides: overrides, skipped: [],
             setsSkipped: [:], probes: [:], raised: [hold.pattern: 2]))
         store.completeWorkout(session: session, result: .plan, overrides: overrides,
                               raised: [hold.pattern: 2])
-        XCTAssertEqual(preview, store.currentPositions[hold.pattern])
-        XCTAssertNil(store.previewPosition(after: session, pattern: hold.pattern,
-                                           overrides: [:], skipped: [], setsSkipped: [:],
-                                           probes: [:], raised: [:]),
+        XCTAssertEqual(preview, store.currentPositions[hold.pattern]?.asPlanned(hold.pattern, probe: nil))
+        XCTAssertNil(store.previewPlan(after: session, pattern: hold.pattern,
+                                       overrides: [:], skipped: [], setsSkipped: [:],
+                                       probes: [:], raised: [:]),
                      "a session the state no longer generates previews nothing")
+    }
+
+    /// A probing plan is named with its probe, the way the comeback card
+    /// names one; a plan on another variation is named with its movement.
+    /// Two plans the same but for the probe are two plans.
+    func testTheSentenceNamesTheProbeTheNextPlanCarries() {
+        let knee = SessionExercise(pattern: .coreAntiExt, name: "Knee plank", variation: 1,
+                                   unit: .hold, load: 45, perSide: false, sets: 2,
+                                   restSetSec: 60, restExerciseSec: 60, loads: nil, probe: nil)
+        let probe = SessionProbe(variation: 2, name: "High plank", unit: .hold, load: 15, perSide: false)
+        let probing = knee.withProbe(probe)
+        XCTAssertEqual(NextTimeBlock.planWords(probing, after: knee),
+                       String(localized: "\(knee.display) + probe: \(probe.name) · \(probe.display)"))
+        XCTAssertEqual(NextTimeBlock.planWords(knee, after: knee), knee.display)
+        let high = SessionExercise(pattern: .coreAntiExt, name: "High plank", variation: 2,
+                                   unit: .hold, load: 15, perSide: false, sets: 3,
+                                   restSetSec: 60, restExerciseSec: 60, loads: nil, probe: nil)
+        XCTAssertEqual(NextTimeBlock.planWords(high, after: probing), "High plank · \(high.display)")
+        XCTAssertFalse(NextTimeBlock.samePlan(probing, knee), "the same sets, and one of them probes")
+        XCTAssertTrue(NextTimeBlock.samePlan(probing, knee.withProbe(probe)))
     }
 
     /// Changing the rating afterwards keeps the addition: it was a decision
@@ -110,14 +161,14 @@ final class NextTimeTests: AppStoreTestCase {
     }
 
     /// The journal names the share that LANDED and keeps the decision apart
-    /// from it. On the grid's ceiling the engine parks the steps (§41.13):
-    /// "+10 s" on a plan of 3×40 s rated "easy" lands five — the rating's two
-    /// events take the base to 45-45-40, one step turns that into 3×45 and
-    /// the other burns — so tomorrow's plan and the history say five, while
-    /// a changed rating replays the two the person asked for and, under "on
-    /// plan", lands both (review, 12.09.2026).
+    /// from it. On the grid's ceiling the engine parks the steps: "+10 s" on
+    /// a plan of 3×40 s rated "easy" lands five — the rating's two events
+    /// take the base to 45-45-40, one step turns that into 3×45 and the other
+    /// burns — so tomorrow's plan and the history say five, while a changed
+    /// rating replays the two the person asked for and, under "on plan",
+    /// lands both.
     func testTheJournalNamesTheShareThatLandedAndKeepsTheDecision() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let pattern = Pattern.coreAntiExt
         var tries = 0
         while !store.nextSession.exercises.contains(where: { $0.pattern == pattern }), tries < 12 {
@@ -126,7 +177,7 @@ final class NextTimeTests: AppStoreTestCase {
         }
         // One rung under the top of the hold grid, and never shown there:
         // the plan reads 3×40 s with no gate in the way.
-        store.engineState.doses[pattern] = Dose.hold.max - Dose.hold.step
+        store.update(refreshWidget: false) { $0.engineState.doses[pattern] = Dose.hold.max - Dose.hold.step }
         let session = store.nextSession
         let hold = try XCTUnwrap(session.exercises.first { $0.pattern == pattern })
         XCTAssertEqual(hold.load, Dose.hold.max - Dose.hold.step, "the premise: 3×40 s")
@@ -154,6 +205,53 @@ final class NextTimeTests: AppStoreTestCase {
         XCTAssertEqual(redone.raisedLanded, [pattern: 2])
         XCTAssertEqual(store.raisedForNextPlan(pattern), 2)
         XCTAssertEqual(store.currentPositions[pattern]?.dose, Dose.hold.max)
+    }
+
+    /// Under a cut, the step that completes a rung moves the measure by more
+    /// than one event, so a second step burned on the ceiling would hide
+    /// inside the first one's jump. A knee plank on 45-40 s with one set cut:
+    /// the first tap makes it 2×45, the second has nowhere to go — one step
+    /// landed.
+    func testAStepBurnedOnTheCeilingUnderACutIsNotCountedAsLanded() {
+        var unraised = EngineState.initial
+        unraised.vars[.coreAntiExt] = 1
+        unraised.doses[.coreAntiExt] = Dose.hold.max - Dose.hold.step
+        unraised.sets[.coreAntiExt] = EngineConfig.setsBase
+        unraised.sub[.coreAntiExt] = 1
+        unraised.cut[.coreAntiExt] = 1
+        let raised = Engine.raiseDose(state: unraised, pattern: .coreAntiExt, steps: 2)
+        XCTAssertEqual(raised.doses[.coreAntiExt], Dose.hold.max, "the premise: the first step reaches the top")
+        XCTAssertEqual(AppStore.landed([.coreAntiExt: 2], from: unraised), [.coreAntiExt: 1])
+    }
+
+    /// The same through the store, the way the summary reaches it: a plan of
+    /// 40-40-35 s, one set skipped, "easy", and two taps on "+". The rating
+    /// and the cut leave 45-40; the first tap lands, the second burns.
+    func testTheStoreRecordsOnlyTheStepThatLandedUnderACut() throws {
+        let store = makeStore()
+        let pattern = Pattern.coreAntiExt
+        var tries = 0
+        while !store.nextSession.exercises.contains(where: { $0.pattern == pattern }), tries < 12 {
+            store.completeWorkout(session: store.nextSession, result: .plan)
+            tries += 1
+        }
+        store.update(refreshWidget: false) {
+            $0.engineState.vars[pattern] = 2
+            $0.engineState.doses[pattern] = 35
+            $0.engineState.sets[pattern] = EngineConfig.setsBase
+            $0.engineState.sub[pattern] = 2
+            $0.engineState.cut[pattern] = 0
+        }
+        let session = store.nextSession
+        let hold = try XCTUnwrap(session.exercises.first { $0.pattern == pattern })
+        XCTAssertEqual(hold.loads, [40, 40, 35], "the premise: 40-40-35 s")
+
+        store.completeWorkout(session: session, result: .more, setsSkipped: [pattern: 1],
+                              raised: [pattern: 2])
+        let record = try XCTUnwrap(store.records.last)
+        XCTAssertEqual(store.currentPositions[pattern]?.dose, Dose.hold.max, "the premise: the raise reached the top")
+        XCTAssertEqual(record.raisedLanded, [pattern: 1])
+        XCTAssertEqual(store.raisedForNextPlan(pattern), 1)
     }
 
     /// The share is what the screens read; a record written before the share
@@ -203,8 +301,9 @@ final class NextTimeTests: AppStoreTestCase {
         let (store, session, hold) = (fx.store, fx.session, fx.hold)
         store.completeWorkout(session: session, result: .plan, raised: [hold.pattern: 1])
         XCTAssertEqual(store.raisedForNextPlan(hold.pattern), 1)
-        store.engineState = Engine.raiseDose(state: store.engineState,
-                                             pattern: hold.pattern, steps: 1)
+        store.update(refreshWidget: false) {
+            $0.engineState = Engine.raiseDose(state: $0.engineState, pattern: hold.pattern, steps: 1)
+        }
         XCTAssertEqual(store.raisedForNextPlan(hold.pattern), 0)
     }
 
@@ -261,7 +360,7 @@ final class NextTimeTests: AppStoreTestCase {
             raisedSteps: [.coreAntiExt: 1])
         XCTAssertEqual(HistorySheet.factLine(hold, in: record),
                        String(localized: "history.held", defaultValue: "Held: \(hold.withLoads([30, 22, 25]).display)"))
-        // Without a raise the line is what it always was; with one, the
+        // Without a raise the line is the plain "After:"; with one, the
         // same line carries the person's share, through the same key.
         var plain = record
         plain.raisedSteps = nil
@@ -284,6 +383,13 @@ private extension SessionExercise {
     func withLoads(_ loads: [Int]?, load: Int? = nil) -> SessionExercise {
         SessionExercise(pattern: pattern, name: name, variation: variation, unit: unit,
                         load: load ?? self.load, perSide: perSide, sets: sets,
+                        restSetSec: restSetSec, restExerciseSec: restExerciseSec,
+                        loads: loads, probe: probe)
+    }
+
+    func withProbe(_ probe: SessionProbe) -> SessionExercise {
+        SessionExercise(pattern: pattern, name: name, variation: variation, unit: unit,
+                        load: load, perSide: perSide, sets: sets,
                         restSetSec: restSetSec, restExerciseSec: restExerciseSec,
                         loads: loads, probe: probe)
     }

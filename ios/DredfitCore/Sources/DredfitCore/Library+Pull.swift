@@ -1,11 +1,11 @@
 //
-//  The two pull ladders of §40.1 — the slot that stands in every session.
+//  The two pull ladders — the slot that stands in every session.
 //
-//  Y-T-W raises left the row ladder for the warm-up (§40.1): activation, not
-//  load. Their technique lives on in `WarmupTechnique`.
+//  Y-T-W raises are not on the row ladder (activation, not load); their
+//  technique lives in `WarmupTechnique`.
 //
-//  The row is graded by the ANGLE of the support: three new lower rungs
-//  replace the drop from "nothing" straight to a horizontal row.
+//  The row is graded by the ANGLE of the support, so the ladder has lower
+//  rungs than a horizontal row.
 //
 
 // swiftlint:disable line_length
@@ -124,7 +124,7 @@ extension ExerciseLibrary {
     /// The ladder that carries the library's ONE unit boundary. Rung 2 is
     /// seconds, rung 3 is reps; the ratio between them is undefined, so the
     /// density invariant skips that edge and the only way across it is a probe
-    /// (§40.1, §40.10 п. 3) — which is also the only way to compare them.
+    /// — which is also the only way to compare them.
     static var pullBar: [ExerciseVariation] {
         [
             rung(String(localized: "Bar hang", bundle: .module),

@@ -3,9 +3,9 @@
 //
 //  A launch that cannot READ its state file — data protection before the
 //  first unlock, usually — degrades to an empty state and waits for
-//  `reloadIfNeeded()`. The rule this suite guards is one line of AppStore.swift
-//  with its reason written beside it: "Same stamp as the launch path: a frozen
-//  launch is exactly the one that must not swallow the announcement."
+//  `reloadIfNeeded()`. The rule this suite guards lives in `AppStore.adopt`,
+//  the one path a launch and a reload share: a frozen launch is exactly the one
+//  that must not swallow the migration announcement.
 //
 //  It had no test. The cold path was covered (MigrationV2Tests), the freeze
 //  was covered (AppStoreTests), and the crossing of the two — the case the
@@ -13,8 +13,7 @@
 //  `reloadIfNeeded()` in the suite work on a v3 file.
 //
 //  It matters because the migration card is the ONLY thing that explains the
-//  new shape to an upgrading trainee: the line that would otherwise say it
-//  shows on an EMPTY journal, and an upgrader's journal is intact.
+//  new shape to an upgrading trainee.
 //
 
 import XCTest
@@ -68,7 +67,7 @@ final class FrozenLaunchTests: AppStoreTestCase {
     private func frozenStore(over payload: Data) throws -> AppStore {
         try payload.write(to: tempURL)
         try setPermissions(0o000)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertTrue(store.journalFrozen,
                       "the fixture must actually freeze, or this suite is testing the cold path twice")
         XCTAssertFalse(store.showsMigrationNotice,
@@ -126,7 +125,92 @@ final class FrozenLaunchTests: AppStoreTestCase {
                        "and it announces nothing, because it has still not read the v2 state")
         XCTAssertEqual(try Data(contentsOf: tempURL), payload,
                        "the v2 file itself must be untouched — that is what carries the announcement on")
-        XCTAssertTrue(AppStore(storageURL: tempURL).showsMigrationNotice,
+        XCTAssertTrue(makeStore().showsMigrationNotice,
                       "so the very next launch announces it: deferred, never spent")
+    }
+
+    // MARK: - Starting a workout
+
+    func test_frozenLaunch_cannotStartAWorkout_andRetryingTheReadLiftsThat() throws {
+        try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
+        let store = try frozenStore(over: v3Payload(counter: 5))
+        defer { try? setPermissions(0o644) }
+        XCTAssertFalse(store.canStartWorkout,
+                       "a workout done now is kept in memory only, and the person must be told instead")
+
+        store.activate()   // what the card's Try again calls — still unreadable
+        XCTAssertFalse(store.canStartWorkout, "a read that fails again changes nothing")
+
+        try setPermissions(0o644)
+        store.activate()
+        XCTAssertTrue(store.canStartWorkout, "the second read lifts the freeze, and Start comes back")
+    }
+
+    func test_frozenLaunch_retryingTheWrite_doesNotPinTheFreeze() throws {
+        try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
+        let store = try frozenStore(over: v3Payload(counter: 5))
+        defer { try? setPermissions(0o644) }
+
+        store.retryPersist()
+        try setPermissions(0o644)
+        store.reloadIfNeeded()
+
+        XCTAssertFalse(store.journalFrozen,
+                       "an empty retry is not work done on this launch — counting it would pin the freeze "
+                       + "and leave only a relaunch")
+        XCTAssertEqual(store.engineState.counter, 5)
+    }
+
+    // MARK: - What the reload finds
+
+    /// The copies a read put aside for this test's file.
+    private func corruptCopies() throws -> [URL] {
+        let stem = tempURL.deletingPathExtension().lastPathComponent + ".corrupt"
+        return try FileManager.default
+            .contentsOfDirectory(at: tempURL.deletingLastPathComponent(), includingPropertiesForKeys: nil)
+            .filter { $0.lastPathComponent.hasPrefix(stem) }
+    }
+
+    private func removeCorruptCopies() {
+        for url in (try? corruptCopies()) ?? [] { try? FileManager.default.removeItem(at: url) }
+    }
+
+    func test_frozenLaunch_reloadingAFileThatNoLongerDecodes_movesItAsideAndThaws() throws {
+        try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
+        let garbage = Data("not a state file".utf8)
+        let store = try frozenStore(over: garbage)
+        defer { removeCorruptCopies() }
+
+        try setPermissions(0o644)
+        store.reloadIfNeeded()
+
+        XCTAssertFalse(store.journalFrozen,
+                       "a file that will never decode must not keep the launch frozen for good")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: tempURL.path),
+                       "moved, so the next write cannot land on the only copy")
+        XCTAssertEqual(try corruptCopies().map { try Data(contentsOf: $0) }, [garbage])
+    }
+
+    func test_frozenLaunch_reloadingAPartlyReadableFile_keepsWhatReadsAndACopyOfTheRest() throws {
+        try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
+        let record = WorkoutRecord(sessionNumber: 1, date: Date(timeIntervalSince1970: 1_800_000_000),
+                                   result: .plan)
+        let payload = try JSONSerialization.data(withJSONObject: [
+            "engineState": ["from": "a future build"],
+            "records": [try JSONSerialization.jsonObject(with: JSONEncoder().encode(record)),
+                        ["from": "a future build"]]
+        ])
+        let store = try frozenStore(over: payload)
+        defer { try? setPermissions(0o644); removeCorruptCopies() }
+
+        try setPermissions(0o644)
+        store.reloadIfNeeded()
+
+        XCTAssertFalse(store.journalFrozen)
+        XCTAssertEqual(store.records.count, 1, "the readable entry loads on the reload")
+        XCTAssertEqual(store.engineState, .initial, "a state neither shape reads starts clean")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: tempURL.path), "copied, not moved")
+        XCTAssertEqual(try corruptCopies().map { try Data(contentsOf: $0) }, [payload],
+                       "the state and the dropped entry can still be recovered from the copy")
     }
 }

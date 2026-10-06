@@ -1,7 +1,7 @@
 //
 //  The app writes a two-week snapshot into the App Group; the widget only
 //  reads it, one timeline entry per day. The timeline itself lives in
-//  TodayProvider.swift, where the unit tests can reach it.
+//  TodayProvider.swift.
 //
 
 import WidgetKit
@@ -89,11 +89,10 @@ struct TodayStatusView: View {
 
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 1) {
-            // Dynamic Type, not three frozen sizes: `.system(size:)` ignores
-            // the reader's setting outright, and the lock screen is the one
-            // surface read without picking the phone up — or the glasses
-            // (finding 60, UX review 05.09.2026). The sibling lock-screen file
-            // settled the same question the same way: `RestLiveActivity` caps
+            // Dynamic Type, not frozen sizes: `.system(size:)` ignores the
+            // reader's setting outright, and the lock screen is the one
+            // surface read without picking the phone up — or the glasses.
+            // The sibling lock-screen file does the same: `RestLiveActivity` caps
             // only its display NUMBER and lets every word scale, so no `cap:`
             // here. What one line can take is bounded by the two rules already
             // on it — one line, and shrink before truncating.
@@ -109,10 +108,9 @@ struct TodayStatusView: View {
             Text(subline)
                 .dredfitFont(12)
                 .lineLimit(1)
-                // The only line here that carries a fact, and the one that
-                // was losing the day it names to an ellipsis in the longer
-                // languages. Same factor as the headline two lines up: one
-                // rule inside one view (UX review 05.09.2026).
+                // The only line here that carries a fact, and in the longer
+                // languages an ellipsis would cut the day it names. Same factor
+                // as the headline two lines up: one rule inside one view.
                 .minimumScaleFactor(0.8)
                 .accessibilityLabel(sublineSpoken)
         }
@@ -127,8 +125,7 @@ struct TodayStatusView: View {
                 if let n = entry.sessionNumber, let min = entry.planMinutes {
                     // Both ends here too — inline and rectangular sit on the
                     // same lock screen, and one of them saying "32 min" while
-                    // the other says "24–32 min" reads as two plans
-                    // (UX review 05.09.2026).
+                    // the other says "24–32 min" reads as two plans.
                     Text("Workout \(n)") + Text(verbatim: " · ") + minutesText(full: min)
                 } else {
                     Text(headline)
@@ -201,13 +198,12 @@ struct TodayStatusView: View {
                     Text(day.date.formatted(.dateTime.weekday(.narrow)))
                         .font(.system(size: 10, weight: .semibold))
                         // One tone for all seven letters. Dimming the missed
-                        // day to ink3 put TEXT at 2.35:1 in light and 3.02:1 in
-                        // dark, both under the 4.5 this size needs, and it did
-                        // it to the one column a person is most likely to be
-                        // looking for (finding 69; owner's call, UX review
-                        // 05.09.2026 — ink3 is a graphics tone). The day's
-                        // state is the MARK below, which is what carries it for
-                        // the other three statuses too.
+                        // day to ink3 would put TEXT at 2.35:1 in light and
+                        // 3.02:1 in dark, both under the 4.5 this size needs
+                        // (ink3 is a graphics tone), and it would hit the one
+                        // column a person is most likely to be looking for. The
+                        // day's state is the MARK below, which is what carries
+                        // it for the other three statuses too.
                         .foregroundStyle(Theme.ink2)
                     mark(for: day)
                 }
@@ -270,13 +266,12 @@ struct TodayStatusView: View {
                         // variations differ at the END of the name, which is
                         // exactly what an ellipsis would hide.
                         //
-                        // 0.8 was measured against English only, and every
-                        // other language overruns it: the ellipsis then landed
-                        // on the tail and drew the two calf steps — "on a
-                        // step" and "with a pause" — as the same row
-                        // (UX review 05.09.2026). Shrink further first, and
-                        // when even that is not enough drop the HEAD, which
-                        // is the half the sibling names share.
+                        // 0.8 fits English only; other languages overrun it,
+                        // and a tail ellipsis would draw the two calf steps —
+                        // "on a step" and "with pause" — as the same row.
+                        // So shrink further first (0.7), and when even that is
+                        // not enough drop the HEAD, which is the half the
+                        // sibling names share.
                         .minimumScaleFactor(0.7)
                         .truncationMode(.head)
                     Spacer(minLength: 0)
@@ -284,10 +279,10 @@ struct TodayStatusView: View {
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(Theme.ink2)
                         .monospacedDigit()
-                        // "3×30 sec per side" is the longest dose there is,
-                        // and without this it wraps to a second line under
-                        // pressure — growing every row of a list that already
-                        // fills the widget (UX review 05.09.2026).
+                        // One line, or the dose wraps under pressure and grows
+                        // every row of a list that already fills the widget.
+                        // An uneven dose ("40-35-35-35-35 sec per side") is
+                        // cut with an ellipsis instead.
                         .lineLimit(1)
                 }
                 .padding(.vertical, 6)
@@ -363,7 +358,7 @@ struct TodayStatusView: View {
     /// It is the RANGE, not the full number alone: the lock screen is where
     /// "will this fit today" gets answered without opening the app, and the
     /// full number alone overstates what the person is agreeing to — the
-    /// reason Today prints both ends (PlanLength, UX review 05.09.2026). A
+    /// reason Today prints both ends (PlanLength). A
     /// snapshot written before the floor existed carries one number and still
     /// prints one. nil on any day with no plan to describe.
     private var planLength: (printed: String, spoken: String)? {

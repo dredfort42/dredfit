@@ -2,12 +2,11 @@
 //  What the calendar side of the store says: the week card's number and the
 //  word the cards use for the next training day (`AppStore+Calendar.swift`).
 //
-//  The file sat at 75 % with the uncovered part concentrated in two places:
-//  the branch that reads a record written before the scale changed, and the
-//  hardcoded Russian and Portuguese weekday phrases. The first is closed here.
-//  The second cannot be — see the note at the bottom of the file; it is a
-//  locale-dependent branch of user-facing text that no gate looks at, unit
-//  test plan and localization check included.
+//  The branch that reads a record written before the scale changed is covered
+//  here. The hardcoded Russian and Portuguese weekday phrases cannot be — see
+//  the note at the bottom of the file; they are a locale-dependent branch of
+//  user-facing text that no gate looks at, unit test plan and localization
+//  check included.
 //
 
 import XCTest
@@ -37,9 +36,11 @@ final class CalendarCaptionTests: AppStoreTestCase {
     // MARK: - The week card's number
 
     func test_weekSummary_whenTheWeeksLastRecordPredatesTheScale_readsZeroRatherThanTheBaselineBackwards() {
-        let store = AppStore(storageURL: tempURL)
-        store.records = [journalEntry(date(2026, 7, 3), progress: 40),   // Friday, the week before
-                         journalEntry(wednesday, progress: nil)]         // written before v3
+        let store = makeStore()
+        store.update(refreshWidget: false) {
+            $0.records = [journalEntry(date(2026, 7, 3), progress: 40),   // Friday, the week before
+                          journalEntry(wednesday, progress: nil)]         // written before v3
+        }
 
         let week = store.weekSummary(for: wednesday)
 
@@ -50,9 +51,11 @@ final class CalendarCaptionTests: AppStoreTestCase {
     }
 
     func test_weekSummary_whenTheWeekEndsLowerThanItStarted_reportsTheDropInsteadOfHidingIt() {
-        let store = AppStore(storageURL: tempURL)
-        store.records = [journalEntry(date(2026, 7, 3), progress: 40),
-                         journalEntry(wednesday, progress: 30)]
+        let store = makeStore()
+        store.update(refreshWidget: false) {
+            $0.records = [journalEntry(date(2026, 7, 3), progress: 40),
+                          journalEntry(wednesday, progress: 30)]
+        }
 
         XCTAssertEqual(store.weekSummary(for: wednesday).stepsDelta, -10,
                        "a deload week is negative, and that is honest rather than an error to clamp away")
@@ -60,11 +63,23 @@ final class CalendarCaptionTests: AppStoreTestCase {
 
     // MARK: - The word for the next training day
 
+    /// A fresh install on a marked weekday is offered the plan on Today (rest
+    /// is rest FROM something), so the next training date is today as well —
+    /// not "tomorrow" for the very session Today is offering.
+    func test_nextTrainingDate_whenAFreshInstallStartsOnAMarkedWeekday_isToday() {
+        let store = makeStore()
+        store.update(refreshWidget: false) {
+            $0.settings.restWeekdays = [Calendar.current.component(.weekday, from: store.today)]
+        }
+        XCTAssertFalse(store.restAppliesToday, "Today offers the plan")
+        XCTAssertTrue(Calendar.current.isDate(store.nextTrainingDate, inSameDayAs: store.today))
+    }
+
     func test_nextTrainingDateLabel_forAGivenDay_speaksFromThatDayAndNotFromToday() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         // Saturday and Sunday off, so Monday is the next training day seen
         // from either — the same date, two different words.
-        store.settings.restWeekdays = [7, 1]
+        store.update(refreshWidget: false) { $0.settings.restWeekdays = [7, 1] }
 
         let fromSaturday = store.nextTrainingDateLabel(from: saturday)
         let fromSunday = store.nextTrainingDateLabel(from: sunday)
@@ -83,11 +98,11 @@ final class CalendarCaptionTests: AppStoreTestCase {
     }
 
     func test_nextTrainingDate_whenEveryWeekdayIsMarkedAsRest_stopsAfterASingleWeek() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         // `toggleRestDay` refuses the seventh day, so this state can only
         // arrive from a file — a restored backup, or one edited by hand. The
         // hop limit is the whole defence: without it the search never ends.
-        store.settings.restWeekdays = Set(1...7)
+        store.update(refreshWidget: false) { $0.settings.restWeekdays = Set(1...7) }
 
         let aWeekOn = try XCTUnwrap(Calendar.current.date(byAdding: .day, value: 7, to: monday),
                                     "the calendar must be able to step a week forward")

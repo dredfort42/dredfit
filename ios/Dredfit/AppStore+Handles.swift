@@ -1,24 +1,21 @@
 //
 //  The athlete's handles.
 //
-//  The two mechanisms that decided FOR the person — the pain channel and the
-//  time budget — are gone, and controls that decide WITH them came back in
-//  their place. So are the last two that still asked for the decision BEFORE
-//  the workout: "shorter today" and "fewer sets" on the plan. Both wanted an
-//  answer to a question the person only knows the answer to standing on the
-//  mat, and both are replaced by the skip on the work screen.
+//  Volume is not a handle on the plan: how much of the session to do today
+//  is a question the person can only answer standing on the mat, so it is
+//  answered by the skip on the work screen.
 //
-//  What is left on the plan is one handle and one number. The handle changes
+//  What is on the plan is one handle and one number. The handle changes
 //  the VARIATION, not the volume — a different question, and the only one
 //  worth asking before the first set. The number is the range the session can
 //  land in, so "will this fit today" has an answer without a control at all.
 //
-//  This file holds what the plan can be ASKED. The one action that WRITES
-//  state lives in AppStore proper, the same way `acceptComeback` does: the
-//  store owns its own mutations. Every handle goes through the ENGINE — the
-//  app writing a level or a cut into the state by hand is the bypass of
-//  `applyFeedback` the audit counts as a finding: it would skip the floor, the
-//  sanitizer, and the position measure the postcondition repair reads.
+//  This file holds what the plan can be ASKED. The writes live in AppStore
+//  proper (`makeEasier`, `makeSuspectEasier`), the same way `acceptComeback`
+//  does: the store owns its own mutations. Every handle goes through the
+//  ENGINE: the app writing a position or a cut into the state by hand would
+//  skip the floor, the sanitizer, and the position measure the postcondition
+//  repair reads.
 //
 
 import Foundation
@@ -30,21 +27,16 @@ extension AppStore {
 
     /// False on the first variation — there is nothing below it in the
     /// library, and the block that carries the handle is ABSENT there rather
-    /// than standing disabled. This comment used to claim the opposite ("the
-    /// control says so instead of disappearing") while the code had always
-    /// hidden it; a rule stated backwards is worse than none, because the next
-    /// reader implements the comment.
+    /// than standing disabled.
     func canMakeEasier(_ pattern: Pattern) -> Bool {
         Engine.easierPosition(pattern: pattern, position: engineState.position(pattern),
                               shown: engineState.shown) != nil
     }
 
-    /// The movement one step down the ladder, in the pieces the technique
-    /// sheet draws (R30). It replaced `easierPreview`, which glued the same
-    /// facts into one string for a 12.5 pt line on the plan — the block has
-    /// room to say them apart, and one of them could not be said at all in a
-    /// glued string: on `pull_bar` 3 → 2 the UNIT changes, and "3×15" turning
-    /// into "3×15 sec" is not a difference anyone reads off a preview.
+    /// The movement one step down the ladder, in pieces rather than one
+    /// glued string: one of them cannot be said in a glued string at all —
+    /// on `pull_bar` 3 → 2 the UNIT changes, and "3×15" turning into
+    /// "3×15 sec" is not a difference anyone reads off a preview.
     ///
     /// Nil when the handle is inactive, which is the same question
     /// `canMakeEasier` answers — asked through it, so the block cannot appear
@@ -81,31 +73,28 @@ extension AppStore {
     /// Asked rather than assumed: the snapshot survives only while it matches
     /// the session the engine would hand out now (`WorkoutSnapshot`'s
     /// fingerprint), so the honest answer is to generate the session the
-    /// switch WOULD produce and compare. The card on Today simply disappears
-    /// otherwise — `resumableWorkout()` returns nil and says nothing about why
-    /// (UX review 05.09.2026, finding 6). What the settings row does with this
-    /// is ask first.
+    /// switch WOULD produce and compare. Unasked, the resume card on Today
+    /// would simply disappear — `resumableWorkout()` returns nil and says
+    /// nothing about why — so the settings row asks first.
     func barToggleWouldDiscardWorkout(_ on: Bool, now: Date = .now) -> Bool {
         guard let snap = resumableWorkout(now: now) else { return false }
         var after = engineState
         after.hasBar = on
-        return snap.fingerprint != WorkoutSnapshot.fingerprint(of: Engine.generateSession(after))
+        return snap.fingerprint != WorkoutSnapshot.fingerprint(of: session(for: after))
     }
 
     // MARK: - How long today can be
 
-    /// The two ends of today's session: the full plan, and the same
-    /// plan with every movement on the sets floor — the shortest the person
-    /// can make it from inside the workout.
+    /// The two ends of today's session: the full plan, and the same plan with
+    /// every movement on the sets floor.
     ///
-    /// This is what replaced the handle. The question the handle answered was
-    /// "will this fit today", and a range answers it without asking anyone to
+    /// The range answers "will this fit today" without asking anyone to
     /// decide anything.
     ///
-    /// Both numbers are the engine's own `estimatedTotalMin` — the app owns no
-    /// arithmetic about duration. The floor session is a QUESTION put to the
-    /// engine, never a state that is written: nothing here moves the plan, and
-    /// the low end is only reached by actually skipping the sets.
+    /// Both numbers are the engine's own `estimatedTotalMin`; the app adds no
+    /// duration arithmetic of its own. The floor session is a QUESTION put to
+    /// the engine, never a state that is written: nothing here moves the plan,
+    /// and the low end is only reached by actually skipping the sets.
     ///
     /// The floor is clamped to the full plan rather than trusted to be below
     /// it. Taking sets off cannot make a plan heavier by construction, but the

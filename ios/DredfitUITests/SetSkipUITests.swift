@@ -1,10 +1,10 @@
 //
 //  The skip that happens DURING the workout, end to end.
 //
-//  The two handles that used to stand on Today are gone: nobody is asked to
-//  decide how long the session will be before standing on the mat. What is
-//  walked here is the decision in its new place — the work screen — and the
-//  two shapes it takes: one set, or the rest of a movement.
+//  Nobody is asked on Today how long the session will be before standing on
+//  the mat: the decision is taken on the work screen, and what is walked here
+//  is that decision and the two shapes it takes — one set, or the rest of a
+//  movement.
 //
 
 import XCTest
@@ -12,20 +12,21 @@ import XCTest
 @MainActor
 final class SetSkipUITests: XCTestCase {
 
-    private var app: XCUIApplication!
+    nonisolated(unsafe) private var app: XCUIApplication!
     private var driver: WorkoutDriver { WorkoutDriver(app: app) }
 
-    // `async throws`: a synchronous `setUp()` override inherits XCTestCase's
-    // non-isolated declaration whatever the class is annotated with, so
-    // main-actor `XCUIApplication` was reached from a non-isolated context.
-    // Only the async form may add the class's isolation.
-    override func setUp() async throws {
-        try await super.setUp()
+    // Synchronous, on purpose: an async setUp kills the CI retries (Apple
+    // #108565878). Why, and why `app` is `nonisolated(unsafe)`: DredfitUITests.setUp.
+    override func setUp() {
+        super.setUp()
         continueAfterFailure = false
-        app = XCUIApplication()
-        // --uitest-fast collapses the rests, so walking two sets costs
-        // seconds rather than minutes.
-        app.seedLaunchArguments("--uitest-fast")
+        app = MainActor.assumeIsolated {
+            let app = XCUIApplication()
+            // --uitest-fast collapses the rests, so walking two sets costs
+            // seconds rather than minutes.
+            app.seedLaunchArguments("--uitest-fast")
+            return app
+        }
     }
 
     /// The set is not performed and the next one is up — with no rest in
@@ -96,7 +97,7 @@ final class SetSkipUITests: XCTestCase {
         XCTAssertTrue(left.waitForExistence(timeout: 10),
                       "the work screen must say what is left of the session")
         let before = minutes(in: left.label)
-        XCTAssertGreaterThan(before, 40, "a 55-minute session should read as most of one")
+        XCTAssertGreaterThan(before, 40, "the long-session seed should have more than 40 minutes ahead")
 
         driver.skip(control: AX.exerciseSkipSet)
         XCTAssertTrue(app.staticTexts["set 2 of 4"].waitForExistence(timeout: 5))
@@ -136,10 +137,10 @@ final class SetSkipUITests: XCTestCase {
     }
 
     /// The defect this pair of guards exists for: both escapes are 44 pt
-    /// targets 18 pt under the button that LOGS the set, they used to fire on
-    /// contact, and a workout has no undo. A brushed thumb took a set — or a
-    /// whole movement with every number entered for it — and nothing anywhere
-    /// could put it back (owner, 30.08.2026).
+    /// targets 18 pt under the button that LOGS the set, and a workout has no
+    /// undo. Firing on contact, a brushed thumb would take a set — or a whole
+    /// movement with every number entered for it — and nothing anywhere could
+    /// put it back.
     ///
     /// Both halves are asserted, because a confirmation that cannot be
     /// declined is not a confirmation: the question has to stand, and saying

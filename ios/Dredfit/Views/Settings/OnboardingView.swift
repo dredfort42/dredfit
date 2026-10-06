@@ -113,12 +113,9 @@ struct OnboardingView: View {
         }
     }
 
-    // UX review 05.09.2026: the minute count was spelled out here and went
-    // stale the moment the engine moved — PR #233 lifted warmupMin 5 → 6 and
-    // the first session became 31.5 min, while Today prints "≈ 24–32 min".
-    // No test pinned the "31", and none could: prose cannot hold a number
-    // only the engine knows. It names the size instead, and stops competing
-    // with the very next screen.
+    // No minute count: prose cannot hold a number only the engine knows,
+    // and Today prints the engine's own range on the very next screen. The
+    // card names the size instead.
     private var card1: some View {
         cardShell(title: String(localized: "Training at home. No questionnaires."),
                   body: String(localized: """
@@ -128,11 +125,10 @@ struct OnboardingView: View {
                   """)) { EmptyView() }
     }
 
-    // UX review 05.09.2026: "the first workout is deliberately easy" moved
-    // from here to card 3. Skip jumps from card 1 straight to the care card,
-    // so this was the ONE sentence a skipper never saw — and it is the one
-    // that explains the very small numbers waiting on the other side of the
-    // button. On card 3 both readers get it.
+    // "The first workout is deliberately easy" lives on card 3, not here:
+    // Skip jumps straight to the care card, so a skipper would never see it
+    // on this one — and it is the sentence that explains the very small
+    // numbers waiting on the other side of the button.
     private var card2: some View {
         cardShell(title: String(localized: "It adjusts like a thermostat."),
                   body: String(localized: """
@@ -145,8 +141,8 @@ struct OnboardingView: View {
     }
 
     /// The card Skip lands on, so everything a skipper must not miss lives
-    /// here — the care note, and now the sentence that sizes the first
-    /// workout (see card 2).
+    /// here — the care note, and the sentence that sizes the first workout
+    /// (see card 2).
     private var card3: some View {
         cardShell(title: String(localized: "One tap after the workout."),
                   body: String(localized: """
@@ -176,12 +172,11 @@ struct OnboardingView: View {
     private func chip(_ text: String, filled: Bool) -> some View {
         Text(text)
             .dredfitFont(13, weight: .semibold)
-            // ink, not accentText: accentText ON accentSoft is 4.20:1 (I-21)
-            // and 13 pt semibold is small text, where the floor is 4.5:1.
-            // `ink` on accentSoft is the pair BrandPaletteTests pins at 4.5,
-            // and the filled chip is still told apart by its ground — the
-            // colour was carrying the contrast, not the meaning
-            // (UX review 05.09.2026, finding 16).
+            // ink, not accentText: accentText ON accentSoft is 4.20:1 in the
+            // dark scheme (I-21), and 13 pt semibold is small text, where the
+            // floor is 4.5:1. `ink` on accentSoft is a pair BrandPaletteTests
+            // gates, and the filled chip is still told apart by its ground —
+            // the text colour carries contrast, not meaning.
             .foregroundStyle(filled ? Theme.ink : Theme.ink2)
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
@@ -198,8 +193,8 @@ struct OnboardingView: View {
     // MARK: - Card 3: the quiet duty-of-care note (#101)
 
     /// Statements, not questions: the checklist is read, not filled in, and
-    /// nothing is stored beyond the acknowledgement timestamp — the zero-
-    /// questionnaires principle holds.
+    /// nothing the checklist names is stored — the zero-questionnaires
+    /// principle holds.
     private var careBlock: some View {
         Text(String(localized: """
         All your data stays on your device.

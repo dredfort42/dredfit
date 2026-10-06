@@ -17,8 +17,7 @@ struct RootView: View {
     /// Whether the audio session has been told the silent-mode choice at least
     /// once this launch. `CountdownSounds` generates every tone the moment it
     /// is first touched, and it starts at the category the default choice
-    /// wants — so a launch that never turns the option on must not build it
-    /// (finding 53, UX review 05.09.2026).
+    /// wants — so a launch that never turns the option on must not build it.
     @State private var silentModeApplied = false
 
     var body: some View {
@@ -27,9 +26,11 @@ struct RootView: View {
                 .tabItem { Label("Today", systemImage: "circle.inset.filled") }
                 .tag(Tab.today)
             CalendarScreen()
+                .saveFailureBanner(store, trailingClearance: 44)
                 .tabItem { Label("Calendar", systemImage: "calendar") }
                 .tag(Tab.calendar)
             ProgressScreen()
+                .saveFailureBanner(store, trailingClearance: 44)
                 .tabItem { Label("Progress", systemImage: "chart.line.uptrend.xyaxis") }
                 .tag(Tab.progress)
         }
@@ -53,6 +54,7 @@ struct RootView: View {
         }
         .sheet(isPresented: $settingsShown) {
             SettingsSheet()
+                .saveFailureBanner(store)
         }
         .fullScreenCover(isPresented: $onboardingShown) {
             OnboardingView {
@@ -71,6 +73,11 @@ struct RootView: View {
         // to a killed process and must leave the lock screen now, not at the
         // system's hours-long cap.
         .task { WorkoutActivityController.endOrphans() }
+        // The banner appears without anything being touched, so VoiceOver is
+        // told: one announcement from the root, not one per banner copy.
+        .onChange(of: store.lastPersistError != nil) { _, failed in
+            if failed { AccessibilityNotification.Announcement(SaveFailureBanner.message).post() }
+        }
         .onChange(of: scenePhase) { _, phase in
             switch phase {
             case .active:
@@ -86,10 +93,10 @@ struct RootView: View {
             }
         }
         // Midnight inside a live scene: a workout's cover keeps the phase
-        // `.active`, so `activate()` never comes and Today showed the next
-        // workout under yesterday's date. UIKit posts this on the main thread
-        // at midnight and on clock or time-zone changes. The DATE only — the
-        // decay stays with `activate()`.
+        // `.active`, so `activate()` never comes, and without this Today would
+        // show the next workout under yesterday's date. UIKit posts this on
+        // the main thread at midnight and on clock or time-zone changes. The
+        // DATE only — the decay stays with `activate()`.
         .onReceive(NotificationCenter.default.publisher(
             for: UIApplication.significantTimeChangeNotification)) { _ in
             store.reanchorToday()
@@ -98,7 +105,7 @@ struct RootView: View {
         // yesterday configures nothing by itself, and the switch in Settings
         // has to be audible on the very next countdown. One observer covers
         // both, plus the third writer nobody would remember — importing a
-        // backup replaces the whole settings block (finding 53).
+        // backup replaces the whole settings block.
         //
         // The guard is what keeps a launch on the default free: a `false` that
         // has never been contradicted asks for exactly the category
@@ -113,7 +120,7 @@ struct RootView: View {
         // than in the Settings sheet that offers it: from the root of the
         // window it also covers the workout's full-screen cover, every sheet
         // and every alert. A picker that leaves the workout on the system
-        // theme would be worse than no picker (finding 54).
+        // theme would be worse than no picker.
         //
         // Widgets and the Live Activity are drawn by another process, which
         // never sees this — which is what the caption under the picker says.

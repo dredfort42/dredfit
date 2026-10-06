@@ -1,22 +1,13 @@
 //
 //  How long a session takes, and what the person can do about it.
 //
-//  This suite used to be about the TIME BUDGET: that the answer was stored,
-//  survived a relaunch, reached the plan, and bought its minutes out of the
-//  sets rather than the levels. All thirteen tests went with the mechanism —
-//  the audit measured what its rungs actually did: 10, 15 and 20 produced the
-//  SAME plan, and the "20" rung missed its own target in 100 % of sessions.
+//  Nobody is asked before the workout how much of it they have in them. The
+//  plan announces its length; the person shortens the session from inside it
+//  (SetSkipTests), and the movement's own VARIATION is the one thing worth
+//  choosing in advance — which is what is left here.
 //
-//  What replaced it was a handle on the plan, and that has now been removed
-//  too: nobody is asked before the workout how much of it they have in them.
-//  The plan announces its length; the person shortens the session from inside
-//  it (SetSkipTests), and the movement's own VARIATION is the one thing still
-//  worth choosing in advance — which is what is left here.
-//
-//  The hard-coded minute rows this file used to carry went with the level
-//  scale (§40.7): they were keyed by `L`, and there is no `L`. Every number
-//  below is DERIVED from the engine, which is the only place duration
-//  arithmetic has ever lived.
+//  Every number below is DERIVED from the engine, the only place duration
+//  arithmetic lives.
 //
 
 import XCTest
@@ -31,10 +22,10 @@ final class SessionLengthTests: AppStoreTestCase {
     /// A trainee `variation` rungs up every ladder, at the dose ceiling —
     /// where a full session runs long, which is the case the range exists for.
     ///
-    /// Seeded in the v3 shape: a v2 state does not decode at all now (§40.8),
-    /// and a seed the store quietly replaced with a clean start would make
-    /// every assertion here true for the wrong reason. `lastHard` keeps a
-    /// probe out of the plan, so the numbers are about working sets.
+    /// Seeded in the v3 shape, so it loads as written rather than through the
+    /// v2 migration: a seed the store quietly replaced would make every
+    /// assertion here true for the wrong reason. `lastHard` keeps a probe out
+    /// of the plan, so the numbers are about working sets.
     private func advancedStore(counter: Int = 0, variation: Int,
                                hasBar: Bool = false) throws -> AppStore {
         func at(_ p: Pattern) -> Int { min(variation, Library.count(p)) }
@@ -61,7 +52,7 @@ final class SessionLengthTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertEqual(store.engineState.vars[.squat], at(.squat), "the seed must load")
         return store
     }
@@ -74,14 +65,12 @@ final class SessionLengthTests: AppStoreTestCase {
     /// A range is a promise about which end is which, and both ends are the
     /// ENGINE's own `estimatedTotalMin` — the app owns no duration arithmetic.
     ///
-    /// RE-MARKED (test revision, 26.08.2026), class: the assert was true by
-    /// construction. `sessionLengthRange` builds its low end as
-    /// `min(flooredSession, full)` (`AppStore+Handles.swift`), so
-    /// `floor <= full` is what the clamp GUARANTEES and no mutation of the
-    /// floor could break it: with `cut: 0` the floor session was the full one,
-    /// Today read "about 31 to 31 minutes", and all three asserts of this
-    /// suite stayed green. The width is asserted STRICTLY now, and the low end
-    /// is pinned against a session counted here rather than against the clamp.
+    /// `sessionLengthRange` builds its low end as `min(flooredSession, full)`
+    /// (`AppStore+Handles.swift`), so `floor <= full` is what the clamp
+    /// GUARANTEES and no mutation of the floor could break it: a floor session
+    /// that kept every set would put the same minute at both ends on Today and
+    /// still pass. So the width is asserted STRICTLY, and the low end is pinned
+    /// against a session counted here rather than against the clamp.
     func test_sessionLengthRange_onEveryVariation_isStrictlyShorterAtItsFloor() throws {
         for variation in 1...deepestVariation {
             let store = try advancedStore(variation: variation)
@@ -130,7 +119,7 @@ final class SessionLengthTests: AppStoreTestCase {
     /// The claim is about the WHOLE scale: nothing anywhere on it can be
     /// squeezed below what a clean start costs on its sets floor. The floor of
     /// the shortest possible session IS the clean start's — the least work the
-    /// app is willing to call a workout (§37.1).
+    /// app is willing to call a workout.
     func testNoPositionIsShorterThanACleanStartOnItsFloor() throws {
         let cleanFloor = try advancedStore(variation: 1).sessionLengthRange().floor
         for variation in 1...deepestVariation {
@@ -197,11 +186,11 @@ final class SessionLengthTests: AppStoreTestCase {
                        "reading the step below moved the state")
     }
 
-    /// The one fact the old glued preview could not carry, and the reason the
-    /// block takes the pieces apart.
+    /// The one fact a glued preview cannot carry, and the reason the block
+    /// takes the pieces apart.
     ///
     /// `pull_bar` 3 → 2 is the ONLY boundary in the library where the unit
-    /// changes (§40.1): the negatives are reps and the scapular hang below them
+    /// changes: the negatives are reps and the scapular hang below them
     /// is seconds. Pinned by its two ends rather than re-derived from
     /// `Library.unit` on both sides — that comparison is the implementation,
     /// and a test that restates it would stay green if the flag were wired to
@@ -225,25 +214,19 @@ final class SessionLengthTests: AppStoreTestCase {
                        "4 → 3 stays in reps; the unit note would be a lie")
     }
 
-    /// The handle goes through the ENGINE, so its landing is §40.6's and
+    /// The handle goes through the ENGINE, so its landing is the engine's and
     /// nothing else: one variation down, on the base set count.
     ///
-    /// RE-MARKED §41.1 (v3.1, 26.08.2026), class: the test pinned the defect.
-    /// It used to require the landing dose to EQUAL the journal, and it was
-    /// green the whole time the handle was making things harder. A neighbour
-    /// variation can be per-side: hinge 4 → 3 is a two-legged 3×15 becoming a
-    /// two-sided 3×15, and the journal answered "15" to both — 45 reps became
-    /// 90. Pressing "make it easier" doubled the work, on 49 boundaries out of
-    /// 49 by the audit's count.
-    ///
-    /// So the journal is a CEILING now, and the property the handle exists for
-    /// is asserted in its own right: the work must not go up. The number the
-    /// old line pinned is the ceiling assert below; the number it should have
-    /// pinned is the one after it.
+    /// The journal is a CEILING, not the landing dose. A neighbour variation
+    /// can be per-side: hinge 4 → 3 is a two-legged 3×15 becoming a two-sided
+    /// 3×15, and landing ON the journal — "15" for both — would turn 45 reps
+    /// into 90: "make it easier" doubling the work. So the property the handle
+    /// exists for is asserted in its own right: the work must not go up. The
+    /// ceiling is the first assert below; the work is the one after it.
     func testTheEasierHandleLandsInTheJournalAndNeverHeavier() throws {
-        /// Every set's dose, both sides counted — the same measure §41.1's gate
-        /// uses. Safe as a uniform product here because `sub` and `cut` are
-        /// asserted zero on both sides of the handle.
+        /// Every set's dose, both sides counted — the same measure the
+        /// engine's "no harder" gate uses. Safe as a uniform product here
+        /// because `sub` and `cut` are asserted zero on both sides of the handle.
         func work(_ p: Pattern, _ v: Int, sets: Int, dose: Int) -> Int {
             sets * dose * Library.sides(p, v)
         }

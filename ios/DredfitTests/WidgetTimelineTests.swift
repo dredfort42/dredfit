@@ -226,8 +226,8 @@ final class WidgetTimelineTests: XCTestCase {
                      "and without a day there is no when — a half-line reads as a promise for today")
     }
 
-    /// The plan rows arrived with v3. A snapshot still on disk from the build
-    /// before it must render as a plain workout day, not blank the widget.
+    /// A snapshot still on disk from a build before the plan rows existed
+    /// must render as a plain workout day, not blank the widget.
     func test_entries_fromASnapshotWrittenBeforeThePlanExisted_carryAnEmptyPlan() {
         let (whole, today) = fixture()
         let legacy = WidgetSnapshot(days: whole.days, totalSteps: whole.totalSteps,
@@ -253,12 +253,12 @@ final class WidgetTimelineTests: XCTestCase {
 // `testWidgetSnapshotWeekFromBeforeTheScaleChangeStillDecodes`); the RENDER
 // half is not, and cannot be: the function returns a `Text` chain, and two
 // Texts with identical words do not reliably compare equal (I-8) — which is
-// why every other word-builder in that file was turned into a resolved
-// `String` and this one was left behind.
+// why `headline` and `subline`, the words the tests pin, are resolved
+// `String`s, and this one is not.
 //
 // The minimal change that would make it testable: finish I-8 here too —
 // `func weekSummaryString(_ week: WidgetSnapshot.Week) -> String` built from
 // `String(localized:)`, with `weekSummaryLine` wrapping it in a single
 // `Text(verbatim:)`. Two assertions then cover the rule: a week WITH a delta
-// prints it with its sign (TESTPLAN §12.12 wants a negative one shown, not
+// prints it with its sign (TESTPLAN 12.12 wants a negative one shown, not
 // hidden), and a week without one prints the two leading segments and stops.

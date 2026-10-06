@@ -1,7 +1,7 @@
 //
 //  What the app SAYS about a set count that moved on its own.
 //
-//  Sets move without levels: a movement whose sets the person skipped comes
+//  Sets move on their own axis: a movement whose sets the person skipped comes
 //  back with fewer of them, and comes back UP again as the engine hands them
 //  over one good session at a time. A plan that quietly got easier reads as a
 //  bug exactly the way a plan that quietly got harder does — so the one moment
@@ -21,15 +21,14 @@ final class SetsNoticeTests: AppStoreTestCase {
 
     override var tempURLPrefix: String { "dredfit-notice" }
 
-    /// The checkout root, from this file's own compile-time path. Derived in
-    /// ONE place — same reasoning as `LifeBenefitTests.iosRoot`: the two
-    /// `deletingLastPathComponent()` steps used to be written out twice
-    /// below, so moving this file one directory would have had to be noticed
-    /// twice, and each copy fails with "no such file" rather than a clear
+    /// `ios/`, from this file's own compile-time path. Derived in ONE place —
+    /// same reasoning as `LifeBenefitTests.iosRoot`: written out at each use,
+    /// a move of this file one directory would have to be noticed at each,
+    /// and every copy fails with "no such file" rather than a clear
     /// mis-derived-path error.
-    /// Two steps up is `ios/` — the platform root, not the repository root,
-    /// since the Swift side moved under it. Every catalog this test opens
-    /// lives under `ios/`, so the paths below stay relative to it.
+    /// Two steps up is `ios/` — the platform root, not the repository root.
+    /// Every catalog this test opens lives under `ios/`, so the paths below
+    /// stay relative to it.
     private var iosRoot: URL {
         URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()   // DredfitTests/
@@ -40,15 +39,14 @@ final class SetsNoticeTests: AppStoreTestCase {
     /// is in every session, so it is the movement a trajectory can be walked
     /// on without waiting for the rotation.
     ///
-    /// SEEDED IN THE v3 SHAPE — `vars`/`doses`/`shown`, never `levels`. The v2
-    /// shape this carried decoded into nothing for a whole release cycle
-    /// (§40.8) and nothing here checked: the store started clean and the
-    /// trajectory below was walked from the first rung of every ladder, not
-    /// from the position the seed named. The guard after the load is what
-    /// makes the seed a fact rather than a hope.
+    /// SEEDED IN THE v3 SHAPE — `vars`/`doses`/`shown`, never `levels`: a v2
+    /// shape would go through the migration instead of loading as written,
+    /// and the trajectory below would be walked from a position the seed did
+    /// not name. The guard after the load is what makes the seed a fact
+    /// rather than a hope.
     ///
     /// The dose is the grid FLOOR of the seeded variation, and that is what
-    /// keeps the twelve appearances below free of probes: §40.4 offers one
+    /// keeps the twelve appearances below free of probes: the plan offers one
     /// only at the dose ceiling, and one growth event per session cannot walk
     /// a whole grid in twelve. A probe takes a working set out of the plan,
     /// which is precisely the number this suite reads.
@@ -61,9 +59,8 @@ final class SetsNoticeTests: AppStoreTestCase {
             .map { "\"\($0.rawValue)\",\(floorDose($0, at($0)))" }.joined(separator: ",")
         let zeros = Pattern.allCases
             .map { "\"\($0.rawValue)\",0" }.joined(separator: ",")
-        // The journal of what was shown: a descent lands IN it (§40.6), so a
-        // state without one would send every movement to the floor of the
-        // first variation whatever the seed said.
+        // The journal of what was shown: a descent out of a variation lands
+        // under it, and the load check below reads it.
         let journal = Pattern.allCases.map { p in
             let rows = (1...at(p)).map { "\"\($0)\":\(floorDose(p, $0))" }.joined(separator: ",")
             return "\"\(p.rawValue)\",{\(rows)}"
@@ -76,7 +73,7 @@ final class SetsNoticeTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         // The seed must actually load — a state that failed to decode would
         // start clean and make every assertion here vacuous. Both coordinates
         // are checked: the position, and the journal a clean start has none of.
@@ -90,10 +87,10 @@ final class SetsNoticeTests: AppStoreTestCase {
 
     private var trained = 0
 
-    /// One workout, one calendar day apart, so no gap ever reads as a break.
+    /// One workout every two calendar days, so no gap ever reads as a break.
     @discardableResult
-    private func train(_ store: AppStore, result: FeedbackResult = .plan,
-                       setsSkipped: SetFacts.Skips = [:]) -> Session {
+    func train(_ store: AppStore, result: FeedbackResult = .plan,
+               setsSkipped: SetFacts.Skips = [:]) -> Session {
         let session = store.nextSession
         trained += 1
         let date = Calendar.current.date(byAdding: .day, value: -400 + trained * 2,
@@ -107,16 +104,17 @@ final class SetsNoticeTests: AppStoreTestCase {
         try XCTUnwrap(session.exercises.first { $0.pattern == .pull })
     }
 
-    /// The other end of the axis: a set comes back, and the card says so
-    /// once — the appearance the set actually arrives on.
+    /// A set comes back, and the card says so once — the appearance the set
+    /// actually arrives on.
     ///
-    /// The set is taken off by the PERSON now, mid-workout, not by a pain
-    /// report, which makes the sentence matter more rather than less. They
-    /// know why it went; only the engine knows why it came back.
+    /// The set is taken off by the PERSON, mid-workout: they know why it
+    /// went; only the engine knows why it came back.
     func testTheCardSaysWhenASetComesBack() throws {
         let store = try store()
-        // The way a set comes off at all now: skipped during the session, and
-        // written by the engine when the rating lands.
+        // A set comes off one of two ways: skipped during the session and
+        // written by the engine when the rating lands — the way taken here —
+        // or by a descent once the dose is on its floor, where this suite is
+        // seeded.
         train(store, setsSkipped: [.pull: 1])
         XCTAssertGreaterThan(store.engineState.cutOf(.pull), 0,
                              "the skipped set did not land as a cut — there is no trajectory")
@@ -134,8 +132,8 @@ final class SetsNoticeTests: AppStoreTestCase {
         XCTAssertGreaterThan(announced, 0, "a set came back with nothing said about it")
     }
 
-    /// A card that has no story says nothing at all: no report, no return,
-    /// no line. The plan is the default state of the app and must stay quiet.
+    /// A card that has no story says nothing at all: no set back, no line.
+    /// The plan is the default state of the app and must stay quiet.
     func testAnUntouchedPlanCarriesNoLine() throws {
         let store = try store()
         for ex in store.nextSession.exercises {
@@ -146,26 +144,19 @@ final class SetsNoticeTests: AppStoreTestCase {
     // MARK: - The catalog (all shipping languages)
 
     /// A key the catalog does not carry falls back to English in every
-    /// language at once — six locales lost to one missing string, which is
-    /// exactly what happened last release. Every sentence the wave's screens
-    /// carry, all shipping languages, checked against the file rather than the
-    /// bundle.
+    /// language at once — six locales lost to one missing string. The
+    /// sentences below, in all shipping languages, checked against the file
+    /// rather than the bundle.
     ///
-    /// The keys are the LIVE ones. Three entries here kept naming sentences
-    /// that later waves had reworded on screen, so the catalog carried three
-    /// dead keys nobody could delete without going red — a pin that guards
-    /// the corpse rather than the string (12.09.2026).
-    func testTheWavesLinesAreInTheCatalogInEveryLanguage() throws {
+    /// The keys are the LIVE ones: a key kept here after its sentence was
+    /// reworded on screen pins a dead entry nobody can delete without going
+    /// red — a pin that guards the corpse rather than the string.
+    func testTheListedLinesAreInTheCatalogInEveryLanguage() throws {
         let catalogURL = iosRoot.appendingPathComponent("Dredfit/Localizable.xcstrings")
         let data = try Data(contentsOf: catalogURL)
         let root = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
         let strings = try XCTUnwrap(root["strings"] as? [String: Any])
 
-        // The pain line went with the channel, and the plan's two session
-        // handles went the same way — the sentences that replaced them are
-        // on the work screen, where the decision is taken now. `Easier · %@`
-        // went with the third: R30 moved the variation handle into the
-        // technique sheet, and the six keys below are what it says there.
         let keys = [
             "A set is back.",
             "Make it easier",
@@ -176,9 +167,8 @@ final class SetsNoticeTests: AppStoreTestCase {
             "Skip remaining sets",
             "The plan keeps this set off next time. Nothing else about the movement changes.",
             "The probe just comes back next time. The working sets lose nothing.",
-            // The handle's own line left the plan with the handle (R30). What
-            // stands in its place is the block in the technique sheet and the
-            // one line that says the sheet is there.
+            // The variation handle's block in the technique sheet, and the one
+            // line on the plan that says the sheet is there.
             "technique.stepDown.kicker",
             "technique.stepDown.switch",
             "technique.stepDown.unitToHold",
@@ -188,6 +178,8 @@ final class SetsNoticeTests: AppStoreTestCase {
             "technique.stepDown.confirmBody",
             "plan.techniqueHint",
             "plan.probeNote",
+            // A push row the pull slot's cap took sets from.
+            "plan.heldBackByPulls",
             "%lld positions · about %lld min",
             "Going all out on one set weakens the ones after it. What counts is the whole exercise.",
             "Cool-down",
@@ -222,9 +214,9 @@ final class SetsNoticeTests: AppStoreTestCase {
     }
 
     /// The row's number does not count the probe — `sets` is already one lower,
-    /// because the probe replaces the last of them (§40.4). So a plan of three
-    /// sets whose third is a probe read "2 × 15" and said nothing about the set
-    /// standing after it, while the announced duration counted it.
+    /// because the probe replaces the last of them. So without the note a plan
+    /// of three sets whose third is a probe reads "2 × 15" and says nothing
+    /// about the set standing after it, while the announced duration counts it.
     ///
     /// Both halves asserted: the line names the movement the probe offers, and
     /// an exercise without a probe says nothing at all — a note that always
@@ -252,28 +244,16 @@ final class SetsNoticeTests: AppStoreTestCase {
                        "a set coming back and a probe are two facts, not one sentence")
     }
 
-    /// The general form of the same guard, over the whole app: every plain
-    /// localized literal the sources ask for is a key the catalog carries.
-    ///
-    /// The scan covers `Text("…")` and `Button("…")` as well as
-    /// `String(localized: "…")`. It did not before, and that is precisely the
-    /// hole finding S5-4 came through — a SwiftUI `Text` literal is localized
-    /// through the same catalog, so a sentence typed straight into a view
-    /// looks fine in English and falls back to English everywhere else.
-    ///
-    /// One key that is not there — a rename on one side, a sentence typed
-    /// straight into a view — and the string falls back to English in all six
-    /// translated languages at once, which is how last release lost them.
     /// A key that IS its own English text can never carry `%1$@`-style
     /// specifiers, because nothing generates one: `String(localized:)` and
     /// `Text(_:)` build the key from the interpolation and always emit the
     /// bare `%@` / `%lld` form. A positional key is therefore a key nothing
     /// will ever look up — the string falls back to English in all six
     /// languages while both gates stay green, since the completeness check
-    /// only asks whether the catalog's own keys are translated, and the scan
-    /// above normalises the two forms to the same token on purpose.
+    /// only asks whether the catalog's own keys are translated, and the
+    /// literal scan below normalises the two forms to the same token on
+    /// purpose.
     ///
-    /// Six of them were written by hand in one wave (self-review 06.09.2026).
     /// A KEYED entry is exempt and stays exempt: its key is an identifier, so
     /// its value is free to reorder arguments, which is the whole reason
     /// positional specifiers exist.
@@ -296,10 +276,21 @@ final class SetsNoticeTests: AppStoreTestCase {
         }
     }
 
+    /// The general form of `testTheListedLinesAreInTheCatalogInEveryLanguage`,
+    /// over the whole app: every plain localized literal the sources ask for
+    /// is a key the catalog carries.
+    ///
+    /// The scan covers `Text("…")` and `Button("…")` as well as
+    /// `String(localized: "…")`: a SwiftUI `Text` literal is localized through
+    /// the same catalog, so a sentence typed straight into a view looks fine
+    /// in English and falls back to English everywhere else.
+    ///
+    /// One key that is not there — a rename on one side, a sentence typed
+    /// straight into a view — and the string falls back to English in all six
+    /// translated languages at once.
     func testEveryPlainLocalizedLiteralIsACatalogKey() throws {
-        // BOTH catalogs, each against its own sources. The widget target was
-        // never scanned at all, and three of its strings were missing when a
-        // review finally looked (self-review 05.09.2026).
+        // BOTH catalogs, each against its own sources: the widget target's
+        // strings fall back to English just as the app's do.
         try assertLiteralsAreKeys(sources: "Dredfit", catalog: "Dredfit/Localizable.xcstrings")
         try assertLiteralsAreKeys(sources: "DredfitWidgets",
                                   catalog: "DredfitWidgets/Localizable.xcstrings",
@@ -310,34 +301,31 @@ final class SetsNoticeTests: AppStoreTestCase {
     /// and every format specifier in the catalog collapses to one token, and
     /// runs of whitespace collapse to a single space.
     ///
-    /// That is what lets the scan cover the two shapes it used to be blind to,
-    /// and both had really gone missing by the time anyone checked:
+    /// That is what lets the scans cover two shapes a raw comparison is blind
+    /// to:
     ///
-    /// - INTERPOLATED literals. The old scan excluded a backslash on purpose,
-    ///   reasoning that the catalog key is the `%@`/`%lld` form rather than
-    ///   the source text — true, and it meant `"≈ \(floor)–\(full) min"` was
-    ///   never checked against anything.
-    /// - MULTI-LINE literals. Every pattern wanted `"…"` on one line, so a
-    ///   `"""` block was invisible; a reworded alert orphaned its old key and
-    ///   the new one reached no catalog.
+    /// - INTERPOLATED literals. The catalog key is the `%@`/`%lld` form rather
+    ///   than the source text, so compared raw, `"≈ \(floor)–\(full) min"`
+    ///   can never equal its key: a raw scan has to skip interpolated
+    ///   literals, and then they are checked against nothing.
+    /// - MULTI-LINE literals. A pattern that wants `"…"` on one line cannot
+    ///   see a `"""` block, and a reworded alert would orphan its old key
+    ///   while the new one reached no catalog.
     ///
     /// Normalising both sides costs the ability to catch a wrong specifier
-    /// TYPE (`%@` where `%lld` belongs), which no test here ever had. What it
-    /// buys is that a string cannot go missing entirely, which is the failure
-    /// that actually happens: English in all six languages, both gates green.
+    /// TYPE (`%@` where `%lld` belongs). What it buys is that a string cannot
+    /// go missing entirely, which is the failure that actually happens:
+    /// English in all six languages, both gates green.
+    ///
     /// The reverse of the scan above: every key the catalog carries is a
-    /// literal some source file still asks for. Twenty-two keys sat in the
-    /// catalog with no caller left — five of them pinned by name in
-    /// `testTheWavesLinesAreInTheCatalogInEveryLanguage` after later waves
-    /// had reworded the sentences on screen, so nobody could delete the
-    /// corpses without going red, and six languages went on being asked to
-    /// keep them translated (12.09.2026).
+    /// literal some source file still asks for. A key with no caller left is
+    /// a corpse that six languages go on being asked to keep translated.
     ///
     /// Comments are stripped first: a sentence quoted in a comment is not a
-    /// caller, and several of the twenty-two were found by a plain grep exactly
-    /// that way. Every quoted literal counts, whatever construct it stands
-    /// in — `Label`, `Section`, `.alert` — because the question here is
-    /// only whether the key is asked for at all.
+    /// caller, and a plain grep is fooled exactly that way. Every quoted
+    /// literal counts, whatever construct it stands in — `Label`, `Section`,
+    /// `.alert` — because the question here is only whether the key is asked
+    /// for at all.
     func testEveryCatalogKeyIsStillAskedForBySomeSource() throws {
         try assertKeysAreLiterals(sources: "Dredfit", catalog: "Dredfit/Localizable.xcstrings")
         try assertKeysAreLiterals(sources: "DredfitWidgets",
@@ -404,16 +392,15 @@ final class SetsNoticeTests: AppStoreTestCase {
         // spans lines by definition, and spelling that into the class leaves
         // nothing for a matching option to get wrong.
         //
-        // Escapes are allowed in the single-line arm, so an interpolation no
-        // longer ends the match. The keyed form
+        // Escapes are allowed in the single-line arm, so an interpolation
+        // does not end the match. The keyed form
         // `String(localized: "key", defaultValue:)` lands there too and
         // captures the key — which is what the catalog is asked for.
         //
         // The quote is spelled `\x22` throughout. Written literally, a run of
         // three inside a raw string is read by eye as a delimiter by the next
-        // person and — as this scan found out — is easy to miscount by one
-        // while editing, which silently turns the block arm into "one quote,
-        // then anything".
+        // person and is easy to miscount by one while editing, which silently
+        // turns the block arm into "one quote, then anything".
         let quote = #"\x22"#
         let literal = try NSRegularExpression(
             pattern: call + #"\s*(?:"# + quote + "{3}" + #"([\s\S]*?)"# + quote + "{3}"
@@ -446,20 +433,19 @@ final class SetsNoticeTests: AppStoreTestCase {
                              file: file, line: line)
     }
 
-    /// Interpolations, format specifiers and line breaks all become one token,
-    /// so a source literal and its catalog key compare equal.
-    /// The scan's own arithmetic, pinned directly: it is the only logic in
-    /// this file that a green run does NOT exercise, because the shapes it
-    /// handles are the ones no source literal happens to use today. A helper
-    /// nobody tests is how a gate starts passing for the wrong reason.
+    /// The scan's own arithmetic, pinned directly: a green run exercises it
+    /// only on the shapes the sources happen to use today, and some it
+    /// handles — an escaped quote, a lone percent sign — no source literal
+    /// uses at all. A helper nobody tests is how a gate starts passing for the
+    /// wrong reason.
     func testTheScanNormalisesSourceAndCatalogToTheSameForm() {
         // An escaped literal and the catalog's real newline are the same key.
         XCTAssertEqual(Self.normalized(Self.unescaped(#"First\nSecond"#)),
                        Self.normalized("First\nSecond"))
         XCTAssertEqual(Self.normalized(Self.unescaped(#"He said \"go\"."#)),
                        Self.normalized("He said \"go\"."))
-        // Interpolation against its specifier, including two in a row — the
-        // pair that used to collapse into one token and hid a present key.
+        // Interpolation against its specifier, including two in a row — a
+        // pair that must not collapse into one token and hide a present key.
         XCTAssertEqual(Self.normalized(#"\(sets) × \(dose)\(side)"#),
                        Self.normalized("%lld × %lld%@"))
         XCTAssertEqual(Self.normalized(#"\(a) · \(b)"#),
@@ -481,13 +467,13 @@ final class SetsNoticeTests: AppStoreTestCase {
     /// unescaped, so touching them again would double-unescape.
     ///
     /// The single-line arm of the scan admits escapes (`\\.`), which is what
-    /// lets it see interpolation at all — and the same step made a literal
-    /// like `Text("First\nSecond")` visible for the first time. Compared raw,
-    /// its two characters `\` and `n` never equal the catalog's real newline,
-    /// so a string that IS present and IS translated would be reported
-    /// missing, sending the next reader to `verbatim` or to weakening the
-    /// assertion (review 06.09.2026). No such literal exists today; this is
-    /// the guard that keeps the first one from looking like a catalog bug.
+    /// lets it see interpolation at all — and what makes a literal like
+    /// `Text("First\nSecond")` visible to it. Compared raw, its two
+    /// characters `\` and `n` never equal the catalog's real newline, so a
+    /// string that IS present and IS translated would be reported missing,
+    /// sending the next reader to `verbatim` or to weakening the assertion.
+    /// No such literal exists today; this is the guard that keeps the first
+    /// one from looking like a catalog bug.
     ///
     /// `\(` is deliberately left standing: it is an interpolation, and
     /// `normalized` is what turns it into a token. A line continuation
@@ -516,6 +502,9 @@ final class SetsNoticeTests: AppStoreTestCase {
         return out
     }
 
+    /// Interpolations and format specifiers each become one token, and line
+    /// breaks and runs of whitespace one space, so a source literal and its
+    /// catalog key compare equal.
     private static func normalized(_ text: String) -> String {
         var out = ""
         var rest = Substring(text)
@@ -538,10 +527,10 @@ final class SetsNoticeTests: AppStoreTestCase {
                 rest = rest[rest.index(after: index)...]
             } else {
                 // EXACTLY ONE specifier, never a run of them: scanning by
-                // character class swallowed `%lld%@` whole, because `%` is
-                // itself in the class — so a two-argument key normalised to
-                // one token, stopped matching its own source literal, and the
-                // scan reported a key that was present all along.
+                // character class would swallow `%lld%@` whole, because `%` is
+                // itself in the class — a two-argument key would normalise to
+                // one token, stop matching its own source literal, and the
+                // scan would report a key that is present all along.
                 var scan = rest.dropFirst()                      // past the "%"
                 scan = scan.drop(while: \.isNumber)
                 if scan.first == "$" { scan = scan.dropFirst() } else { scan = rest.dropFirst() }
@@ -563,14 +552,4 @@ final class SetsNoticeTests: AppStoreTestCase {
             .split(whereSeparator: \.isWhitespace)
             .joined(separator: " ")
     }
-
-    // SNIPPED: five tests of the pain line and the pain cut. "Time to see a
-    // specialist" counted reports over a movement's history and the card's
-    // "fewer sets for now — you said this one hurt" explained a cut the pain
-    // channel made. Neither has an input any more.
-    //
-    // What stays is the rung the person cannot otherwise account for — a set
-    // coming BACK — and it matters more now, not less: sets are taken off by
-    // the person's own handle, so the card has to say when the engine hands one
-    // back on its own.
 }

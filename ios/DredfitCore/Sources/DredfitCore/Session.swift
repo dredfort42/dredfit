@@ -11,9 +11,9 @@ public enum LoadUnit: String, Codable, Sendable {
     case reps, hold
 }
 
-/// The last set of an exercise, swapped for one set of the NEXT variation
-/// (§40.4). It is not a question and not a new screen: the number comes back
-/// through the per-set channel that already exists (§37.8).
+/// The last set of an exercise, swapped for one set of the NEXT variation.
+/// It is not a question and not a new screen: the number comes back through
+/// the per-set channel that already exists.
 public struct SessionProbe: Codable, Equatable, Sendable {
     public let variation: Int
     public let name: String
@@ -43,8 +43,8 @@ public struct SessionExercise: Codable, Equatable, Identifiable, Sendable {
     public var id: Pattern { pattern }
     public let pattern: Pattern
     public let name: String
-    /// 1-based index along the pattern's ladder (§40.1). Replaces `tier`: with
-    /// `L` gone there are no tiers, only variations.
+    /// 1-based index along the pattern's ladder. There are no tiers, only
+    /// variations.
     public let variation: Int
     public let unit: LoadUnit
     public let load: Int          // the BASE dose: reps or seconds, per side if perSide
@@ -56,7 +56,7 @@ public struct SessionExercise: Codable, Equatable, Identifiable, Sendable {
     /// optionality is compatibility, not style: a journal written by an older
     /// build carries no such key. `nil` means a uniform plan.
     public let loads: [Int]?
-    /// Present only where the probe condition of §40.4 holds. The WORKING sets
+    /// Present only where the probe condition (`probeAllowed`) holds. The WORKING sets
     /// are already one fewer — the session's volume does not grow.
     public let probe: SessionProbe?
 
@@ -95,14 +95,15 @@ public struct SessionExercise: Codable, Equatable, Identifiable, Sendable {
     }
 
     /// Records written before v3 carry `tier` where this now reads
-    /// `variation`, and no `probe` at all. The ENGINE state has no migration
-    /// (§40.8) — the JOURNAL does, because history is what actually happened
-    /// and a record that will not decode is history lost.
+    /// `variation`, and no `probe` at all. The JOURNAL decodes them rather
+    /// than dropping them, because history is what actually happened and a
+    /// record that will not decode is history lost.
     ///
     /// Such a record decodes with `variation == 0`, which is no rung of any
     /// ladder and is meant to read as exactly one thing: this line predates
-    /// §40.1, and its own `name` is the only truth about what was done. The
-    /// old tier numbers point at DIFFERENT movements in the v3 ladders, so
+    /// the variation ladders, and its own `name` is the only truth about what
+    /// was done. The old tier numbers point at DIFFERENT movements in the v3
+    /// ladders, so
     /// re-resolving a name through them would quietly rewrite the person's
     /// history — the very failure the library pin exists to prevent.
     public init(from decoder: Decoder) throws {
@@ -154,7 +155,7 @@ public struct SessionExercise: Codable, Equatable, Identifiable, Sendable {
 
     /// The volume the plan asks for across all WORKING sets. The probe is not
     /// in it: it belongs to another variation, and adding up reps of two
-    /// different movements is exactly the incommensurability §40 forbids.
+    /// different movements is exactly the incommensurability the model forbids.
     public var plannedVolume: Int { perSetLoads.reduce(0, +) }
 
     /// "3×12", "3×10 per side", "3×40 sec" — "9-8-8" when the sets differ.
@@ -228,18 +229,17 @@ extension Engine {
         return Double(String(format: "%.1f", value)) ?? value
     }
 
-    /// §40.4: the probe condition. The dose is on its variation's ceiling, the
+    /// The probe condition. The dose is on its variation's ceiling, the
     /// variation is not the top one, and the last answer for the pattern was
     /// not "hard". That last clause does NOT follow from `failStreak`: a
     /// deload zeroes the streak, and "hard" does not stop having been said.
-    /// §41.4 (v3.1): the gate reads the JOURNAL OF WHAT WAS SHOWN, not only the
-    /// dose the plan climbed to. A trainee whose real maximum is 14 against a
-    /// ceiling of 15 was handed the probe eleven times in 75 appearances, did
-    /// it, and had the result thrown away — because in that same session they
-    /// honestly entered 14 for the old movement. Not maxed, no probe, and the
-    /// last set stays a working one. The rule only became possible alongside
-    /// §41.3: before it the journal held the plan's top, and a gate on the
-    /// journal would have been no different from a gate on the dose.
+    /// The gate reads the JOURNAL OF WHAT WAS SHOWN, not only the dose the
+    /// plan climbed to. A trainee whose real maximum is 14 against a ceiling
+    /// of 15 would be handed the probe over and over, do it, and have the
+    /// result thrown away — because in that same session they honestly enter
+    /// 14 for the old movement. Not maxed, no probe, and the last set stays a
+    /// working one. This works because a fact is journalled as entered, not as
+    /// the plan's top.
     static func probeAllowed(_ p: Pattern, _ pos: Position, lastHard: Set<Pattern>,
                              shown: [Pattern: [Int: Int]]) -> Bool {
         let ceiling = Dose.grid(Library.unit(p, pos.variation)).max
@@ -247,6 +247,20 @@ extension Engine {
             && pos.dose >= ceiling
             && (shown[p]?[pos.variation] ?? 0) >= ceiling
             && !lastHard.contains(p)
+    }
+
+    /// The probe a session hands `p` at `pos` — one set of the next variation
+    /// at its grid's floor — or nil where `probeAllowed` says no. Public so a
+    /// preview of the next plan asks the engine's own question instead of a
+    /// copy of it; `pos` and the two journals come from a state the engine
+    /// handed out.
+    public static func probe(_ p: Pattern, at pos: Position, lastHard: Set<Pattern>,
+                             shown: [Pattern: [Int: Int]]) -> SessionProbe? {
+        guard probeAllowed(p, pos, lastHard: lastHard, shown: shown) else { return nil }
+        let nv = pos.variation + 1
+        let nUnit = Library.unit(p, nv)
+        return SessionProbe(variation: nv, name: Library.name(p, nv), unit: nUnit,
+                            load: Dose.grid(nUnit).min, perSide: Library.sides(p, nv) == 2)
     }
 
     /// A pure function: the only input is the state.
@@ -264,24 +278,17 @@ extension Engine {
         let patterns = Pattern.ordered.filter { chosen.contains($0) }
             .map { $0 == .pull && useBar ? Pattern.pullBar : $0 }
 
-        func setsShown(_ p: Pattern) -> Int {
-            let q = state.position(p)
-            return setsAfterCut(sets: q.sets, cut: q.cut)
-        }
-        // The pull slot's set count caps the push of the same session, and it
-        // reads the WEAKER of the slot's two branches rather than whichever
-        // one stands today: on diverged branches the push plan would otherwise
-        // flip every session with no cause on screen.
         let pullSets = patterns.contains(where: { Pattern.pullSide.contains($0) })
-            ? (state.hasBar ? min(setsShown(.pull), setsShown(.pullBar)) : setsShown(patterns.first { Pattern.pullSide.contains($0) }!))
+            ? pullSlotSets(state)
             : EngineConfig.setsMax
 
         let exercises: [SessionExercise] = patterns.map { p in
             let pos = state.position(p)
             let unit = Library.unit(p, pos.variation)
             let sides = Library.sides(p, pos.variation)
-            // ONE order of cuts (v2.25 §36.6): band → sets handle → the §20.2
-            // gate → floor. Each next one may only lower.
+            // ONE order of cuts: the sets band, the sets handle, the
+            // pull-caps-push gate — each may only lower — and `clampSets`
+            // keeps the result at or above the floor.
             let ownSets = setsAfterCut(sets: pos.sets, cut: pos.cut)
             let floor = min(EngineConfig.setsFloor, ownSets)
             let slotSets = clampSets(
@@ -292,17 +299,10 @@ extension Engine {
                 ? EngineConfig.restSetTopVarSec
                 : (EngineConfig.restSetByBand[pos.sets] ?? EngineConfig.restSetSec)
 
-            // §40.4: the probe replaces the LAST of the remaining sets.
-            let probing = probeAllowed(p, pos, lastHard: state.lastHard, shown: state.shown)
+            // The probe replaces the LAST of the remaining sets.
+            let probe = Engine.probe(p, at: pos, lastHard: state.lastHard, shown: state.shown)
+            let probing = probe != nil
             let sets = probing ? slotSets - 1 : slotSets
-            var probe: SessionProbe?
-            if probing {
-                let nv = pos.variation + 1
-                let nUnit = Library.unit(p, nv)
-                probe = SessionProbe(variation: nv, name: Library.name(p, nv), unit: nUnit,
-                                     load: Dose.grid(nUnit).min,
-                                     perSide: Library.sides(p, nv) == 2)
-            }
             return SessionExercise(
                 pattern: p, name: Library.name(p, pos.variation), variation: pos.variation,
                 unit: unit, load: pos.dose, perSide: sides == 2, sets: sets,
@@ -315,13 +315,13 @@ extension Engine {
         }
 
         // The postcondition "a descent never adds load" is checked ON THE
-        // RESULT rather than derived from the way the cut is built. With no
-        // time budget left, only the band gate can still move sets about — but
-        // it can, so the repair stays.
+        // RESULT rather than derived from the way the cut is built: the
+        // pull-caps-push gate can move a plan's sets on its own.
         var ordNow: [Pattern: Int] = [:]
         for ex in exercises { ordNow[ex.pattern] = posOrd(ex.pattern, state.position(ex.pattern)) }
         let trimmed = repairDescent(exercises, shownWork: state.shownWork,
-                                    shownOrd: state.shownOrd, ordNow: ordNow)
+                                    shownOrd: state.shownOrd, ordNow: ordNow,
+                                    gateLift: gateLift(patterns, state: state, pullSets: pullSets))
 
         return Session(
             sessionNumber: state.counter + 1,
@@ -332,13 +332,87 @@ extension Engine {
                 exercises: trimmed, ends: EngineConfig.warmupMin + EngineConfig.cooldownMin))
     }
 
+    /// How many sets each push's pull cap has given back since the push was
+    /// last shown: its cap now, `min(own, pull slot)`, less its cap then from
+    /// the memory of that showing. The rise of the push's OWN cap, not of the
+    /// slot — a cap that never cut the push gives it nothing however far the
+    /// pull climbs, and a hold the repair keeps for a cause of its own stays.
+    ///
+    /// None after a set was taken off the push since that showing, nor when
+    /// its own sets are fewer than then: both are descents, and a descent
+    /// never adds work. A push with no memory at all was last shown by a build
+    /// that kept none — it gets its whole cap back once (the scale's top
+    /// stands for "all of it"), and the showing writes the memory.
+    static func gateLift(_ patterns: [Pattern], state: EngineState, pullSets: Int) -> [Pattern: Int] {
+        var lift: [Pattern: Int] = [:]
+        for p in patterns where Pattern.pushSide.contains(p) && !state.shownSkip.contains(p) {
+            guard let capThen = state.shownCap[p] else {
+                lift[p] = EngineConfig.setsMax
+                continue
+            }
+            let pos = state.position(p)
+            let own = setsAfterCut(sets: pos.sets, cut: pos.cut)
+            guard let ownThen = state.shownOwn[p], own >= ownThen else { continue }
+            let rise = min(own, pullSets) - min(ownThen, capThen)
+            if rise > 0 { lift[p] = rise }
+        }
+        return lift
+    }
+
+    /// The plan a build without the pull-cap memory drew from this state: a
+    /// push with no memory gets no one-time release, and everything else is
+    /// `generateSession` — the same plan once every push has the memory. For
+    /// the app, about a workout started on such a build and still in progress
+    /// after the update: its snapshot is keyed on this plan, and the plan drawn
+    /// now would hand a frozen push its sets back between two of them. The
+    /// reference has no twin of it: a workout in progress across an update is
+    /// the app's case, not the engine's.
+    public static func sessionWithoutTheOneTimeRelease(_ dirty: EngineState) -> Session {
+        var state = dirty.sanitized()
+        let cap = pullSlotSets(state)
+        // A showing remembered under the cap the plan is drawn under: the cap
+        // has risen by nothing since, so the repair lifts nothing.
+        for p in Pattern.pushSide where state.shownCap[p] == nil {
+            rememberCap(&state, p, state.position(p), cap: cap)
+        }
+        return generateSession(state)
+    }
+
+    /// The pull slot's set count caps the push of the same session, and it
+    /// reads the WEAKER of the slot's two branches rather than whichever one
+    /// stands today: on diverged branches the push plan would otherwise flip
+    /// every session with no cause on screen. `state` is already sanitized.
+    static func pullSlotSets(_ state: EngineState) -> Int {
+        func own(_ p: Pattern) -> Int {
+            let q = state.position(p)
+            return setsAfterCut(sets: q.sets, cut: q.cut)
+        }
+        return state.hasBar ? min(own(.pull), own(.pullBar)) : own(.pull)
+    }
+
+    /// The two numbers the pull-caps-push gate weighs for one push: the sets
+    /// its own position stands on (the band less the cut) and the pull slot's
+    /// cap. A session shows the smaller, and only the probe and the
+    /// postcondition repair take more off. Nil for anything but a push — the
+    /// cap reaches nothing else.
+    ///
+    /// Read-only, for the plan's rows: a push showing fewer sets than it
+    /// stands on has a cause the person cannot see on that row, and the app
+    /// has to name it without restating the rule.
+    public static func pullCap(on p: Pattern, in dirty: EngineState) -> (own: Int, cap: Int)? {
+        guard Pattern.pushSide.contains(p) else { return nil }
+        let state = dirty.sanitized()
+        let pos = state.position(p)
+        return (setsAfterCut(sets: pos.sets, cut: pos.cut), pullSlotSets(state))
+    }
+
     /// The work of an exercise in the units of the measure: sets × dose ×
     /// sides, sub-steps included. The probe is NOT in it (see `plannedVolume`).
     static func exerciseWork(_ ex: SessionExercise) -> Int {
         ex.plannedVolume * (ex.perSide ? 2 : 1)
     }
 
-    /// §41.11 (v3.3): the work a SHOWING remembers. It differs from
+    /// The work a SHOWING remembers. It differs from
     /// `exerciseWork` on exactly one shape — a probing appearance, where the
     /// probe does not remove a set but OCCUPIES one: the position still holds
     /// the same `sets`, and the session is no shorter for it, which is why
@@ -347,18 +421,19 @@ extension Engine {
     ///
     /// Counting the probe at its own dose does not save it: the repair below
     /// can only TAKE SETS OFF, so its base has to be about slots rather than
-    /// about reps. With the working-sets base the depth of a comeback stopped
-    /// being monotone in the length of the break — 84 days met a person higher
-    /// than 56 did — and a descent took away the set the probe had borrowed.
+    /// about reps. With the working-sets base the depth of a comeback would
+    /// stop being monotone in the length of the break (84 days would meet a
+    /// person higher than 56 do), and a descent would take away the set the
+    /// probe had borrowed.
     static func shownWorkOf(_ ex: SessionExercise) -> Int {
         guard ex.probe != nil else { return exerciseWork(ex) }
         return exerciseWork(ex) + ex.load * (ex.perSide ? 2 : 1)
     }
 
-    /// THE POSTCONDITION REPAIR (v2.25 §36.6, round 4). The invariant the
-    /// model promises is "if a pattern's position did not rise, its plan
-    /// cannot get heavier". Deriving it from the shape of the cut did not
-    /// survive three rounds of skeptics, so it is checked on the result: a
+    /// THE POSTCONDITION REPAIR. The invariant the model promises is "if a
+    /// pattern's position did not rise, its plan cannot get heavier".
+    /// Deriving it from the shape of the cut does not hold up, so it is
+    /// checked on the result: a
     /// movement whose position has not risen since it was last shown, and
     /// whose shown work has grown, loses sets until it stops. The loop is
     /// finite (taking a set off strictly reduces the work) and bounded below
@@ -367,23 +442,27 @@ extension Engine {
     /// An exercise WITH A PROBE is left alone: it has one working set fewer by
     /// construction, so there is nothing to trim inside a probing appearance.
     ///
-    /// §41.10 (v3.2): its memory IS written now. It used to be skipped —
-    /// "2×15 plus a probe" and "3×15" were called incommensurable — and the
-    /// base stayed a showing two appearances old. What is actually compared is
-    /// the work of one and the same movement: same variation, same unit, same
-    /// sides.
-    ///
-    /// §41.11 (v3.3): and it is written by `shownWorkOf`, which counts the set
-    /// the probe occupied. By the working sets alone the base sat one set
-    /// below the position, so this loop took away a set the probe had only
-    /// borrowed — a 20-day comeback read `2×13` while the position held three
-    /// — and the depth of a comeback stopped being monotone in the break.
+    /// Its memory IS written, by `shownWorkOf`, which counts the set the probe
+    /// occupied. What is compared is the work of one and the same movement:
+    /// same variation, same unit, same sides. By the working sets alone the
+    /// base would sit one set below the position, so this loop would take away
+    /// a set the probe had only borrowed (a 20-day comeback would read `2×13`
+    /// while the position held three) and the depth of a comeback would stop
+    /// being monotone in the break.
     ///
     /// The comparison is NON-STRICT: "the position did not rise" covers both
     /// "fell" and "stood still".
+    ///
+    /// A push whose position STANDS gets back what its pull cap has given back
+    /// since that showing (`gateLift`), on top of what the repair holds and never
+    /// above what the cap allows. Without it the repair would keep the count the
+    /// cap once showed until the position moved — on 5×15, until the push fell —
+    /// and "the sets return once the pull catches up" would not be true. A push
+    /// that FELL stays under the repair whole: a descent never adds work.
     private static func repairDescent(_ exercises: [SessionExercise],
                                       shownWork: [Pattern: Int], shownOrd: [Pattern: Int],
-                                      ordNow: [Pattern: Int]) -> [SessionExercise] {
+                                      ordNow: [Pattern: Int],
+                                      gateLift: [Pattern: Int]) -> [SessionExercise] {
         exercises.map { ex in
             let p = ex.pattern
             if ex.probe != nil { return ex }
@@ -393,13 +472,16 @@ extension Engine {
             while cur.sets > cur.setsFloor, exerciseWork(cur) > work {
                 cur = withSets(cur, cur.sets - 1, floor: cur.setsFloor)
             }
+            let lift = (ordNow[p] ?? 0) == ord ? (gateLift[p] ?? 0) : 0
+            if lift > 0, cur.sets < ex.sets {
+                cur = withSets(ex, min(ex.sets, cur.sets + lift), floor: ex.setsFloor)
+            }
             return cur
         }
     }
 
     /// Rebuild an exercise on a different set count. The pause is NOT
-    /// recomputed: the sets handle and the band gate take volume off, not
-    /// recovery, and the time budget the pause once travelled with is gone.
+    /// recomputed: the postcondition repair takes volume off, not recovery.
     /// The sub-step is rebuilt for the new count — it cannot ask for more sets
     /// than are left, and clamping to `sets-1` keeps "`load` is the plan's
     /// minimum" true.

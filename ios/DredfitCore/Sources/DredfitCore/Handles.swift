@@ -1,27 +1,27 @@
 //
-//  v2.26 (§37): the athlete's handles.
+//  The athlete's handles.
 //
 //  The app does not guess what a person can do. It offers handles and works
-//  out the consequences. Both of these change the state THROUGH the engine —
-//  the app layer writing state directly would bypass the floor, the sanitizer
-//  and the postcondition repair, which is why they are entry points and not
-//  helpers.
+//  out the consequences. The handles that change the state do it THROUGH the
+//  engine: each starts from the sanitized state and carries a rule the app
+//  layer would otherwise have to repeat — the floor of the cut, the landing
+//  in the variation below, the order of feedback, cut and raise. That is why
+//  they are entry points and not helpers.
 //
 
 import Foundation
 
 extension Engine {
 
-    /// "Give me an easier variation" (§37.4, rewritten by §40.6, amended by
-    /// §41.1): one variation down, at the dose from the JOURNAL OF WHAT WAS
-    /// SHOWN — but the journal is the CEILING, not the answer. A neighbour
-    /// variation can be trained per side, so the same remembered dose is twice
-    /// the work; `landInVar` steps down from the ceiling until the plan fits
-    /// the work already being done. Without that, "make it easier" made 49
-    /// boundaries out of 49 harder.
+    /// "Give me an easier variation": one variation down, at the dose from the
+    /// JOURNAL OF WHAT WAS SHOWN — but the journal is the CEILING, not the
+    /// answer. A neighbour variation can be trained per side, so the same
+    /// remembered dose is twice the work; `landInVar` steps down from the
+    /// ceiling until the plan fits the work already being done. Without that,
+    /// "make it easier" could make the plan harder.
     ///
     /// On the first variation the handle is inert: there is nothing below it
-    /// in the library, and 3×4 is the accepted minimum base (§37.1).
+    /// in the library, and 3×4 is the accepted minimum base.
     public static func easierPosition(pattern p: Pattern, position: Position,
                                       shown: [Pattern: [Int: Int]]) -> Position? {
         guard position.variation > 1 else { return nil }
@@ -37,8 +37,14 @@ extension Engine {
         return next
     }
 
-    /// "Fewer sets" on one movement (§37.5, and the entry point a skipped set
-    /// arrives through, §38.2). The floor is the shared one: two sets.
+    /// "Fewer sets" on one movement (also the entry point a skipped set
+    /// arrives through). The floor is the shared one: two sets.
+    ///
+    /// A set taken off a push leaves a trace (`EngineState.shownSkip`): a cut
+    /// is a descent, and a cap that rises before the next showing must not hand
+    /// that set back. A skipped set lands here AFTER the rating, and the same
+    /// session can have grown the position by one event — so the position may
+    /// stand where it stood, and only the trace tells the set was skipped.
     public static func setCut(state dirty: EngineState, pattern p: Pattern,
                               cut: Int) -> EngineState {
         let state = dirty.sanitized()
@@ -46,29 +52,31 @@ extension Engine {
         var pos = state.position(p)
         pos.cut = effCut(sets: state.sets[p] ?? EngineConfig.setsBase, cut: cut)
         setPosition(&next, p, pos)
+        if Pattern.pushSide.contains(p), pos.cut > state.cutOf(p) { next.shownSkip.insert(p) }
         return next
     }
 
-    /// "Next time, more" on one movement (§41.13): the position rises by
+    /// "Next time, more" on one movement: the position rises by
     /// `steps` growth events along the DOSE axis only — a sub-step or a rung
     /// of the grid, as the dose branch of `riseBy` does. Never a set back and
-    /// never the band of §40.5: the person asked for seconds (or reps), not
+    /// never a set band: the person asked for seconds (or reps), not
     /// for a set, and the "+5 s" on the screen has to be literally true. It
-    /// never crosses a variation — a probe is the only way into one (§40.4)
+    /// never crosses a variation — a probe is the only way into one
     /// — and on the grid's ceiling it honestly stands still: the remaining
     /// steps burn rather than carry.
     ///
     /// The sub-step counts against the sets ON SCREEN (after the cut), not
     /// against the band as `riseBy` does. There the band keeps the price of
-    /// a rung, and a set comes back before the dose grows anyway; here no
-    /// set comes back, and a band count under a cut would clamp straight
-    /// back (`effSub`, Ф5): the second step would leave the plan as it was
-    /// while the screen said "+10 s". Without a cut the two agree step for
-    /// step (verify2, block 31).
+    /// a rung; here no set comes back, and a band count under a cut would
+    /// clamp straight back (`effSub`): the second step would leave the plan
+    /// as it was while the screen said "+10 s". `riseBy` meets the same clamp
+    /// while the hold ticks and loses that event — accepted there, not
+    /// inherited here. Without a cut the two agree step for step (checked in
+    /// the reference's verify2).
     ///
     /// `maxUp` and the weekly cap do not apply: they bound growth the ENGINE
-    /// assigns; this dose is the person's own, as under fast adaptation
-    /// (§40.3). Input sanitized per §17.4: negative reads as zero, the top is
+    /// assigns; this dose is the person's own, as under fast adaptation.
+    /// Input is sanitized: negative reads as zero, the top is
     /// `raiseStepsMax`. Zero returns the state AS IS.
     public static func raiseDose(state dirty: EngineState, pattern p: Pattern,
                                  steps: Int) -> EngineState {
@@ -92,7 +100,7 @@ extension Engine {
     }
 
     /// Feedback plus the sets skipped DURING the session, in the one order
-    /// that is correct (§38.2, rule 1): `applyFeedback` FIRST, then `setCut`.
+    /// that is correct: `applyFeedback` FIRST, then `setCut`.
     ///
     /// On a session the person completed, `applyFeedback` calls `riseBy`, and
     /// `riseBy` hands a set BACK instead of raising the dose — so a cut
@@ -110,13 +118,13 @@ extension Engine {
     /// nothing to take: that skip travels as an ordinary skipped EXERCISE, in
     /// `skipped`, never as a fact of 0 reps.
     ///
-    /// `raised` (§41.13) lands LAST, over the feedback and the cut: it is a
+    /// `raised` lands LAST, over the feedback and the cut: it is a
     /// decision on top of the result, not an input to it. With a fact above
     /// the plan, fast adaptation sets the dose from the fact and zeroes the
     /// sub-step — a raise applied before it would be erased in silence, and
     /// the fixture pins the position before the raise so that a port which
     /// swaps the order fails by number. The last parameter, with a default,
-    /// so no caller written before it shifts an argument (§40.11 п. 2).
+    /// so no existing caller shifts an argument.
     public static func applyFeedback(
         state: EngineState,
         session: Session,
@@ -127,10 +135,10 @@ extension Engine {
         gapDays: Double? = nil,
         probes: [Pattern: Int] = [:],
         raised: [Pattern: Int] = [:]) -> EngineState {
-        // И6 holds for the whole entry point, not just its feedback half: on
-        // a stale pair the base call returns the state unchanged, and the cut
-        // and the raise below used to land on it anyway — a replayed session
-        // cut sets and raised doses a second time.
+        // The stale-session guard holds for the whole entry point, not just its
+        // feedback half: on a stale pair the base call returns the state
+        // unchanged, and the cut and the raise below must not land on it — a
+        // replayed session would cut sets and raise doses a second time.
         guard session.sessionNumber == state.sanitized().counter + 1 else { return state }
         var next = Self.applyFeedback(state: state, session: session, result: result,
                                       overrides: overrides, skipped: skipped,

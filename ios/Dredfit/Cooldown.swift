@@ -2,16 +2,11 @@
 //  Six positions × 30 s plus their transitions. Composition is deterministic
 //  from what was actually performed.
 //
-//  The header used to say "materialising the 3 minutes `cooldownMin` reserves
-//  — so no estimate anywhere changes", and both halves had gone stale:
-//  `cooldownMin` is 4 (it rose from 3 to pay for the 10-second transition),
-//  while the block's own arithmetic is 270…295 s on EVERY composition, which
-//  `cooldownIntroMinutes` rounds up to 5. The number is not restated here any
-//  more, precisely because it moved twice without this line moving: what the
-//  offer screen promises is derived, and the engine's reserve is the engine's
+//  The block's length is not restated here: what the offer screen promises is
+//  derived (`cooldownIntroMinutes`), and the engine's reserve is the engine's
 //  (see `GetReady.setupSupplementSec` for how it is spent).
 //
-//  No levels, no journal entry, no engine involvement.
+//  No ladder, no journal entry, no engine involvement.
 //
 
 import Foundation
@@ -40,16 +35,17 @@ enum Cooldown {
     /// One app-layer constant shared by the cool-down and the workout's
     /// per-side holds — changing it moves both.
     ///
-    /// 5 → 4 ON TRIAL (owner, 06.09.2026), alongside the transition going
-    /// 10 → 8: turning over inside one position is not travel to another, and
-    /// four seconds may be enough for it. Written down as a trial because it
-    /// is meant to be judged in use and rolled back if it turns out to rush —
-    /// the revert is this one line, and the arithmetic that depends on it is
-    /// derived rather than restated (`BlockReserveTests`, `GetReadyTests`).
+    /// Four is ON TRIAL: turning over inside one position is not travel to
+    /// another, and four seconds may be enough for it. Written down as a trial
+    /// because it is meant to be judged in use and rolled back to five if it
+    /// turns out to rush. The revert is more than this line: `GetReadyTests`
+    /// pins the value, `BlockPauseTests` ties it to the count-in
+    /// (`GetReady.countInSeconds`, the same beat), and `BlockReserveTests`
+    /// pins the block totals it feeds.
     ///
-    /// It costs nothing at the reserve: shortening only ever leaves slack, and
-    /// the pause carries no 3-2-1 to collide with (a tick would bury the
-    /// switch tone — `tickHoldSwitchPause`).
+    /// Four rather than five costs nothing at the reserve: shortening only
+    /// ever leaves slack, and the pause carries no 3-2-1 to collide with (a
+    /// tick would bury the switch tone — `tickHoldSwitchPause`).
     static let sideSwitchPauseSec = 4
 
     static var sideSeconds: Int { positionSeconds / 2 }
@@ -226,11 +222,10 @@ enum Cooldown {
     /// minus anything in `hidden`.
     ///
     /// A hidden FIXED position does not leave a hole: the middle grows into
-    /// its slot, so the block is six either way (UX review 05.09.2026, finding
-    /// 49 — "Chest and shoulders at the wall" stood second in every single
-    /// cool-down, and someone with no free wall had no way to say so once).
-    /// With nothing hidden the arithmetic below is the old one exactly: two
-    /// fixed, three mapped, rest pose.
+    /// its slot, so the block is six either way. "Chest and shoulders at the
+    /// wall" is a fixed position of every cool-down, and someone with no free
+    /// wall has to be able to say so once. With nothing hidden the arithmetic
+    /// below is two fixed, three mapped, rest pose.
     ///
     /// Empty input returns an empty cool-down — the flow skips the block.
     static func positions(performed: [Pattern],
@@ -258,8 +253,9 @@ enum Cooldown {
 
     /// The block's own rule with nothing set aside. The app never calls it, and
     /// the reserve gate calls it only where the claim IS about the block before
-    /// anything was set aside — see `Warmup.moves(sessionNumber:)` for what
-    /// walking it as if it were the shipped rule cost (review 06.09.2026).
+    /// anything was set aside; the shipped rule is the `hiding:` one (see
+    /// `Warmup.moves(sessionNumber:)` for what a gate walking the convenience
+    /// overload stops seeing).
     static func positions(performed: [Pattern]) -> [CooldownPosition] {
         positions(performed: performed, hiding: [])
     }
@@ -281,27 +277,6 @@ enum Cooldown {
         wholePool.first { $0.id == id }?.name
     }
 
-    // MARK: - The stage machine (issue #35)
-
-    /// A bilateral position runs `.single`; a per-side one runs `.firstSide`
-    /// → `.switchPause` → `.secondSide` — 15 + 5 + 15. Both open with
-    /// `.getReady` (issue #52).
-    enum Stage { case getReady, single, firstSide, switchPause, secondSide }
-
-    /// The transition's length depends on the position it announces (issue
-    /// #83), so a stage alone no longer has one.
-    static func stageSeconds(_ stage: Stage, of position: CooldownPosition) -> Int {
-        #if DEBUG
-        if CommandLine.arguments.contains("--uitest-fast") { return 1 }
-        #endif
-        switch stage {
-        case .getReady:               return GetReady.stageSeconds(needsSetup: position.needsSetup)
-        case .single:                 return positionSeconds
-        case .firstSide, .secondSide: return sideSeconds
-        case .switchPause:            return sideSwitchPauseSec
-        }
-    }
-
     /// The workout's per-side holds play the same pause with no position
     /// attached — and collapse under --uitest-fast with everything else.
     static var switchPauseSeconds: Int {
@@ -309,51 +284,5 @@ enum Cooldown {
         if CommandLine.arguments.contains("--uitest-fast") { return 1 }
         #endif
         return sideSwitchPauseSec
-    }
-
-    static let openingStage = Stage.getReady
-
-    /// nil when the block is over.
-    static func step(after step: (index: Int, stage: Stage),
-                     positions: [CooldownPosition]) -> (index: Int, stage: Stage)? {
-        guard step.index < positions.count else { return nil }
-        switch step.stage {
-        case .getReady:    return (step.index, positions[step.index].perSide ? .firstSide : .single)
-        case .firstSide:   return (step.index, .switchPause)
-        case .switchPause: return (step.index, .secondSide)
-        case .single, .secondSide:
-            let next = step.index + 1
-            guard next < positions.count else { return nil }
-            return (next, openingStage)
-        }
-    }
-
-    /// `entered` names the stage the audible boundary opened; index/stage/
-    /// remaining are where the countdown landed. A long absence crosses
-    /// several boundaries, so the two can disagree — callers choosing a
-    /// signal must read both.
-    struct Advance {
-        let entered: Stage
-        let index: Int
-        let stage: Stage
-        let remaining: Int
-    }
-
-    /// Whole stages a long absence (`overshoot` seconds past the boundary)
-    /// already covered are absorbed. nil when the block is over — immediately
-    /// or inside the overshoot.
-    static func advance(from current: (index: Int, stage: Stage),
-                        overshoot: Int,
-                        positions: [CooldownPosition]) -> Advance? {
-        guard var landing = step(after: current, positions: positions) else { return nil }
-        let entered = landing.stage
-        var remainder = overshoot
-        while remainder >= stageSeconds(landing.stage, of: positions[landing.index]) {
-            remainder -= stageSeconds(landing.stage, of: positions[landing.index])
-            guard let next = step(after: landing, positions: positions) else { return nil }
-            landing = next
-        }
-        return Advance(entered: entered, index: landing.index, stage: landing.stage,
-                       remaining: stageSeconds(landing.stage, of: positions[landing.index]) - remainder)
     }
 }

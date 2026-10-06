@@ -1,10 +1,12 @@
 //
-//  Each signal as a pair: the tone (silenced by the mute switch) and its
-//  haptic counterpart (the silent-mode channel), behind the one sounds
-//  toggle. The pairs live here so WorkoutFlowView's wrappers stay one line
-//  each — the flow file sits at the lint ceiling.
+//  Each signal as a pair: the tone (silenced by the mute switch unless
+//  `playsTonesInSilentMode` lets it through) and its haptic counterpart (the
+//  silent-mode channel), behind the one sounds toggle. The pairs live here so
+//  the flow's wrappers (`WorkoutSession.playTick` and its siblings) stay one
+//  line each.
 //
 
+import Accessibility
 import UIKit
 
 @MainActor
@@ -13,11 +15,11 @@ enum WorkoutSignals {
     // Held, not built per firing, and re-primed after every one. The Taptic
     // Engine idles between countdowns — a rest is 60–120 s and the ticks are
     // its last three seconds — and an unprepared generator pays the engine's
-    // wake-up on its first impulse, so the first tick of every countdown
-    // arrived after its second. The tone half of each pair has bought that
-    // cost ahead of time since #84 (`CountdownSounds.prime()`); the haptic
-    // half, which is the whole channel in silent mode, never did
-    // (UX review 05.09.2026).
+    // wake-up on its first impulse, so the first tick of a countdown would
+    // arrive after its second. The tone half of each pair buys that cost
+    // ahead of time (`CountdownSounds.prime()`, #84); the haptic half, which
+    // is the whole channel in silent mode unless tones are let through, has
+    // to as well.
     private static let light = UIImpactFeedbackGenerator(style: .light)
     private static let medium = UIImpactFeedbackGenerator(style: .medium)
     private static let rigid = UIImpactFeedbackGenerator(style: .rigid)
@@ -88,4 +90,35 @@ enum WorkoutSignals {
         notice.notificationOccurred(.success)
         prime()
     }
+}
+
+/// What the workout flow plays and says. The flow reaches the device through
+/// this, so a test can hear every tone it would have made.
+@MainActor
+protocol WorkoutSignalling {
+    /// The haptic half: generators warmed a second or two ahead.
+    func prime()
+    /// The tone half: the audio session paid for before the first tick.
+    func primeSounds()
+    func tick(_ enabled: Bool)
+    func go(_ enabled: Bool)
+    func switchSides(_ enabled: Bool)
+    func done(_ enabled: Bool)
+    func workoutDone(_ enabled: Bool)
+    func milestone(_ enabled: Bool)
+    /// Spoken by VoiceOver, whatever the sounds switch says.
+    func announce(_ message: String)
+}
+
+/// The real tones, haptics and announcements.
+struct DeviceSignals: WorkoutSignalling {
+    func prime() { WorkoutSignals.prime() }
+    func primeSounds() { CountdownSounds.shared.prime() }
+    func tick(_ enabled: Bool) { WorkoutSignals.tick(enabled) }
+    func go(_ enabled: Bool) { WorkoutSignals.go(enabled) }
+    func switchSides(_ enabled: Bool) { WorkoutSignals.switchSides(enabled) }
+    func done(_ enabled: Bool) { WorkoutSignals.done(enabled) }
+    func workoutDone(_ enabled: Bool) { WorkoutSignals.workoutDone(enabled) }
+    func milestone(_ enabled: Bool) { WorkoutSignals.milestone(enabled) }
+    func announce(_ message: String) { AccessibilityNotification.Announcement(message).post() }
 }

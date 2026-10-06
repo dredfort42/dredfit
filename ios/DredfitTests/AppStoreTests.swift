@@ -8,7 +8,7 @@ final class AppStoreTests: AppStoreTestCase {
     // MARK: - Initial state and persistence
 
     func testFreshStoreStartsEmpty() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertEqual(store.totalProgress, 0)
         XCTAssertTrue(store.records.isEmpty)
         XCTAssertFalse(store.doneToday)
@@ -16,7 +16,7 @@ final class AppStoreTests: AppStoreTestCase {
     }
 
     func testCompleteWorkoutPersistsAndReloads() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let session = store.nextSession
         let skippedPattern = session.exercises[1].pattern
         store.completeWorkout(session: session, result: .more,
@@ -24,45 +24,60 @@ final class AppStoreTests: AppStoreTestCase {
                               skipped: [skippedPattern])
 
         // a separate store on the same file sees the same state
-        let reloaded = AppStore(storageURL: tempURL)
+        let reloaded = makeStore()
         XCTAssertEqual(reloaded.records.count, 1)
         XCTAssertEqual(reloaded.engineState, store.engineState)
         XCTAssertEqual(reloaded.records.last?.result, .more)
         XCTAssertEqual(reloaded.records.last?.exercises?.count,
                        session.exercises.count, "workout snapshot was not saved")
         XCTAssertEqual(reloaded.records.last?.actuals?[session.exercises[0].pattern], 6)
-        // skips and the per-pattern level snapshot survive the reload
+        // skips and the per-pattern position snapshot survive the reload
         XCTAssertEqual(reloaded.records.last?.skipped, [skippedPattern])
         XCTAssertEqual(reloaded.records.last?.positionsAfter, store.currentPositions)
+    }
+
+    /// The same session can arrive twice — a double tap, or a rating landing
+    /// after the settlement already recorded it. The engine ignores a replay,
+    /// but only `completeWorkout`'s own guard keeps a second journal entry out.
+    func testCompletingTheSameSessionTwiceRecordsItOnce() {
+        let store = makeStore()
+        let session = store.nextSession
+        store.completeWorkout(session: session, result: .plan)
+        let replay = store.completeWorkout(session: session, result: .more)
+        XCTAssertTrue(replay.isEmpty, "a replay earns no milestones")
+        XCTAssertEqual(store.records.count, 1)
+        XCTAssertEqual(store.records.first?.result, .plan, "the first answer stands")
+        XCTAssertEqual(store.engineState.counter, 1)
+        XCTAssertEqual(makeStore().records.count, 1, "and only one entry reached the file")
     }
 
     /// The journal keeps the sets behind the number, so history can say
     /// "15 · 15 · 10" instead of the bare mean the engine was handed.
     func testTheJournalKeepsTheSetsBehindTheReportedNumber() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let session = store.nextSession
         let ex = session.exercises[0]
         // One rep short on the last set. A clean start plans 3×4, and the
-        // corridor floor is 0 — "minus five" would have been clamped there and
-        // the assertion would have compared two clamps.
+        // corridor floor is 0 — "minus five" would be clamped there and the
+        // assertion would compare two clamps.
         let facts = SetFacts.recording(ex.load - 1, in: [:], ex, set: ex.sets - 1)
-        let overrides = SetFacts.overrides(facts, in: session.exercises)
+        let overrides = SetFacts.overrides(facts, skipping: [:], in: session.exercises)
         store.completeWorkout(session: session, result: .plan,
                               overrides: overrides, setActuals: facts)
 
-        let record = try XCTUnwrap(AppStore(storageURL: tempURL).records.last)
+        let record = try XCTUnwrap(makeStore().records.last)
         XCTAssertEqual(record.setActuals?[ex.pattern], facts[ex.pattern])
-        // ПЕРЕРАЗМЕЧЕНО §41.3 (v3.1): движок получает СЫРОЕ среднее (дробь),
-        // а журнал тренировок хранит целое — он персистится, и менять его тип
-        // ради десятой доли, которую человек не читает, нельзя. Утверждение то
-        // же: записано ровно то число, по которому движок и действовал.
+        // The engine is handed the RAW mean, a fraction; the journal of
+        // workouts keeps an integer — it is persisted, and its type does not
+        // change for a decimal nobody reads. So what is stored is the number
+        // the engine acted on, rounded.
         XCTAssertEqual(record.actuals?[ex.pattern],
                        overrides[ex.pattern].map { Int($0.rounded()) },
                        "the stored number is the one the engine acted on")
     }
 
     func testSkippedExerciseKeepsItsLevel() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let session = store.nextSession
         let skippedPattern = session.exercises[2].pattern
         store.completeWorkout(session: session, result: .more, skipped: [skippedPattern])
@@ -70,25 +85,24 @@ final class AppStoreTests: AppStoreTestCase {
                        "a skipped pattern must not level up")
         XCTAssertEqual(store.engineState.sub[skippedPattern] ?? 0, 0,
                        "nor collect a sub-step")
-        // "moves by the rating" is two SUB-STEPS, which at level zero is not
-        // yet a level.
+        // "moves by the rating" is two SUB-STEPS, which on a clean start is
+        // not yet a whole rung of dose.
         XCTAssertEqual(store.engineState.sub[session.exercises[0].pattern],
                        EngineConfig.deltaMore,
                        "a trained pattern must still move by the rating")
         XCTAssertEqual(store.records.last?.skipped, [skippedPattern])
     }
 
-    /// The claim a UI walk used to make by tapping "easy" on a session where
-    /// nothing was trained. It cannot tap it any more — the card is offered
-    /// only for a plan finished in full (`SetFacts.didFullPlan`) — so the
-    /// invariant is pinned here instead, in the terms the screen stated it in:
-    /// the number on Progress.
+    /// A UI walk cannot tap "easy" on a session where nothing was trained —
+    /// the card is offered only for a plan finished in full
+    /// (`SetFacts.didFullPlan`) — so the invariant is pinned here, in the terms
+    /// the screen states it in: the number on Progress.
     ///
     /// The rating is still handed to the engine as `.more`, because the point
     /// is the ENGINE's guarantee and not the screen's: it must hold for a call
     /// no button can produce, or the gate would be all that stands behind it.
     func testEasyOverAFullySkippedSessionLeavesTheTotalAtZero() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let session = store.nextSession
         let skipped = Set(session.exercises.map(\.pattern))
         store.completeWorkout(session: session, result: .more, skipped: skipped)

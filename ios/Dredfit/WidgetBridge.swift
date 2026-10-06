@@ -1,7 +1,9 @@
 //
 //  After every persisted change the app rewrites the two-week snapshot and
 //  pokes WidgetKit; the widget never computes rest days itself. Without the
-//  entitlement (or in unit tests) everything degrades silently.
+//  entitlement everything degrades silently. Unit tests run hosted in the
+//  app, and on a signed local run the default URL is the real App Group, so
+//  a test store passes `widgetSnapshotURL: nil` or a temp URL.
 //
 
 import Foundation
@@ -44,8 +46,8 @@ extension AppStore {
         let summary = weekSummary(for: today)
         // Both ends out of one call: the widget prints the same length range
         // as Today does (PlanLength), and two numbers resolved at different
-        // moments could disagree about which end is which. `full` here is the
-        // same `nextSession.estimatedTotalMin` the line carried before.
+        // moments could disagree about which end is which. `full` is
+        // `nextSession.estimatedTotalMin`.
         let length = sessionLengthRange()
         let snapshot = WidgetSnapshot(
             days: days,
@@ -68,17 +70,14 @@ extension AppStore {
     /// — the Calendar leaves those unshamed and the widget follows.
     private func widgetStatus(of day: Date, today: Date) -> WidgetSnapshot.DayStatus {
         if record(on: day) != nil { return .done }
-        // TODAY follows `restApplies`, the rest of the grid `isRestDay`.
-        // Finding 7 (rest is rest FROM something) was applied to Today and not
-        // here, so a fresh install whose onboarding ended on a marked weekday
-        // saw the plan on Today and "Rest day — next workout tomorrow" on the
-        // widget, which is the exact sentence the finding removed and the
-        // exact person it was removed for (review 06.09.2026). Only today,
-        // though: the marked weekdays still describe the thirteen days ahead,
-        // and a blanket swap would paint the whole fortnight as workouts.
-        let rests = Calendar.current.isDate(day, inSameDayAs: today)
-            ? restApplies(on: day) : isRestDay(day)
-        if rests { return .rest }
+        // TODAY follows `restApplies`, the rest of the grid `isRestDay`
+        // (`planRests`). Rest is rest FROM something: a fresh install whose
+        // onboarding ended on a marked weekday sees the plan on Today, and the
+        // widget must not tell that person "Rest day — next workout tomorrow".
+        // Only today, though: the marked weekdays still describe the days
+        // ahead, and a blanket swap would paint the whole fortnight as
+        // workouts.
+        if planRests(on: day, today: today) { return .rest }
         return day < today ? .unmarked : .workout
     }
 }

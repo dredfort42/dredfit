@@ -9,6 +9,9 @@ name, or passed directly), this checks that:
 
   * every MARKETING_VERSION in the Xcode project equals that version,
   * every CURRENT_PROJECT_VERSION (build number) is identical across targets,
+  * that build number is greater than the one at the highest older v* tag
+    (skipped with a notice when git, the tags or that tag's project are not
+    available — a shallow clone, say),
   * CHANGELOG.md has a "## <version>" section.
 
 It catches the classic "forgot to bump one target" and "forgot the changelog
@@ -16,6 +19,7 @@ entry" mistakes before a tag turns them into a shipped build. Stdlib only.
 """
 import pathlib
 import re
+import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -30,6 +34,44 @@ def version_from_arg(arg: str) -> str:
     """`release/1.7.0` -> `1.7.0`, `v1.7.0` -> `1.7.0`, `1.7.0` -> `1.7.0`."""
     tail = arg.rsplit("/", 1)[-1].strip()
     return tail[1:] if tail.startswith("v") else tail
+
+
+def git(*args: str) -> str:
+    """stdout of a git command run at the repo root; raises on any failure."""
+    return subprocess.run(
+        ["git", *args], cwd=ROOT, check=True, capture_output=True, text=True,
+    ).stdout
+
+
+def previous_build(expected: str):
+    """(tag, build) at the highest v* tag older than `expected`, or a string
+    saying why it cannot be determined.
+
+    Older by version, not by date: a release branch re-checked after its own
+    tag is pushed must compare against the release before it, not itself.
+    """
+    want = tuple(int(p) for p in expected.split("."))
+    try:
+        tags = git("tag", "--list", "v*").split()
+    except (OSError, subprocess.CalledProcessError) as exc:
+        return f"git tags unavailable ({exc.__class__.__name__})"
+    older = []
+    for tag in tags:
+        m = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", tag)
+        if m and tuple(int(g) for g in m.groups()) < want:
+            older.append((tuple(int(g) for g in m.groups()), tag))
+    if not older:
+        return "no older v* tag found (a clone without tags?)"
+    tag = max(older)[1]
+    try:
+        text = git("show", f"{tag}:ios/Dredfit.xcodeproj/project.pbxproj")
+    except (OSError, subprocess.CalledProcessError):
+        return f"cannot read the project at {tag} (shallow clone?)"
+    try:
+        build = max(int(b) for b in BUILD_RE.findall(text))
+    except ValueError:
+        return f"no integer CURRENT_PROJECT_VERSION at {tag}"
+    return tag, build
 
 
 RELEASE_BODY_MAX = 125_000
@@ -72,6 +114,28 @@ def main(argv: list) -> int:
         errors.append(
             f"CURRENT_PROJECT_VERSION differs across targets: {builds}")
 
+    # Build numbers climb across releases; a forgotten bump otherwise shows
+    # up only at upload, after the tag. A notice, not a failure, when the
+    # history is missing: a skipped check beats a red run that only says the
+    # checkout was shallow.
+    notices = []
+    previous = previous_build(expected)
+    if isinstance(previous, str):
+        notices.append(f"build number not compared with an older tag: "
+                       f"{previous}")
+    elif len(builds) == 1:
+        tag, prev = previous
+        try:
+            current = int(builds[0])
+        except ValueError:
+            notices.append(f"build number not compared with {tag}: "
+                           f"'{builds[0]}' is not an integer")
+        else:
+            if current <= prev:
+                errors.append(
+                    f"CURRENT_PROJECT_VERSION is {current}, but {tag} already "
+                    f"shipped build {prev}; bump it above {prev}")
+
     heading = re.compile(rf"^##\s+{re.escape(expected)}\s*$", re.MULTILINE)
     changelog = CHANGELOG.read_text(encoding="utf-8")
     if not heading.search(changelog):
@@ -94,7 +158,11 @@ def main(argv: list) -> int:
     print(f"Expected version: {expected}")
     print(f"MARKETING_VERSION: {marketing or '(none)'}")
     print(f"CURRENT_PROJECT_VERSION (build): {builds or '(none)'}")
+    if not isinstance(previous, str):
+        print(f"Previous release: {previous[0]} (build {previous[1]})")
     print()
+    for n in notices:
+        print(f"NOTICE: {n}")
     if errors:
         for e in errors:
             print(f"FAIL: {e}")

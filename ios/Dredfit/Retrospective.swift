@@ -2,10 +2,10 @@
 //  The "then → now" block for anniversary milestones (issue #26), built from
 //  the journal's totalProgressAfter snapshots.
 //
-//  Every number goes through core helpers (Level.decode + the library) so a
-//  future recoding of levels cannot leave this block silently wrong.
-//  Degradations are silent: missing snapshot, no growth, or a pattern absent
-//  from the base — the jubilee just looks the way it always did.
+//  Every number goes through core helpers (`Engine.progress` and the
+//  library) so a change to the engine's measure cannot leave this block
+//  silently wrong. Degradations are silent: missing snapshot, no growth, or a
+//  pattern absent from the base — the jubilee then shows without this block.
 //
 
 import Foundation
@@ -52,16 +52,16 @@ struct Retrospective: Equatable {
 
     // MARK: - Formatting (core helpers only)
 
-    /// All six coordinates, like the chart's `plot`. On the short overload
-    /// this dropped `sub` and `cut`, and it is the DELTA that is picked from
-    /// here: a growth of sub-steps alone measured as zero and lost the block
-    /// entirely, while a `cut` on the current position read one step HIGHER
-    /// than it stands and could celebrate a movement that had gone down.
-    /// Older records carry neither key and measure as they always did.
+    /// Every coordinate of the position, like the chart's `plot`, because it
+    /// is the DELTA that is picked from here: without `sub` a growth of
+    /// sub-steps alone would measure as zero and lose the block, and without
+    /// `cut` a cut position would read HIGHER than it stands and could
+    /// celebrate a movement that has gone down. A record without either key
+    /// measures it as 0.
     private static func progress(_ pattern: Pattern, _ position: RecordedPosition) -> Int {
-        Engine.progress(pattern, variation: position.variation,
-                        sets: position.sets, dose: position.dose,
-                        sub: position.sub ?? 0, cut: position.cut ?? 0)
+        Engine.progress(pattern, Position(variation: position.variation,
+                                          sets: position.sets, dose: position.dose,
+                                          sub: position.sub ?? 0, cut: position.cut ?? 0))
     }
 
     /// Movement, sets and dose exactly as the plan stated them.
@@ -75,11 +75,11 @@ struct Retrospective: Equatable {
         }
     }
 
-    /// Whole weeks up to 8, months from week 9 — the spec pins the boundary.
-    /// Worded against the BASE record, never "your first workout": for a
-    /// journal carried over from v2 the base is the first v3 session, and a
-    /// jubilee saying "first workout" under "Workout #150" contradicted its
-    /// own headline (UI-truth audit, 27.08.2026).
+    /// Whole weeks up to 8, months from week 9 (`RetrospectiveTests` pins the
+    /// boundary). Worded against the BASE record, never "your first workout":
+    /// for a journal carried over from v2 the base is the first v3 session,
+    /// and a jubilee saying "first workout" under "Workout #150" would
+    /// contradict its own headline.
     private static func since(from start: Date, to now: Date) -> String {
         let days = max(0, Calendar.current.dateComponents([.day], from: start, to: now).day ?? 0)
         let weeks = days / 7

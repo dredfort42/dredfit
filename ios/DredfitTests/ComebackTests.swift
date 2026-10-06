@@ -8,9 +8,10 @@ final class ComebackTests: AppStoreTestCase {
     override var tempURLPrefix: String { "dredfit-comeback" }
 
     /// The dose every seeded movement stands at, and the one a comeback walks
-    /// down from: the ceiling of its second variation. §40.3 measures a return
-    /// in rungs of dose — one old level, one rep per set — so the assertions
-    /// below read the dose and nothing else.
+    /// down from: the ceiling of `pull`'s second variation. Above the dose
+    /// floor a return is measured in rungs of dose — one rep per set — so the
+    /// assertions below on where a comeback lands, all on `pull`, read the
+    /// dose and nothing else.
     static let seededDose = 15
 
     private func storeWithLastWorkout(daysAgo: Int) throws -> AppStore {
@@ -26,8 +27,10 @@ final class ComebackTests: AppStoreTestCase {
             .map { "\"\($0.rawValue)\",\(Self.seededDose)" }.joined(separator: ",")
         let zeros = Pattern.allCases
             .map { "\"\($0.rawValue)\",0" }.joined(separator: ",")
-        // The journal of what was shown: a descent lands IN it (§40.6), so a
-        // state without one would send every comeback to 3×4 whatever the gap.
+        // The journal of what was shown, which a descent out of a variation
+        // lands under. In the comebacks below, `pull` — the one movement
+        // asserted on — stays inside variation 2; the hold ladders, seeded on
+        // their 15 s floor, cross into variation 1.
         let shown = Pattern.allCases
             .map { "\"\($0.rawValue)\",{\"1\":\(Self.seededDose),\"2\":\(Self.seededDose)}" }
             .joined(separator: ",")
@@ -42,7 +45,7 @@ final class ComebackTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertEqual(store.engineState.doses[.pull], Self.seededDose,
                        "the seed must actually load — a state that failed to decode "
                        + "would start clean and make every assertion here vacuous")
@@ -66,15 +69,13 @@ final class ComebackTests: AppStoreTestCase {
     }
 
     func testNoCardWithoutHistory() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertFalse(store.shouldOfferComeback(),
                        "a fresh install has nothing to come back from")
         XCTAssertNil(store.gapDays())
     }
 
-    /// Renamed with the contract it pins. "Whole elapsed days" is what
-    /// `gapDays` STOPPED counting in #172 — the old name went on advertising
-    /// the semantics the seed below was wrong about.
+    /// `gapDays` counts the midnights in between, not whole elapsed days (#172).
     func test_gapDays_afterTwentyCalendarDays_countsTheMidnights() throws {
         let store = try storeWithLastWorkout(daysAgo: 20)
         XCTAssertEqual(store.gapDays(), 20,
@@ -88,9 +89,7 @@ final class ComebackTests: AppStoreTestCase {
 
         store.acceptComeback()
 
-        // 35 days is a three-rung drop, and `comebackDrop` — which used to say
-        // so in levels — went with the level (§40.7). The claim is unchanged
-        // and is read where it lands.
+        // 35 days is a three-rung drop, read where it lands: on the dose.
         XCTAssertEqual(store.engineState.doses[.pull], Self.seededDose - 3)
         XCTAssertEqual(store.engineState.counter, 11, "a comeback is not a workout")
         XCTAssertEqual(store.records.count, 1, "nothing is written to the journal")
@@ -110,7 +109,7 @@ final class ComebackTests: AppStoreTestCase {
         let store = try storeWithLastWorkout(daysAgo: 40)
         store.declineComeback()
 
-        let reloaded = AppStore(storageURL: tempURL)
+        let reloaded = makeStore()
         XCTAssertFalse(reloaded.shouldOfferComeback(),
                        "the answer is persisted, not just held in memory")
     }
@@ -121,8 +120,8 @@ final class ComebackTests: AppStoreTestCase {
         XCTAssertFalse(store.shouldOfferComeback())
 
         // A workout happens, then another long break of a different length.
-        // Re-marked: a repeat of the same gap is the trainee's rhythm and
-        // stays quiet — CadenceTests cover that side.
+        // A repeat of the same gap is the trainee's rhythm and stays quiet —
+        // CadenceTests cover that side.
         // Calendar arithmetic, like the seed: a DST transition inside the
         // window must not turn this 30-day gap into 29 or 31.
         let thirtyDaysAgo = try XCTUnwrap(Calendar.current.date(byAdding: .day, value: -30, to: .now),
@@ -160,10 +159,8 @@ final class ComebackTests: AppStoreTestCase {
 
     // MARK: - Migration
 
-    /// RE-MARKED §41.7 (v3.1, 26.08.2026), class: the test pinned the defect.
-    /// It used to assert that a file this old starts the engine clean, which
-    /// §40.8 said and §41.7 reversed. Both halves migrate now: what the person
-    /// chose — rest days, reminders, Health — and what they earned.
+    /// A file this old migrates both halves: what the person chose — rest
+    /// days, reminders, Health — and what they earned.
     func testV14FileKeepsItsSettingsAndMigratesTheEngine() throws {
         let v14 = """
         {"engineState":{"counter":6,
@@ -178,7 +175,7 @@ final class ComebackTests: AppStoreTestCase {
                      "onboardingCompleted":true}}
         """
         try Data(v14.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
 
         // everything the old file knew survives
         XCTAssertEqual(store.settings.restWeekdays, [3])
@@ -188,7 +185,7 @@ final class ComebackTests: AppStoreTestCase {
         XCTAssertEqual(store.settings.healthExportedThrough, 5)
         XCTAssertTrue(store.settings.onboardingCompleted)
         // …and so does the engine. Old level 6 is tier 1 of the removed
-        // encoding at 3×14, and tier 1 of `pull` maps to variation 1 (§41.7) —
+        // encoding at 3×14, and tier 1 of `pull` maps to variation 1 —
         // the dose is what makes it a migration and not a reset, which is why
         // it is asserted beside the variation and not left to speak for it.
         XCTAssertEqual(store.engineState.vars[.pull], 1)
@@ -208,7 +205,7 @@ final class ComebackTests: AppStoreTestCase {
         store.acceptComeback()
         let stamped = store.settings.comebackDecidedFor
 
-        let reloaded = AppStore(storageURL: tempURL)
+        let reloaded = makeStore()
         XCTAssertEqual(reloaded.settings.comebackDecidedFor, stamped)
     }
 }

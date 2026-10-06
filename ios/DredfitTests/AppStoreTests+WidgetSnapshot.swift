@@ -19,7 +19,7 @@ extension AppStoreTests {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: url) }
-        let store = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
+        let store = makeStore(widgetSnapshotURL: url)
         store.completeWorkout(session: store.nextSession, result: .plan)   // today → done
 
         let snap = try JSONDecoder().decode(WidgetSnapshot.self,
@@ -54,7 +54,7 @@ extension AppStoreTests {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: url) }
-        let store = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
+        let store = makeStore(widgetSnapshotURL: url)
         store.completeWorkout(session: store.nextSession, result: .plan)
 
         let snap = try JSONDecoder().decode(WidgetSnapshot.self,
@@ -88,7 +88,7 @@ extension AppStoreTests {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: url) }
-        let store = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
+        let store = makeStore(widgetSnapshotURL: url)
         let cal = Calendar.current
         let today = cal.startOfDay(for: .now)
         let tomorrowWD = cal.component(.weekday,
@@ -96,7 +96,7 @@ extension AppStoreTests {
         // Exactly one rest day, and it is tomorrow: the labels below are read
         // off a calendar this test owns rather than off whichever weekdays the
         // shipped default happens to name today.
-        store.settings.restWeekdays = [tomorrowWD]
+        store.update(refreshWidget: false) { $0.settings.restWeekdays = [tomorrowWD] }
         store.completeWorkout(session: store.nextSession, result: .plan)
 
         let snap = try JSONDecoder().decode(WidgetSnapshot.self,
@@ -162,7 +162,7 @@ extension AppStoreTests {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: url) }
-        let seed = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
+        let seed = makeStore(widgetSnapshotURL: url)
         seed.completeWorkout(session: seed.nextSession, result: .plan)
         let published = try Data(contentsOf: url)
 
@@ -172,7 +172,7 @@ extension AppStoreTests {
             try? FileManager.default.setAttributes([.posixPermissions: 0o644],
                                                    ofItemAtPath: tempURL.path)
         }
-        let frozen = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
+        let frozen = makeStore(widgetSnapshotURL: url)
         frozen.refreshWidgetSnapshot()   // what backgrounding does
         XCTAssertEqual(try Data(contentsOf: url), published,
                        "the widget must keep showing the last state that was real")

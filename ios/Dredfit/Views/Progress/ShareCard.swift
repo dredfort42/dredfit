@@ -40,8 +40,8 @@ struct ShareCard: View {
             context: nil).height
     }
 
-    /// Measured rather than guessed from a character count: the same 89
-    /// characters are four lines of English and seven of Russian.
+    /// Measured rather than guessed from a character count, which wraps to
+    /// a different number of lines in every language.
     static func headlineHeight(for headline: String) -> CGFloat {
         measuredHeight(headline,
                        font: .systemFont(ofSize: headlineSize(for: headline), weight: .heavy),
@@ -64,8 +64,8 @@ struct ShareCard: View {
         return free < 140 ? 0 : min(300, free)
     }
 
-    /// Thresholds are in characters so a long Russian name lands in the same
-    /// step as the English one it translates.
+    /// Thresholds count characters, not bytes, so Cyrillic is measured the
+    /// same way as Latin.
     static func headlineSize(for headline: String) -> CGFloat {
         switch headline.count {
         case ..<90:  return 92
@@ -132,7 +132,7 @@ struct ShareCard: View {
         .padding(88)
         .frame(width: Self.size.width, height: Self.size.height, alignment: .leading)
         .background(Theme.ink)
-        // An exported image, not a screen: the palette is adaptive now, but
+        // An exported image, not a screen: the palette is adaptive, but
         // what leaves the device is light for everyone. The innermost
         // environment wins, so a render wrapped in dark stays identical.
         .environment(\.colorScheme, .light)
@@ -236,8 +236,8 @@ enum ShareCardFactory {
         let renderer = ImageRenderer(
             content: ShareCard(headline: headline, date: date,
                                steps: steps, subline: subline))
-        // Specified in final pixels, so scale stays at 1 — anything else
-        // silently produces a 2160×2700 image.
+        // Specified in final pixels, so scale stays at 1 — a scale of 2
+        // would silently produce a 2160×2700 image.
         renderer.scale = 1
         return renderer.uiImage
     }
@@ -265,10 +265,10 @@ enum ShareCardFactory {
     /// The file that travels and the picture of it, from one render.
     ///
     /// `ShareLink` previews a file URL with the headline alone unless it is
-    /// handed an `image:`, so the card — rendered and written before the sheet
-    /// even opens — was the one thing the sender could not look at before
-    /// sending it. The card carries a date, a word-mark and the whole curve
-    /// besides the two numbers the headline names (UX review, 05.09.2026).
+    /// handed an `image:`, so without one the card — rendered and written
+    /// before the sheet even opens — would be the one thing the sender could
+    /// not look at before sending it. The card carries a date, a word-mark
+    /// and the whole curve besides what the headline says.
     struct Card {
         let url: URL
         let image: Image

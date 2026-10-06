@@ -1,5 +1,5 @@
 //
-//  During rest the system ticks the countdown itself via
+//  During rest and holds the system ticks the countdown itself via
 //  Text(timerInterval:) — no updates needed from the app. All strings
 //  arrive pre-localized in the content state.
 //
@@ -64,18 +64,18 @@ struct RestLiveActivity: Widget {
         }
         .padding(16)
         // No manual tint: the lock screen supplies its own material and keeps
-        // it in step with the system appearance. Painting the card was what
-        // made it a white flash on a dark lock screen.
+        // it in step with the system appearance. A painted card would flash
+        // white on a dark lock screen.
         .activitySystemActionForegroundColor(Theme.ink)
     }
 
     @ViewBuilder
     private func countdown(_ state: RestActivityAttributes.ContentState,
                            size: CGFloat, cap: CGFloat) -> some View {
-        // Not `== .rest` any more: a hold sends its own end date through the
-        // same field, and this is the one Dredfit countdown that keeps running
-        // while the app is suspended — the phase that asks you to put the
-        // phone down is the phase that needs it (UX review 05.09.2026).
+        // Any phase but `.work`, not just `.rest`: a hold sends its own end
+        // date through the same field, and this is the one Dredfit countdown
+        // that keeps running while the app is suspended — the phase that asks
+        // you to put the phone down is the phase that needs it.
         if state.phase != .work, let end = state.restEndDate, end > .now {
             CountdownLabel(end: end, size: size, cap: cap)
         } else {
@@ -86,9 +86,8 @@ struct RestLiveActivity: Widget {
     }
 }
 
-/// The number read off the lock screen from across the room — and the one
-/// `.system(size:)` froze at 34 pt however large the reader's type setting
-/// was (UX review 05.09.2026).
+/// The number read off the lock screen from across the room, so it scales
+/// with the reader's type setting instead of staying at a fixed size.
 ///
 /// `cap` is the exception the rule allows: a display number, in a container
 /// whose height belongs to the system, where unbounded growth clips the tile

@@ -1,10 +1,10 @@
 //
 //  The one line that says how long a session takes: the full plan, and the
-//  shortest it can be made from inside it. Shared by Today and the
-//  next-workout preview because the same plan must not read two ways — the
-//  preview showed the full number alone, which overstates what the person is
-//  agreeing to, and the range is the whole point: "will this fit today" gets
-//  an answer without asking anyone to decide anything first.
+//  same plan with every movement on the sets floor. Shared by Today and the
+//  next-workout preview because the same plan must not read two ways. The
+//  full number alone overstates what the person is agreeing to; the range
+//  is the whole point: "will this fit today" gets an answer without asking
+//  anyone to decide anything first.
 //
 //  The identifier stays with the caller. Both screens can be in the hierarchy
 //  at once — the preview is a sheet over Today — and one identifier on two
@@ -32,10 +32,8 @@ struct PlanLength: View {
 }
 
 /// What the number above is made of at both ends. Ten of those minutes are the
-/// warm-up and the cool-down, and they are 10–41 % of the announced length —
-/// the share is largest on exactly the shortest sessions, where the person
-/// deciding "will this fit" is reading the highest number they will ever be
-/// asked to fit (UX review 05.09.2026).
+/// warm-up and the cool-down, and their share is largest on exactly the
+/// shortest sessions.
 ///
 /// It states the fact and stops there: whether to skip a block is a question
 /// the flow asks with the block in front of the person, and answering it here,
@@ -52,8 +50,7 @@ struct PlanEndsNote: View {
         Text("Includes about \(warmupMin + cooldownMin) min of warm-up and cool-down.")
             .dredfitFont(13.5)
             // ink2, not ink3: ink3 is 2.35:1 on the light ground and fails the
-            // 4.5:1 small-text floor (owner, 05.09.2026 — the low contrast was
-            // an oversight, not a choice).
+            // 4.5:1 small-text floor.
             .foregroundStyle(Theme.ink2)
             .fixedSize(horizontal: false, vertical: true)
     }

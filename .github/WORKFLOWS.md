@@ -9,10 +9,12 @@ step-by-step release procedure. All workflows live in
 
 | Workflow | File | Trigger | Gates a merge? | Runtime |
 |---|---|---|---|---|
-| **CI** — unit tests (Core + app) + engine-gate contract | `ci.yml` | push/PR to `main`, `develop`, `release/**`, `hotfix/**` | ✅ **required** | ~5–15 min |
-| **Lint** — SwiftLint | `lint.yml` | same | ✅ **required** | ~30 s |
+| **CI** — unit tests (Core + app) + engine-gate contract | `ci.yml` | push/PR to `main`, `develop`, `release/**`, `hotfix/**` + manual | ✅ **required** | ~5–15 min |
+| ↳ **Release build** — unsigned `-configuration Release`, generic iOS | `ci.yml` (`release-build`) | same | ❌ advisory (for now)† | ~10 min |
+| ↳ **App unit tests in Europe/Berlin** — `TEST_RUNNER_TZ` | `ci.yml` (`app-tests-timezone`) | push to CI's branches + manual, not PRs | ❌ advisory† | ~5–15 min |
+| **Lint** — SwiftLint (container pinned to `0.65.1`) | `lint.yml` | push/PR, as CI (no manual) | ✅ **required** | ~30 s |
 | **Localization** — String Catalog completeness | `localization.yml` | same | ✅ **required** | ~10 s |
-| **UI Tests** | `ui-tests.yml` | nightly + manual | ❌ non-gating | ~20–45 min |
+| **UI Tests** | `ui-tests.yml` | nightly, only if the app or its UI tests changed + manual | ❌ non-gating | ~75–100 min |
 | **CodeQL** — Swift security scan | `codeql.yml` | push to `main`/`develop` + weekly | ❌ advisory | ~15 min |
 | **PR Title** — Conventional Commits | `pr-title.yml` | PR | ❌ advisory | ~5 s |
 | **Secret Scan** — gitleaks | `gitleaks.yml` | push/PR + weekly | ❌ advisory | ~1 min |
@@ -23,25 +25,42 @@ step-by-step release procedure. All workflows live in
 because it only runs on release branches), but treat a red run as a hard stop:
 it means the version or changelog is wrong.
 
+† `continue-on-error`: a failure shows red on the job but leaves the CI run
+(and its badge) green, so it never blocks a merge or a release. Read the job
+itself. A manual CI run has its own concurrency group and does not cancel a
+push run on the same branch. A push to `develop` starts up to five macOS jobs
+at once (both test jobs, both advisory jobs, CodeQL); on GitHub Free that is
+the whole macOS allowance, so a PR's required jobs may queue behind them.
+
 **The gate is unit tests, not UI tests.** UI tests are slow and occasionally
-flaky on shared runners, so they run nightly and block nothing. Before cutting a
-release you run them locally (see the release procedure below).
+flaky on shared runners, so they run nightly — only when the app changed since
+the last tested commit — and block nothing. Before cutting a release you run
+them locally (see the release procedure below).
 
 ## The pipeline by stage
 
 ### 1. Open / update a pull request → `develop` (or `main`)
 Runs and **must be green to merge**: CI (Core + app unit tests), Lint,
-Localization. Also runs (advisory): PR Title, Secret Scan. Branch protection
+Localization. Also runs (advisory): PR Title, Secret Scan, CI's Release build.
+Branch protection
 keeps the merge button disabled until the required checks pass — see
 [Branch protection](#branch-protection).
 
 ### 2. Push to `develop` / `main`
-Same required checks re-run on the branch head, plus CodeQL and Secret Scan.
+Same required checks re-run on the branch head, plus CodeQL and Secret Scan,
+and the app unit tests once more with the test process in `Europe/Berlin`
+(the runner is UTC, which hides day-boundary and DST mistakes) — on every
+push to CI's branches, `release/**` and `hotfix/**` included. Start it on any
+branch with CI's **Run workflow**.
 
 ### 3. Cut a `release/x.y.z` or `hotfix/x.y.z` branch
 **Release Checks** verifies the marketing version matches the branch name, build
-numbers agree across all targets, and `CHANGELOG.md` has a `## x.y.z` section.
-CI + Lint + Localization also run.
+numbers agree across all targets and exceed the build at the highest older
+`v*` tag, and `CHANGELOG.md` has a `## x.y.z` section. Without tags (a shallow
+clone) the build-number comparison is skipped with a notice, so the job checks
+out full history.
+CI (with the advisory Europe/Berlin and Release build jobs) + Lint +
+Localization also run.
 
 ### 4. Tag `vX.Y.Z`
 **Release** creates a GitHub Release. Notes come from the `## X.Y.Z` section of
@@ -49,7 +68,9 @@ CI + Lint + Localization also run.
 missing.
 
 ### 5. Scheduled
-Nightly UI tests (default branch), weekly CodeQL and gitleaks, weekly Dependabot
+Nightly UI tests (default branch) — skipped when nothing the suite builds or
+drives changed since the last commit a run tested: unit tests, docs, store
+material and scripts do not count. Weekly CodeQL and gitleaks, weekly Dependabot
 updates for GitHub Actions and DredfitCore's Swift dependencies.
 
 ## Release procedure
@@ -86,7 +107,9 @@ The App Store build itself is produced and uploaded manually from Xcode (Archive
    by `** TEST SUCCEEDED **` and `Executed N tests, with 0 failures`, not by the
    pipe's exit code.
 6. **Create the `release/x.y.z` branch and push.** Confirm **Release Checks**,
-   **CI**, **Lint**, and **Localization** are green.
+   **CI**, **Lint**, and **Localization** are green. A red advisory job inside
+   a green CI run (Europe/Berlin, Release build) does not block, but look at
+   why before you merge.
 7. **Merge to `main`** (and back-merge `main` → `develop`).
 8. **Tag `vX.Y.Z` and push the tag.** The **Release** workflow publishes the
    GitHub Release.
@@ -118,8 +141,8 @@ What it sets, and why (tuned for a solo maintainer):
 - **No required reviewers** (solo repo); force-pushes and deletions are blocked;
   conversations must be resolved.
 
-The advisory checks (CodeQL, PR Title, gitleaks) are deliberately **not**
-required, so a third-party action outage can never wedge your merges. Promote any of them to required by adding its check-run name to
+The advisory checks (CodeQL, PR Title, gitleaks, and CI's Release build and
+Europe/Berlin jobs) are deliberately **not** required, so a third-party action outage can never wedge your merges. Promote any of them to required by adding its check-run name to
 `CONTEXTS` in `scripts/setup_branch_protection.sh` and re-running.
 
 ## Local helpers (`scripts/`)
@@ -128,7 +151,7 @@ required, so a third-party action outage can never wedge your merges. Promote an
 |---|---|
 | `check_localization.py` | Fails if any shipping language (de, es, fr, it, pt-BR, ru) is missing a translation. Run with no args to check all tracked `*.xcstrings`. |
 | `check_translation_rules.py` | Fails if a shipped translation breaks a rule the completeness check cannot see: ru `ё` and formal `вы`, fr `U+00A0`/`U+202F`/apostrophe and `vous`, it apostrophe and `Lei`, de `—`/`Min.`/`Workout`/`Sie`, es `usted`, weight units, double spaces, placeholder parity. Proves every rule can still fail before it reports success; `--list` prints the rules. Exceptions with their reasons live in `scripts/translation_rules_config.json`. |
-| `check_version.py <release/x.y.z \| x.y.z>` | Verifies marketing version, build-number agreement, and a changelog section. |
+| `check_version.py <release/x.y.z \| x.y.z>` | Verifies marketing version, build-number agreement, a build number above the highest older `v*` tag (a notice, not a failure, when the tags are missing), and a changelog section. |
 | `check_engine_gates.py` | Runs every engine gate the `TESTPLAN.md` table names and fails on any that did not print its clean line. `--contract` parses the table without running anything — that is what CI does, since `reference/` is gitignored and never on a runner. |
 | `changelog_section.py <version>` | Prints the `CHANGELOG.md` section for a version (used for release notes). |
 | `setup_branch_protection.sh` | Applies branch protection (above). |
@@ -147,3 +170,41 @@ macOS jobs select Xcode via the shared composite action
 with a fallback to the latest stable if that major isn't on the runner. To move
 to a new Xcode major, change the `default` in
 `.github/actions/setup-xcode/action.yml` (one place, all jobs).
+
+### Compiler warnings are errors in CI
+
+Every compile in `ci.yml` treats a compiler warning as an error:
+`swift test --parallel -Xswiftc -warnings-as-errors` for the core package, and
+`SWIFT_TREAT_WARNINGS_AS_ERRORS=YES GCC_TREAT_WARNINGS_AS_ERRORS=YES` on the
+`xcodebuild` command line of the app unit tests, the Europe/Berlin run and the
+Release build. The settings live in the workflow, not in `project.pbxproj`, so
+a local build in Xcode is never blocked by them.
+
+The consequence is deliberate: when the runner gets a new Xcode, or the pinned
+major moves, any new compiler warning fails the job that compiles it until the
+code is fixed. In the two required jobs that blocks a merge — and the app
+unit-test job builds every test target, the UI-test sources included, so a
+warning in `ios/DredfitUITests` blocks one too, although the UI tests themselves
+gate nothing. A warning that only the Release build sees (say, a value that
+only `#if DEBUG` code reads, left unused without it) reddens the advisory
+`release-build` job alone.
+Reproduce a red run locally by passing the same flags:
+
+```sh
+xcodebuild build-for-testing -project ios/Dredfit.xcodeproj -scheme Dredfit \
+  -destination "platform=iOS Simulator,name=iPhone 17 Pro" \
+  CODE_SIGNING_ALLOWED=NO \
+  SWIFT_TREAT_WARNINGS_AS_ERRORS=YES GCC_TREAT_WARNINGS_AS_ERRORS=YES
+cd ios/DredfitCore && swift test --parallel -Xswiftc -warnings-as-errors
+```
+
+Build-tool notices that are not compiler diagnostics (for example
+`appintentsmetadataprocessor`'s "Metadata extraction skipped") are not affected.
+SwiftLint is not run with `--strict`: its warning/error split is intentional,
+and only its errors fail the Lint job.
+
+### SwiftLint version
+
+SwiftLint in CI runs from a pinned container image (`lint.yml`). Dependabot
+does not bump container images, so move that tag by hand, together with the
+local `swiftlint`.

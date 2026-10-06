@@ -42,11 +42,11 @@ nonisolated struct WidgetSnapshot: Codable {
 
     struct Week: Codable {
         let workouts: Int
-        /// `levelsDelta` until v3, and optional for the same reason as
-        /// `totalSteps`: the key changed with the scale, so a snapshot from
-        /// the old build carries its delta in the retired unit. Absent here,
-        /// it reads as "no number yet" — right — while reusing the old key
-        /// would present a level count as steps.
+        /// Optional for the same reason as `totalSteps`: the key changed with
+        /// the scale (the old `levelsDelta` was in the retired level unit).
+        /// A snapshot from the old build leaves this absent, which reads as
+        /// "no number yet" — right — while reusing the old key would present
+        /// a level count as steps.
         let stepsDelta: Int?
     }
 
@@ -54,9 +54,9 @@ nonisolated struct WidgetSnapshot: Codable {
 
     // Optional for backward compatibility: right after an update a snapshot
     // written by the previous build is still on disk, and a failed decode
-    // blanks the widget until the app is next opened. This field was
-    // `totalLevel` until v3; the key changed with the scale, so a snapshot
-    // from the old build carries no number here until the app writes the next
+    // blanks the widget until the app is next opened. The key changed with
+    // the scale (the old `totalLevel` was in the retired level unit), so an
+    // old snapshot carries no number here until the app writes the next
     // one — which is the correct answer rather than a gap.
     let totalSteps: Int?
     let week: Week?
@@ -65,15 +65,14 @@ nonisolated struct WidgetSnapshot: Codable {
     let planMinutes: Int?
 
     // The low end of the same range the app prints on Today (PlanLength): the
-    // plan with every movement on its sets floor. The lock screen carried the
-    // full number alone, which overstates what the person is agreeing to on
-    // the very surface where "will this fit today" is answered without
-    // opening the app (UX review 05.09.2026).
+    // plan with every movement on its sets floor. The full number alone
+    // overstates what the person is agreeing to, on the very surface where
+    // "will this fit today" is answered without opening the app.
     //
-    // Absent means "written before this field existed" — the widget then
-    // prints the one number it has, as it always did. Declared `var` with no
-    // initializer so the memberwise initializer defaults it: a snapshot built
-    // without the floor is still a snapshot.
+    // Absent means "written by a build without this field" — the widget then
+    // prints the one number it has. Declared `var` with no initializer so the
+    // memberwise initializer defaults it: a snapshot built without the floor
+    // is still a snapshot.
     var planMinutesFloor: Int?
 
     let plan: [PlanRow]?

@@ -1,13 +1,9 @@
 //
-//  Quiet safety signals derived from the journal (issues #100, #98): a run of
-//  training days, and the movement the journal keeps finding under an unnamed
-//  "tough". Nothing here is persisted — the same journal always produces the
-//  same lines, backups included — and nothing blocks, colors, or counts toward
-//  an achievement.
-//
-//  The per-movement PAIN TREND is gone with the channel it read. Both of its
-//  rungs — "it hurt again" and "time to see a specialist" — counted pain
-//  reports, and there are none to count.
+//  Read-only signals behind the quiet lines on Today and in the history.
+//  Two are safety signals derived from the journal: a run of training days
+//  (#98), and the movement the journal keeps finding under an unnamed
+//  "tough" (#135). Nothing here writes, and neither safety signal blocks the
+//  workout or counts toward an achievement.
 //
 
 import Foundation
@@ -21,13 +17,8 @@ extension AppStore {
 
     /// Consecutive calendar days with a completed workout, counting back from
     /// (and including) the given day. Local-midnight day math — the SAME day
-    /// math `gapDays` uses. This sentence used to end "deliberately unlike
-    /// `gapDays`, which counts whole elapsed 24h periods", and it outlived the
-    /// change it described: #172 (v2.24) moved `gapDays` onto `startOfDay` too,
-    /// because Monday 23:00 → Tuesday 01:00 was a zero-day gap to the decay and
-    /// the comeback card. Nothing here is "unlike" anything any more, and a
-    /// reader who trusted the old note would seed a test in elapsed seconds.
-    /// Two workouts on one day still count once.
+    /// math `gapDays` uses (`trainingDays`), so a test seeds both in calendar
+    /// days, not elapsed seconds. Two workouts on one day count once.
     func consecutiveTrainingDays(endingOn day: Date) -> Int {
         let cal = Calendar.current
         let trained = Set(records.map { cal.startOfDay(for: $0.date) })
@@ -62,62 +53,125 @@ extension AppStore {
 extension AppStore {
 
     /// The one thing an exercise card has to explain about its own set count.
-    /// Sets move without levels — a movement half of whose sets were skipped
-    /// last time comes back as `2×4 /side` under a name that carried
-    /// `4×4 /side` — and a plan that quietly got easier reads as a bug exactly
-    /// the way a plan that quietly got harder does.
+    /// Sets can move while the name and the dose stand still — a movement
+    /// half of whose sets were skipped last time comes back as `2×4 /side`
+    /// under a name that carried `4×4 /side` — and a plan that quietly got
+    /// easier reads as a bug exactly the way a plan that quietly got harder
+    /// does.
     ///
     /// A fact, not a line: this says WHETHER there is something to explain,
-    /// and `ExerciseRow` owns the words for it. The "pain is holding the
-    /// volume down" rung is gone with the episode, which is what took the type
-    /// here down from an enum to a Bool — and what is left matters more now,
-    /// not less: sets come off because the person skipped them, so the card
-    /// has to say when the engine gives one back on its own.
+    /// and `ExerciseRow` owns the words for it. Sets come off for several
+    /// reasons — a skip, a descent on the dose floor, the deload, a break —
+    /// so the card has to say when the engine gives one back on its own.
     ///
     /// The hold is armed by the very transition that handed a set back and
-    /// spends a tick on each appearance after it, so "full" means the returned
-    /// set is in THIS plan. That alone is not enough to say so out loud: the
-    /// gate and the postcondition repair both cut AFTER the handle, and a line
-    /// about a set the card does not show would simply be false. So the
-    /// journal has the last word — what the card carried the last time this
-    /// movement came round.
+    /// spends a tick each time the movement is trained after it, so "full"
+    /// means the returned set is in THIS plan. That alone is not enough to
+    /// say so out loud: the session generator can still show fewer sets than
+    /// the position holds, and a line about a set the card does not show
+    /// would simply be false. So the journal has the last word — what the
+    /// card carried the last time this movement came round.
+    ///
+    /// A push gets sets back a second way no hold ever sees: the pull slot's
+    /// cap lifting, while the push's own position stands still. The record
+    /// behind the last card says whether that card was held below the push's
+    /// own sets (`WorkoutRecord.heldBack`); more sets after such a card are
+    /// the held set returning. Only on the same variation — another one is
+    /// another movement, and its own line says so — and only when the sets
+    /// grew with a probe's slot counted: a probe leaving hands its slot to a
+    /// working set and gives nothing back. A record without the stamp claims
+    /// nothing.
     func aSetJustCameBack(in exercise: SessionExercise) -> Bool {
         let pattern = exercise.pattern
-        guard engineState.setsHold[pattern] == EngineConfig.setsBackHold,
-              let before = lastShownSets(pattern) else { return false }
-        return exercise.sets > before
+        guard let last = lastCard(pattern), exercise.sets > last.card.sets else { return false }
+        if engineState.setsHold[pattern] == EngineConfig.setsBackHold { return true }
+        return exercise.variation == last.card.variation
+            && exercise.totalSets > last.card.totalSets
+            && last.record.heldBack?.contains(pattern) == true
+    }
+
+    /// True when a push shows fewer sets than its last card because the pull
+    /// slot's cap binds it right now: the weaker pull branch stands on fewer
+    /// sets than the push's own position. A fact, not a line: `ExerciseRow`
+    /// owns the words. With the bar on, the branch that caps is usually the
+    /// one not in today's plan, so nothing else on screen accounts for it.
+    ///
+    /// A drop the push made itself — its own skipped set — leaves the cap at
+    /// or above its own sets, and is not put down to the pulls. Nor is a
+    /// working set a probe has taken: counted with the probe's slot, those
+    /// sets did not drop, and the probe's own line says what the last set is.
+    func setsJustHeldBackByThePulls(in exercise: SessionExercise) -> Bool {
+        guard let gate = Engine.pullCap(on: exercise.pattern, in: engineState),
+              gate.cap < gate.own,
+              let last = lastCard(exercise.pattern) else { return false }
+        return exercise.sets < last.card.sets && exercise.totalSets < last.card.totalSets
+    }
+
+    /// True when a push's next set waits for the pulls: it stands on its top
+    /// variation below the top band, and the pull slot's cap — the weaker
+    /// branch with the bar — does not reach the band above. The push enters
+    /// that band only once the pulls show its sets, so a count of steps to it
+    /// would promise a set the pulls decide. A fact, not a line:
+    /// `PatternProgressRow` owns the words.
+    func nextSetWaitsForThePulls(_ pattern: Pattern) -> Bool {
+        let position = engineState.position(pattern)
+        guard Library.isTop(pattern, position.variation), position.sets < EngineConfig.setsMax,
+              let gate = Engine.pullCap(on: pattern, in: engineState) else { return false }
+        return gate.cap <= position.sets
+    }
+
+    /// The push rows of a session that showed fewer sets than their own
+    /// positions stood on — the stamp `completeWorkout` writes into the
+    /// record. Read against the state the session was BUILT from: after the
+    /// rating a push can stand on other sets than its card was cut from. Nil
+    /// when nothing was held back, so such a record keeps its old shape.
+    static func pushesHeldBack(in session: Session, builtFrom state: EngineState) -> Set<Pattern>? {
+        let held = session.exercises.filter { ex in
+            guard let gate = Engine.pullCap(on: ex.pattern, in: state) else { return false }
+            return ex.totalSets < gate.own
+        }
+        return held.isEmpty ? nil : Set(held.map(\.pattern))
     }
 
     /// True when this movement stands on an EASIER variation than the one the
     /// last workout left it on — the plan quietly changed under a name the
     /// person recognises, and a row that got easier by itself reads as a bug
-    /// exactly the way one that got harder does (UX review 05.09.2026,
-    /// finding 3). A fact, not a line: `ExerciseRow` owns the words.
+    /// exactly the way one that got harder does. A fact, not a line:
+    /// `ExerciseRow` owns the words.
     ///
     /// Measured against the last record's `positionsAfter`, which is the state
     /// the journal vouches for. Everything the rating itself did is already
-    /// inside that snapshot, so what is left for this to catch is exactly what
-    /// moved the plan AFTERWARDS and without a word: the handle, the
-    /// blind-zone decay, an accepted comeback. A pattern the snapshot does not
+    /// inside that snapshot, so what is left for this to catch is what moved
+    /// the plan AFTERWARDS and without a word — the handle, the blind-zone
+    /// decay, an accepted comeback among them. A pattern the snapshot does not
     /// carry (a record written before v3) claims nothing.
     func aVariationJustDropped(in exercise: SessionExercise) -> Bool {
         guard let before = records.last?.positionsAfter?[exercise.pattern] else { return false }
         return exercise.variation < before.variation
     }
 
-    /// The set count this movement's card carried at its last appearance.
-    /// Read from the journal rather than the state because it is what the
-    /// person actually saw. A record too old to know its exercises ends the
-    /// walk rather than being skipped over: a gap in the journal is not
-    /// evidence of anything, and reading past it would compare two sessions
-    /// with an unknown number in between.
-    private func lastShownSets(_ pattern: Pattern) -> Int? {
+    /// The card this movement carried at its last appearance, and the record
+    /// that carried it. Read from the journal rather than the state because
+    /// it is what the person actually saw. A record too old to know its
+    /// exercises ends the walk rather than being skipped over: a gap in the
+    /// journal is not evidence of anything, and reading past it would compare
+    /// two sessions with an unknown number in between.
+    private func lastCard(_ pattern: Pattern) -> (card: SessionExercise, record: WorkoutRecord)? {
         for record in records.reversed() {
             guard let exercises = record.exercises else { return nil }
-            if let was = exercises.first(where: { $0.pattern == pattern }) { return was.sets }
+            if let was = exercises.first(where: { $0.pattern == pattern }) { return (was, record) }
         }
         return nil
     }
+}
+
+extension SessionExercise {
+    /// Working sets plus the probe, when the plan carries one. The probe
+    /// REPLACES a working set upstream — the engine hands back one set fewer —
+    /// so the session's volume is unchanged and this count is what the person
+    /// actually walks through. It is also what the pull slot's cap and a
+    /// push's own sets are measured against.
+    var totalSets: Int { sets + (probe == nil ? 0 : 1) }
 }
 
 // MARK: - The weak link the trainee never names (#135)
@@ -125,22 +179,18 @@ extension AppStore {
 extension AppStore {
 
     /// A movement the journal keeps finding under an unnamed "tough" — the
-    /// same threshold the engine's chronic signal uses (3 of the last 4 of its
-    /// appearances), so the app and the model agree on what "keeps failing"
-    /// means.
+    /// same threshold the engine's chronic signal uses (`chronicHits` of the
+    /// last `chronicWindow` appearances: 3 of 4).
     ///
-    /// The audit's shoulder persona is the case: someone who only knows the
-    /// one-tap gesture rates "tough" whenever the pushes come up. Because the
-    /// pushes are in most sessions, that reads to the model as "the whole
-    /// programme is too hard", and nine weeks later the programme is gone —
-    /// while the movement that is actually the problem is still in every plan.
+    /// The case it exists for: someone who only knows the one-tap gesture
+    /// rates "tough" whenever the pushes come up. Because the pushes are in
+    /// most sessions, that reads to the model as "the whole programme is too
+    /// hard", while the movement that is actually the problem keeps its
+    /// place in the rotation.
     ///
-    /// The prompt used to route to "Something hurt", and that button no longer
-    /// exists. It routes to the easier VARIATION instead, which is the better
-    /// destination anyway: the pain report took the movement's volume away and
-    /// gave nothing back for weeks, while a lighter variation changes exactly
-    /// the thing the person is complaining about, immediately, and keeps the
-    /// movement in the plan.
+    /// The prompt routes to the easier VARIATION: a lighter variation changes
+    /// exactly the thing the person is complaining about, immediately, and
+    /// keeps the movement in the plan.
     func unnamedLessSuspect() -> Pattern? {
         var best: Pattern?
         var bestHits = 0
@@ -154,25 +204,21 @@ extension AppStore {
                 if seen == EngineConfig.chronicWindow { break }
             }
             guard seen == EngineConfig.chronicWindow, hits >= EngineConfig.chronicHits else { continue }
-            // A tie goes to the movement that failed more often, then to the
-            // one the rotation shows first — the same order the engine walks.
+            // The movement that failed more often wins; a tie goes to the one
+            // first in `Pattern.allCases`.
             if hits > bestHits { bestHits = hits; best = pattern }
         }
         // Nothing to suggest when the one handle the prompt offers would do
         // nothing: the movement is already in its easiest variation, so the
-        // question would route into a dead control. The sets half of this
-        // guard went with the handle it named — volume is answered inside the
-        // workout now, and a prompt on the plan cannot offer it.
+        // question would route into a dead control.
         guard let best else { return nil }
         guard Engine.easierPosition(pattern: best, position: engineState.position(best),
                                     shown: engineState.shown) != nil else { return nil }
         return best
     }
 
-    /// A session where the trainee said "tough" and pointed at nothing. Two
-    /// earlier waves cancelled the hold request and then the pain report — so
-    /// "naming something" is down to ONE signal, exact numbers, and the check
-    /// says so rather than listing an empty set.
+    /// A session where the trainee said "tough" and pointed at nothing — no
+    /// number entered for any movement.
     private static func namesNothing(_ record: WorkoutRecord) -> Bool {
         (record.actuals ?? [:]).isEmpty
     }
@@ -184,7 +230,7 @@ extension AppStore {
     }
 }
 
-// MARK: - Who moved the plan (UX review 05.09.2026, findings 27 and 64)
+// MARK: - Who moved the plan
 
 /// The read side of `PlanMoves`. Everything here is stamped at the moment the
 /// plan moves — see the type — because the journal cannot be asked afterwards:
@@ -202,9 +248,9 @@ extension AppStore {
     }
 
     /// The same question of the slot the rating owns. Separate from the one
-    /// above because the two are stamped one session apart: while a single
-    /// slot held both, a handle pulled on the next plan overwrote what the
-    /// last rating had named (review 06.09.2026).
+    /// above because the two are stamped one session apart: in a single slot,
+    /// a handle pulled on the next plan would overwrite what the last rating
+    /// had named.
     func ratingMoves(for session: Int) -> PlanMoves? {
         guard let moves = settings.ratingMoves, moves.session == session else { return nil }
         return moves

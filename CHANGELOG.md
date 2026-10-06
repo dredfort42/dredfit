@@ -1,5 +1,187 @@
 # Changelog
 
+## 2.5.0
+
+This release is about numbers that say what will happen and record what did.
+The plan engine moves from reference **3.5.0 to 3.8.0** in three steps:
+numbers you enter by hand for reps now count exactly as a tap would, and a push no
+longer outruns the pulls that balance it. The reference chain ran in full for
+each of the three versions, and the golden trace the Swift port is held to
+grows to 49 scenarios and 413 steps. Around the engine, the hold summary, the
+Stop button and the work screen now agree with the clock, every 3-2-1 is felt
+in full in Silent mode, and a save that fails says so. Six new strings come
+with it, and two captions are reworded, in all seven languages. What this release does not touch: the entry
+plan of three sets of four in the gentlest variation of six movements and the
+estimate on Today for it (about 24–32 minutes, re-measured on 3.8.0), the
+Health permissions and data types, the App Privacy answers, and the network,
+which the app still never uses. The saved state and the journal gain only
+optional fields, so there is no migration: history written by 2.4.4 reads as
+it did, under the reworded length line.
+
+### A push waits for the pulls (engine 3.8.0)
+
+- **A push moves up to four or five sets only behind the pulls** (#302). On
+  its top variation a push used to enter the next set band without looking
+  at the pulls. Archer push-ups at 3×15 per side went to 4×11 and a milestone said
+  "Now 4 sets"; with the rows still on three sets, the pull limit then cut
+  the next plan to 3×11, 66 reps against the 90 just done. A push now enters
+  a band only when the pulls show at least as many sets. The price, accepted
+  on purpose: while the pulls lag, a push can wait on 3×15. Progress says so
+  with "+1 set once pulling catches up" instead of a "+1 set in N" that would
+  not have come true.
+- **A push the limit held gets its sets back when the pulls catch up**
+  (#302). Before, a push the limit had held at 4×15 stayed there until its
+  own position moved, at 5×15 until it fell. It now gets back exactly what
+  the lifted limit returns. Once, on the first plan after updating, a push
+  the old rule had held gets that back too.
+- **The plan says when the limit takes a set and when it gives one back**
+  (#299, #302). Under the push: "Fewer sets for now — pushes keep pace with
+  your pulls." when a set is taken, and "A set is back." when it returns.
+  Before, the push simply showed fewer sets with nothing to say why.
+- **A workout started before the update ends on the plan it began with**
+  (#302). Without this, updating in the middle of a workout could lose the
+  "Continue the workout?" card, and the twelve-hour close then dropped that
+  workout without recording it.
+
+### Numbers you enter count as a tap would (engines 3.6.0 and 3.7.0)
+
+- **Mixed numbers are credited with the best set they prove** (#290). A plan
+  of 9-9-8 done as 10, 8, 8 was journaled as 8, where a tap on plan would
+  have journaled 9, so the probe and the pull's credit came later for the
+  person who typed. The journal now takes the best set the numbers prove; on
+  reps that is always what the tap gives. For holds, "the top not held means
+  no probe" stays.
+- **Numbers that only match the plan obey the weekly limit, as a tap does**
+  (#298). On the slow tissues (pulls, pull-ups, calves) entering the plan's
+  own numbers grew about half again as fast as tapping. A number above the
+  plan still becomes the plan at once: the weekly limit does not slow down
+  fast adaptation.
+- **A returned set is paced and announced** (#290, #298). A set the other
+  pull branch gave back came back silently and could add 50 % and then 33 %
+  of volume in a row. It now gets the same pause as any returned set, and
+  "A set is back." under it. The pause is set only when the screen really
+  shows more sets, and when the weekly limit cancels a return, the pause
+  goes with it instead of holding growth back.
+- **"+5 s — your addition" counts only what landed** (#280). Under a cut, a
+  step the engine burned on the grid's ceiling was counted as landed, so the
+  line could name more than the plan received.
+
+### Holds: the summary, the Stop and the screen agree with the clock
+
+- **The summary counts only the sets that were done** (#300). A skipped set
+  showed as an inert card carrying a fallback number, and that number was
+  folded into the fact: a plank of 3×30 held at 45 with set 2 skipped gave
+  45·30·45 and a next plan of 2×40. A skipped set has no card now, the
+  others keep their own numbers ("set 1", "set 3"), and the rating, history
+  and a changed rating use only the sets done, on reps too. Sets left undone
+  by "Finish now" or a forgotten workout keep their fill, so quitting early
+  never makes the next plan harder, and a number you entered before skipping
+  a set is kept.
+- **A set followed by a rest is not corrected above its clock** (#300).
+  Before a probe, the last working set has a rest after it, so the clock is
+  its ceiling like any earlier set's. It could be corrected from 45 to 90,
+  and a single "+" under "Tough, did less" turned a failed probe into a pass.
+- **Skipping a hold's probe opens the summary** (#300), so a set stopped by
+  hand can still be corrected; before, the skip jumped straight to the next
+  movement. "Next time" and the probe's caption now name the plan that will
+  come ("2×45 sec + probe", not "3×45 sec").
+- **"Stop · 30 s" stores 30** (#294). The label came from the last tick and
+  the stored number from the tap, so about half the taps stored a second
+  more than the button said. A Stop before the button shows a number, in the
+  first four seconds, now hands the set back as promised; a tap at 3–4 s
+  used to store 5 s.
+- **The big number is the one the clock will count** (#295): with a hold
+  time set before the exercise (the screen said 15 while the clock ran 45),
+  and on a second side handed back by a Stop in its first seconds, which
+  runs for what the first side ran.
+- **An estimate stays an estimate** (#292). After a correction or an OK,
+  "set 3 · stopped by hand at about 30 s" turned into "the clock saw 30 s",
+  a count the clock never made.
+- **"Next time" and the selected Progress row are readable on their fill**
+  (#281). Both take the ink colour there, which closes I-21: the old pairs
+  measured 4.20:1 and 4.03:1 against the 4.5:1 small text needs.
+
+### Countdowns you can feel
+
+- **Every 3-2-1 wakes the vibration a second ahead** (#291, #296). Unprimed,
+  the first tap landed late, and in Silent mode a 3-2-1 was felt as
+  "2-1-go". Every count-in, rest, hold, warm-up and cool-down clock now
+  primes once before its 3.
+- **A pause never hands back a second or two** (#289, #296). A "Get ready"
+  frozen near its end came back with what was left, then the go; it now
+  comes back with at least four seconds and its whole 3-2-1, and a side
+  switch with its whole four seconds. A hands-free rest frozen behind the
+  technique sheet came back as "1, go"; it now gets at least four seconds as
+  well, and a paused one keeps its "Paused" tile.
+- **One absence rule** (#286): more than 4.0 seconds away, measured to the
+  fraction, in a rest and in the warm-up and cool-down alike. Before, the
+  same 4.6 s counted as an absence in a rest but not in a block.
+- **A double tap acts once** (#274). For 350 ms after the screen changes it
+  takes no tap, and every step of the workout ignores a call from a screen
+  that has already moved on. A rest restored in its last half-second no
+  longer hangs at 0 (#278).
+
+### Saving: nothing is lost quietly
+
+- **A failed save says so** (#279). If the file could not be written, the
+  changes were lost without a word. A banner now stands on every screen,
+  "Couldn't save your latest changes. They'll be lost if the app closes
+  before a save works.", with "Try again", and the app tries again on its
+  own when it comes back to the foreground.
+- **A history the app cannot read stops "Start" instead of being replaced**
+  (#279, #282). Today shows "Your history couldn't be read" with "Try again"
+  in place of Start, because a workout begun then could not be saved. If a
+  damaged file cannot be copied aside, the journal is held as it is rather
+  than written over with an empty one.
+- **A cool-down the workout never reached records 0** (#293). "Finish now"
+  before it, a workout of nothing but skips, or one settled later billed
+  four minutes of stretching that never happened, in the calorie estimate
+  and in the plan History measures a workout against before it shows the
+  "Took N min" line.
+- **Settings and Today** (#258). On a fresh install, the calendar and the
+  next-workout sheet no longer call the workout Today offers "tomorrow":
+  one rule now decides whether the plan rests on a day. A typo in the body-weight
+  field no longer erases the weight; only an empty field does. The reminder
+  time is built on today's date, so a historical time-zone offset no longer
+  shifts it. The share card redraws when its date or curve changes, and an
+  exported backup leaves at most one temporary copy behind.
+- **History says the length counts time in the app.** Since 2.4.4 the
+  length leaves out the time the phone spent away from the app, while an
+  on-screen Pause still counts. "Took N min, pauses included" let a locked
+  phone read as a pause; the line now says "Took N min in the app, pauses
+  included".
+- **The weight caption names where the weight goes.** "It stays on this
+  device." was untrue once a backup was exported: the weight is kept with
+  the settings, and every exported backup carries it. The caption now says
+  "Kept on this device and in the backups you export."
+
+### Housekeeping
+
+- **CI is stricter** (#257, #259, #260). Compiler warnings are errors in
+  every CI compile, the engine package builds in the Swift 6 language mode,
+  UI retries work again, and the nightly UI run skips nights with nothing
+  new to test.
+- **The workout flow and the store were taken apart without changing
+  behaviour** (#261–#263, #265–#272, #275). The flow's state and rules live
+  in a testable `WorkoutSession`, every clock is one `Countdown` type, the
+  warm-up and cool-down share one engine, and the state file, Health export,
+  reminders and snapshots each have their own type. The store's persisted
+  state is written only through `update`, Settings, Today, Progress and
+  History are split into views that own their state, and unit tests build
+  every store through one helper instead of starting the real one in the
+  host app.
+- **The store's and the Live Activity controller's teardown stays off the
+  back-deployed main-actor path** (#283) that crashed the iOS 26.2
+  simulator in CI whenever a store was freed.
+- **Comments say why, and match the code** (#264, #273, #276, #277, #284,
+  #285, #287, #288, #301, #303), and CI's lint now rejects section signs,
+  review dates and R-ids in Swift comments.
+- **SwiftLint reports no warnings** (11 before): long files are split, two
+  six-argument signatures take a value instead, and the store's settings-only
+  writes go through the same `update` every other extension uses. Behaviour
+  is unchanged; one new test pins the one-time technique hint.
+- 743 → 1 070 automated tests: 78 → 118 core, 585 → 872 app units, 80 UI.
+
 ## 2.4.4
 
 **A workout the phone slept through is no longer sent to Health as an

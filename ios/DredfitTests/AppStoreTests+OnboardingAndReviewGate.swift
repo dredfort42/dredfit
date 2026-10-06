@@ -1,10 +1,9 @@
 //
-//  The onboarding screen and the App Store review prompt, moved out of
-//  AppStoreTests.swift to keep it under the linter's file and type-body
+//  The onboarding screen and the App Store review prompt, in their own file
+//  to keep AppStoreTests.swift under the linter's file and type-body
 //  ceilings. Grouped together because both are one-time gates keyed on
 //  persisted flags and counters (a completed-onboarding bit, a workout
-//  count, a cooldown window) rather than on the workout data itself. The
-//  code moved unchanged.
+//  count, a cooldown window) rather than on the workout data itself.
 //
 
 import XCTest
@@ -15,17 +14,17 @@ import DredfitCore
 extension AppStoreTests {
 
     func testOnboardingShowsOnceOnAFreshInstall() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertTrue(store.shouldShowOnboarding, "a fresh install must see it")
 
         store.completeOnboarding()
         XCTAssertFalse(store.shouldShowOnboarding, "not twice in the same run")
-        XCTAssertFalse(AppStore(storageURL: tempURL).shouldShowOnboarding,
+        XCTAssertFalse(makeStore().shouldShowOnboarding,
                        "and not after a relaunch either")
     }
 
     func testOnboardingIsSkippedForUsersWithHistory() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.completeWorkout(session: store.nextSession, result: .plan)
         // an upgrading user has history but no flag — still no onboarding
         XCTAssertFalse(store.settings.onboardingCompleted)
@@ -36,7 +35,7 @@ extension AppStoreTests {
     // MARK: - App Store review gate
 
     func testReviewGateAsksWhenEveryConditionHolds() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         for _ in 0..<AppStore.reviewMinWorkouts {
             store.completeWorkout(session: store.nextSession, result: .plan)
         }
@@ -46,7 +45,7 @@ extension AppStoreTests {
     }
 
     func testReviewGateStaysSilentBelowTheWorkoutFloor() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         for _ in 0..<(AppStore.reviewMinWorkouts - 1) {
             store.completeWorkout(session: store.nextSession, result: .plan)
         }
@@ -56,7 +55,7 @@ extension AppStoreTests {
     }
 
     func testReviewGateStaysSilentAfterAToughSession() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         for _ in 0..<AppStore.reviewMinWorkouts {
             store.completeWorkout(session: store.nextSession, result: .plan)
         }
@@ -65,7 +64,7 @@ extension AppStoreTests {
     }
 
     func testReviewGateRespectsTheSixtyDayCooldown() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         for _ in 0..<AppStore.reviewMinWorkouts {
             store.completeWorkout(session: store.nextSession, result: .plan)
         }
@@ -83,14 +82,14 @@ extension AppStoreTests {
 
     /// The onboarding and review fields must round-trip through a save/reload
     /// like every other setting — the onboarding must not reappear after a relaunch.
-    func testWaveFourSettingsSurviveReload() {
-        let store = AppStore(storageURL: tempURL)
+    func testOnboardingAndReviewSettingsSurviveReload() {
+        let store = makeStore()
         XCTAssertFalse(store.settings.onboardingCompleted)
         store.completeOnboarding()
         let stamp = Date(timeIntervalSince1970: 1_784_000_000)
         store.recordReviewRequest(at: stamp)
 
-        let reloaded = AppStore(storageURL: tempURL)
+        let reloaded = makeStore()
         XCTAssertTrue(reloaded.settings.onboardingCompleted,
                       "the onboarding flag must survive a relaunch")
         XCTAssertEqual(reloaded.settings.lastReviewRequestAt, stamp)

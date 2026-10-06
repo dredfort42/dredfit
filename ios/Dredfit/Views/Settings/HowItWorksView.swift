@@ -19,9 +19,6 @@ struct HowItWorksView: View {
 
     private var sections: [Section] {
         [
-            // Rewritten for v3: the single number is gone, and with it the
-            // encoding this section used to explain. What a person now has is
-            // two plain facts, which is also all the engine has.
             Section(id: 1,
                     title: String(localized: "Variation and dose"),
                     body: String(localized: """
@@ -86,11 +83,6 @@ struct HowItWorksView: View {
                     the next plan comes back with one set fewer — until you \
                     earn it back.
                     """)),
-            // This section used to explain the pain channel — a tap that
-            // rested a movement for three appearances. The channel is gone,
-            // and the case it served is answered by the easier variation and
-            // by the skip inside the workout. The stop rule stays: what was
-            // removed is a state machine, not the warning.
             Section(id: 8,
                     title: String(localized: "Too much today"),
                     body: String(localized: """
@@ -104,10 +96,6 @@ struct HowItWorksView: View {
                     you settle set by set. Sharp pain is always a reason to \
                     stop.
                     """)),
-            // This section used to explain the hold-this-level input. The
-            // input is cancelled — it was used zero times in 24 real sessions
-            // — and the case it served is what the sub-step now handles
-            // without being asked.
             Section(id: 9,
                     title: String(localized: "One set at a time"),
                     body: String(localized: """
@@ -119,10 +107,9 @@ struct HowItWorksView: View {
                     """)),
             // "Movement" is the PATTERN — pull, squat, hinge — and a probe
             // never hands you one of those: it offers the next VARIATION of
-            // the movement you are already doing. §1 of this very screen sets
-            // that vocabulary up ("a ladder of four to seven variations"), and
-            // §10 then spent it, which is the one place a reader learns what a
-            // probe is (UX review 05.09.2026, finding 37).
+            // the movement you are already doing. Section 1 of this screen
+            // sets that vocabulary up ("a ladder of four to seven
+            // variations"), and this title keeps to it.
             Section(id: 10,
                     title: String(localized: "Trying the next variation"),
                     body: String(localized: """
@@ -185,8 +172,9 @@ struct HowItWorksView: View {
             }
 
             PrimaryButton(title: String(localized: "Got it")) { dismiss() }
-                // Settings sits underneath with its own "Got it" — both are
-                // in the accessibility tree while this sheet is up.
+                // Settings sits underneath with a full-width button of its
+                // own, and both are in the accessibility tree while this
+                // sheet is up.
                 .accessibilityIdentifier("how-it-works-done")
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)

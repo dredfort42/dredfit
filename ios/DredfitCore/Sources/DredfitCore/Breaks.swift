@@ -1,24 +1,22 @@
 //
-//  What a break does: the comeback (v2.3) and the silent decay (v2.4).
+//  What a break does: the comeback and the silent decay.
 //
 //  Both are pure functions the app layer calls when the app opens after a
 //  pause — never from `applyFeedback`: a break is not a training event and it
 //  does not move the counter. Every pattern is lowered, `pull_bar` included
 //  even with `hasBar` false: a break detrains the whole body.
 //
-//  §40.3 carries the return scale over by "1 old level = 1 rep per set". The
-//  descent uses the same rungs as every other mechanism (`fallDoses`), so the
-//  identity of §14.2 — "a return equals a decay plus a weakened return" —
-//  holds BY CONSTRUCTION: walking 1 step and then drop−1 steps is walking drop
-//  steps. The separate compensation code for the silent decay is gone; it was
-//  needed only because the return used to be absolute level arithmetic.
+//  The descent uses the same rungs as every other mechanism (`fallDoses`), so
+//  "a return equals a decay plus a weakened return" holds BY CONSTRUCTION:
+//  walking 1 step and then drop−1 steps is walking drop steps, and the silent
+//  decay needs no compensation code.
 //
 
 import Foundation
 
 extension Engine {
 
-    /// The four "floors" of the old ceiling table stretched linearly over a
+    /// The four landing-ceiling "floors" stretched linearly over a
     /// ladder of N rungs: floor 1 is always the first variation, floor 4 always
     /// the top one.
     static func ceilVar(pattern p: Pattern, floorIndex: Int) -> Int {
@@ -27,7 +25,7 @@ extension Engine {
         return EngineState.clamped(1 + Int(scaled.rounded()), 1, n)
     }
 
-    /// v2.12 (§22.3): a run of returns. Comebacks in a row with no session
+    /// A run of returns: comebacks in a row with no session
     /// between them each deepen the drop by one (capped at `comebackMax`).
     public static func applyComeback(state dirty: EngineState, gapDays rawGap: Int,
                                      alreadyDecayed: Bool = false) -> EngineState {
@@ -59,7 +57,8 @@ extension Engine {
                 // The landing ceiling is ABSOLUTE and always the FLOOR of a
                 // variation: landing on the ceiling cannot hand out a high dose
                 // by construction. `min` composes with the `alreadyDecayed`
-                // weakening without a correction, so §14.2 survives it too.
+                // weakening without a correction, so the decay-plus-return
+                // identity survives it too.
                 let ceiling = ceilVar(pattern: p, floorIndex: ceilFloor)
                 let floorDose = Dose.grid(Library.unit(p, ceiling)).min
                 if pos.variation > ceiling {
@@ -89,7 +88,7 @@ extension Engine {
         let state = dirty.sanitized()
         var next = state
         next.sub = [:]                     // a decay is a descent: sub-steps come off
-        next.lessRun = 0                   // the run of "less" does not survive it (§19.1)
+        next.lessRun = 0                   // the run of "less" does not survive it
         next.creditPaused = []
         for p in Pattern.allCases {
             setPosition(&next, p, fallDoses(p, state.position(p), 1, shown: state.shown))

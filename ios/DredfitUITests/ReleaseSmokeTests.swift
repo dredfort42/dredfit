@@ -1,10 +1,11 @@
 //
-//  The Release smoke block of TESTPLAN.md (S1–S7), automated. Row names are
+//  The Release smoke block of TESTPLAN.md (S1–S8), automated. Row names are
 //  carried into activity names and failure messages, so a red run says "S3"
 //  and the checklist row is found without translation.
 //
-//  Still manual: everything marked ⌚ in TESTPLAN (device-only), and the
-//  "nothing is clipped" half of S7 — a judgement about pixels, not strings.
+//  Still manual: S9, the number S8 expects on the history row, everything
+//  marked ⌚ in TESTPLAN (device-only), and the "nothing is clipped" half of
+//  S7 — a judgement about pixels, not strings.
 //
 
 import XCTest
@@ -12,24 +13,25 @@ import XCTest
 @MainActor
 final class ReleaseSmokeTests: XCTestCase {
 
-    private var app: XCUIApplication!
+    nonisolated(unsafe) private var app: XCUIApplication!
     private var driver: WorkoutDriver { WorkoutDriver(app: app) }
 
-    // `async throws`: a synchronous `setUp()` override inherits XCTestCase's
-    // non-isolated declaration whatever the class is annotated with, so
-    // main-actor `XCUIApplication` was reached from a non-isolated context.
-    // Only the async form may add the class's isolation.
-    override func setUp() async throws {
-        try await super.setUp()
+    // Synchronous, on purpose: an async setUp kills the CI retries (Apple
+    // #108565878). Why, and why `app` is `nonisolated(unsafe)`: DredfitUITests.setUp.
+    override func setUp() {
+        super.setUp()
         continueAfterFailure = false
-        app = XCUIApplication()
-        // --uitest-fast collapses rests, cool-down stages and the get-ready
-        // transition (#52); a warm-up MOVE is deliberately not collapsed
-        // anywhere in the app, so S2 checks that the block opens and then
-        // skips it rather than paying three minutes. That asymmetry is what
-        // S2 waits on below: the move's countdown is up for 30 real seconds,
-        // the transition's for one, so only the former is safe to assert.
-        app.seedLaunchArguments("--uitest-fast")
+        app = MainActor.assumeIsolated {
+            let app = XCUIApplication()
+            // --uitest-fast collapses rests, cool-down stages and the get-ready
+            // transition (#52); a warm-up MOVE is deliberately not collapsed
+            // anywhere in the app, so S2 checks that the block opens and then
+            // skips it rather than paying three minutes. That asymmetry is what
+            // S2 waits on below: the move's countdown is up for 30 real seconds,
+            // the transition's for one, so only the former is safe to assert.
+            app.seedLaunchArguments("--uitest-fast")
+            return app
+        }
     }
 
     // MARK: - S1–S6 in English
@@ -68,8 +70,8 @@ final class ReleaseSmokeTests: XCTestCase {
             XCTAssertEqual(planLine.label, "about 24 to 32 minutes · 6 exercises",
                            "S1: the plan line must read ≈ 24–32 min · 6 exercises")
             XCTAssertTrue(app.buttons[AX.startWorkout].exists, "S1: Start is missing")
-            // One Start, and nothing beside it to agree to first: the
-            // short version and the session handle came off this screen.
+            // One Start, and nothing beside it to agree to first — no short
+            // version, no session handle.
             XCTAssertFalse(app.buttons["start-short"].exists,
                            "S1: the short-version offer is back on the plan")
         }
@@ -146,9 +148,6 @@ final class ReleaseSmokeTests: XCTestCase {
             // The LINE, not a number. The value is the engine's, pinned
             // bit-for-bit by the golden fixture; asserting it again here only
             // means a UI test goes red whenever early progression changes.
-            // It already did: this expected "6" from before sub-steps, when a
-            // first "on plan" moved six whole levels. It moves sub-steps now,
-            // so the honest value is 0 until the third session.
             let level = app.staticTexts.element(
                 matching: NSPredicate(format: "label BEGINSWITH %@", "Total steps after:"))
             XCTAssertTrue(level.waitForExistence(timeout: 5),
@@ -165,11 +164,9 @@ final class ReleaseSmokeTests: XCTestCase {
                           "S6: the Progress header is missing")
             let total = app.staticTexts[AX.totalSteps]
             XCTAssertTrue(total.exists, "S6: the total level is missing")
-            // A NUMBER, not a particular one — the same reason as S5. This
-            // expected 6, from before sub-steps, when a first "on plan" moved
-            // six whole levels; it moves sub-steps now and the total is 0
-            // until the third session. What the number should be is the
-            // engine's business and the golden fixture's.
+            // A NUMBER, not a particular one — the same reason as S5: what the
+            // number should be is the engine's business and the golden
+            // fixture's.
             XCTAssertNotNil(Int(total.label),
                             "S6: the header must carry the total level as a number")
             XCTAssertTrue(app.staticTexts["1 workout"].exists,
@@ -181,11 +178,9 @@ final class ReleaseSmokeTests: XCTestCase {
 
     /// Its own launch: S1–S6 owns a clean journal, and this row needs one too.
     ///
-    /// This row used to walk the pain report, on the argument that the safety
-    /// half of the engine is dead code if the button stops reaching the
-    /// journal. The button is gone and so is that half; the channel that
-    /// remains — the honest number — carries the same weight and the same
-    /// argument, so the row now walks it.
+    /// It walks the honest number, on the argument that the part of the
+    /// engine that reads it is dead code if the entry stops reaching the
+    /// journal.
     func testReleaseSmokeHonestNumber() {
         app.launch()
         XCTContext.runActivity(named: "S8 — an honest number reaches the rating") { _ in
@@ -194,11 +189,9 @@ final class ReleaseSmokeTests: XCTestCase {
             XCTAssertTrue(skipWarmup.waitForExistence(timeout: 5), "S8: no warm-up to skip")
             skipWarmup.tap()
 
-            // The pull slot: in every session, so the rest it earns is real
-            // rather than three workouts away. The pain report is gone from
-            // this screen. What the smoke test walks now is the answer that
-            // replaced it — the honest number — and it has to reach the rating
-            // the same way.
+            // The fourth movement is the pull slot, which every session
+            // carries. What this row walks on it is the honest number, and it
+            // has to reach the rating.
             for _ in 0..<3 {
                 // The escape asks before it acts (SkipConfirmation.swift).
                 XCTAssertTrue(driver.skip(control: AX.exerciseSkip, timeout: 10),
@@ -209,8 +202,8 @@ final class ReleaseSmokeTests: XCTestCase {
                           "S8: the adjust action is missing from the exercise screen")
             adjust.tap()
 
-            // A number BELOW the plan, entered by hand: the one channel leaves
-            // for saying the work went differently.
+            // A number BELOW the plan, entered by hand: the channel for saying
+            // the work went differently.
             let minus = app.buttons[AX.adjustMinus]
             XCTAssertTrue(minus.waitForExistence(timeout: 5), "S8: the stepper did not open")
             minus.tap()
@@ -230,17 +223,11 @@ final class ReleaseSmokeTests: XCTestCase {
             // movement with its number, and the skips under their own header —
             // with nothing to scroll to and nothing under a fold.
             //
-            // It used to be made in the history sheet instead, by counting the
-            // rows that read "skipped". That count was never a count of skips:
-            // the sheet opens on the SMALLER of its two detents (SwiftUI takes
-            // the smallest in `presentationDetents([.large, .medium])`) and the
-            // list under its header scrolls, so what a query finds is what
-            // FITS. The wave of 05.09.2026 gave that header a duration line and
-            // its footer a "Change rating" button, the third row went under the
-            // fold, and the row went red with the journal unchanged — measured
-            // on the failing run of 06.09.2026, whose recording shows Squat and
-            // Knee push-up on screen reading "skipped" and Glute bridge below
-            // the edge.
+            // Not in the history sheet, by counting the rows that read
+            // "skipped": its movements are a scrolling `List`, so what a query
+            // finds there is what FITS, not what was skipped. A line added to
+            // the sheet's header or a button to its footer is enough to push a
+            // row under the fold and turn S8 red with the journal unchanged.
             XCTAssertTrue(app.staticTexts["SKIPPED"].waitForExistence(timeout: 5),
                           "S8: the rating must list what was set aside under its own header")
             // By LABEL, because the row carries the state itself: the header is
@@ -286,13 +273,12 @@ final class ReleaseSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 5),
                       "S8: the history sheet must open on the workout")
         // What history has to add is that the record survived the rating and
-        // still calls a skip a skip. NOT how many rows say it: the sheet opens
-        // on its medium detent and the list scrolls, so the number on screen is
-        // a fact about layout — two of the six today, three before the wave —
-        // and pinning it again would only park this row on the next reader's
-        // padding change. The bound is the half of the old count that was ever
-        // about the journal: no movement may read "skipped" that was not one,
-        // and the three that were are counted on the rating screen above.
+        // still calls a skip a skip. NOT how many rows say it: the list
+        // scrolls, so the number on screen is a fact about layout, and pinning
+        // it would only park this row on the next reader's padding change. The
+        // bound is the half of that count that is about the journal: no
+        // movement may read "skipped" that was not one, and the three that
+        // were are counted on the rating screen above.
         let skippedRows = app.staticTexts.matching(
             NSPredicate(format: "label == %@", "skipped"))
         XCTAssertGreaterThanOrEqual(skippedRows.count, 1,
@@ -300,17 +286,12 @@ final class ReleaseSmokeTests: XCTestCase {
                                       + "the first of them must still read skipped")
         XCTAssertLessThanOrEqual(skippedRows.count, 3,
                                  "S8: no movement may read skipped but the three that were")
-        // This row used to end on the word "hurt". No record written after the
-        // wave can carry it — the mark only survives on journal entries older
-        // than the wave.
+        // Nothing writes the pain mark, so no record this walk writes can
+        // carry the word "hurt" — `HistoryRow` prints it only for an older
+        // record that holds one.
         XCTAssertFalse(app.staticTexts["hurt"].exists,
                        "S8: the pain mark cannot appear on a record written after the pain channel was removed")
     }
-
-    // S9 — the hold-this-level request — is gone with the input it
-    // smoke-tested. What it guarded (a per-movement mark reaches the journal,
-    // and the smoke would not otherwise notice if it stopped) is covered by
-    // S8, the pain report, on the same path.
 
     // MARK: - S7: the same first three rows in Russian
 
@@ -352,8 +333,8 @@ final class ReleaseSmokeTests: XCTestCase {
             XCTAssertTrue(gotIt.waitForNonExistence(timeout: 5),
                           "S7/S2: «Понятно» не закрыло шит техники")
 
-            // No Russian twins for Done and Start hold any more: the driver
-            // taps both by identifier, which is what an identifier is for.
+            // No Russian twins for Done and Start hold: the driver taps both
+            // by identifier, which is what an identifier is for.
             let walk = driver.completeWorkout(skipCooldown: false,
                                               ratingLabel: "Как прошло?")
             XCTAssertTrue(walk.sawCooldown, "S7/S2: заминка не отработала")

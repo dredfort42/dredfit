@@ -22,17 +22,16 @@ final class ProgressChartAxisTests: XCTestCase {
     private let scale: CGFloat = 3
 
     func testEveryDateTheAxisAsksForIsDrawn() throws {
-        let screen = ProgressScreen()
         let points = Self.points(dayOffsets: [0, 20, 40, 62, 95])
         // Pinned, not derived: a "fix" that stops asking for the last date
         // would make the axis honest again by deleting the very information
         // that made the defect visible, and must fail here.
-        XCTAssertEqual(screen.xAxisDates(points).count, 3,
+        XCTAssertEqual(StepsChart.xAxisDates(points).count, 3,
                        "first, middle and last is the ask this axis makes")
 
-        let ink = try labelInk(of: screen.stepsChart(points, []))
-        XCTAssertEqual(ink.labels.count, screen.xAxisDates(points).count,
-                       "the axis asked for \(screen.xAxisDates(points).count) dates and drew "
+        let ink = try labelInk(of: StepsChart(points: points, bands: []) { _ in })
+        XCTAssertEqual(ink.labels.count, StepsChart.xAxisDates(points).count,
+                       "the axis asked for \(StepsChart.xAxisDates(points).count) dates and drew "
                        + "\(ink.labels.count): Charts drops a label that does not fit")
         let last = try XCTUnwrap(ink.labels.last)
         XCTAssertLessThanOrEqual(last.upperBound, ink.width - Int(6 * scale),
@@ -42,10 +41,9 @@ final class ProgressChartAxisTests: XCTestCase {
     /// Two workouts are the least this chart draws at all, and both of its
     /// ends are labelled — the last one by the same trailing edge.
     func testTheSmallestChartLabelsBothOfItsEnds() throws {
-        let screen = ProgressScreen()
         let points = Self.points(dayOffsets: [0, 47])
-        XCTAssertEqual(screen.xAxisDates(points).count, 2)
-        let ink = try labelInk(of: screen.stepsChart(points, []))
+        XCTAssertEqual(StepsChart.xAxisDates(points).count, 2)
+        let ink = try labelInk(of: StepsChart(points: points, bands: []) { _ in })
         XCTAssertEqual(ink.labels.count, 2, "a two-point chart labels both ends")
     }
 
@@ -54,23 +52,23 @@ final class ProgressChartAxisTests: XCTestCase {
     /// its trailing edge pushes the FIRST one off the left edge, where Charts
     /// drops it for the same reason.
     func testOnlyTheLastLabelIsAnchoredByItsTrailingEdge() {
-        XCTAssertNil(ProgressScreen.xLabelAnchor(index: 0, count: 3))
-        XCTAssertNil(ProgressScreen.xLabelAnchor(index: 1, count: 3))
-        XCTAssertEqual(ProgressScreen.xLabelAnchor(index: 2, count: 3), .topTrailing)
-        XCTAssertEqual(ProgressScreen.xLabelAnchor(index: 1, count: 2), .topTrailing)
+        XCTAssertNil(StepsChart.xLabelAnchor(index: 0, count: 3))
+        XCTAssertNil(StepsChart.xLabelAnchor(index: 1, count: 3))
+        XCTAssertEqual(StepsChart.xLabelAnchor(index: 2, count: 3), .topTrailing)
+        XCTAssertEqual(StepsChart.xLabelAnchor(index: 1, count: 2), .topTrailing)
     }
 
     // MARK: - Ink
 
-    private static func points(dayOffsets: [Int]) -> [ProgressScreen.StepPoint] {
+    private static func points(dayOffsets: [Int]) -> [StepsChart.StepPoint] {
         // A fixed origin: the labels are dates, and a moving "today" would
         // change their width from run to run.
         let origin = Date(timeIntervalSince1970: 1_780_000_000)
         return dayOffsets.enumerated().map { index, day in
-            ProgressScreen.StepPoint(id: index,
-                                     date: origin.addingTimeInterval(Double(day) * 86_400),
-                                     value: 3 + index, result: .plan,
-                                     ownNumber: false, ownSkips: false)
+            StepsChart.StepPoint(id: index,
+                                 date: origin.addingTimeInterval(Double(day) * 86_400),
+                                 value: 3 + index, result: .plan,
+                                 ownNumber: false, ownSkips: false)
         }
     }
 

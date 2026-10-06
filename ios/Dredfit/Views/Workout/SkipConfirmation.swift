@@ -2,10 +2,10 @@
 //  The question a skip asks before it happens.
 //
 //  The two escapes are 44 pt targets sitting 18 pt under the button that logs
-//  the set, and until this file they fired on contact. A workout has no undo:
-//  one stray thumb took a set, or a whole movement together with every number
-//  already entered for it, and nothing anywhere could put it back. The guard
-//  therefore has to stand in FRONT of the state change rather than behind it.
+//  the set. A workout has no undo: one stray thumb would take a set, or a
+//  whole movement together with every number already entered for it, and
+//  nothing anywhere could put it back. The guard therefore has to stand in
+//  FRONT of the state change rather than behind it.
 //
 
 import SwiftUI
@@ -53,14 +53,10 @@ struct SkipConfirmation: Identifiable {
                 sets off next time.
                 """)
         case .exercise:
-            // ONE NOUN, and it is the title's (UX review 05.09.2026). The
-            // question above says "exercise" — the word the control that
-            // raised it uses too — and the answer used to say "movement", so
-            // the reader had to sew two nouns into one thing under a running
-            // clock. The canon does distinguish them (GLOSSARY: a movement is
-            // the pattern, an exercise is the row in today's plan); this
-            // sentence simply stops restating the noun instead of choosing a
-            // side the explainer has not chosen yet.
+            // ONE NOUN, and it is the title's: the question above says
+            // "exercise" — the word the control that raised it uses too — so
+            // the answer says "it" rather than hand the reader a second noun
+            // to sew to the first under a running clock.
             return String(localized: """
                 It counts as not trained, and any number you entered for it \
                 is not kept. Its plan stays exactly as it is.
@@ -68,38 +64,33 @@ struct SkipConfirmation: Identifiable {
         }
     }
 
-    /// ONE SHORT VERB FOR ALL FOUR, and the length is the point (owner,
-    /// 31.08.2026). `UIAlertController` lays two actions side by side only
-    /// while both titles fit on one line and stacks them otherwise, so
-    /// per-kind labels made the layout itself differ between two controls that
-    /// sit at equal weight in the same row: in Russian "Пропустить этот
-    /// подход" fit beside the cancel and "Пропустить это упражнение", three
-    /// characters longer, did not. Nobody chose that; the width did. Identical
+    /// ONE SHORT VERB FOR ALL FOUR, and the length is the point.
+    /// `UIAlertController` lays two actions side by side only while both
+    /// titles fit on one line and stacks them otherwise, so per-kind labels
+    /// would make the layout itself differ between two controls that sit at
+    /// equal weight in the same row — in Russian "Пропустить это упражнение"
+    /// is three characters longer than "Пропустить этот подход". Identical
     /// labels cannot diverge, in any language or at any text size.
     ///
-    /// It does not answer the question with "OK" either. The rule the exit
-    /// alert set is that a button must not answer "cancel WHAT?" — and there
-    /// four buttons made the referent genuinely ambiguous. Here the question
-    /// stands directly above two, and it names the thing being skipped.
+    /// Not "OK" either, and nothing longer is needed: the question stands
+    /// directly above the two buttons and names the thing being skipped.
     ///
     /// The key is the onboarding cards' own "Skip": a different screen, never
     /// up at the same time, and no control in the workout reads exactly this.
     var confirmTitle: String { String(localized: "Skip") }
 
-    // NO `.destructive` ROLE ON ANY OF THE FOUR, and the exercise-level one is
-    // where that was decided (owner, 31.08.2026). It carried red for a while
-    // because `leaveExercise` really does discard the facts entered for the
-    // pattern — but red says "danger", and this app's position on a skip is
+    // NO `.destructive` ROLE ON ANY OF THE FOUR — not even the exercise-level
+    // one, though `leaveExercise` really does discard the facts entered for
+    // the pattern. Red says "danger", and this app's position on a skip is
     // the opposite: a skipped movement stays exactly where it was, no penalty
     // and no rollback, which is what the sentence above the button says in so
     // many words. A button shouting at a message that reassures is one screen
     // arguing with itself.
     //
     // What is destroyed is the numbers, not the movement, and the message
-    // names them. The warning belongs in the sentence; the colour only
-    // duplicated it, and duplicated it wrong. The two escapes also stand at
-    // equal weight in the row that raises them — diverging here is the
-    // arbitrariness that gave this away.
+    // names them: the warning belongs in the sentence. The two escapes also
+    // stand at equal weight in the row that raises them, so their questions
+    // do too.
 }
 
 extension View {

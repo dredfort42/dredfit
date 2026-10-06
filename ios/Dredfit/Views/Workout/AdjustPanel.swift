@@ -7,14 +7,12 @@ import DredfitCore
 
 struct AdjustPanel: View {
     @Binding var value: Int
-    /// Picks the corridor, which is defined once in `SetFacts.corridor`. The
-    /// step is one unit — one rep, one second — here and in `SetFacts.snap`
-    /// alike, so what this panel offers and what a hold stopped early rounds
-    /// to are the same grid.
+    /// Picks the corridor, which is defined once in `SetFacts.corridor`, and
+    /// the step: one rep, or five seconds for a hold (`holdStep`).
     let unit: LoadUnit
     /// A narrower range than the corridor, when the caller knows one. The
-    /// summary of a hold passes the clock as the ceiling on every set but
-    /// the last (`SetFacts.correctionRange`); nil is the corridor itself.
+    /// summary of a hold passes `SetFacts.correctionRange`; nil is the
+    /// corridor itself.
     var range: ClosedRange<Int>?
     let onConfirm: () -> Void
 
@@ -40,7 +38,7 @@ struct AdjustPanel: View {
             stepButton("minus", -1)
             // ONE line, whatever the unit's word is: "10 сек" at 26 pt heavy
             // is wider than "10 s", and between two 44 pt targets and OK it
-            // broke into "10" over "сек" (owner, 13.09.2026). The number is
+            // would break into "10" over "сек". The number is
             // the one flexible thing in the row — it yields size before it
             // yields the line — and OK below is pinned to its own width, so
             // on a narrow phone it is the number that shrinks, not the word
@@ -70,8 +68,8 @@ struct AdjustPanel: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         // The width of the button it stands over, not the width of its own
-        // contents: a pill floating in the middle of the screen read as a
-        // detached widget rather than as the entry for the set below it.
+        // contents: a pill floating in the middle of the screen would read
+        // as a detached widget rather than as the entry for the set below it.
         .frame(maxWidth: .infinity)
         .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 18))
         // The panel can leave under a held finger — OK is one thumb away —
@@ -83,9 +81,9 @@ struct AdjustPanel: View {
     private var bounds: ClosedRange<Int> { range ?? SetFacts.corridor(for: unit) }
 
     /// One rep, or FIVE seconds: a hold is set and corrected on the grid it
-    /// is planned on (`Dose.hold` steps by 5), and a panel that walked one
-    /// second at a time asked nine taps of a person standing over the phone
-    /// to say "45" (owner, 13.09.2026). A number that is not on the grid —
+    /// is planned on (`Dose.hold` steps by 5), and a panel walking one second
+    /// at a time would ask a person standing over the phone for tap after tap
+    /// to say "45". A number that is not on the grid —
     /// a hand-stopped 38 s the summary opened on — moves to the next grid
     /// line in the tapped direction, so the first tap already lands where
     /// every later one will.
@@ -101,19 +99,16 @@ struct AdjustPanel: View {
     }
 
     /// A stepper at its bound is a stepper with nothing to do in that
-    /// direction, and it says so rather than swallowing the tap: on the
-    /// summary the upper bound is the clock, and a "+" that looked live over
-    /// a number that would not move was the one control on the screen that
-    /// lied (§41.13).
+    /// direction, and it says so rather than swallowing the tap: a "+" that
+    /// looks live over a number that will not move is a control that lies.
     private func atBound(_ dir: Int) -> Bool {
         dir < 0 ? value <= bounds.lowerBound : value >= bounds.upperBound
     }
 
-    /// 44, not 40. These were the only targets in the whole workout flow under
-    /// the floor the rest of it holds to (`HeldSetCard`, `FlowChrome`,
-    /// `SkipConfirmation`), and they are the ones hit repeatedly, with a wet
-    /// finger, by somebody who has just got up off the floor
-    /// (UX review, 05.09.2026).
+    /// 44 pt, the floor the rest of the workout flow holds to (`HeldSetCard`,
+    /// `FlowChrome`, `SkipConfirmation`): these are the targets hit
+    /// repeatedly, with a wet finger, by somebody who has just got up off the
+    /// floor.
     private func stepButton(_ icon: String, _ dir: Int) -> some View {
         Button {
             if repeatAteTheTap { repeatAteTheTap = false; return }
@@ -125,21 +120,20 @@ struct AdjustPanel: View {
                 .frame(width: 44, height: 44)
                 // targetStroke, not hairline. These two circles have no fill,
                 // so the ring IS the button — and hairline on the panel's
-                // `cardBG` comes to about 1.05:1 in the light scheme, which
-                // drew the most-tapped pair of targets in the flow as a glyph
-                // floating in nothing. The token is the same one the pause
-                // capsule, the block escapes and the summary cards wear, so
-                // one idiom answers for every outline a thumb aims at
-                // (finding 31, UX review 05.09.2026).
+                // `cardBG` is 1.09:1 in the light scheme, which would draw the
+                // most-tapped pair of targets in the flow as a glyph floating
+                // in nothing. The token is the same one the pause capsule, the
+                // block escapes and the summary cards wear, so one idiom
+                // answers for every outline a thumb aims at.
                 .background(Circle().stroke(Theme.targetStroke, lineWidth: 1.5))
                 // The TARGET is bigger than the ring. A Button takes taps
                 // only where its label draws — here the glyph and the
                 // circle's interior — not on the 44 pt frame around them,
-                // so the frame's four corners and everything past the ring
-                // took no tap at all. A thumb reaching across the phone to
-                // "−" lands its centroid at the ring's edge or just past it,
-                // and it lands there again on every repeat: the button
-                // "sticks" (owner, 13.09.2026, build 22). The shape is the
+                // so without this the frame's four corners and everything
+                // past the ring would take no tap at all. A thumb reaching
+                // across the phone to "−" lands its centroid at the ring's
+                // edge or just past it, and lands there again on every
+                // repeat: the button would "stick" (#251). The shape is the
                 // square plus the panel's own padding and half the gap to
                 // the number — 62 × 68 pt — laid over the same 44 pt of
                 // layout, so nothing in the row moves.
@@ -149,13 +143,11 @@ struct AdjustPanel: View {
                 .padding(.vertical, -12)
                 .padding(.horizontal, -9)
         }
-        // A rep is one unit; a hold steps by five seconds (`holdStep`). The
-        // five-second grid was once taken off this panel so that a
-        // hand-stopped 38 s stayed sayable — but 38 is what the clock writes
-        // on its own, and the panel is for what the person says, which is
-        // in fives (owner, 13.09.2026). The press-and-hold repeat stays: it
-        // is the price of a step that was wrong, not its size (UX review,
-        // 05.09.2026).
+        // A rep is one unit; a hold steps by five seconds (`holdStep`): a
+        // hand-stopped 38 s is what the clock writes on its own, and the
+        // panel is for what the person says, which is in fives. The
+        // press-and-hold repeat covers distance; it never makes the step
+        // finer.
         .buttonStyle(PressReportingButtonStyle { pressing in
             if pressing { beginRepeat(dir) } else { endRepeat() }
         })

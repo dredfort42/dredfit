@@ -7,19 +7,19 @@ import Foundation
 import DredfitCore
 
 enum Milestone: Identifiable, Equatable {
-    /// A new movement on the ladder — and in v3 the ONLY door into one is a
-    /// probe the person passed, so this milestone is always something they
-    /// just did rather than something the engine decided (§40.4).
+    /// A new movement on the ladder. The only way up into one is a probe the
+    /// person passed, so this milestone is always something they just did
+    /// rather than something the engine decided.
     case variationUp(pattern: Pattern, variation: Int, exercise: String)
     /// The top variation is the ceiling of the ladder; past it the sets grow
-    /// instead (3 → 4 → 5, §40.5).
+    /// instead (3 → 4 → 5).
     case setBand(pattern: Pattern, sets: Int, exercise: String)
     case jubilee(workouts: Int)
 
     var id: String {
         switch self {
-        // The identifier keeps its old prefix: UI tests key on it, and the
-        // string is an identity, not a description.
+        // An identity for `ForEach`, not a description: the "tier-" prefix
+        // needs no rename.
         case .variationUp(let p, let v, _): return "tier-\(p.rawValue)-\(v)"
         case .setBand(let p, let s, _):     return "sets-\(p.rawValue)-\(s)"
         case .jubilee(let n):               return "jubilee-\(n)"

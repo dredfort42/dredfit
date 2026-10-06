@@ -17,8 +17,8 @@ final class RetrospectiveTests: XCTestCase {
 
     /// A flat baseline for every rotation pattern (no pull_bar by default —
     /// most journals predate the bar module). `variation` and `dose` are what
-    /// a position IS now: a scalar could not name one, because the measure of
-    /// §40.2 has no inverse.
+    /// a position IS: a scalar could not name one, because the measure has no
+    /// inverse.
     private func base(variation: Int = 1, atCeiling: Bool = false) -> [Pattern: RecordedPosition] {
         Dictionary(uniqueKeysWithValues: Pattern.ordered.map { p in
             let grid = Dose.grid(Library.unit(p, variation))
@@ -146,13 +146,12 @@ final class RetrospectiveTests: XCTestCase {
 
     // MARK: - The sparse coordinates
 
-    /// The delta that picks the movement is read off ALL SIX coordinates.
-    /// On the short `Engine.progress` overload `sub` and `cut` were dropped,
-    /// and the chart's `plot` was fixed for exactly that while this was not.
-    ///
-    /// Growth that happened ENTIRELY in sub-steps measured as zero, no
-    /// pattern beat the `> 0` bar, and the whole block vanished for someone
-    /// who had in fact grown.
+    /// The delta that picks the movement is read off EVERY coordinate of the
+    /// position, as the chart's `plot` is. The short `Engine.progress`
+    /// overload drops `sub` and `cut`: read off it, growth that happened
+    /// ENTIRELY in sub-steps would measure as zero, no pattern would beat the
+    /// `> 0` bar, and the whole block would vanish for someone who had in fact
+    /// grown.
     func testGrowthInSubStepsAloneIsSeen() throws {
         let flat = base(variation: 1)
         var current = flat
@@ -169,8 +168,8 @@ final class RetrospectiveTests: XCTestCase {
 
     /// The other direction of the same coordinate: a `cut` stands one step
     /// BELOW the position it was taken from. A base carrying one has grown by
-    /// a step once the cut is gone — dropped, both sides measured the same and
-    /// the gain was invisible.
+    /// a step once the cut is gone — dropped, both sides would measure the same
+    /// and the gain would be invisible.
     func testACutOnTheBaseCountsAsGrowthOnceItIsGone() throws {
         var flat = base(variation: 1)
         let was = try XCTUnwrap(flat[.squat])

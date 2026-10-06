@@ -1,20 +1,18 @@
 //
-//  The hold-timer walks (plank, per-side holds, and the pull-up bar hang),
-//  moved out of DredfitUITests.swift to keep it under the linter's file and
-//  type-body ceilings. Kept together because they share the session-2 arrange
-//  (`launchIntoSession2AndReachPlank`) and the two hold lengths it can seed.
-//  The bar hang joined this file rather than staying with its "Pull-up bar"
-//  settings toggle because, once the toggle is flipped, what it walks IS a
-//  hold timer — the same shape as the plank and per-side tests above it.
+//  The hold-timer walks (plank, per-side holds, and the pull-up bar hang), in
+//  a file of their own to keep DredfitUITests.swift under the linter's file
+//  and type-body ceilings. Kept together because they share the session-2
+//  arrange (`launchIntoSession2AndReachPlank`) and the two hold lengths it can
+//  seed. The bar hang lives here rather than with its "Pull-up bar" settings
+//  toggle because, once the toggle is flipped, what it walks IS a hold timer
+//  — the same shape as the plank and per-side tests above it.
 //
-//  THE HOLD LENGTH IS SEEDED AT LAUNCH, not typed on the screen. It used to be
-//  typed: two helpers opened "Went differently" before the effort and walked
-//  the stepper to the corridor's floor or its ceiling. R23 removed that
-//  control from the hold screen — nothing is entered before the effort — so
-//  the two lengths the suite actually needed became `--uitest-hold-short`
+//  THE HOLD LENGTH IS SEEDED AT LAUNCH, not typed on the screen. The two
+//  lengths the suite needs are the ends of the corridor: `--uitest-hold-short`
 //  (the floor, to walk a whole hold exercise inside a test's budget) and
 //  `--uitest-hold-long` (the ceiling, to give a mid-hold Stop a margin no
-//  loaded runner can eat).
+//  loaded runner can eat). The pre-effort entry is typed only by the tests
+//  whose subject is a declared time.
 //
 
 import XCTest
@@ -25,11 +23,12 @@ extension DredfitUITests {
     /// Session 2 via --uitest-session2 (session 1 seeded as completed
     /// "yesterday"), skipped to the plank — the first hold exercise.
     ///
-    /// WITH the reset, which this arrange used to lose by assigning the whole
+    /// WITH the reset, through `seedLaunchArguments` rather than an assigned
     /// argument list. The seed clears the engine state and the journal by
-    /// itself, so the tests behind this helper stayed green on their
-    /// predecessor's leftovers — silently, and settings survive a seed.
-    private func launchIntoSession2AndReachPlank(_ seeds: String...) {
+    /// itself, so a test behind this helper that lost the reset would stay
+    /// green on its predecessor's leftovers — silently, and settings survive a
+    /// seed.
+    func launchIntoSession2AndReachPlank(_ seeds: String...) {
         app.seedLaunchArguments(["--uitest-session2"] + seeds)
         app.launch()
         // Seeded synchronously at launch: a busy runner can outrun a tight wait.
@@ -44,10 +43,10 @@ extension DredfitUITests {
 
     // MARK: - One tap per exercise
 
-    /// R23: a hold exercise used to cost four touches, three of them taken
-    /// between sets by somebody lying on the floor. One tap now buys the whole
-    /// exercise — every set after the first counts itself in when its rest
-    /// ends, and the phone is not touched again until the movement is over.
+    /// One tap buys the whole hold exercise — every set after the first
+    /// starts on its rest's own go, and the phone is not touched again until
+    /// the movement is over: nobody lying on the floor between sets has to
+    /// reach for it.
     ///
     /// Nothing is tapped between the first tap and the last screen, which is
     /// the whole assertion: if the auto-run were broken the flow would stop on
@@ -70,7 +69,7 @@ extension DredfitUITests {
         coordinateTap(app.buttons[AX.holdStartExercise])
 
         // The settled LAST set is the goal. Reaching it without a second tap
-        // is what the one tap bought: count-in, hold, rest, count-in, hold …
+        // is what the one tap bought: count-in, hold, rest, hold, rest …
         let done = app.buttons[AX.exerciseDone]
         XCTAssertTrue(done.waitForExistence(timeout: 90),
                       "the exercise did not run itself to its last set")
@@ -78,24 +77,24 @@ extension DredfitUITests {
                       "nothing on screen says the hold is behind")
         XCTAssertFalse(app.buttons[AX.holdStartExercise].exists,
                        "the exercise was started once — it must not ask again")
-        // R23 removed the entry from BEFORE the effort, never from after it —
-        // and what it left in its place says more: EVERY set of the movement
-        // is on this screen and correctable, not only the last one (#220).
+        // The correction comes AFTER the effort, never before it — and the
+        // screen it comes on carries every set of the movement that was done,
+        // not only the last one (#220); the last card is the one that takes it.
         XCTAssertTrue(app.buttons[AX.summarySet(1)].exists,
-                      "the first set must be correctable too — that is the "
-                        + "whole reason this screen replaced the settled hold")
+                      "the first set must be on the summary too — the screen "
+                        + "carries every set that was done, not only the last")
         coordinateTap(done)
         XCTAssertTrue(app.buttons[AX.summarySet(1)].waitForNonExistence(timeout: 10),
                       "the logged movement did not leave the summary")
     }
 
-    /// R32: A SET THE RUN OPENS HAS NO COUNT-IN OF ITS OWN. The rest before it
+    /// A SET THE RUN OPENS HAS NO COUNT-IN OF ITS OWN. The rest before it
     /// counts its own last seconds down and ends on the go, and that go is the
     /// hold's start signal — one signal, not two.
     ///
-    /// It used to lay fifteen seconds of "travel" on top of the rest, with a
-    /// second 3-2-1 and a second go: a minute between sets ran a minute and a
-    /// quarter, and one set was announced twice. The minute IS the travel time.
+    /// A second 3-2-1 and a second go on top of the rest would stretch a
+    /// minute between sets past the minute and announce one set twice. The
+    /// minute IS the travel time.
     ///
     /// Without --uitest-fast, which collapses the rest to a second, and the
     /// rest is let RUN OUT rather than skipped: a skip is a tap, and a tap
@@ -111,8 +110,8 @@ extension DredfitUITests {
         XCTAssertTrue(skipRest.waitForExistence(timeout: 25),
                       "a hold with sets behind it must start its rest by itself")
         XCTAssertTrue(skipRest.waitForNonExistence(timeout: 120), "the rest never ended")
-        // A second count-in would hold "Get ready" on the screen for fifteen
-        // seconds, which is what this catches the moment the rest is over.
+        // A second count-in would hold "Get ready" on the screen, which is
+        // what this catches the moment the rest is over.
         XCTAssertFalse(app.staticTexts["Get ready"].exists,
                        "the set the run opened was counted in a second time")
         XCTAssertTrue(stop.waitForExistence(timeout: 5),
@@ -140,10 +139,10 @@ extension DredfitUITests {
                       "the count-in never handed over to the hold")
     }
 
-    /// R32: the rest of a hands-free run is the one screen of the work phase
-    /// whose clock acts on its own, so it is the one that can be frozen.
-    /// Before this there was no way to stop it: answer the door during a hold
-    /// exercise and the next set ran without you.
+    /// The rest of a hands-free run is the one screen of the work phase whose
+    /// clock acts on its own, so it is the one that can be frozen. Without the
+    /// pause there is no way to stop it: answer the door during a hold
+    /// exercise and the next set runs without you.
     ///
     /// The window is longer than the whole rest on purpose. A shorter one
     /// would pass whether the pause worked or not — the set was never due
@@ -174,9 +173,9 @@ extension DredfitUITests {
     // MARK: - Stopping a hold
 
     /// An early stop past the grace records what was held, and the number
-    /// carries onto the sets after it — which is the only place it can be read
-    /// now that the exercise runs itself: the caption a stopped set used to
-    /// leave on the screen is replaced by the next set's own count-in.
+    /// carries onto the sets after it. The exercise runs itself on past the
+    /// stop, so the number is read where it stands once the movement is
+    /// behind: on its summary.
     func testHoldTimerEarlyStopCapturesActual() {
         // 90 s of hold to stop early inside — the countdown must not be able
         // to run out from under the taps below on a slow runner. The seed is
@@ -200,15 +199,16 @@ extension DredfitUITests {
         XCTAssertFalse(app.buttons[AX.holdStartExercise].exists,
                        "a cancelled set re-arms the set, not the whole exercise")
 
-        // a real early stop (past the grace) records the held seconds
+        // a real early stop (past the grace) records the held seconds. The grace
+        // lasts while the button names no figure: until the tick at four seconds.
         coordinateTap(app.buttons[AX.holdStart])
         XCTAssertTrue(stop.waitForExistence(timeout: 10))
-        Thread.sleep(forTimeInterval: 3.5)
+        Thread.sleep(forTimeInterval: 4.5)
         XCTAssertTrue(coordinateTap(stop),
                       "the countdown ended before the stop could be delivered")
         // Set one of several: the stop closes it, and the exercise carries on
-        // by itself — rest, count-in, the remaining sets, each of them now
-        // running the FIVE seconds this one reported rather than the plan.
+        // by itself — rest, then the remaining sets, each of them running the
+        // FIVE seconds this one reported rather than the plan.
         let done = app.buttons[AX.exerciseDone]
         XCTAssertTrue(done.waitForExistence(timeout: 60),
                       "an early stop must not stop the exercise it happened in")
@@ -224,7 +224,7 @@ extension DredfitUITests {
                         + "estimate of five — got “\(firstCard.label)”")
     }
 
-    /// R29: the control names the figure it will write, so the two to four
+    /// The control names the figure it will write, so the two to four
     /// seconds spent reaching for the phone are a decision rather than a
     /// surprise. Inside the mis-tap grace it names nothing — that tap cancels
     /// the set and writes no number at all.
@@ -238,7 +238,7 @@ extension DredfitUITests {
 
         // Past the grace the label carries the number a stop would actually
         // store: the seconds held, less the reach allowance, never below the
-        // corridor's five-second floor. Slept rather than raced — the hang is
+        // corridor's five-second floor. Slept rather than raced — the hold is
         // 90 s here, so six seconds cannot run it out.
         Thread.sleep(forTimeInterval: 6)
         XCTAssertTrue(stop.label.hasPrefix("Stop, records "),
@@ -254,7 +254,7 @@ extension DredfitUITests {
         launchIntoSession2AndReachPlank("--uitest-hold-short")
         // The goal is the "seconds per side" caption, not the exercise name —
         // Today's plan list under the cover also holds the name, so the name
-        // "exists" long before the bird dog's work screen is up.
+        // "exists" long before the side plank's work screen is up.
         let perSideCaption = app.staticTexts["seconds per side"]
         skipExercises(until: perSideCaption, limit: 2)
         XCTAssertTrue(perSideCaption.waitForExistence(timeout: 3),
@@ -283,8 +283,8 @@ extension DredfitUITests {
     /// the big digit has no identifier of its own, and what the rule is about
     /// is how long the second side actually runs. At the corridor's 90 s
     /// ceiling the two answers are ninety seconds apart, so the deadline below
-    /// separates them with room to spare — before the fix the second side ran
-    /// the planned 90 and this timed out.
+    /// separates them with room to spare — a second side that ran the planned
+    /// 90 would time this out.
     func testTheSecondSideRunsWhatTheFirstSideRan() {
         launchIntoSession2AndReachPlank("--uitest-hold-long")
         let perSideCaption = app.staticTexts["seconds per side"]
@@ -295,21 +295,20 @@ extension DredfitUITests {
         coordinateTap(app.buttons[AX.holdStartExercise])
         let stop = app.buttons[AX.holdStop]
         XCTAssertTrue(stop.waitForExistence(timeout: 10), "no Stop during the count-in")
-        // Past the three-second mis-tap grace, so this is a real early stop.
+        // Past the mis-tap grace, which ends on the tick at four seconds, so this is a real early stop.
         Thread.sleep(forTimeInterval: 5)
         XCTAssertTrue(coordinateTap(stop), "the first side ended before the stop landed")
 
         XCTAssertTrue(app.staticTexts["Switch sides"].waitForExistence(timeout: 10),
                       "an early stop on the first side must still open the switch pause")
 
-        // NOTHING is tapped from here on, deliberately. An earlier version of
-        // this test went on to brush Stop inside the mis-tap grace and press
-        // the start button again, to cover the retake path — and that HEALED
-        // the defect it exists for: `startHold` recomputes the length
-        // correctly, so a broken switch-pause no longer showed. A test that
-        // repairs its own subject on the way to the assertion is worse than no
-        // test. The retake's decision is pinned at unit level instead
-        // (`SetFacts.holdSideSeconds`).
+        // NOTHING is tapped from here on, deliberately. Brushing Stop inside
+        // the mis-tap grace and pressing the start button again, to cover the
+        // retake path, HEALS the defect this test exists for: `startHold`
+        // recomputes the length correctly, so a broken switch-pause would not
+        // show. A test that repairs its own subject on the way to the
+        // assertion is worse than no test. The retake's decision is pinned at
+        // unit level instead (`SetFacts.holdSideSeconds`).
         XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 30),
                       "the second side must run the first side's seconds, not the plan's")
     }
@@ -318,14 +317,12 @@ extension DredfitUITests {
 
     func testBarWorkoutFlowsToRating() {
         // 90 s of hang so the stop below is not raced by the app's own
-        // countdown — this test is the one that lost that race on the nightly
-        // of 2026-08-04. WITH --uitest-fast, which it did without while it
-        // still tapped "Skip rest" by hand: a hold exercise runs itself now,
-        // so the rests it opens are the auto-run's business and the walk that
-        // used to tap through them would be waiting on a screen that closes
-        // itself. WITH the reset, which this line used to drop by assigning
-        // the whole argument list — it then stood on whatever the previous
-        // test had left behind.
+        // countdown — this test has lost that race on the nightly. WITH
+        // --uitest-fast: a hold exercise runs itself, so the rests it opens
+        // are the auto-run's business rather than screens for this walk to
+        // tap through, and the flag keeps them short. WITH the reset, through
+        // `seedLaunchArguments`: an assigned argument list drops it, and the
+        // test then stands on whatever the previous test left behind.
         app.seedLaunchArguments("--uitest-session2", "--uitest-fast",
                                 "--uitest-hold-long")
         app.launch()
@@ -349,7 +346,7 @@ extension DredfitUITests {
         coordinateTap(app.buttons[AX.holdStartExercise])
         let stop = app.buttons[AX.holdStop]
         XCTAssertTrue(stop.waitForExistence(timeout: 10), "no Stop during the hang countdown")
-        Thread.sleep(forTimeInterval: 3.5)   // past the mis-tap grace
+        Thread.sleep(forTimeInterval: 4.5)   // past the grace, which ends on the tick at 4 s
         XCTAssertTrue(coordinateTap(stop),
                       "the hang ended before the stop could be delivered")
         // The stopped hang closes its own set and the exercise carries on;
@@ -367,363 +364,15 @@ extension DredfitUITests {
         let rating = app.staticTexts["How did it go?"]
         skipExercises(until: rating, limit: 6)
         driver.declineCooldownIfAsked()   // the block asks first
-        // 15 s and a sentence, where this stood at a bare 3 with neither. It
-        // is the last screen transition of a walk through six exercises, so it
-        // is the assertion a loaded runner reaches with the least margin left
-        // — and when it failed on the nightly of 2026-09-02 the whole report
+        // 15 s and a sentence, not a bare 3 with neither. It is the last
+        // screen transition of a walk through six exercises, so it is the
+        // assertion a loaded runner reaches with the least margin left — and
+        // when it failed on the nightly without a sentence, the whole report
         // was "XCTAssertTrue failed", which says nothing about what was being
-        // waited for.
+        // waited for (I-22).
         XCTAssertTrue(rating.waitForExistence(timeout: 15),
                       "the rating did not arrive after the skip-through and the "
                         + "cool-down question")
         rate(landsOn: "Workout 2 completed")
-    }
-}
-
-// MARK: - The declared time and the exercise summary
-extension DredfitUITests {
-
-    /// Opens the pre-effort entry and walks the stepper to `seconds`.
-    ///
-    /// Reads where the panel OPENED rather than assuming it, and steps in
-    /// whichever direction is needed. A helper that only walked up worked on
-    /// the plank and could never reach a target below the plan — and the
-    /// panel opens on the plan, which moves whenever the engine says so.
-    private func declareHoldTime(_ seconds: Int) {
-        coordinateTap(app.buttons[AX.holdSetTime])
-        let plus = app.buttons[AX.adjustPlus]
-        XCTAssertTrue(plus.waitForExistence(timeout: 5),
-                      "the entry did not open its stepper")
-        let target = app.staticTexts["\(seconds) s"]
-        // The panel's own value, which is the only static text on the screen
-        // that is a bare number of seconds.
-        let value = app.staticTexts.matching(
-            NSPredicate(format: "label MATCHES %@", "^[0-9]+ s$")).firstMatch
-        XCTAssertTrue(value.waitForExistence(timeout: 5),
-                      "the stepper is not showing a value to walk from")
-        let opened = Int(value.label.replacingOccurrences(of: " s", with: "")) ?? 0
-        let step = opened < seconds ? plus : app.buttons[AX.adjustMinus]
-        var taps = 0
-        while !target.exists && taps < abs(seconds - opened) + 5 {
-            step.tap()
-            taps += 1
-        }
-        XCTAssertTrue(target.exists,
-                      "the stepper never reached \(seconds) s from \(opened)")
-        app.buttons[AX.adjustConfirm].tap()
-    }
-
-    /// THE channel for "more than the plan" on a hold: say so before the
-    /// effort, while you are standing up and can reach the phone. The clock
-    /// then runs from that number on every set, and what the engine reads is
-    /// still what the clock measured.
-    func testADeclaredTimeGovernsEverySetAndReachesTheSummary() {
-        // 20 is above the plank's own plan, which is what the summary
-        // compares each card against — so this walk is the "more than the
-        // plan" case, the one the declaration exists for.
-        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
-        XCTAssertTrue(app.buttons[AX.holdSetTime].exists,
-                      "a hold must let you say how long it will run")
-
-        declareHoldTime(20)
-        coordinateTap(app.buttons[AX.holdStartExercise])
-
-        let lastCard = app.buttons[AX.summarySet(3)]
-        XCTAssertTrue(lastCard.waitForExistence(timeout: 150),
-                      "the exercise did not run itself out at the declared time")
-        for set in 1...3 {
-            let label = app.buttons[AX.summarySet(set)].label
-            XCTAssertTrue(label.contains("20 seconds"),
-                          "set \(set) did not run the declared time — got “\(label)”")
-        }
-        XCTAssertTrue(lastCard.label.contains("planned 15"),
-                      "the summary must still compare against the PLAN, not "
-                        + "against what was declared")
-    }
-
-    /// The declaration belongs to the MOVEMENT, and a skipped set is not the
-    /// end of a movement.
-    ///
-    /// It was taken down by one: `skipSet` clears the per-side pair so a stale
-    /// second side cannot cross into the next set, and that reset used to
-    /// carry the declaration off with it — so "hold 20" followed by one
-    /// skipped set silently put the sets after it back on the plan, with
-    /// nothing on screen to say the decision had been undone.
-    ///
-    /// Asserted on the SUMMARY rather than on a running clock: what the sets
-    /// ran at is what they recorded, and a card is a number that has stopped
-    /// moving.
-    func testADeclaredTimeSurvivesASkippedSet() {
-        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
-        declareHoldTime(20)
-
-        XCTAssertTrue(driver.skip(control: AX.exerciseSkipSet),
-                      "a three-set hold must let one set go and still count as trained")
-        // The skip hands the exercise back un-run: one tap buys it again.
-        let start = app.buttons[AX.holdStartExercise]
-        XCTAssertTrue(start.waitForExistence(timeout: 5),
-                      "the skip must leave the exercise startable")
-        coordinateTap(start)
-
-        let lastCard = app.buttons[AX.summarySet(3)]
-        XCTAssertTrue(lastCard.waitForExistence(timeout: 150),
-                      "the exercise did not run itself out after the skipped set")
-        // Set one was never performed and stands at its plan; the two behind
-        // it are the ones the declaration governs.
-        for set in 2...3 {
-            let label = app.buttons[AX.summarySet(set)].label
-            XCTAssertTrue(label.contains("20 seconds"),
-                          "set \(set) lost the declared time to the skip — got “\(label)”")
-        }
-    }
-
-    /// …and it does not outlive the movement either. The ordinary way out of
-    /// an exercise is the last set's rest, which walks to the next movement
-    /// without passing the skip's reset at all — so a time set for the plank
-    /// arrived at the side plank and set its clock to a number nobody had
-    /// asked of that movement (the side plank's own plan is the corridor's
-    /// floor, 15 s per side).
-    ///
-    /// The observation is the pre-effort entry, which opens on exactly the
-    /// number the clock would run from — no waiting on a countdown to read a
-    /// value that is already decided.
-    func testADeclaredTimeDoesNotFollowTheMovementItWasSetFor() {
-        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
-        declareHoldTime(20)
-        coordinateTap(app.buttons[AX.holdStartExercise])
-
-        let lastCard = app.buttons[AX.summarySet(3)]
-        XCTAssertTrue(lastCard.waitForExistence(timeout: 180),
-                      "the plank did not run itself out at the declared time")
-        coordinateTap(app.buttons[AX.exerciseDone])
-
-        // The side plank follows the plank in session 2, and it is a hold of
-        // its own with a plan of its own.
-        let perSideCaption = app.staticTexts["seconds per side"]
-        XCTAssertTrue(perSideCaption.waitForExistence(timeout: 60),
-                      "the per-side hold must follow the plank in session 2")
-        XCTAssertTrue(app.buttons[AX.holdSetTime].waitForExistence(timeout: 10),
-                      "the next hold must open on its own intro screen")
-        coordinateTap(app.buttons[AX.holdSetTime])
-        let value = app.staticTexts.matching(
-            NSPredicate(format: "label MATCHES %@", "^[0-9]+ s$")).firstMatch
-        XCTAssertTrue(value.waitForExistence(timeout: 5),
-                      "the entry did not open its stepper")
-        XCTAssertEqual(value.label, "15 s",
-                       "the side plank's clock opened on the time declared for the "
-                         + "PLANK — its own plan is 15 s")
-    }
-
-    /// The case nothing after the plan could ever serve: a per-side hold records the
-    /// SMALLER of its two sides, so nothing that happens after the plan is met
-    /// can raise its number. A declared time can, because both sides run from
-    /// it — the same code, with no exception for this shape.
-    func testAPerSideHoldTakesADeclaredTimeOnBothSides() {
-        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
-        let perSideCaption = app.staticTexts["seconds per side"]
-        skipExercises(until: perSideCaption, limit: 2)
-        XCTAssertTrue(perSideCaption.waitForExistence(timeout: 3),
-                      "the per-side hold must follow the plank in session 2")
-
-        // Below this movement's plan, deliberately: two sides of three sets
-        // at a raised time outlast the test's budget, and what this walk is
-        // about is that BOTH SIDES run the declared number at all. The "more
-        // than the plan" direction is the plank walk above.
-        declareHoldTime(10)
-        coordinateTap(app.buttons[AX.holdStartExercise])
-
-        let lastCard = app.buttons[AX.summarySet(3)]
-        XCTAssertTrue(lastCard.waitForExistence(timeout: 180),
-                      "a per-side hold must reach the summary like any other")
-        XCTAssertTrue(lastCard.label.contains("10 seconds"),
-                      "both sides must run the declared time — got “\(lastCard.label)”")
-    }
-
-    /// A declared time outlives the process dying. Coming back to the plan's
-    /// number would undo the decision without saying so.
-    func testADeclaredTimeSurvivesTheAppBeingKilled() {
-        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
-        declareHoldTime(20)
-        coordinateTap(app.buttons[AX.holdStartExercise])
-        XCTAssertTrue(app.buttons[AX.holdStop].waitForExistence(timeout: 15),
-                      "the declared hold never started")
-        app.terminate()
-
-        let relaunch = XCUIApplication.launchedOnStoredState("--uitest-fast",
-                                                            "--uitest-hold-short")
-        XCTAssertTrue(relaunch.buttons[AX.resumeContinue].waitForExistence(timeout: 10),
-                      "an interrupted workout must offer to be continued")
-        relaunch.buttons[AX.resumeContinue].tap()
-        // The set is offered again — a hold never restores mid-count — but at
-        // the DECLARED length, which is what the summary then records.
-        let lastCard = relaunch.buttons[AX.summarySet(3)]
-        let start = relaunch.buttons[AX.holdStartExercise]
-        if start.waitForExistence(timeout: 10) { driver.coordinateTap(start) }
-        XCTAssertTrue(lastCard.waitForExistence(timeout: 180),
-                      "the resumed exercise never finished")
-        XCTAssertTrue(lastCard.label.contains("20 seconds"),
-                      "the declared time did not survive the kill — got "
-                        + "“\(lastCard.label)”")
-    }
-
-    /// R26: the summary is the first screen on which sets 1…n−1 can be
-    /// corrected at all. The work screen's writer records the set UNDER WAY
-    /// and truncates what follows — correct as it stands, since those sets
-    /// have not happened — so before this there was no writer that could
-    /// touch set one without deleting sets two and three.
-    ///
-    /// Rewritten with §41.13: THE CLOCK IS THE CEILING on every set but the
-    /// last, so the correction that leaves the others standing is now made
-    /// on the LAST card — the one that may go up. Since 13.09.2026 the other
-    /// cards are inert: a panel with both ends dead at the floor read as a
-    /// broken control, so a tap on the first card opens nothing and the
-    /// line under the cards names the last set as the one to correct.
-    func testCorrectingOneSetOnTheSummaryLeavesTheOthersStanding() {
-        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
-        coordinateTap(app.buttons[AX.holdStartExercise])
-
-        let first = app.buttons[AX.summarySet(1)]
-        XCTAssertTrue(first.waitForExistence(timeout: 90),
-                      "the movement did not reach its summary")
-        let firstBefore = first.label
-        let secondBefore = app.buttons[AX.summarySet(2)].label
-        let thirdBefore = app.buttons[AX.summarySet(3)].label
-
-        // Set one: inert — no stepper, the Next time block stays.
-        coordinateTap(first)
-        let plus = app.buttons[AX.adjustPlus]
-        XCTAssertFalse(plus.waitForExistence(timeout: 2), "an earlier set opens no stepper")
-        XCTAssertTrue(app.staticTexts[AX.summaryNextPlan].exists,
-                      "nothing was opened, so the block did not stand down")
-
-        // Set three: nothing follows it, so both directions are open — and
-        // the line above the panel says only what the clock counted.
-        let last = app.buttons[AX.summarySet(3)]
-        XCTAssertTrue(last.waitForExistence(timeout: 5))
-        coordinateTap(last)
-        XCTAssertTrue(plus.waitForExistence(timeout: 5), "the last card did not open the stepper")
-        XCTAssertTrue(plus.isEnabled, "the last set may have been held past the signal")
-        for _ in 0..<3 { plus.tap() }
-        app.buttons[AX.adjustConfirm].tap()
-
-        XCTAssertTrue(app.buttons[AX.summarySet(3)].waitForExistence(timeout: 5))
-        XCTAssertNotEqual(app.buttons[AX.summarySet(3)].label, thirdBefore,
-                          "the tapped card must take the new number")
-        XCTAssertEqual(app.buttons[AX.summarySet(1)].label, firstBefore,
-                       "correcting set three must not touch set one")
-        XCTAssertEqual(app.buttons[AX.summarySet(2)].label, secondBefore,
-                       "…nor set two, which is the defect this screen exists for")
-
-        // Re-opened, the line still names what the CLOCK counted — not the
-        // number just typed. It used to read the corrected value back as the
-        // clock's (owner, 12.09.2026).
-        coordinateTap(app.buttons[AX.summarySet(3)])
-        let line = app.element(withIdentifier: "summary-panel-line")
-        XCTAssertTrue(line.waitForExistence(timeout: 5))
-        XCTAssertTrue(line.label.hasSuffix("the clock saw 5 s"),
-                      "the panel's line must name the clock's number, got “\(line.label)”")
-        app.buttons[AX.adjustConfirm].tap()
-    }
-
-    /// §41.13: the addition "for next time" is its own block and its own
-    /// channel — a tap on it rewrites the sentence that names the next plan,
-    /// touches no card, and reaches the rating as a decision of its own.
-    func testAnAdditionForNextTimeRewritesThePlanAndReachesTheRating() {
-        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
-        coordinateTap(app.buttons[AX.holdStartExercise])
-
-        let sentence = app.staticTexts[AX.summaryNextPlan]
-        XCTAssertTrue(sentence.waitForExistence(timeout: 90),
-                      "the summary must say what the next plan will be")
-        let cardsBefore = (1...3).map { app.buttons[AX.summarySet($0)].label }
-        let promised = sentence.label
-        // The spoken label, which is what `.label` returns for a text that
-        // carries one: "+0 s" is what the eye reads.
-        XCTAssertEqual(app.staticTexts[AX.raiseValue].label, "plus 0 seconds for next time")
-
-        app.buttons[AX.raisePlus].tap()
-        XCTAssertEqual(app.staticTexts[AX.raiseValue].label, "plus 5 seconds for next time")
-        XCTAssertNotEqual(sentence.label, promised,
-                          "the sentence itself must show the raised plan — "
-                            + "not a total beside the stepper")
-        XCTAssertEqual((1...3).map { app.buttons[AX.summarySet($0)].label }, cardsBefore,
-                       "an addition for next time is not a fact about today")
-        app.buttons[AX.raiseMinus].tap()
-        XCTAssertEqual(sentence.label, promised, "minus takes the addition back")
-        app.buttons[AX.raisePlus].tap()
-
-        // The decision travels: it is listed where the rating is given.
-        driver.completeWorkout()
-        XCTAssertTrue(app.element(withIdentifier: AX.feedbackRaised("core_anti_ext")).exists,
-                      "the rating screen must list the addition, so it is seen to stand")
-    }
-
-    /// The "Next time" stepper's target is its whole frame, corners included
-    /// — the same defect the panel's "−" was found with on build 22
-    /// (`SetFactsUITests.testTheStepperTakesATapAtTheCornerOfItsFrame`, #251).
-    /// This pair was built as a copy of the panel's ring and its comment
-    /// promised "the same 44 pt targets": the same ring 22 pt in radius, and
-    /// the same four dead corners, on the very screen "the − sticks" was
-    /// reported from. Against the unfixed stepper this is red on its first
-    /// corner: every tap below lands at a corner of the 44 pt frame
-    /// (`WorkoutDriver.corners`), 27 pt from the centre, the ring takes none
-    /// of them, and the label never leaves "plus 0 seconds".
-    ///
-    /// Each of the eight taps is asserted on its own, because the addition
-    /// cannot count to four: `EngineConfig.raiseStepsMax` is 2, so "+" is
-    /// dead after two hits and a final value could not tell four hits from
-    /// two. The walk climbs to 2 and comes back to 0 twice, with "+" and "−"
-    /// each tapped once at every corner, and the label must move on every
-    /// tap — a miss anywhere stalls it where the tap before left it.
-    func testTheNextTimeStepperTakesATapAtTheCornerOfItsFrame() {
-        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
-        coordinateTap(app.buttons[AX.holdStartExercise])
-
-        XCTAssertTrue(app.staticTexts[AX.summaryNextPlan].waitForExistence(timeout: 90),
-                      "the summary must say what the next plan will be")
-        expectRaised(0, "the summary opens with nothing added")
-        let plus = app.buttons[AX.raisePlus]
-        let minus = app.buttons[AX.raiseMinus]
-        let walk = [
-            CornerTap(plus, WorkoutDriver.topLeft, leaves: 1),
-            CornerTap(plus, WorkoutDriver.bottomRight, leaves: 2),
-            CornerTap(minus, WorkoutDriver.topRight, leaves: 1),
-            CornerTap(minus, WorkoutDriver.bottomLeft, leaves: 0),
-            CornerTap(plus, WorkoutDriver.topRight, leaves: 1),
-            CornerTap(plus, WorkoutDriver.bottomLeft, leaves: 2),
-            CornerTap(minus, WorkoutDriver.topLeft, leaves: 1),
-            CornerTap(minus, WorkoutDriver.bottomRight, leaves: 0),
-        ]
-        for tap in walk {
-            tap.button.coordinate(withNormalizedOffset: tap.corner).tap()
-            expectRaised(tap.leaves,
-                         "\(tap.button.identifier) at (\(tap.corner.dx), \(tap.corner.dy)) must take the tap")
-        }
-    }
-
-    /// One corner tap of the walk above and the addition it must leave.
-    private struct CornerTap {
-        let button: XCUIElement
-        let corner: CGVector
-        let leaves: Int
-
-        init(_ button: XCUIElement, _ corner: CGVector, leaves: Int) {
-            self.button = button
-            self.corner = corner
-            self.leaves = leaves
-        }
-    }
-
-    /// The addition as VoiceOver reads it — `RaiseLabel.spoken`, which is
-    /// what `.label` returns for the value — waited for rather than read at
-    /// once, so a tap still being delivered is not counted as a miss.
-    private func expectRaised(_ steps: Int, _ message: String,
-                              file: StaticString = #filePath, line: UInt = #line) {
-        let spoken = "plus \(steps * 5) seconds for next time"
-        let value = app.staticTexts.matching(identifier: AX.raiseValue)
-            .matching(NSPredicate(format: "label == %@", spoken)).firstMatch
-        XCTAssertTrue(value.waitForExistence(timeout: 3),
-                      "\(message): expected “\(spoken)”, got “\(app.staticTexts[AX.raiseValue].label)”",
-                      file: file, line: line)
     }
 }

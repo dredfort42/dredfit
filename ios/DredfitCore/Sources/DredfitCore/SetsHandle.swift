@@ -1,11 +1,10 @@
 //
-//  The set axis: the cut (§36), the bands on the top variation (§40.5), and
-//  growth (§40.3).
+//  The set axis: the cut, the bands on the top variation, and growth.
 //
 //  NO FUNCTION HERE CARRIES A DEFAULT ARGUMENT, deliberately. An omitted floor
-//  argument was the repeated defect class of two waves — a compile error is a
-//  stronger guard than a grep, and it stays that way now that the floor is
-//  shared by every caller.
+//  argument was a repeated defect class — a compile error is a stronger guard
+//  than a grep, and it stays that way now that the floor is shared by every
+//  caller.
 //
 
 import Foundation
@@ -26,11 +25,11 @@ extension Engine {
     }
 
     /// The one and only clamp on a set count. Every mechanism that cuts sets —
-    /// the band gate among them — goes through it, so the floor holds for
+    /// the pull-caps-push gate among them — goes through it, so the floor holds for
     /// their COMPOSITION and not just for each cut on its own.
     static func clampSets(_ n: Int, floor: Int) -> Int { max(floor, n) }
 
-    // MARK: - The bands on the top variation (§40.5)
+    // MARK: - The bands on the top variation
 
     /// Once the dose tops out on the TOP variation, growth continues in sets:
     /// `sets → sets+1` at `⌊sets × ceiling / (sets+1)⌋`, snapped down to the
@@ -41,31 +40,46 @@ extension Engine {
         Dose.snap(unit, (setsFrom * Dose.grid(unit).max) / (setsFrom + 1))
     }
 
-    /// Where a band starts: the grid floor for the base, the §40.5 entry above.
+    /// Where a band starts: the grid floor for the base, the band entry dose above.
     static func bandStartDose(_ unit: LoadUnit, sets: Int) -> Int {
         sets <= EngineConfig.setsBase ? Dose.grid(unit).min : bandEntryDose(unit, setsFrom: sets - 1)
     }
 
-    /// Bands exist only above the top variation of a ladder.
+    /// Bands exist only on the top variation of a ladder.
     static func setsCeil(_ p: Pattern, _ v: Int) -> Int {
         Library.isTop(p, v) ? EngineConfig.setsMax : EngineConfig.setsBase
     }
 
-    // MARK: - Growth (§40.3, §40.5)
+    // MARK: - Growth
 
-    /// Sets come back FIRST, and only then does the dose grow (§37.6): the
+    /// Sets come back FIRST, and only then does the dose grow: the
     /// trainee wins back the volume that was taken off before going further on
     /// intensity. Tolerance of volume recovers before tolerance of intensity.
     ///
-    /// At most ONE set per session, and only once the hold has run out (v2.25,
-    /// round 6): while it ticks, the growth event goes into the DOSE. That is
+    /// At most ONE set per session, and only once the hold has run out:
+    /// while it ticks, the growth event goes into the DOSE. That is
     /// what gives "set, dose, dose, set" instead of three sets in a row.
     ///
+    /// The sub-step is counted against the BAND, so under a cut, while the
+    /// hold ticks, it can land on a set the cut hides: `fit` clamps it back
+    /// and the event is lost — the plan stands for at most the hold, then the
+    /// set returns. Kept on purpose. Counting on the sets on screen moves the
+    /// measure by two or more per visible rep, which the weekly window and the
+    /// cross-credit then miscount; returning the set early breaks the very
+    /// spacing the hold exists for.
+    ///
     /// Growth NEVER crosses a variation: the only way into a new one is a
-    /// probe (§40.4). On the dose ceiling of a non-top variation growth
-    /// honestly STANDS STILL — the declared parking of §40.10 п. 1.
+    /// probe. On the dose ceiling of a non-top variation growth honestly STANDS
+    /// STILL — that is the declared parking.
+    ///
+    /// `bandCeil` is the highest band this growth may enter. A push gets the
+    /// pull slot's sets as they stand after the session (`applyFeedback`):
+    /// entering a band the pull does not show yet would celebrate a set the
+    /// cap then hides, and cut the volume just done by a fifth to a quarter.
+    /// Above it the push parks on its band's ceiling like any parking — the
+    /// remaining events burn. Everything else passes the top of the scale.
     static func riseBy(_ p: Pattern, _ pos: Position, _ n: Int,
-                       allowSetsBack: Bool) -> Position {
+                       allowSetsBack: Bool, bandCeil: Int) -> Position {
         var cur = fit(p, pos)
         var k = max(0, n)
         let back = allowSetsBack ? min(cur.cut, k, EngineConfig.setsBackPerSession) : 0
@@ -89,7 +103,7 @@ extension Engine {
                 k -= 1
                 continue
             }
-            if Library.isTop(p, cur.variation), cur.sets < EngineConfig.setsMax {
+            if Library.isTop(p, cur.variation), cur.sets < min(EngineConfig.setsMax, bandCeil) {
                 let from = cur.sets
                 cur.sets = from + 1
                 cur.dose = bandEntryDose(unit, setsFrom: from)
@@ -97,24 +111,39 @@ extension Engine {
                 k -= 1
                 continue
             }
-            break   // parked on the ceiling: waiting for a probe, or at the top of the scale
+            break   // parked on the ceiling: waiting for a probe or the pull, or at the top of the scale
         }
         return fit(p, cur)
     }
 
+    /// The hold (`EngineState.setsHold`) is armed by sets coming back ON
+    /// SCREEN: the cut went down and the plan shows more sets than before. One
+    /// rule for both places a set comes back — the appearance and the
+    /// cross-credit. A variation change that carries the cut along (a descent
+    /// off a band) shows no more sets and arms nothing: a hold there spaces no
+    /// return, it only parks the next growth event in the hold's corner, where
+    /// a hidden set swallows it.
+    static func setsCameBack(from old: Position, to new: Position) -> Bool {
+        new.cut < old.cut
+            && setsAfterCut(sets: new.sets, cut: new.cut) > setsAfterCut(sets: old.sets, cut: old.cut)
+    }
+
     /// Growth BOUNDED BY THE JOURNAL. Needed in exactly the one place a
-    /// position rises WITHOUT the pattern appearing — the cross-credit of
-    /// §20.1: the pull slot's other branch was not in today's plan, and the
+    /// position rises WITHOUT the pattern appearing — the cross-credit:
+    /// the pull slot's other branch was not in today's plan, and the
     /// trainee showed nothing in it. After an appearance `riseBy` needs no
-    /// bound: the journal was just written by the plan, so the next step is
-    /// "shown + 1" by construction.
+    /// bound: it grows from the plan the person has just done.
     ///
-    /// §40.0 forbids assigning what was not shown, and the credit was the one
-    /// place the model still did: it REPEATED someone else's gain. The bound
-    /// leaves it what it was introduced for — the branch does not fall a whole
-    /// rung behind — and takes away exactly the prediction: the credit may
-    /// cross a rung of dose only after the trainee has shown that rung IN THIS
-    /// BRANCH.
+    /// Unbounded, the credit would REPEAT someone else's gain and lift this
+    /// branch past anything shown in it. The bound keeps what the credit is
+    /// for — the branch does not fall a whole rung behind — and removes the
+    /// prediction: the base dose may cross a rung only after the trainee has
+    /// shown that rung IN THIS BRANCH.
+    ///
+    /// A set it returns ENDS it, as a set return ends growth in `riseBy`: a
+    /// credit that returned a set and then added a dose step was rebuilt by
+    /// the weekly window through `riseBy`, which kept the set alone — and the
+    /// window charged both.
     static func riseWithinJournal(_ p: Pattern, _ pos: Position, _ n: Int,
                                   allowSetsBack: Bool,
                                   shown: [Pattern: [Int: Int]]) -> Position {
@@ -127,10 +156,14 @@ extension Engine {
         }
         var k = max(0, n)
         while k > 0 {
-            let step = riseBy(p, cur, 1, allowSetsBack: allowSetsBack && cur.cut == pos.cut)
+            // Only a pull branch is ever credited, and the cap reaches pushes
+            // alone, so no band here waits for anything.
+            let step = riseBy(p, cur, 1, allowSetsBack: allowSetsBack, bandCeil: EngineConfig.setsMax)
             if same(step, cur) || !allowed(step) { break }
+            let returned = step.cut < cur.cut
             cur = step
             k -= 1
+            if returned { break }
         }
         return cur
     }

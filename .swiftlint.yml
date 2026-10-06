@@ -75,3 +75,21 @@ opt_in_rules:
   - static_operator
   - unneeded_parentheses_in_closure_argument
   - yoda_condition
+
+custom_rules:
+  # An async setUp, tearDown or test method in a UI test class, together with
+  # `continueAfterFailure = false`, trips Apple's XCTest defect #108565878: a
+  # failed assertion kills the runner, xcodebuild resumes at the NEXT test,
+  # and -retry-tests-on-failure never re-runs the one that failed. #212 made
+  # every setUp async to silence isolation warnings and nothing noticed: for
+  # a month no failed assertion was retried, and each one turned the UI run
+  # red. DredfitUITests.setUp has the synchronous form that compiles clean.
+  # Comments and strings are skipped so the rule can be quoted where it is
+  # explained.
+  ui_tests_stay_synchronous:
+    name: "UI tests stay synchronous"
+    included: "ios/DredfitUITests/.*\\.swift$"
+    regex: "func\\s+(setUp|setUpWithError|tearDown|tearDownWithError|test\\w*)\\s*\\([^)]*\\)\\s*async"
+    message: "An async setUp/tearDown/test disables the UI retries (Apple #108565878) — see DredfitUITests.setUp"
+    excluded_match_kinds: [comment, doccomment, string]
+    severity: error

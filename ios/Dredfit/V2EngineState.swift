@@ -1,14 +1,14 @@
 //
-//  §41.7: the shape of an engine state written before v3, and nothing more.
+//  The shape of an engine state written before v3, and nothing more.
 //
 //  This type exists to READ a format the app no longer writes. It is
 //  deliberately small: only the fields the migration carries over. Everything
-//  else a v2 state held (`frozen`, `sore`, the pain-episode remains) went with
-//  the mechanisms that owned it and has nowhere to land in v3.
+//  else a v2 state held has nowhere to land in v3.
 //
-//  Every field is optional with a default, per the project's rule for
-//  persisted types: a v2 file written by any build of that era must decode,
-//  and one missing key must not throw the whole thing away.
+//  Every field but `levels` — the one that makes a state v2 — falls back to a
+//  default, per the project's rule for persisted types: a v2 file written by
+//  any build of that era must decode, and one missing key must not throw the
+//  whole thing away.
 //
 
 import Foundation
@@ -21,7 +21,7 @@ struct V2EngineState: Codable {
     var failStreak: [Pattern: Int] = [:]
 
     /// `levels` is what makes a state v2: v3 has no such field, and its
-    /// absence is what sends the decode down the `initState` path instead.
+    /// absence is what sends `AppStore`'s decode on to `EngineState.initial`.
     enum CodingKeys: String, CodingKey { case counter, hasBar, levels, failStreak }
 
     init(from decoder: Decoder) throws {
@@ -34,9 +34,7 @@ struct V2EngineState: Codable {
                                                    debugDescription: "not a v2 state")
         }
         // `decode`, not `decodeIfPresent`: under `try?` a missing key and a
-        // malformed one both fall to the default either way, and the plain
-        // form is a single optional — the `as?` that used to flatten the
-        // double one did nothing, as Xcode 26 now says on every build.
+        // malformed one both fall to the default either way.
         counter = (try? c.decode(Int.self, forKey: .counter)) ?? 0
         hasBar = (try? c.decode(Bool.self, forKey: .hasBar)) ?? false
         failStreak = (try? Self.patternMap(c, .failStreak)) ?? [:]

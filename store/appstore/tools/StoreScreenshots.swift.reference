@@ -163,6 +163,21 @@ final class StoreScreenshots: XCTestCase {
         element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
     }
 
+    /// Since #274 the workout ignores every tap for 350 ms after its screen
+    /// changes (`SettleWindow.swift`), so a double tap meant for one screen
+    /// cannot act on the next. The suite shrinks that window to 50 ms through
+    /// its `--uitest*` flags; the seeded routes here carry none, so they get
+    /// the full 350 ms — and a tap fired the moment `waitForExistence` sees
+    /// the button lands inside it, does nothing, and the next assert dies on
+    /// a screen that never moved. Waiting AFTER the element exists is enough:
+    /// it cannot exist before the screen change that opened the window.
+    private let settleWindow: TimeInterval = 0.6
+
+    private func settledTap(_ element: XCUIElement) {
+        Thread.sleep(forTimeInterval: settleWindow)
+        coordinateTap(element)
+    }
+
     // MARK: - Route pieces
 
     /// Start on Today and get past the warm-up.
@@ -179,18 +194,19 @@ final class StoreScreenshots: XCTestCase {
         if introSkip.waitForExistence(timeout: 6) {
             introSkip.tap()
         } else if app.buttons["skip-warmup"].waitForExistence(timeout: 3) {
-            app.buttons["skip-warmup"].tap()
+            settledTap(app.buttons["skip-warmup"])
         }
     }
 
-    /// One set at plan, then out of the rest that follows it.
+    /// One set at plan, then out of the rest that follows it. Both taps land
+    /// on a screen that has just changed, hence `settledTap`.
     private func doSetAndSkipRest(_ app: XCUIApplication) {
         let done = app.buttons["exercise-done"]
         let skipRest = app.buttons["skip-rest"]
         XCTAssertTrue(done.waitForExistence(timeout: 10), "set screen did not appear")
-        coordinateTap(done)
+        settledTap(done)
         XCTAssertTrue(skipRest.waitForExistence(timeout: 8), "no rest after a completed set")
-        coordinateTap(skipRest)
+        settledTap(skipRest)
     }
 
     /// Walk the rest of the session at plan until the rating stands, and take
@@ -209,7 +225,7 @@ final class StoreScreenshots: XCTestCase {
                               summaryRaw: String) {
         let done = app.buttons["exercise-done"]
         // TWO anchors for a hold, and which of them stands is a STATE, not a
-        // choice (`WorkoutFlowView+Work.swift:279`):
+        // choice (`WorkoutFlowView+Work.swift:359`):
         //   `hold-start-exercise` — "Start exercise", the screen a hold OPENS
         //                           on: one tap runs the whole exercise (R23);
         //   `hold-start`          — "Start hold", ONE set, and only under
@@ -227,11 +243,14 @@ final class StoreScreenshots: XCTestCase {
         let rating = app.buttons["rating-plan"]
 
         // The summary of a finished hold carries the SAME `exercise-done` as
-        // a set (`WorkoutFlowView+Summary.swift:156` — it is the same act), so
+        // a set (`WorkoutFlowView+Summary.swift` — it is the same act), so
         // the `done` branch below is where the walk stands on it, and the
         // kicker `summary-held` is what tells the two screens apart.
         let summaryHeld = app.staticTexts["summary-held"]
 
+        // No `settledTap` in this loop: every pass opens on a `rating` wait
+        // that runs its whole second (the rating is not there yet), so each
+        // tap comes a second after the screen the last one opened.
         var guardCounter = 0
         var holdIntroTaken = false
         var summaryTaken = false
@@ -312,9 +331,9 @@ final class StoreScreenshots: XCTestCase {
         Thread.sleep(forTimeInterval: 1)
         snap("today_\(l.tag)")
 
-        // The technique sheet, FROM THE PLAN ROW. `TodayView.swift:46` is the
+        // The technique sheet, FROM THE PLAN ROW. `TodayView.swift:98` is the
         // only place in the project that passes `planned: true`, and the step
-        // below is drawn under `if planned` alone (`TechniqueSheet.swift:123`)
+        // below is drawn under `planned` alone (`TechniqueSheet.swift:101`, :129)
         // — deliberately, because moving a position mid-session would move the
         // plan in flight. The same sheet raised from the work screen or from
         // the next-workout preview carries technique and nothing else, so a
@@ -441,8 +460,8 @@ final class StoreScreenshots: XCTestCase {
     //
     // Seeded, not `--uitest-long-session`. That hook plants the top of EVERY
     // ladder at four sets — a 67-minute session — and the listing promises
-    // ~30 min for a full one (30.5 on the 2.1.0 sweep, 31.5 on reference
-    // 3.5.0 since #240 — read the current release_texts, not this line). The
+    // about 32 min for a full one (31.5 on reference 3.5.0 since #240 and on
+    // 3.8.0 — read the current release_texts, not this line). The
     // header would have argued with the description on the same page of the
     // store. Seed D gives the four-set band to the movement on screen ALONE
     // (hinge, top variation, §40.5: bands exist nowhere else), leaves the

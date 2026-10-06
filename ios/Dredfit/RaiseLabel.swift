@@ -1,9 +1,9 @@
 //
-//  How an addition "for next time" is printed (§41.13), in one place for
-//  the four screens that print one: the summary's stepper, the rating, the
-//  history line and tomorrow's plan. One step of the ladder is +5 s to one
-//  set of a hold or +1 rep to one set of a reps movement (§33), so the
-//  figure is the steps times the grid's step, in the movement's own unit.
+//  How an addition "for next time" is printed, in one place for the four
+//  screens that print one: the summary's stepper, the rating, the history
+//  line and tomorrow's plan. One step of the ladder is +5 s to one set of a
+//  hold or +1 rep to one set of a reps movement, so the figure is the steps
+//  times the grid's step, in the movement's own unit.
 //
 
 import Foundation
