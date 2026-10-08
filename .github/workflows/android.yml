@@ -1,0 +1,82 @@
+name: Android
+
+# The Kotlin engine port (android/core) against the same golden.json the Swift
+# package is judged by. NOT a required check while the Android app does not
+# ship (android/README.md).
+#
+# The path filter sits at the JOB level, not in `on:`: a workflow-level
+# `paths:` filter leaves a required check pending forever on every PR that
+# does not touch android/, and blocks the merge — so the day this job becomes
+# required, nothing here has to move. The fixture lives under ios/, so a
+# change to it runs the job too.
+
+on:
+  push:
+    branches: [main, develop, "release/**", "hotfix/**"]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Anything new for the Android port?
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.diff.outputs.run }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Any doubt resolves to running the job: a skipped run that should have
+      # happened is the one outcome nobody would notice.
+      - name: Compare with the base
+        id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ] || [ -z "$BASE" ] \
+             || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed=$(git diff --name-only "$BASE" HEAD -- \
+            android ios/DredfitCore/Tests/DredfitCoreTests/Fixtures \
+            .github/workflows/android.yml)
+          if [ -n "$changed" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  core-tests:
+    name: Android core tests (Kotlin engine vs golden.json)
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # 25 is the JDK the build was verified on (the Android Studio JBR);
+      # the module itself targets JVM 17.
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Run tests
+        working-directory: android
+        run: ./gradlew :core:test --console=plain
