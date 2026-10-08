@@ -1,0 +1,15 @@
+# The one version catalog. Every version below was verified by
+# `./gradlew :core:test` on the Android Studio JBR (OpenJDK 25).
+[versions]
+kotlin = "2.4.21"
+kotlinx-serialization = "1.11.0"
+junit = "5.14.4"
+
+[libraries]
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
