@@ -12,6 +12,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.dredfit.core.LoadUnit
 import com.dredfit.core.SessionExercise
+import com.dredfit.l10n.AndroidStrings
 import com.dredfit.l10n.AppStrings
 import com.dredfit.l10n.CoreStrings
 import com.dredfit.l10n.WidgetStrings
@@ -34,11 +35,13 @@ import java.util.Locale
 @Composable
 fun tr(key: String, vararg args: Any): String {
     val plural = AppStrings.plural(key) ?: CoreStrings.plural(key) ?: WidgetStrings.plural(key)
+        ?: AndroidStrings.plural(key)
     if (plural != null) {
         val count = pluralCount(args.toList()) ?: 0
         return pluralStringResource(plural, count, *args)
     }
     val id = AppStrings.string(key) ?: CoreStrings.string(key) ?: WidgetStrings.string(key)
+        ?: AndroidStrings.string(key)
     if (id != null) return stringResource(id, *args)
     if (args.isEmpty()) return key
     return Words(null, key, args.toList()).english
@@ -56,7 +59,9 @@ fun tr(words: Words): String {
     if (words.isNarrowList) return listFormatted(args.map { it.toString() }, narrow = true)
     val key = words.key ?: return Words(null, words.format, args).english
     val known = AppStrings.plural(key) ?: CoreStrings.plural(key) ?: WidgetStrings.plural(key)
+        ?: AndroidStrings.plural(key)
         ?: AppStrings.string(key) ?: CoreStrings.string(key) ?: WidgetStrings.string(key)
+        ?: AndroidStrings.string(key)
     if (known != null) return tr(key, *args.toTypedArray())
     return Words(null, words.format, args).english
 }

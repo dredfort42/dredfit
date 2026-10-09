@@ -70,6 +70,7 @@ import com.dredfit.ui.theme.TodayGlyph
 import com.dredfit.ui.theme.dredfitFont
 import com.dredfit.ui.today.TodayScreen
 import com.dredfit.ui.workout.ActiveWorkout
+import com.dredfit.ui.workout.ReviewPrompt
 import com.dredfit.ui.workout.WorkoutFlowView
 
 /** The flow in flight, owned by the process so a recreated activity finds it. */
@@ -80,7 +81,8 @@ class FlowHolder {
 enum class RootTab { today, calendar, progress }
 
 @Composable
-fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: () -> DeviceSignals) {
+fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: () -> DeviceSignals,
+               reviewPrompt: ReviewPrompt) {
     val store by observedStore
     // The ONE place the theme is applied, so it covers the workout, every
     // sheet and every alert.
@@ -109,7 +111,7 @@ fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: (
         val active = holder.active
         Box(Modifier.fillMaxSize().background(c.bg)) {
             when {
-                active != null -> WorkoutFlowView(active, observedStore) {
+                active != null -> WorkoutFlowView(active, observedStore, reviewPrompt) {
                     // The claim on the snapshot ends with the flow, not with
                     // the composition that drew it (WorkoutFlowView.kt).
                     store.workoutFlowDisappeared()

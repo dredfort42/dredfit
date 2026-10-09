@@ -29,19 +29,25 @@ app/src/
 │   │   reminders/   NotificationScheduling, ReminderSound
 │   │   signals/     CountdownSounds and the device half of WorkoutSignals —
 │   │                synthesised, no media files
+│   │   review/      PlayReviewPrompt — Play In-App Review, the one third-party
+│   │                SDK (android/README.md); when to ask is plain Kotlin
+│   │                (`askForReviewIfEarned`, ui/workout/WorkoutFlowView.kt)
 │   │   widgets/     Glance: TodayStatusWidget, TodayProvider, WidgetSnapshot
 │   │                (the two-week snapshot is rewritten after every persisted
 │   │                change; the widget never computes rest days itself)
-│   │   l10n/        CoreStrings, AppStrings, WidgetStrings — GENERATED key →
+│   │   l10n/        CoreStrings, AppStrings, WidgetStrings, AndroidStrings — GENERATED key →
 │   │                resource-id lookups, so code calls `tr("English key")`
 │   │   ui/          theme/ (tokens, dredfitFont, the 44 dp target), RootScreen,
 │   │                today/, workout/, progress/, settings/, technique/
 │   └── res/
 │       values/, values-de/, values-es/, values-fr/, values-it/,
 │       values-b+pt+BR/, values-ru/
-│                    strings_core.xml, strings_app.xml, strings_widgets.xml —
-│                    GENERATED from the String Catalogs, one file per source
-│                    catalog so a key's provenance is visible from the file name;
+│                    strings_core.xml, strings_app.xml, strings_widgets.xml,
+│                    strings_android.xml — GENERATED from the String Catalogs,
+│                    one file per source catalog so a key's provenance is
+│                    visible from the file name; the fourth catalog,
+│                    app/Localizable.xcstrings, holds what only Android says
+│                    (Google Play, the phone's sound mode);
                     resource name = <catalog>_<slug of the key, 40>_<sha1[:8]>
 │       drawable/, mipmap-*/
 ├── test/kotlin/com/dredfit/         the counterpart of ios/DredfitTests

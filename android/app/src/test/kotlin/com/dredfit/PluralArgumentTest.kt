@@ -27,7 +27,8 @@ class PluralArgumentTest {
         var checked = 0
         for (catalog in listOf("Dredfit/Localizable.xcstrings",
                                "DredfitCore/Sources/DredfitCore/Resources/Localizable.xcstrings",
-                               "DredfitWidgets/Localizable.xcstrings")) {
+                               "DredfitWidgets/Localizable.xcstrings",
+                               SetsNoticeTest.ANDROID_CATALOG)) {
             for ((key, entry) in IosCatalogs.strings(catalog)) {
                 val localizations = (entry as JsonObject)["localizations"] as? JsonObject ?: continue
                 val kinds = localizations.values.map { it as JsonObject }

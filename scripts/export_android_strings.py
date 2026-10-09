@@ -7,17 +7,24 @@
 
 The String Catalogs stay the one source of every user-facing string: a
 translator edits them in Xcode, and Android gets a regenerated copy, never a
-hand-edited one. Three catalogs, one file each, so a key's provenance is
+hand-edited one. Four catalogs, one file each, so a key's provenance is
 visible from the file name:
 
     ios/DredfitCore/Sources/DredfitCore/Resources/Localizable.xcstrings -> strings_core.xml
     ios/Dredfit/Localizable.xcstrings                                    -> strings_app.xml
     ios/DredfitWidgets/Localizable.xcstrings                             -> strings_widgets.xml
+    android/app/Localizable.xcstrings                                    -> strings_android.xml
 
 into android/app/src/main/res/values{,-de,-es,-fr,-it,-b+pt+BR,-ru}/, plus one
 Kotlin lookup per catalog in android/app/src/main/kotlin/com/dredfit/l10n/
-(CoreStrings, AppStrings, WidgetStrings) so app code keeps calling by the
-English key, as `String(localized:)` does on iOS.
+(CoreStrings, AppStrings, WidgetStrings, AndroidStrings) so app code keeps
+calling by the English key, as `String(localized:)` does on iOS.
+
+The fourth catalog holds the strings only Android says (Google Play, the
+phone's sound mode where iOS names the ringer switch). They are not in the iOS
+app catalog on purpose: any edit there stales the whole App Store screenshot
+set, and iOS's SetsNoticeTests fails a key no Swift source asks for. Being a
+tracked *.xcstrings, both Localization gates check it like the other three.
 
 `ios/Dredfit/InfoPlist.xcstrings` is skipped on purpose: it holds Info.plist
 keys (CFBundleName, the HealthKit usage descriptions) that have no Android
@@ -80,6 +87,7 @@ CATALOGS = [  # (resource prefix, catalog, xml file, Kotlin object)
     ("app", "ios/Dredfit/Localizable.xcstrings", "strings_app.xml", "AppStrings"),
     ("widgets", "ios/DredfitWidgets/Localizable.xcstrings", "strings_widgets.xml",
      "WidgetStrings"),
+    ("android", "android/app/Localizable.xcstrings", "strings_android.xml", "AndroidStrings"),
 ]
 RES = "android/app/src/main/res"
 KOTLIN = "android/app/src/main/kotlin/com/dredfit/l10n"

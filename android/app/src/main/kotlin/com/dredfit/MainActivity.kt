@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
+import com.dredfit.review.PlayReviewPrompt
 import com.dredfit.store.AppStore
 import com.dredfit.store.activate
 import com.dredfit.ui.Observed
@@ -36,6 +37,9 @@ class MainActivity : ComponentActivity() {
 
     private val app get() = application as DredfitApp
     private var store by mutableStateOf<Observed<AppStore>?>(null)
+
+    /** Per activity: Play launches its card over the activity that asks. */
+    private val reviewPrompt by lazy { app.reviewPromptForTests ?: PlayReviewPrompt(this) }
 
     /** Midnight, a clock change or a zone change while the screen is up —
      *  `UIApplication.significantTimeChangeNotification` on iOS. */
@@ -60,7 +64,7 @@ class MainActivity : ComponentActivity() {
             if (loaded == null) {
                 Box(Modifier.fillMaxSize().background(if (isSystemInDarkTheme()) Palette.dark.bg else Palette.light.bg))
             } else {
-                RootScreen(loaded, app.flows, app::signals)
+                RootScreen(loaded, app.flows, app::signals, reviewPrompt)
             }
         }
     }

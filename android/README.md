@@ -52,6 +52,20 @@ Not here, deliberately:
   unkeyed array, new fields are optional with a default, and the journal
   decodes record by record. Backup export/import is the bridge from iOS to
   Android, and it works only if both sides read the same file.
+- **No third-party SDKs, no network calls, no analytics** — the root README's
+  promise — with ONE exception the owner approved on 09.10.2026: **Play
+  In-App Review** (`com.google.android.play:review`, which brings
+  play-services-basement, play-services-tasks and Play core-common with it).
+  Why: it is the only way to ask for a Play rating inside the app — the twin
+  of iOS's StoreKit `requestReview`, which iOS has from the OS — and the ask
+  follows the iOS rule exactly (after a milestone, from the fifth workout,
+  never after "hard", at most once in 60 days). It adds no permission: the
+  manifest still has no INTERNET, because the card is drawn and sent by the
+  Play Store app, not by Dredfit. What a person types there (stars, review)
+  goes to Google Play; Google's own data-safety table for the library lists
+  it as user-entered rating and review, used to post the review. Nothing
+  else from Play Core or Play services is to be added on the strength of
+  this exception.
 - **Health Connect is write-only**, the same promise HealthKit keeps on iOS.
 - **User-facing text follows `instructions/GLOSSARY.md`** in all seven
   languages; `res/values*/strings_*.xml` are generated from the String

@@ -21,9 +21,11 @@ import com.dredfit.core.Engine
 import com.dredfit.core.EngineState
 import com.dredfit.core.FeedbackResult
 import com.dredfit.core.generateSession
+import com.dredfit.journal.WorkoutSnapshot
 import com.dredfit.store.AppStore
 import com.dredfit.store.AppearanceChoice
 import com.dredfit.store.nextSession
+import com.dredfit.store.saveWorkoutSnapshot
 import com.dredfit.workout.SetFacts
 import com.dredfit.workout.UITestFlags
 import org.junit.After
@@ -59,6 +61,13 @@ abstract class DredfitUITest {
          *  one today — a chart with a band, a month with marks, a history to
          *  walk and Today's door to it. */
         History,
+        /** Nine workouts done and the tenth waiting on its rating ("Rate the
+         *  workout" on Today): rating it earns the workout-10 jubilee, past
+         *  the review gate's five. */
+        TenthAtRating,
+        /** Five done and the sixth waiting on its rating: past the review
+         *  gate, but no milestone to follow it. */
+        SixthAtRating,
     }
 
     /**
@@ -93,6 +102,12 @@ abstract class DredfitUITest {
         scenario = ActivityScenario.launch(MainActivity::class.java)
     }
 
+    /** The activity destroyed and built again — a theme or language change —
+     *  with the process, and so the flow in flight, kept. */
+    fun recreate() {
+        checkNotNull(scenario).recreate()
+    }
+
     @After
     fun closeAndSlowDown() {
         scenario?.close()
@@ -120,6 +135,21 @@ abstract class DredfitUITest {
             val yesterday: Instant = ZonedDateTime.now(ZoneId.systemDefault()).minusDays(1).toInstant()
             store.completeWorkout(session = Engine.generateSession(EngineState.initial), result = FeedbackResult.plan,
                                   date = yesterday)
+        }
+        if (seed == Seed.TenthAtRating || seed == Seed.SixthAtRating) {
+            val done = if (seed == Seed.TenthAtRating) 9 else 5
+            val zone = ZoneId.systemDefault()
+            for (daysAgo in done downTo 1) {
+                store.completeWorkout(session = store.nextSession, result = FeedbackResult.plan,
+                                      date = ZonedDateTime.now(zone).minusDays(daysAgo.toLong()).toInstant())
+            }
+            // Parked on the rating a minute ago — inside the resume window.
+            val plan = store.nextSession
+            val savedAt = Instant.now().minusSeconds(60)
+            store.saveWorkoutSnapshot(WorkoutSnapshot(
+                sessionNumber = plan.sessionNumber, exIndex = plan.exercises.size, setIndex = 0,
+                workoutStart = savedAt.minusSeconds(30 * 60), savedAt = savedAt,
+                fingerprint = WorkoutSnapshot.fingerprint(plan), atFeedback = true))
         }
         if (seed == Seed.History) {
             val now = ZonedDateTime.now(ZoneId.systemDefault()).minusMinutes(1)

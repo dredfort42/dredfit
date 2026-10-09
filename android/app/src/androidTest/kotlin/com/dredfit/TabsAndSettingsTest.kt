@@ -262,6 +262,32 @@ class TabsAndSettingsTest : DredfitUITest() {
         await(AX.silentModeToggle)
     }
 
+    /** Both captions are Android's own sentences (the phone's sound mode),
+     *  not iOS's ringer switch and Silent mode alone. */
+    @Test
+    fun theSilentModeCaptionFollowsTheSwitch() {
+        launch(Seed.Clean, fast = true)
+        tap(AX.settings)
+        val off = "When the phone is set to silent or vibrate, the tones go quiet — the vibration keeps going."
+        val on = "The tones play even when the phone is set to silent or vibrate."
+        compose.waitUntil(5_000) { shows(off) }
+        assertFalse(shows(on))
+        tap(AX.silentModeToggle)
+        compose.waitUntil(3_000) { shows(on) }
+        assertFalse("one caption at a time", shows(off))
+    }
+
+    /** The shipped sheet keeps About's Play rows out until the listing is
+     *  live (`BuildConfig.PLAY_LISTING_LIVE`; AboutSectionTest has both states). */
+    @Test
+    fun settingsShowNoPlayRowsBeforeTheListingIsLive() {
+        launch(Seed.Clean, fast = true)
+        tap(AX.settings)
+        await("version-line")
+        assertFalse(exists("rate-app"))
+        assertFalse(exists("recommend-app"))
+    }
+
     /** Export builds the file at the tap and writes it where the picker
      *  points — here a file the stub hands back. */
     @Test

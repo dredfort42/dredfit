@@ -21,6 +21,7 @@ import com.dredfit.signals.DeviceSignals
 import com.dredfit.store.AppStore
 import com.dredfit.ui.FlowHolder
 import com.dredfit.ui.Observed
+import com.dredfit.ui.workout.ReviewPrompt
 import java.nio.file.Path
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -41,6 +42,13 @@ class DredfitApp : Application() {
     /** The workout in flight — the process's, so a recreated activity finds
      *  it; a process death loses it to the snapshot and Today's resume card. */
     val flows = FlowHolder()
+
+    /** The UI suite's stand-in for Play In-App Review, so a walk sees the
+     *  ask the milestone's Done makes instead of sending it to Play. Set
+     *  only by androidTest (ReviewAskWalkTest) before the activity opens;
+     *  nothing in the app writes it, so a release build always asks Play. */
+    @Volatile
+    var reviewPromptForTests: ReviewPrompt? = null
 
     /** Hands the store to `ready` on the main thread: at once when it is
      *  loaded, after the load otherwise. */
