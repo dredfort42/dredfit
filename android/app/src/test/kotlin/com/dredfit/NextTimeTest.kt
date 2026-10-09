@@ -3,12 +3,8 @@
 //  time" — where it is kept, where it lands, and what the store says about
 //  it afterwards.
 //
-//  Not ported — each a screen's words, which nothing on Android computes
-//  outside its view yet: `testTheHistoryRowNamesTheFactAndTheAddition`
-//  whole (`HistorySheet.factLine` / `afterLine`,
-//  ios/Dredfit/Views/Progress/HistorySheet.swift), the `HistorySheet.afterLine`
-//  check inside `theJournalNamesTheShareThatLandedAndKeepsTheDecision`.
-//  15 of the 16 tests are here.
+//  All 16 tests; the history lines are ui/progress/HistorySheet.kt's
+//  (`factLine`, `afterLine`), compared as `Words` — key and arguments.
 //
 
 package com.dredfit
@@ -35,6 +31,7 @@ import com.dredfit.store.nextSession
 import com.dredfit.store.previewPlan
 import com.dredfit.store.raisedForNextPlan
 import com.dredfit.ui.today.ExerciseRow
+import com.dredfit.ui.progress.HistorySheet
 import com.dredfit.workout.NextTimeBlock
 import com.dredfit.workout.RaiseLabel
 import com.dredfit.workout.SetFacts
@@ -229,6 +226,10 @@ class NextTimeTest : AppStoreTestCase() {
         assertEquals(Dose.hold.max, after.dose)
         assertNull(after.sub)
         assertEquals(1, store.raisedForNextPlan(pattern), "tomorrow's note names the landed share")
+        val base = Words.keyed("history.after", "After: %@", Words.display(hold.withLoads(null, load = Dose.hold.max)))
+        assertEquals(Words.keyed("history.afterRaised", "%1\$@ · %2\$@ of it is your addition",
+                                 base, RaiseLabel.text(steps = 1, unit = LoadUnit.hold)),
+                     HistorySheet.afterLine(hold, record))
 
         // Under "on plan" the base is 45-40-40 and both steps land.
         store.changeLastRating(to = FeedbackResult.plan)
@@ -375,4 +376,36 @@ class NextTimeTest : AppStoreTestCase() {
                      ExerciseRow.raisedNote(steps = 1, unit = LoadUnit.hold))
         assertEquals("+5 s — your addition", ExerciseRow.raisedNote(steps = 1, unit = LoadUnit.hold)?.english)
     }
+
+    /** The three lines of a history row are three named lines: the fact in
+     *  the plan's own spelling, and "After:" naming the person's share. */
+    @Test
+    fun theHistoryRowNamesTheFactAndTheAddition() {
+        val hold = SessionExercise(pattern = Pattern.coreAntiExt, name = "Plank", variation = 3, unit = LoadUnit.hold,
+                                   load = 25, perSide = false, sets = 3, restSetSec = 60, restExerciseSec = 60,
+                                   loads = listOf(30, 25, 25), probe = null)
+        val record = WorkoutRecord(
+            sessionNumber = 37, date = Instant.ofEpochSecond(1_000), result = FeedbackResult.plan,
+            exercises = listOf(hold), setActuals = mapOf(Pattern.coreAntiExt to listOf(30, 22, 25)),
+            positionsAfter = mapOf(Pattern.coreAntiExt to RecordedPosition(variation = 3, sets = 3, dose = 30)),
+            raisedSteps = mapOf(Pattern.coreAntiExt to 1))
+        assertEquals(Words.keyed("history.held", "Held: %@", Words.display(hold.withLoads(listOf(30, 22, 25)))),
+                     HistorySheet.factLine(hold, record))
+        // Without a raise the line is the plain "After:"; with one, the same
+        // line carries the person's share, through the same key.
+        val plain = record.copy(raisedSteps = null)
+        val base = assertNotNull(HistorySheet.afterLine(hold, plain))
+        assertEquals(Words.keyed("history.after", "After: %@", Words.display(hold.withLoads(null, load = 30))), base)
+        assertEquals(Words.keyed("history.afterRaised", "%1\$@ · %2\$@ of it is your addition", base, Words.of("+%lld s", 5)),
+                     HistorySheet.afterLine(hold, record))
+        assertEquals("After: 3×30 sec · +5 s of it is your addition", HistorySheet.afterLine(hold, record)?.english)
+        // A plain uniform shortfall prints the way a uniform plan does.
+        val short = WorkoutRecord(sessionNumber = 38, date = Instant.ofEpochSecond(2_000), result = FeedbackResult.plan,
+                                  exercises = listOf(hold), setActuals = mapOf(Pattern.coreAntiExt to listOf(20, 20, 20)))
+        assertEquals(Words.keyed("history.held", "Held: %@", Words.display(hold.withLoads(null, load = 20))),
+                     HistorySheet.factLine(hold, short))
+    }
+
+    private fun SessionExercise.withLoads(loads: List<Int>?, load: Int? = null): SessionExercise =
+        copy(load = load ?: this.load, loads = loads)
 }
