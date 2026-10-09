@@ -20,6 +20,8 @@
 
 package com.dredfit.ui.workout
 
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -29,7 +31,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
 import com.dredfit.core.Session
 import com.dredfit.journal.WorkoutSnapshot
 import com.dredfit.signals.DeviceSignals
@@ -81,7 +81,6 @@ import com.dredfit.workout.resumePositionCountdown
 import com.dredfit.workout.resumeRestCountdown
 import com.dredfit.workout.sceneCameBack
 import com.dredfit.workout.sceneLeft
-import kotlinx.coroutines.delay
 import java.time.Instant
 
 /**
@@ -138,26 +137,39 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, on
     // app runs no timer either, and every countdown is an end date, so a
     // skipped tick loses nothing. Nothing the clocks drive happens behind
     // "Leave the workout?": the clocks run on and are only primed.
-    LaunchedEffect(observed) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            while (true) {
-                delay(1000)
-                observed.act { if (exitShown) primeComingBack() else tick() }
-            }
-        }
-    }
-
+    //
+    // A main-looper timer, like iOS's `Timer.publish(every: 1)`, rather than
+    // a coroutine `delay`: the flow's clocks are wall-clock end dates, and a
+    // composition's coroutines run on the frame clock a UI test drives in
+    // virtual time — a tick has to stay a real second everywhere.
+    //
     // Only leaving is leaving: a pulled-down shade keeps the app started.
     DisposableEffect(lifecycle, observed) {
+        val main = Handler(Looper.getMainLooper())
+        val beat = object : Runnable {
+            override fun run() {
+                observed.act { if (exitShown) primeComingBack() else tick() }
+                main.postDelayed(this, 1000)
+            }
+        }
         val watcher = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_STOP -> observed.act { sceneLeft() }
-                Lifecycle.Event.ON_START -> observed.act { sceneCameBack() }
+                Lifecycle.Event.ON_START -> {
+                    observed.act { sceneCameBack() }
+                    main.postDelayed(beat, 1000)
+                }
+                Lifecycle.Event.ON_STOP -> {
+                    main.removeCallbacks(beat)
+                    observed.act { sceneLeft() }
+                }
                 else -> Unit
             }
         }
         lifecycle.addObserver(watcher)
-        onDispose { lifecycle.removeObserver(watcher) }
+        onDispose {
+            lifecycle.removeObserver(watcher)
+            main.removeCallbacks(beat)
+        }
     }
 
     // The screen stays on for the whole session — except while a block is
