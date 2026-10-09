@@ -86,7 +86,14 @@ abstract class DredfitUITest {
 
     private fun write(path: Path, seed: Seed, appearance: AppearanceChoice) {
         Files.deleteIfExists(path)
-        if (seed == Seed.FreshInstall) return
+        if (seed == Seed.FreshInstall) {
+            // Still new to the onboarding's gate (no record, no workout, not
+            // completed); only a frame in a chosen theme writes anything.
+            if (appearance != AppearanceChoice.system) {
+                AppStore(path).update { it.copy(settings = it.settings.copy(appearance = appearance)) }
+            }
+            return
+        }
         // A throwaway store on the disk thread, inline: its writes are done
         // when it returns, and the app's store reads them next.
         val store = AppStore(path)
