@@ -8,7 +8,11 @@
 
 package com.dredfit.ui
 
+import android.app.Activity
 import androidx.compose.foundation.background
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -56,6 +60,16 @@ fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: (
         AppearanceChoice.system -> isSystemInDarkTheme()
         AppearanceChoice.light -> false
         AppearanceChoice.dark -> true
+    }
+    // The system bars' icons follow the app's theme, not the system's: a
+    // dark choice on a light phone would otherwise draw dark icons on `bg`.
+    val view = LocalView.current
+    SideEffect {
+        val window = (view.context as? Activity)?.window ?: return@SideEffect
+        WindowCompat.getInsetsController(window, view).apply {
+            isAppearanceLightStatusBars = !dark
+            isAppearanceLightNavigationBars = !dark
+        }
     }
     DredfitTheme(dark) {
         val c = Theme.colors
