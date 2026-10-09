@@ -11,10 +11,7 @@
 //  `NextTimeBlock.planWords` sentence of
 //  `theSentenceNamesTheProbeTheNextPlanCarries` (a static of the summary's
 //  view, ios/Dredfit/Views/Workout/ExerciseSummary.swift; its `samePlan`
-//  half is ported), and the `ExerciseRow.raisedNote` lines of
-//  `theAdditionIsPrintedInTheMovementsOwnUnit` (Today's row,
-//  ios/Dredfit/Views/Today/ExerciseRow.swift; its `RaiseLabel` half is
-//  ported). 15 of the 16 tests are here.
+//  half is ported). 15 of the 16 tests are here.
 //
 
 package com.dredfit
@@ -40,9 +37,11 @@ import com.dredfit.store.landed
 import com.dredfit.store.nextSession
 import com.dredfit.store.previewPlan
 import com.dredfit.store.raisedForNextPlan
+import com.dredfit.ui.today.ExerciseRow
 import com.dredfit.workout.NextTimeBlock
 import com.dredfit.workout.RaiseLabel
 import com.dredfit.workout.SetFacts
+import com.dredfit.workout.Words
 import com.dredfit.workout.asPlanned
 import com.dredfit.workout.correctionRange
 import com.dredfit.workout.holdReachSeconds
@@ -365,11 +364,15 @@ class NextTimeTest : AppStoreTestCase() {
 
     // MARK: - The words
 
-    /** The `ExerciseRow.raisedNote` lines are Today's row — see the header. */
     @Test
     fun theAdditionIsPrintedInTheMovementsOwnUnit() {
         assertEquals("+5 s", RaiseLabel.text(steps = 1, unit = LoadUnit.hold).english)
         assertEquals("+10 s", RaiseLabel.text(steps = 2, unit = LoadUnit.hold).english)
         assertEquals("+1", RaiseLabel.text(steps = 1, unit = LoadUnit.reps).english)
+        assertNull(ExerciseRow.raisedNote(steps = 0, unit = LoadUnit.hold))
+        // Built through the same key and the same placeholder the note uses.
+        assertEquals(Words.keyed("plan.raised", "%@ — your addition", Words.of("+%lld s", 5)),
+                     ExerciseRow.raisedNote(steps = 1, unit = LoadUnit.hold))
+        assertEquals("+5 s — your addition", ExerciseRow.raisedNote(steps = 1, unit = LoadUnit.hold)?.english)
     }
 }

@@ -8,15 +8,9 @@
 //  PerformedSetsFoldTests; here they are `PerformedSetsTest` (on the flow's
 //  harness) and `PerformedSetsFoldTest` (on the store's), in this one file.
 //
-//  Not ported: every `HistorySheet.setFacts(…)` assertion — the history
-//  line is a screen's (ios/Dredfit/Views/Progress/HistorySheet.swift), and
-//  nothing on Android computes it yet. Dropped from
-//  `theHistoryLineIsTheSetsThatWereDone` (both reads; the record's skipped
-//  indices are still checked), `aSkippedSetKeepsTheNumberEnteredForIt` (its
-//  last line), `theLastSetSkippedKeepsTheNumberEnteredForIt` (both reads; the
-//  folds and the changed rating's 7 are still checked) and
-//  `aRecordWithoutTheIndicesReadsAsItAlwaysDid` (one read; the plank premise
-//  still runs). Every test is ported.
+//  The history line's numbers are `ui/progress/HistorySheet.kt`'s
+//  `setFacts`, moved out of the SwiftUI view into plain Kotlin. Every test
+//  and every assertion is ported.
 //
 
 package com.dredfit
@@ -34,6 +28,7 @@ import com.dredfit.store.AppStore
 import com.dredfit.store.nextSession
 import com.dredfit.store.previewPlan
 import com.dredfit.store.settleAbandonedWorkout
+import com.dredfit.ui.progress.HistorySheet
 import com.dredfit.workout.GetReady
 import com.dredfit.workout.HeldSet
 import com.dredfit.workout.SetFacts
@@ -182,11 +177,14 @@ class PerformedSetsTest : WorkoutSessionTestCase() {
     fun theHistoryLineIsTheSetsThatWereDone() {
         val (flow, store) = plankFlow()
         declareAndSkipTheMiddleSet(flow)
+        val plank = flow.exercise
         flow.leaveExerciseSummary()
         flow.rate(FeedbackResult.plan)
-        assertNotNull(store.records.lastOrNull())
+        val record = assertNotNull(store.records.lastOrNull())
+        assertEquals(listOf(45, 45), HistorySheet.setFacts(plank, record)?.first)
         val reread = assertNotNull(makeStore().records.lastOrNull())
         assertEquals(mapOf(Pattern.coreAntiExt to listOf(1)), reread.skippedSetIndices)
+        assertEquals(listOf(45, 45), HistorySheet.setFacts(plank, reread)?.first)
     }
 
     /** A changed rating folds the record again — from the sets that were
@@ -239,6 +237,8 @@ class PerformedSetsTest : WorkoutSessionTestCase() {
         val settled = WorkoutSessionStore.settlement(snap, flow.session)
         assertEquals(20.0 / 3.0, assertNotNull(settled.overrides[Pattern.squat]), 1e-9)
         assertTrue(store.settleAbandonedWorkout(now = snap.savedAt.plus(WorkoutSessionStore.forgottenAfter)))
+        val squat = assertNotNull(flow.exercises.firstOrNull { it.pattern == Pattern.squat })
+        assertEquals(listOf(8, 6, 6), HistorySheet.setFacts(squat, assertNotNull(store.records.lastOrNull()))?.first)
     }
 
     /** "8, 8, entered 6 then Skip this set" on the last set: 8, 8, 6 is 7.33,
@@ -253,10 +253,14 @@ class PerformedSetsTest : WorkoutSessionTestCase() {
         enterSixAndSkipTheSet(flow)
         assertNotEquals(Pattern.squat, flow.exercise.pattern, "the last set skipped moves on")
         assertEquals(22.0 / 3.0, assertNotNull(flow.overrides[Pattern.squat]), 1e-9)
+        val squat = assertNotNull(flow.exercises.firstOrNull { it.pattern == Pattern.squat })
         flow.finishNow()
         flow.rate(FeedbackResult.plan)
+        assertEquals(listOf(8, 8, 6), HistorySheet.setFacts(squat, assertNotNull(store.records.lastOrNull()))?.first)
         store.changeLastRating(to = FeedbackResult.less)
         assertEquals(7, store.records.lastOrNull()?.actuals?.get(Pattern.squat), "8, 8, 6 again, not 8, 8")
+        assertEquals(listOf(8, 8, 6), HistorySheet.setFacts(squat, assertNotNull(store.records.lastOrNull()))?.first,
+                     "and the changed record still keeps the number")
     }
 
     /** A number entered before a skip counts beside the sets after it: "8,
@@ -610,7 +614,7 @@ class PerformedSetsFoldTest : AppStoreTestCase() {
      *  plank premise still runs.) */
     @Test
     fun aRecordWithoutTheIndicesReadsAsItAlwaysDid() {
-        plank()
+        val plank = plank()
         val json = """
         {"sessionNumber": 3, "date": 1000, "result": "plan",
          "setActuals": ["core_anti_ext", [45, 30, 45]], "setsSkipped": ["core_anti_ext", 1]}
@@ -618,6 +622,7 @@ class PerformedSetsFoldTest : AppStoreTestCase() {
         val record = WorkoutRecord.fromJson(Json.parseToJsonElement(json))
         assertNull(record.skippedSetIndices)
         assertEquals(emptyMap(), record.skippedSets)
+        assertEquals(listOf(45, 30, 45), HistorySheet.setFacts(plank, record)?.first)
 
         val state = EngineState.initial
         state.counter = 1

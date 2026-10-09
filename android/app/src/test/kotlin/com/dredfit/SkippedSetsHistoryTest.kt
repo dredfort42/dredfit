@@ -3,12 +3,8 @@
 //  of a record that names its skipped sets, beside the sets a workout ended
 //  before reaching — counted, never named, and never printed as sets that ran.
 //
-//  Not ported: the history line itself. Every test ends on
-//  `HistorySheet.setFacts(squat, in: record)`, a screen's read
-//  (ios/Dredfit/Views/Progress/HistorySheet.swift) that nothing on Android
-//  computes yet; those four assertions are dropped. What the store and the
-//  flow decide — the record's count of sets off and the indices it names —
-//  is ported in all four tests.
+//  The history line is `ui/progress/HistorySheet.kt`'s `setFacts`, moved out
+//  of the SwiftUI view into plain Kotlin. Every assertion is ported.
 //
 
 package com.dredfit
@@ -20,6 +16,7 @@ import com.dredfit.core.LoadUnit
 import com.dredfit.core.Pattern
 import com.dredfit.store.AppStore
 import com.dredfit.store.settleAbandonedWorkout
+import com.dredfit.ui.progress.HistorySheet
 import com.dredfit.workout.WorkoutSession
 import com.dredfit.workout.WorkoutSessionStore
 import com.dredfit.workout.commitSetEdit
@@ -77,23 +74,27 @@ class SkippedSetsHistoryTest : WorkoutSessionTestCase() {
     @Test
     fun theHistoryLineLeavesOutASetFinishNowNeverReached() {
         val (flow, store) = fourSetSquatFlow()
+        val squat = flow.exercise
         sixSkippedSixToTheFourthSet(flow)
         flow.finishNow()
         flow.rate(FeedbackResult.plan)
         val record = assertNotNull(store.records.lastOrNull())
         assertEquals(2, record.setsSkipped?.get(Pattern.squat))
         assertEquals(listOf(1), record.skippedSetIndices?.get(Pattern.squat))
+        assertEquals(listOf(6, 6), HistorySheet.setFacts(squat, record)?.first)
     }
 
     /** The same workout forgotten on set 4 and settled later. */
     @Test
     fun theHistoryLineLeavesOutASetAForgottenWorkoutNeverReached() {
         val (flow, store) = fourSetSquatFlow()
+        val squat = flow.exercise
         sixSkippedSixToTheFourthSet(flow)
         val snap = assertNotNull(store.pendingWorkout)
         assertTrue(store.settleAbandonedWorkout(now = snap.savedAt.plus(WorkoutSessionStore.forgottenAfter)))
         val record = assertNotNull(store.records.lastOrNull())
         assertEquals(2, record.setsSkipped?.get(Pattern.squat))
+        assertEquals(listOf(6, 6), HistorySheet.setFacts(squat, record)?.first)
     }
 
     /** A skipped set that kept its number is still a named skip, so the
@@ -103,6 +104,7 @@ class SkippedSetsHistoryTest : WorkoutSessionTestCase() {
     @Test
     fun aNumberedSkipLeavesTheCountOfSetsNeverReachedRight() {
         val (flow, store) = fourSetSquatFlow()
+        val squat = flow.exercise
         flow.completeSet()
         flow.skipRest()
         enterSixAndSkipTheSet(flow)
@@ -112,6 +114,7 @@ class SkippedSetsHistoryTest : WorkoutSessionTestCase() {
         flow.rate(FeedbackResult.plan)
         val record = assertNotNull(store.records.lastOrNull())
         assertEquals(2, record.setsSkipped?.get(Pattern.squat))
+        assertEquals(listOf(8, 6, 6), HistorySheet.setFacts(squat, record)?.first)
     }
 
     /** The cut never goes below what was recorded: 6 entered for set 4, the
@@ -119,6 +122,7 @@ class SkippedSetsHistoryTest : WorkoutSessionTestCase() {
     @Test
     fun theHistoryLineKeepsANumberEnteredForTheSetInProgress() {
         val (flow, store) = fourSetSquatFlow()
+        val squat = flow.exercise
         flow.completeSet()
         flow.skipRest()
         flow.skipSet()
@@ -131,5 +135,6 @@ class SkippedSetsHistoryTest : WorkoutSessionTestCase() {
         flow.rate(FeedbackResult.plan)
         val record = assertNotNull(store.records.lastOrNull())
         assertEquals(2, record.setsSkipped?.get(Pattern.squat))
+        assertEquals(listOf(8, 8, 6), HistorySheet.setFacts(squat, record)?.first)
     }
 }
