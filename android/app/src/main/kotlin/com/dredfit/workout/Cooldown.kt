@@ -32,9 +32,9 @@ object Cooldown {
 
     val sideSeconds: Int get() = positionSeconds / 2
 
-    /** The workout's per-side holds play the same pause. (The DEBUG collapse
-     *  of `--uitest-fast` is not ported — see GetReady.kt.) */
-    val switchPauseSeconds: Int get() = sideSwitchPauseSec
+    /** The workout's per-side holds play the same pause — and collapse under
+     *  the UI suite's fast flag with everything else (UITestFlags.kt). */
+    val switchPauseSeconds: Int get() = if (UITestFlags.fast) 1 else sideSwitchPauseSec
 
     // MARK: - The pool of nine
 

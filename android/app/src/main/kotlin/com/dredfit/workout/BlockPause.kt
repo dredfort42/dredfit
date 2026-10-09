@@ -18,9 +18,10 @@ object BlockPause {
 
     /** How far past a stage boundary a block may run and still just carry on;
      *  beyond it the phone was somewhere else and the block freezes. The
-     *  rest's hands-free run reads the same threshold. (The DEBUG override of
-     *  `--uitest-fast` is not ported — see GetReady.kt.) */
-    val absenceSeconds: Int get() = GetReady.countInSeconds
+     *  rest's hands-free run reads the same threshold. Under the UI suite's
+     *  fast flag a whole stage is one second, so the real threshold would read
+     *  an ordinary late tick on a loaded runner as an absence (BlockPause.swift). */
+    val absenceSeconds: Int get() = if (UITestFlags.fast) 60 else GetReady.countInSeconds
 
     /** The seconds a REST picks up after a pause or a closed sheet: floored at
      *  the count-in, capped by the rest's own total. */

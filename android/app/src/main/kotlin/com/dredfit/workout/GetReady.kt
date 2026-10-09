@@ -4,9 +4,10 @@
 //  (issue #83). Port of ios/Dredfit/GetReady.swift — every number below is
 //  spent against the engine's reserve, and GetReady.swift says how.
 //
-//  The DEBUG overrides of the UI suite (`--uitest-fast`,
-//  `--uitest-long-transition`) are not ported: no unit test reads them, and
-//  the Android UI suite is a later phase.
+//  The UI suite's `--uitest-fast` collapses the transition and the count-in
+//  (UITestFlags.kt); `--uitest-long-transition` has no Android test that
+//  passes it, so it is not here — a hook nothing reaches is a branch the next
+//  reader trusts.
 //
 
 package com.dredfit.workout
@@ -25,10 +26,14 @@ object GetReady {
      *  3-2-1 and nothing shorter does: a countdown never sounds the second it
      *  starts on (`Countdown.signals`), so from three it would be heard as
      *  2-1. Four is the floor, not a waypoint. */
-    const val countInSeconds = 4
+    val countInSeconds: Int get() = if (UITestFlags.fast) 1 else 4
 
     /** The two lengths a transition can have. */
-    fun stageSeconds(needsSetup: Boolean): Int = if (needsSetup) seconds + setupSupplementSec else seconds
+    fun stageSeconds(needsSetup: Boolean): Int = when {
+        UITestFlags.fast -> 1
+        needsSetup -> seconds + setupSupplementSec
+        else -> seconds
+    }
 
     val stageSeconds: Int get() = stageSeconds(needsSetup = false)
 }

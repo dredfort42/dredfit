@@ -93,7 +93,10 @@ val WorkoutSession.restTechniqueTarget: TechniqueTarget
         return TechniqueTarget(exercise)
     }
 
-fun WorkoutSession.startRest(seconds: Int) {
+fun WorkoutSession.startRest(planned: Int) {
+    // The UI suite's fast flag: the full-flow walk must never depend on the
+    // runner tapping Skip in time (UITestFlags.kt).
+    val seconds = if (UITestFlags.fast) 1 else planned
     restClock.start(seconds, now())
     restPlanned = seconds
     phase = Phase.Rest(seconds)
