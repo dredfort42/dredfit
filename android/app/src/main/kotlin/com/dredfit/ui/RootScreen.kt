@@ -12,6 +12,7 @@ import android.app.Activity
 import android.app.UiModeManager
 import android.content.Context
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -120,6 +121,9 @@ fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: (
                     onboardingShown = false
                 }
                 else -> {
+                    // Android's back from another tab returns to the first,
+                    // as a bottom bar does; from Today it leaves the app.
+                    BackHandler(enabled = tab != RootTab.today) { tab = RootTab.today }
                     Column(Modifier.fillMaxSize()) {
                         Column(Modifier.weight(1f).fillMaxWidth()
                                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))) {
