@@ -1,14 +1,16 @@
 name: Android
 
 # The Kotlin engine port (android/core) against the same golden.json the Swift
-# package is judged by. NOT a required check while the Android app does not
-# ship (android/README.md).
+# package is judged by, and the app (android/app): its unit tests, a debug
+# build, and the strings generated from the String Catalogs. NOT a required
+# check while the Android app does not ship (android/README.md).
 #
 # The path filter sits at the JOB level, not in `on:`: a workflow-level
 # `paths:` filter leaves a required check pending forever on every PR that
 # does not touch android/, and blocks the merge — so the day this job becomes
 # required, nothing here has to move. The fixture lives under ios/, so a
-# change to it runs the job too.
+# change to it runs the job too, and so does a change to a String Catalog: the
+# Android strings are generated from them and go stale with them.
 
 on:
   push:
@@ -49,7 +51,9 @@ jobs:
           fi
           changed=$(git diff --name-only "$BASE" HEAD -- \
             android ios/DredfitCore/Tests/DredfitCoreTests/Fixtures \
-            .github/workflows/android.yml)
+            ios/Dredfit/Localizable.xcstrings ios/DredfitWidgets/Localizable.xcstrings \
+            ios/DredfitCore/Sources/DredfitCore/Resources/Localizable.xcstrings \
+            scripts/export_android_strings.py .github/workflows/android.yml)
           if [ -n "$changed" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
@@ -80,3 +84,38 @@ jobs:
       - name: Run tests
         working-directory: android
         run: ./gradlew :core:test --console=plain
+
+  app:
+    name: Android app (unit tests, debug build, generated strings)
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # First and cheapest: a catalog edited without regenerating leaves the
+      # Android strings silently behind the iOS ones.
+      - name: Strings match the String Catalogs
+        run: python3 scripts/export_android_strings.py --check
+
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      # The runner's preinstalled SDK, topped up with the one platform the app
+      # compiles against — no third-party action for a single sdkmanager line.
+      - name: Android SDK platform
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;37.0.0" > /dev/null
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Unit tests and debug build
+        working-directory: android
+        run: ./gradlew :app:testDebugUnitTest :app:assembleDebug --console=plain
