@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.dredfit.core.FeedbackResult
 import com.dredfit.core.Session
 import com.dredfit.journal.WorkoutSnapshot
 import com.dredfit.signals.DeviceSignals
@@ -51,7 +53,9 @@ import com.dredfit.store.AppStore
 import com.dredfit.store.currentPositions
 import com.dredfit.store.lastRecord
 import com.dredfit.store.progressCurve
+import com.dredfit.store.recordReviewRequest
 import com.dredfit.store.recordsSinceReset
+import com.dredfit.store.shouldRequestReview
 import com.dredfit.ui.Observed
 import com.dredfit.ui.SaveFailureBanner
 import com.dredfit.ui.technique.TechniqueSheet
@@ -104,6 +108,29 @@ class ActiveWorkout(val session: Session, val flow: Observed<WorkoutSession>, va
     }
 }
 
+/** The store-review card, behind an interface so the rule that asks for it
+ *  runs in a JVM test; `review/PlayReview.kt` is the real one. */
+fun interface ReviewPrompt {
+    fun request()
+}
+
+/**
+ * iOS `askForReviewIfEarned`. Called from the milestone's Done (and Back,
+ * which is that Done here) — a rating that earned no milestone closes the
+ * flow without asking, as on iOS — and only past `shouldRequestReview`.
+ * The stamp is written whether or not Play shows the card: Play rate-limits
+ * invisibly, and an unseen request still counts against our own floor.
+ *
+ * iOS waits 0.7 s for its cover to go, because StoreKit drops a prompt asked
+ * mid-transition. Play's card is its own activity, launched over ours only
+ * once Play has answered (`PlayReviewPrompt`), so no wait is copied.
+ */
+fun AppStore.askForReviewIfEarned(lastResult: FeedbackResult?, prompt: ReviewPrompt) {
+    if (!shouldRequestReview(lastResult)) return
+    recordReviewRequest()
+    prompt.request()
+}
+
 /** The ongoing notification (iOS's Live Activity) arrives with phase 3; until
  *  then the flow drives nothing. */
 private object NoOngoingNotification : WorkoutActivityDriving {
@@ -113,7 +140,8 @@ private object NoOngoingNotification : WorkoutActivityDriving {
 }
 
 @Composable
-fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, onClose: () -> Unit) {
+fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, reviewPrompt: ReviewPrompt,
+                    onClose: () -> Unit) {
     val observed = active.flow
     val flow by observed
     val store by observedStore
@@ -121,6 +149,9 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, on
     var positionTechnique by remember { mutableStateOf<PositionTechnique?>(null) }
     var exitConfirmShown by remember { mutableStateOf(false) }
     var pendingSkip by remember { mutableStateOf<SkipConfirmation?>(null) }
+    // The rating that earned the milestones on screen — what gates the
+    // review ask. Saveable: a recreated activity keeps the milestone up.
+    var lastResult by rememberSaveable { mutableStateOf<FeedbackResult?>(null) }
     val exitShown by rememberUpdatedState(exitConfirmShown)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
@@ -198,6 +229,11 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, on
         if (flow.hasProgress) exitConfirmShown = true else discardWorkout()
     }
 
+    fun milestoneDone() {
+        observedStore.value.askForReviewIfEarned(lastResult, reviewPrompt)
+        onClose()
+    }
+
     // On the rating and the milestone iOS offers no way out but the answer —
     // the header with Exit is not there — and "Finish now" or "Discard" over
     // a finished workout would damage its record. So Back is Exit on every
@@ -206,7 +242,7 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, on
     BackHandler {
         when (flow.phase) {
             Phase.Feedback -> Unit
-            is Phase.Milestone -> onClose()
+            is Phase.Milestone -> milestoneDone()
             else -> exit()
         }
     }
@@ -244,7 +280,12 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, on
                         raised = flow.raisedSteps, interrupted = flow.interruptedPattern,
                     ) { result ->
                         val earned = flow.rate(result)
-                        if (earned.isEmpty()) onClose() else observed.act { showMilestones(earned) }
+                        if (earned.isEmpty()) {
+                            onClose()
+                        } else {
+                            lastResult = result
+                            observed.act { showMilestones(earned) }
+                        }
                     }
                     is Phase.Milestone -> MilestoneView(
                         milestones = phase.earned,
@@ -253,7 +294,7 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, on
                         // The current run, as the curve beside it: after a
                         // fresh start "then" is the new run's first.
                         retrospective = Retrospective.make(store.recordsSinceReset, store.currentPositions),
-                        onDone = onClose)
+                        onDone = ::milestoneDone)
                 }
             }
         }

@@ -4,18 +4,24 @@
 //  ios/Dredfit/Views/Settings/SettingsSections.swift.
 //
 //  Left out, each for a reason of its own (android/CLAUDE.md, Deferred):
-//  the reminder under the rest days (reminders/, phase 3); the ON caption of
-//  "Play tones in Silent mode", which names the iPhone's ringer SWITCH — the
-//  OFF caption is true on Android as written; the Appearance caption about
-//  widgets and the Lock Screen (no widget exists here yet); and About's
-//  "Rate on the App Store" / "Recommend Dredfit", which point at the App
-//  Store (the Play listing does not exist yet).
+//  the reminder under the rest days (reminders/, phase 3) and the Appearance
+//  caption about widgets and the Lock Screen (no widget exists here yet).
+//
+//  Said differently on Android (owner decisions, 09.10.2026), from the
+//  Android-only catalog android/app/Localizable.xcstrings: the ON caption of
+//  "Play tones in Silent mode" — iOS's names the iPhone's ringer SWITCH, and
+//  Android's names the phone's sound mode — and About's rate row, which goes
+//  to Google Play. Both About rows wait for the Play listing behind
+//  `BuildConfig.PLAY_LISTING_LIVE`.
 //
 
 package com.dredfit.ui.settings
 
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -49,6 +55,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.dredfit.BuildConfig
 import com.dredfit.store.AppStore
 import com.dredfit.store.AppearanceChoice
 import com.dredfit.store.barToggleWouldDiscardWorkout
@@ -61,6 +68,8 @@ import com.dredfit.ui.Observed
 import com.dredfit.ui.currentLocale
 import com.dredfit.ui.theme.AlertAction
 import com.dredfit.ui.theme.DredfitAlert
+import com.dredfit.ui.theme.HeartGlyph
+import com.dredfit.ui.theme.StarGlyph
 import com.dredfit.ui.theme.Theme
 import com.dredfit.ui.theme.Weight
 import com.dredfit.ui.theme.dredfitFont
@@ -176,6 +185,17 @@ fun EquipmentSection(observedStore: Observed<AppStore>) {
 
 // MARK: - Sounds
 
+/** The caption under "Play tones in Silent mode". Android has no ringer
+ *  switch: the phone's sound mode is what `CountdownSounds.play` reads, and
+ *  silent AND vibrate both mute the tones unless the switch lets them
+ *  through — the haptics fire either way. The OFF caption is iOS's own and
+ *  true here as written; the ON one is Android's. */
+object SilentModeCaption {
+    fun key(playsTonesInSilentMode: Boolean): String =
+        if (playsTonesInSilentMode) "The tones play even when the phone is set to silent or vibrate."
+        else "In Silent mode the tones go quiet — the vibration keeps going."
+}
+
 @Composable
 fun SoundsSection(observedStore: Observed<AppStore>) {
     val store by observedStore
@@ -190,9 +210,7 @@ fun SoundsSection(observedStore: Observed<AppStore>) {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 SwitchRow(tr("Play tones in Silent mode"), store.settings.playsTonesInSilentMode, tag = "silent-mode-toggle",
                           titleSize = 15f) { on -> observedStore.act { setPlaysTonesInSilentMode(on) } }
-                if (!store.settings.playsTonesInSilentMode) {
-                    SettingsCaption(tr("In Silent mode the tones go quiet — the vibration keeps going."))
-                }
+                SettingsCaption(tr(SilentModeCaption.key(store.settings.playsTonesInSilentMode)))
             }
         }
     }
@@ -236,14 +254,64 @@ fun AppearanceSection(observedStore: Observed<AppStore>) {
 
 // MARK: - About
 
-/** ink2, not ink3: a version line is the string a bug report is read off. */
+/** Where About's two rows lead: the app's Google Play page, where iOS's lead
+ *  to the App Store. */
+object AboutLinks {
+    /** The RELEASE application id — the listing's, whatever a test or debug
+     *  build calls itself. AboutLinksTest holds it to build.gradle.kts. */
+    const val LISTING_ID = "com.dredfit.dredfit"
+
+    /** The Play Store app's own page for the app ("Rate"). */
+    const val PLAY_STORE_APP = "market://details?id=$LISTING_ID"
+
+    /** The same page on the web: Rate's fallback without the Play Store, and
+     *  what "Recommend" hands on — a link anyone can open, on any phone. */
+    const val PLAY_LISTING_WEB = "https://play.google.com/store/apps/details?id=$LISTING_ID"
+}
+
+/** ink2, not ink3: a version line is the string a bug report is read off.
+ *  The rows show only once the listing is live — a link to a page that does
+ *  not exist is worse than none. */
 @Composable
-fun AboutSection() {
+fun AboutSection(listingLive: Boolean = BuildConfig.PLAY_LISTING_LIVE) {
     val context = LocalContext.current
+    val c = Theme.colors
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SettingsKicker(tr("About"), "settings-about")
+        if (listingLive) {
+            SettingsRow({ StarGlyph(c.ink, 16.dp) }, tr("Rate on Google Play"), tag = "rate-app") {
+                openPlayListing(context)
+            }
+            val recommend = tr("Recommend Dredfit")
+            SettingsRow({ HeartGlyph(c.ink, 16.dp) }, recommend, tag = "recommend-app") {
+                recommendDredfit(context, recommend)
+            }
+        }
         SettingsCaption(versionLine(context), Modifier.testTag("version-line"))
     }
+}
+
+/** The Play Store app where there is one; the web page where there is not. */
+private fun openPlayListing(context: Context) {
+    try {
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AboutLinks.PLAY_STORE_APP)))
+    } catch (_: ActivityNotFoundException) {
+        try {
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AboutLinks.PLAY_LISTING_WEB)))
+        } catch (_: ActivityNotFoundException) {
+            // Neither a store nor a browser: nothing on the phone can open a
+            // link, and no message would give it one.
+        }
+    }
+}
+
+/** The share sheet over the listing's link — iOS's `ShareLink(item: URL)`. */
+private fun recommendDredfit(context: Context, title: String) {
+    val send = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, AboutLinks.PLAY_LISTING_WEB)
+    }
+    context.startActivity(Intent.createChooser(send, title))
 }
 
 private fun versionLine(context: Context): String = try {

@@ -10,12 +10,12 @@
 //  Kotlin:
 //  - `everyPlainLocalizedLiteralIsACatalogKey` scans the Kotlin sources' keyed
 //    calls (`tr("…")`, `Words.of("…")`, `Words.keyed("…", …)`) against the
-//    three catalogs `tr` looks up. There are no Android widget sources yet,
+//    four catalogs `tr` looks up. There are no Android widget sources yet,
 //    so the widget arm waits for them.
 //  - `everyCatalogKeyIsStillAskedForBySomeSource` asks whether a key has a
 //    caller on EITHER platform: the catalogs are shared, so a key only iOS
 //    asks for is alive, and one neither asks for is six translations nobody
-//    reads.
+//    reads. The Android-only catalog's keys need a Kotlin caller.
 //
 
 package com.dredfit
@@ -248,6 +248,22 @@ class SetsNoticeTest : SetsNoticeTestCase() {
         assertKeysAreLiterals(sources = "Dredfit", catalog = "Dredfit/Localizable.xcstrings", alsoAsked = kotlin)
         assertKeysAreLiterals(sources = "DredfitWidgets", catalog = "DredfitWidgets/Localizable.xcstrings",
                               alsoAsked = kotlin, minimum = 10)
+        // The Android-only catalog has no Swift caller by definition.
+        for (key in IosCatalogs.strings(ANDROID_CATALOG).keys) {
+            assertTrue(normalized(key) in kotlin, "$ANDROID_CATALOG: \"$key\" has no caller left in the Android sources")
+        }
+    }
+
+    /** A key in the Android-only catalog AND a shared one would be two
+     *  translations of one key, and `tr` would read whichever it asks first. */
+    @Test
+    fun theAndroidCatalogRepeatsNoSharedKey() {
+        val android = IosCatalogs.strings(ANDROID_CATALOG).keys
+        assertTrue(android.isNotEmpty(), "the Android catalog read as empty")
+        for (catalog in CATALOGS - ANDROID_CATALOG) {
+            val shared = IosCatalogs.strings(catalog).keys intersect android
+            assertTrue(shared.isEmpty(), "$catalog repeats $shared")
+        }
     }
 
     /** The scan's own arithmetic, pinned directly. */
@@ -312,8 +328,13 @@ class SetsNoticeTest : SetsNoticeTestCase() {
         }
 
     companion object {
+        /** The strings only Android says, beside the three shared catalogs
+         *  (scripts/export_android_strings.py says why it is its own). */
+        const val ANDROID_CATALOG = "../android/app/Localizable.xcstrings"
+
         private val CATALOGS = listOf("Dredfit/Localizable.xcstrings", "DredfitWidgets/Localizable.xcstrings",
-                                      "DredfitCore/Sources/DredfitCore/Resources/Localizable.xcstrings")
+                                      "DredfitCore/Sources/DredfitCore/Resources/Localizable.xcstrings",
+                                      ANDROID_CATALOG)
 
         /** What the compiler makes of a source literal: `\n`/`\t` are layout,
          *  `\x` is `x`; `\(` (an interpolation) and a line continuation stay

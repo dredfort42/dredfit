@@ -27,10 +27,16 @@ android {
         // request (`adb shell am instrument -e class com.dredfit.ScreenshotWalk
         // -e screens <prefix> …`), never as part of the suite.
         testInstrumentationRunnerArguments["notClass"] = "com.dredfit.ScreenshotWalk"
+        // About's "Rate on Google Play" and "Recommend Dredfit" point at the
+        // Play listing, which does not exist yet: a link to a missing page is
+        // worse than no link. Flip to true once the listing is live
+        // (AboutLinksTest pins the default; owner decision 09.10.2026).
+        buildConfigField("boolean", "PLAY_LISTING_LIVE", "false")
     }
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {
@@ -65,6 +71,11 @@ dependencies {
     // FileProvider (the share card's content:// URI) and WindowCompat — used
     // directly, so declared rather than borrowed from activity's graph.
     implementation(libs.androidx.core)
+    // Play In-App Review: the review card after a milestone, iOS's StoreKit
+    // `requestReview`. The ONE third-party SDK, approved by the owner
+    // (09.10.2026, android/README.md); it adds no permission. Nothing else
+    // from Play Core or Play services is declared here.
+    implementation(libs.play.review)
 
     // The JUnit 5 flavour by name: AGP does not pick kotlin-test's variant
     // from the test framework the way the plain JVM plugin does.
@@ -99,6 +110,8 @@ tasks.withType<Test>().configureEach {
         rootProject.file("../ios/Dredfit/Localizable.xcstrings"),
         rootProject.file("../ios/DredfitWidgets/Localizable.xcstrings"),
         rootProject.file("../ios/DredfitCore/Sources/DredfitCore/Resources/Localizable.xcstrings"),
+        // The Android-only catalog beside them: SetsNoticeTest holds its keys too.
+        file("Localizable.xcstrings"),
     ).withPropertyName("iosCatalogs").withPathSensitivity(PathSensitivity.RELATIVE)
     inputs.files(
         fileTree(rootProject.file("../ios/Dredfit")) { include("**/*.swift") },

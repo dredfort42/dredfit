@@ -142,6 +142,42 @@ fun ArrowRightGlyph(color: Color, size: Dp = 11.dp) {
     }
 }
 
+/** "star": five points, outlined. */
+@Composable
+fun StarGlyph(color: Color, size: Dp = 16.dp) {
+    Canvas(Modifier.size(size)) {
+        val w = this.size.minDimension
+        val star = Path()
+        for (i in 0 until 10) {
+            // Outer and inner corners in turn, the first one straight up.
+            val r = if (i % 2 == 0) w * 0.48f else w * 0.2f
+            val a = Math.toRadians(-90.0 + i * 36.0)
+            val x = w / 2 + r * kotlin.math.cos(a).toFloat()
+            val y = w * 0.53f + r * kotlin.math.sin(a).toFloat()
+            if (i == 0) star.moveTo(x, y) else star.lineTo(x, y)
+        }
+        star.close()
+        drawPath(star, color, style = Stroke(w * 0.08f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    }
+}
+
+/** "heart": two lobes meeting in a point, outlined. */
+@Composable
+fun HeartGlyph(color: Color, size: Dp = 16.dp) {
+    Canvas(Modifier.size(size)) {
+        val w = this.size.minDimension
+        val heart = Path().apply {
+            moveTo(w / 2, w * 0.9f)
+            cubicTo(w * 0.1f, w * 0.6f, w * 0.0f, w * 0.3f, w * 0.18f, w * 0.17f)
+            cubicTo(w * 0.33f, w * 0.06f, w * 0.47f, w * 0.15f, w / 2, w * 0.27f)
+            cubicTo(w * 0.53f, w * 0.15f, w * 0.67f, w * 0.06f, w * 0.82f, w * 0.17f)
+            cubicTo(w * 1.0f, w * 0.3f, w * 0.9f, w * 0.6f, w / 2, w * 0.9f)
+            close()
+        }
+        drawPath(heart, color, style = Stroke(w * 0.08f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    }
+}
+
 /** The tab bar's three: "circle.inset.filled" (Today), "calendar" and
  *  "chart.line.uptrend.xyaxis" (Progress). */
 @Composable
