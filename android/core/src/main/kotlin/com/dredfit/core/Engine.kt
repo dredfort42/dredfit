@@ -188,7 +188,7 @@ enum class FeedbackResult(val rawValue: String) {
  * neither is the same function — and a port that used one would differ from
  * the reference on every half.
  */
-internal fun roundedAwayFromZero(x: Double): Double {
+fun roundedAwayFromZero(x: Double): Double {
     if (!x.isFinite()) return x
     val t = truncate(x)
     return if (abs(x - t) >= 0.5) t + sign(x) else t

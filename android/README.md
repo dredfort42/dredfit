@@ -22,7 +22,10 @@ android/
 ├── settings.gradle.kts, build.gradle.kts, gradle.properties, gradlew
 ├── gradle/            wrapper + libs.versions.toml (the one version catalog)
 ├── core/              the Kotlin port of DredfitCore — see core/README.md
-└── app/               the Compose app, widgets included — see app/README.md
+├── app/               the Compose app, widgets included — see app/README.md
+└── tools/             swift-backup-probe: the iOS app's own persistence code
+                       on the command line, writing the fixtures the
+                       cross-platform tests compare against
 ```
 
 Not here, deliberately:

@@ -16,13 +16,16 @@ app/src/
 │   │                an extension function cannot touch private state
 │   │   workout/     Warmup, GetReady, Cooldown, BlockPause, SessionAhead,
 │   │                SetFacts, Retrospective, Milestones, LifeBenefit
-│   │   journal/     Journal, V2EngineState, Backup
+│   │   journal/     Journal, V2EngineState (the backup itself is
+│   │                store/AppStoreBackup.kt, after AppStore+Backup.swift)
 │   │   health/      Health Connect — write-only, like HealthStore + EnergyEstimate
 │   │   reminders/   NotificationScheduling, ReminderSound
 │   │   signals/     CountdownSounds, WorkoutSignals — synthesised, no media files
 │   │   widgets/     Glance: TodayStatusWidget, TodayProvider, WidgetSnapshot
 │   │                (the two-week snapshot is rewritten after every persisted
 │   │                change; the widget never computes rest days itself)
+│   │   l10n/        CoreStrings, AppStrings, WidgetStrings — GENERATED key →
+│   │                resource-id lookups, so code calls `tr("English key")`
 │   │   ui/          theme/ (tokens, dredfitFont, the 44 dp target), RootScreen,
 │   │                today/, workout/, progress/, settings/, technique/
 │   └── res/
@@ -30,7 +33,8 @@ app/src/
 │       values-b+pt+BR/, values-ru/
 │                    strings_core.xml, strings_app.xml, strings_widgets.xml —
 │                    GENERATED from the String Catalogs, one file per source
-│                    catalog so a key's provenance is visible from the file name
+│                    catalog so a key's provenance is visible from the file name;
+                    resource name = <catalog>_<slug of the key, 40>_<sha1[:8]>
 │       drawable/, mipmap-*/
 ├── test/kotlin/com/dredfit/         the counterpart of ios/DredfitTests
 └── androidTest/kotlin/com/dredfit/  the counterpart of ios/DredfitUITests

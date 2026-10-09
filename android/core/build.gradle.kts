@@ -31,7 +31,7 @@ sourceSets {
 dependencies {
     // The iOS state file is read through the JSON tree: no compiler plugin,
     // no generated serializers.
-    implementation(libs.kotlinx.serialization.json)
+    api(libs.kotlinx.serialization.json)
 
     testImplementation(kotlin("test"))
     testImplementation(platform(libs.junit.bom))

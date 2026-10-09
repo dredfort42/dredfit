@@ -5,6 +5,10 @@
 
 package com.dredfit.core
 
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlin.math.ceil
@@ -40,18 +44,43 @@ data class SessionProbe(
                 LoadUnit.hold -> "$load sec$side"
             }
         }
+
+    /** Swift's synthesized `Encodable`. */
+    fun toJson(): JsonObject = JsonObject(linkedMapOf(
+        "variation" to JsonPrimitive(variation),
+        "name" to JsonPrimitive(name),
+        "unit" to JsonPrimitive(unit.rawValue),
+        "load" to JsonPrimitive(load),
+        "perSide" to JsonPrimitive(perSide),
+    ))
+
+    companion object {
+        /** Swift's synthesized `Decodable`: every field required. */
+        fun fromJson(e: JsonElement): SessionProbe {
+            val c = e as? JsonObject ?: throw SwiftDecodingException("probe: not an object")
+            return SessionProbe(
+                variation = SwiftJson.required(c, "variation", SwiftJson::int),
+                name = SwiftJson.required(c, "name", SwiftJson::string),
+                unit = SwiftJson.required(c, "unit") { SwiftJson.string(it)?.let(LoadUnit::fromRaw) },
+                load = SwiftJson.required(c, "load", SwiftJson::int),
+                perSide = SwiftJson.required(c, "perSide", SwiftJson::bool))
+        }
+    }
 }
 
 /**
  * One exercise of a plan. `setsFloor` is service state: it never leaves the
- * process, so it is out of the primary constructor — and therefore out of
- * `equals` and of any journal — exactly as it is out of Swift's `CodingKeys`
- * and `==`. Inside the engine every call passes it explicitly.
+ * process, so it is out of `equals`/`hashCode` and out of any journal, exactly
+ * as it is out of Swift's `CodingKeys` and `==`. It IS in the primary
+ * constructor, so `copy()` carries it: outside the constructor a `copy()`
+ * silently put it back to the default floor — the trap a value type in Swift
+ * cannot have. Inside the engine every call passes it explicitly.
  */
 data class SessionExercise(
     val pattern: Pattern,
     val name: String,
-    /** 1-based index along the pattern's ladder. */
+    /** 1-based index along the pattern's ladder; 0 on a record from before
+     *  v3, whose own `name` is the only truth about what was done. */
     val variation: Int,
     val unit: LoadUnit,
     /** The BASE dose: reps or seconds, per side if perSide. */
@@ -64,18 +93,21 @@ data class SessionExercise(
     val loads: List<Int>?,
     /** Present only where the probe condition (`probeAllowed`) holds. */
     val probe: SessionProbe?,
+    /** A caller OUTSIDE the engine rebuilding an exercise cannot know the
+     *  floor this plan was built with and does not need to — hence the
+     *  default, as in Swift. */
+    val setsFloor: Int = EngineConfig.setsFloor,
 ) {
-    var setsFloor: Int = EngineConfig.setsFloor
-        internal set
+    /** Swift's hand-written `==`: every field but `setsFloor`. */
+    override fun equals(other: Any?): Boolean =
+        other is SessionExercise && pattern == other.pattern && name == other.name &&
+            variation == other.variation && unit == other.unit && load == other.load &&
+            perSide == other.perSide && sets == other.sets && restSetSec == other.restSetSec &&
+            restExerciseSec == other.restExerciseSec && loads == other.loads && probe == other.probe
 
-    constructor(
-        pattern: Pattern, name: String, variation: Int, unit: LoadUnit, load: Int,
-        perSide: Boolean, sets: Int, restSetSec: Int, restExerciseSec: Int,
-        loads: List<Int>?, probe: SessionProbe?, setsFloor: Int,
-    ) : this(pattern, name, variation, unit, load, perSide, sets, restSetSec,
-             restExerciseSec, loads, probe) {
-        this.setsFloor = setsFloor
-    }
+    override fun hashCode(): Int =
+        listOf(pattern, name, variation, unit, load, perSide, sets, restSetSec,
+               restExerciseSec, loads, probe).hashCode()
 
     val id: Pattern get() = pattern
 
@@ -107,6 +139,49 @@ data class SessionExercise(
                 LoadUnit.hold -> "$head sec$side"
             }
         }
+
+    /** Swift's synthesized `Encodable` over its `CodingKeys` — no `setsFloor`;
+     *  a nil `loads` or `probe` is left out, as `encodeIfPresent` leaves it. */
+    fun toJson(): JsonObject {
+        val out = linkedMapOf<String, JsonElement>(
+            "pattern" to JsonPrimitive(pattern.rawValue),
+            "name" to JsonPrimitive(name),
+            "variation" to JsonPrimitive(variation),
+            "unit" to JsonPrimitive(unit.rawValue),
+            "load" to JsonPrimitive(load),
+            "perSide" to JsonPrimitive(perSide),
+            "sets" to JsonPrimitive(sets),
+            "restSetSec" to JsonPrimitive(restSetSec),
+            "restExerciseSec" to JsonPrimitive(restExerciseSec),
+        )
+        loads?.let { out["loads"] = SwiftJson.encodeInts(it) }
+        probe?.let { out["probe"] = it.toJson() }
+        return JsonObject(out)
+    }
+
+    companion object {
+        /**
+         * Swift's `init(from:)`. A record written before v3 carries `tier`
+         * where this reads `variation`, and no `probe`: it decodes with
+         * `variation == 0` — no rung of any ladder — rather than being dropped
+         * (see Session.swift for why a name is never re-resolved).
+         */
+        fun fromJson(e: JsonElement): SessionExercise {
+            val c = e as? JsonObject ?: throw SwiftDecodingException("exercise: not an object")
+            return SessionExercise(
+                pattern = SwiftJson.required(c, "pattern", SwiftJson::pattern),
+                name = SwiftJson.required(c, "name", SwiftJson::string),
+                variation = SwiftJson.optional(c, "variation", SwiftJson::int) ?: 0,
+                unit = SwiftJson.required(c, "unit") { SwiftJson.string(it)?.let(LoadUnit::fromRaw) },
+                load = SwiftJson.required(c, "load", SwiftJson::int),
+                perSide = SwiftJson.required(c, "perSide", SwiftJson::bool),
+                sets = SwiftJson.required(c, "sets", SwiftJson::int),
+                restSetSec = SwiftJson.required(c, "restSetSec", SwiftJson::int),
+                restExerciseSec = SwiftJson.required(c, "restExerciseSec", SwiftJson::int),
+                loads = SwiftJson.optional(c, "loads", SwiftJson::intList),
+                probe = SwiftJson.optional(c, "probe", SessionProbe::fromJson))
+        }
+    }
 }
 
 data class Session(
@@ -116,7 +191,32 @@ data class Session(
     val cooldownMin: Int,
     val exercises: List<SessionExercise>,
     val estimatedTotalMin: Double,
-)
+) {
+    /** Swift's synthesized `Encodable`. */
+    fun toJson(): JsonObject = JsonObject(linkedMapOf(
+        "sessionNumber" to JsonPrimitive(sessionNumber),
+        "warmupMin" to JsonPrimitive(warmupMin),
+        "cooldownMin" to JsonPrimitive(cooldownMin),
+        "exercises" to JsonArray(exercises.map { it.toJson() }),
+        "estimatedTotalMin" to JsonPrimitive(estimatedTotalMin),
+    ))
+
+    companion object {
+        /** Swift's synthesized `Decodable`: every field required, and one
+         *  exercise that does not decode fails the session. */
+        fun fromJson(e: JsonElement): Session {
+            val c = e as? JsonObject ?: throw SwiftDecodingException("session: not an object")
+            return Session(
+                sessionNumber = SwiftJson.required(c, "sessionNumber", SwiftJson::int),
+                warmupMin = SwiftJson.required(c, "warmupMin", SwiftJson::int),
+                cooldownMin = SwiftJson.required(c, "cooldownMin", SwiftJson::int),
+                exercises = SwiftJson.required(c, "exercises") { a ->
+                    (a as? JsonArray)?.map { SessionExercise.fromJson(it) }
+                },
+                estimatedTotalMin = SwiftJson.required(c, "estimatedTotalMin", SwiftJson::double))
+        }
+    }
+}
 
 // MARK: - Building the session
 

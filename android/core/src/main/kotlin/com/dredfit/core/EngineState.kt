@@ -17,13 +17,10 @@
 
 package com.dredfit.core
 
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import java.math.BigDecimal
 import kotlin.math.max
 import kotlin.math.min
 
@@ -235,30 +232,30 @@ class EngineState(
     private fun encodeFields(): JsonObject = JsonObject(linkedMapOf(
         "counter" to JsonPrimitive(counter),
         "hasBar" to JsonPrimitive(hasBar),
-        "vars" to encodeMap(vars),
-        "doses" to encodeMap(doses),
-        "sets" to encodeMap(sets),
-        "sub" to encodeMap(sub),
-        "cut" to encodeMap(cut),
+        "vars" to SwiftJson.encodePatternMap(vars),
+        "doses" to SwiftJson.encodePatternMap(doses),
+        "sets" to SwiftJson.encodePatternMap(sets),
+        "sub" to SwiftJson.encodePatternMap(sub),
+        "cut" to SwiftJson.encodePatternMap(cut),
         "shown" to JsonArray(shown.entries.sortedBy { it.key.ordinal }.flatMap { (p, row) ->
             listOf(JsonPrimitive(p.rawValue),
                    JsonObject(row.entries.sortedBy { it.key }
                        .associate { it.key.toString() to JsonPrimitive(it.value) }))
         }),
-        "setsHold" to encodeMap(setsHold),
-        "shownWork" to encodeMap(shownWork),
-        "shownOrd" to encodeMap(shownOrd),
-        "shownCap" to encodeMap(shownCap),
-        "shownOwn" to encodeMap(shownOwn),
-        "shownSkip" to encodeSet(shownSkip),
-        "failStreak" to encodeMap(failStreak),
-        "lastHard" to encodeSet(lastHard),
+        "setsHold" to SwiftJson.encodePatternMap(setsHold),
+        "shownWork" to SwiftJson.encodePatternMap(shownWork),
+        "shownOrd" to SwiftJson.encodePatternMap(shownOrd),
+        "shownCap" to SwiftJson.encodePatternMap(shownCap),
+        "shownOwn" to SwiftJson.encodePatternMap(shownOwn),
+        "shownSkip" to SwiftJson.encodePatternSet(shownSkip),
+        "failStreak" to SwiftJson.encodePatternMap(failStreak),
+        "lastHard" to SwiftJson.encodePatternSet(lastHard),
         "lessRun" to JsonPrimitive(lessRun),
-        "creditPaused" to encodeSet(creditPaused),
+        "creditPaused" to SwiftJson.encodePatternSet(creditPaused),
         "returnRun" to JsonPrimitive(returnRun),
-        "lessHist" to encodeMap(lessHist),
+        "lessHist" to SwiftJson.encodePatternMap(lessHist),
         "rampWindow" to JsonPrimitive(rampWindow),
-        "weekGain" to encodeMap(weekGain),
+        "weekGain" to SwiftJson.encodePatternMap(weekGain),
         "weekAgeDays" to JsonPrimitive(weekAgeDays),
     ))
 
@@ -324,9 +321,9 @@ class EngineState(
         /** Swift's `JSONDecoder().decode(EngineState.self, from:)`. */
         fun decode(text: String): EngineState {
             val root = try {
-                Json.parseToJsonElement(text)
-            } catch (e: IllegalArgumentException) {
-                throw EngineStateDecodingException("not JSON: ${e.message}")
+                SwiftJson.parse(text)
+            } catch (e: SwiftDecodingException) {
+                throw EngineStateDecodingException(e.message ?: "not JSON")
             }
             return fromJson(root)
         }
@@ -340,7 +337,7 @@ class EngineState(
          */
         fun fromJson(element: JsonElement): EngineState {
             val c = element as? JsonObject ?: throw EngineStateDecodingException("not an object")
-            val counter = c["counter"]?.let { wireInt(it) }
+            val counter = c["counter"]?.let { SwiftJson.int(it) }
                 ?: throw EngineStateDecodingException("counter: missing or not an integer")
             val vars = decodeLenient(c["vars"]) ?: throw EngineStateDecodingException("vars")
             val doses = decodeLenient(c["doses"]) ?: throw EngineStateDecodingException("doses")
@@ -348,7 +345,7 @@ class EngineState(
                 counter = clamped(counter, 0, EngineConfig.countMax),
                 vars = vars, doses = doses,
                 failStreak = optionalMap(c, "failStreak"),
-                hasBar = c["hasBar"]?.let { wireBool(it) } ?: false,
+                hasBar = c["hasBar"]?.let { SwiftJson.bool(it) } ?: false,
                 sets = optionalMap(c, "sets"),
                 sub = optionalMap(c, "sub"),
                 cut = optionalMap(c, "cut"),
@@ -360,14 +357,14 @@ class EngineState(
                 shownOwn = optionalMap(c, "shownOwn"),
                 shownSkip = optionalSet(c, "shownSkip"),
                 lastHard = optionalSet(c, "lastHard"),
-                lessRun = clamped(c["lessRun"]?.let { wireInt(it) } ?: 0, 0, EngineConfig.countMax),
+                lessRun = clamped(c["lessRun"]?.let { SwiftJson.int(it) } ?: 0, 0, EngineConfig.countMax),
                 creditPaused = optionalSet(c, "creditPaused").intersect(Pattern.pullSide).toMutableSet(),
-                returnRun = clamped(c["returnRun"]?.let { wireInt(it) } ?: 0, 0, EngineConfig.countMax),
+                returnRun = clamped(c["returnRun"]?.let { SwiftJson.int(it) } ?: 0, 0, EngineConfig.countMax),
                 lessHist = optionalMap(c, "lessHist"),
-                rampWindow = clamped(c["rampWindow"]?.let { wireInt(it) } ?: 0,
+                rampWindow = clamped(c["rampWindow"]?.let { SwiftJson.int(it) } ?: 0,
                                      0, EngineConfig.rampWindowSessions),
                 weekGain = optionalMap(c, "weekGain"),
-                weekAgeDays = clamped(c["weekAgeDays"]?.let { wireDouble(it) } ?: 0.0,
+                weekAgeDays = clamped(c["weekAgeDays"]?.let { SwiftJson.double(it) } ?: 0.0,
                                       0.0, EngineConfig.countMax.toDouble()))
         }
 
@@ -396,7 +393,7 @@ class EngineState(
             val out = mutableMapOf<Pattern, Int>()
             for (i in array.indices step 2) {
                 val raw = (array[i] as? JsonPrimitive)?.takeIf { it.isString }?.content ?: return null
-                val value = wireInt(array[i + 1]) ?: return null
+                val value = SwiftJson.int(array[i + 1]) ?: return null
                 Pattern.fromRaw(raw)?.let { out[it] = value }
             }
             return out
@@ -417,59 +414,11 @@ class EngineState(
                     // Swift reads the key with `Int(String)`: a sign is allowed,
                     // a blank is not — the same as `toLongOrNull`.
                     val v = key.toLongOrNull() ?: return null
-                    row[saturated(v)] = wireInt(value) ?: return null
+                    row[SwiftJson.saturated(v)] = SwiftJson.int(value) ?: return null
                 }
                 Pattern.fromRaw(raw)?.let { out[it] = row }
             }
             return out
         }
-
-        /**
-         * A JSON number as Swift's `JSONDecoder` reads it into `Int`: any
-         * integral value that fits 64 bits (`1.0` and `1e2` included), never a
-         * string or a bool. Swift's Int is 64-bit; a value past 32 bits is held
-         * at the edge of Kotlin's Int — every reader clamps far inside it, so
-         * the result is the one Swift computes.
-         */
-        private fun wireInt(e: JsonElement): Int? {
-            val p = e as? JsonPrimitive ?: return null
-            if (p is JsonNull || p.isString || p.content == "true" || p.content == "false") return null
-            val exact = p.content.toLongOrNull() ?: try {
-                BigDecimal(p.content).let { d ->
-                    if (d.stripTrailingZeros().scale() > 0) return null
-                    d.longValueExact()
-                }
-            } catch (e: ArithmeticException) {
-                return null
-            } catch (e: NumberFormatException) {
-                return null
-            }
-            return saturated(exact)
-        }
-
-        private fun wireDouble(e: JsonElement): Double? {
-            val p = e as? JsonPrimitive ?: return null
-            if (p is JsonNull || p.isString || p.content == "true" || p.content == "false") return null
-            return p.content.toDoubleOrNull()?.takeIf { it.isFinite() }
-        }
-
-        private fun wireBool(e: JsonElement): Boolean? {
-            val p = e as? JsonPrimitive ?: return null
-            if (p is JsonNull || p.isString) return null
-            return when (p.content) {
-                "true" -> true
-                "false" -> false
-                else -> null
-            }
-        }
-
-        private fun saturated(v: Long): Int = v.coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt()
-
-        private fun encodeMap(map: Map<Pattern, Int>): JsonArray =
-            JsonArray(map.entries.sortedBy { it.key.ordinal }
-                .flatMap { listOf(JsonPrimitive(it.key.rawValue), JsonPrimitive(it.value)) })
-
-        private fun encodeSet(set: Set<Pattern>): JsonArray =
-            JsonArray(set.sortedBy { it.ordinal }.map { JsonPrimitive(it.rawValue) })
     }
 }
