@@ -66,7 +66,10 @@ Not here, deliberately:
   it as user-entered rating and review, used to post the review. Nothing
   else from Play Core or Play services is to be added on the strength of
   this exception.
-- **Health Connect is write-only**, the same promise HealthKit keeps on iOS.
+- **Health Connect reads and writes what HealthKit does on iOS**: it writes the
+  workout and its energy, and reads weight, height, date of birth, sex,
+  resting energy and workouts for the energy estimate (owner decision,
+  09.10.2026; it lands with phase 3d).
 - **User-facing text follows `instructions/GLOSSARY.md`** in all seven
   languages; `res/values*/strings_*.xml` are generated from the String
   Catalogs by `scripts/export_android_strings.py`, one file per source
@@ -166,9 +169,10 @@ Every runtime permission on that list would ask for data the app never reads.
   plus `READ_HEALTH_DATA_IN_BACKGROUND` in the background note.
 - No WRITE permission is listed; `WRITE_EXERCISE` appears nowhere on the
   page.
-- Health Connect stays write-only here, the same promise HealthKit keeps on
-  iOS. So its permissions will not qualify, and
-  `HIGH_SAMPLING_RATE_SENSORS` stays the prerequisite.
+- The types the app will read from Health Connect (weight, height, date of
+  birth, sex, resting energy, workouts) are not on that list either. So its
+  permissions will not qualify, and `HIGH_SAMPLING_RATE_SENSORS` stays the
+  prerequisite.
 
 Play Console: from target 34, every type in use is declared under **Policy >
 App content > Foreground service permissions**. For `health` that means

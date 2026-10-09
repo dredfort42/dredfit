@@ -25,7 +25,7 @@ app/src/
 │   │                `WorkoutActivityDriving`
 │   │   journal/     Journal, V2EngineState (the backup itself is
 │   │                store/AppStoreBackup.kt, after AppStore+Backup.swift)
-│   │   health/      Health Connect — write-only, like HealthStore + EnergyEstimate
+│   │   health/      Health Connect — reads and writes, like HealthStore + EnergyEstimate
 │   │   reminders/   NotificationScheduling, ReminderSound
 │   │   signals/     CountdownSounds and the device half of WorkoutSignals —
 │   │                synthesised, no media files
