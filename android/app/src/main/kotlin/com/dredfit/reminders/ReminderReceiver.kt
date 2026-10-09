@@ -15,6 +15,7 @@ import android.content.Context
 import android.content.Intent
 import com.dredfit.DredfitApp
 import com.dredfit.store.rescheduleReminders
+import java.util.TimeZone
 
 /** What rebuilds the window, beside the app's own returns. Plain, so a JVM
  *  test holds the manifest's intent filter to it (ReminderTriggerTest). */
@@ -51,6 +52,12 @@ class ReminderReceiver : BroadcastReceiver() {
 class ReminderRescheduleReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (!ReminderTriggers.reschedules(intent.action)) return
+        // The system tells each process about a new zone on a path of its own,
+        // with no order against this broadcast: a rebuild that read the cached
+        // zone would put 09:00 on the OLD wall. Dropping the cache makes the
+        // next read the system's current zone — what the process would be
+        // told anyway.
+        if (intent.action == Intent.ACTION_TIMEZONE_CHANGED) TimeZone.setDefault(null)
         val app = context.applicationContext as DredfitApp
         val pending = goAsync()
         // The store loads off the main thread (DredfitApp); the rebuild runs
