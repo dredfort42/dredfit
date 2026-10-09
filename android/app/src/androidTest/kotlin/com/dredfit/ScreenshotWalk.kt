@@ -32,7 +32,7 @@ class ScreenshotWalk : DredfitUITest() {
         val prefix = args.getString("screens")
         assumeTrue("screenshots only on request (-e screens <prefix>)", prefix != null)
         val appearance = if (args.getString("appearance") == "dark") AppearanceChoice.dark else AppearanceChoice.light
-        launch(Seed.Session2, fast = false, appearance = appearance)
+        launch(Seed.Session2, fast = false, appearance = appearance, keepLanguage = true)
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val dir = File(context.getExternalFilesDir(null), "screens").apply { mkdirs() }
         WorkoutDriver(this).completeWorkout(skipRests = true) { screen ->
@@ -52,7 +52,7 @@ class ScreenshotWalk : DredfitUITest() {
         val appearance = if (args.getString("appearance") == "dark") AppearanceChoice.dark else AppearanceChoice.light
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val dir = File(context.getExternalFilesDir(null), "screens").apply { mkdirs() }
-        launch(Seed.History, fast = true, appearance = appearance)
+        launch(Seed.History, fast = true, appearance = appearance, keepLanguage = true)
 
         tap(AX.tab("progress"))
         await(AX.totalSteps)
@@ -86,7 +86,7 @@ class ScreenshotWalk : DredfitUITest() {
         await(AX.howItWorksDone)
         shoot(dir, "$prefix-howitworks")
 
-        launch(Seed.FreshInstall, fast = true, appearance = appearance)
+        launch(Seed.FreshInstall, fast = true, appearance = appearance, keepLanguage = true)
         await(AX.onboardingPrimary)
         shoot(dir, "$prefix-onboarding")
         tap(AX.onboardingSkip)

@@ -7,6 +7,9 @@
 
 package com.dredfit
 
+import android.app.LocaleManager
+import android.os.Build
+import android.os.LocaleList
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -62,9 +65,20 @@ abstract class DredfitUITest {
      * iOS: the suite must not depend on the weekday it runs on. `fast` is
      * `--uitest-fast`.
      */
-    fun launch(seed: Seed, fast: Boolean, appearance: AppearanceChoice = AppearanceChoice.system) {
+    fun launch(seed: Seed, fast: Boolean, appearance: AppearanceChoice = AppearanceChoice.system,
+               keepLanguage: Boolean = false) {
         scenario?.close()
         UITestFlags.fast = fast
+        // English, as iOS's `UILocale.english` pins it: the suite asserts on
+        // English strings, and a per-app language left behind by a Russian
+        // screenshot run turned eight of them red. The screenshot run keeps
+        // the language it was started in.
+        if (!keepLanguage && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val locales = app.getSystemService(LocaleManager::class.java)
+            InstrumentationRegistry.getInstrumentation().runOnMainSync {
+                locales.applicationLocales = LocaleList.forLanguageTags("en")
+            }
+        }
         app.resetForTests({ InstrumentationRegistry.getInstrumentation().runOnMainSync(it) }) { path ->
             write(path, seed, appearance)
         }
