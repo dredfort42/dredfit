@@ -63,6 +63,11 @@ class OngoingWorkoutTest : OngoingTestCase() {
         awaitStage(Stage.RESUMED)
         await(AX.exerciseDone)
 
+        // Finished from a running rest: the lock is held right up to the
+        // rating, and the tile's end is what lets it go.
+        driver.tapUntilGone(AX.exerciseDone)
+        await(AX.skipRest)
+        assertTrue(awaitTrue { app.ongoing.isAwake })
         driver.tapUntilGone(AX.workoutExit) { exists(AX.exitFinishNow) }
         driver.tapUntilGone(AX.exitFinishNow)
         await(AX.ratingPlan)
