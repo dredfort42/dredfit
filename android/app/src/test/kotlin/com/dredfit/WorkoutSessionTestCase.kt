@@ -27,6 +27,9 @@ import com.dredfit.workout.WorkoutActivityDriving
 import com.dredfit.workout.WorkoutSession
 import com.dredfit.workout.WorkoutSignalling
 import com.dredfit.workout.Words
+import com.dredfit.workout.commitSetEdit
+import com.dredfit.workout.declineWarmup
+import com.dredfit.workout.startDeclaringHoldTime
 import java.time.Instant
 import kotlin.test.assertNotNull
 import kotlin.test.fail
@@ -131,6 +134,26 @@ abstract class WorkoutSessionTestCase : AppStoreTestCase() {
         val i = flow.exercises.indexOfFirst { it.pattern == pattern }
         if (i < 0) fail("${pattern.rawValue} must be in session ${flow.session.sessionNumber}")
         return i
+    }
+
+    /** A hold movement of `session` (session 2 by default) on screen, the
+     *  warm-up declined — `WorkoutSessionTests+Holds.swift`'s helper, here
+     *  because every hold suite shares it. */
+    fun holdFlow(pattern: Pattern, session: Session? = null): Pair<WorkoutSession, AppStore> {
+        val store = makeStore()
+        val flow = makeFlow(store, session ?: holdSession())
+        flow.declineWarmup()
+        flow.exIndex = index(pattern, flow)
+        signals.events.clear()
+        return flow to store
+    }
+
+    /** A set at the plan is written as nothing at all, so a test that has to
+     *  see what the clock ran declares a time off the plan first. */
+    fun declare(seconds: Int, flow: WorkoutSession) {
+        flow.startDeclaringHoldTime()
+        flow.adjustValue = seconds
+        flow.commitSetEdit()
     }
 
     /** Session 1 with a probe on its first movement: one set of the next
