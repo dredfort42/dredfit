@@ -218,3 +218,24 @@ fun ChartGlyph(color: Color, size: Dp = 22.dp) {
         }, color, style = stroke)
     }
 }
+
+/** "bell" — the denied reminder's way to the notification settings. */
+@Composable
+fun BellGlyph(color: Color, size: Dp = 16.dp) {
+    Canvas(Modifier.size(size)) {
+        val w = this.size.minDimension
+        val bell = Path().apply {
+            moveTo(w * 0.22f, w * 0.72f)
+            lineTo(w * 0.22f, w * 0.45f)
+            cubicTo(w * 0.22f, w * 0.24f, w * 0.36f, w * 0.13f, w / 2, w * 0.13f)
+            cubicTo(w * 0.64f, w * 0.13f, w * 0.78f, w * 0.24f, w * 0.78f, w * 0.45f)
+            lineTo(w * 0.78f, w * 0.72f)
+            lineTo(w * 0.88f, w * 0.8f)
+            lineTo(w * 0.12f, w * 0.8f)
+            close()
+        }
+        drawPath(bell, color, style = Stroke(w * 0.08f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        drawLine(color, Offset(w * 0.42f, w * 0.92f), Offset(w * 0.58f, w * 0.92f), strokeWidth = w * 0.08f,
+                 cap = StrokeCap.Round)
+    }
+}

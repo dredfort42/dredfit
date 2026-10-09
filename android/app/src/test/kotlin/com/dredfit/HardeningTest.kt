@@ -1,6 +1,9 @@
 //
-//  Port of ios/DredfitTests/HardeningTests.swift — the day anchor and the
-//  cold-launch activation. The reminder tests (ten) arrive with reminders/.
+//  Port of ios/DredfitTests/HardeningTests.swift — the day anchor, the
+//  cold-launch activation and the ten reminder tests (the spy answers at once,
+//  where iOS awaits `reminderAuthTask`), plus four Android-only ones: the
+//  import's other two outcomes, the refusal cleared by a granted ask, and the
+//  activation's rebuild.
 //  `testStaleDateArithmetic` is not ported: a notification has no stale
 //  state to dim into — the ongoing notification drops a countdown whose end
 //  has passed instead (OngoingNotificationTest), and goes at the resume
@@ -19,6 +22,18 @@ import com.dredfit.store.doneToday
 import com.dredfit.store.nextSession
 import com.dredfit.store.positions
 import com.dredfit.store.refreshDay
+import com.dredfit.reminders.NotificationScheduling
+import com.dredfit.store.exportBackup
+import com.dredfit.store.importBackup
+import com.dredfit.store.rescheduleReminders
+import com.dredfit.store.setReminderEnabled
+import com.dredfit.store.setReminderTime
+import com.dredfit.store.swiftWeekday
+import com.dredfit.store.toggleRestDay
+import com.dredfit.workout.Words
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import java.nio.file.Path
 import java.time.ZonedDateTime
 import kotlin.test.Test
@@ -133,5 +148,256 @@ class HardeningTest : AppStoreTestCase() {
 
         frozen.activate()
         assertDecayed(frozen, seeded, "one activate() must both reload the journal and decay it")
+    }
+
+    // MARK: - Reminders (injectable scheduler)
+
+    private data class ScheduledReminder(val id: String, val fireAt: Instant)
+
+    private class NotificationSpy : NotificationScheduling {
+        var grant = true
+        val scheduled = mutableListOf<ScheduledReminder>()
+        override fun requestAuthorization(answer: (Boolean) -> Unit) = answer(grant)
+        override fun removePendingRequests(ids: List<String>) {
+            scheduled.removeAll { it.id in ids }
+        }
+        override fun addReminder(id: String, title: String, body: Words, fireAt: Instant) {
+            scheduled += ScheduledReminder(id, fireAt)
+        }
+    }
+
+    /** A concrete moment `days` from today at the given local time — the
+     *  tests pin `now` explicitly so they never depend on when the suite runs. */
+    private fun moment(days: Long = 0, hour: Int, minute: Int = 0): Instant =
+        LocalDate.now().plusDays(days).atTime(hour, minute).atZone(ZoneId.systemDefault()).toInstant()
+
+    private fun local(at: Instant) = at.atZone(ZoneId.systemDefault())
+
+    private fun slots(spy: NotificationSpy, sameDayAs: Instant): List<ScheduledReminder> =
+        spy.scheduled.filter { local(it.fireAt).toLocalDate() == local(sameDayAs).toLocalDate() }
+
+    @Test
+    fun enablingReminderSchedulesWindowOfTrainingDays() {
+        val spy = NotificationSpy()
+        val store = makeStore(notifications = spy)
+        store.setReminderTime(hour = 8, minute = 15)
+        store.setReminderEnabled(true)
+        store.rescheduleReminders(now = moment(hour = 6))   // before reminder time
+
+        // default rest days are Monday (2), Wednesday (4) and Friday (6) —
+        // any 28-day span holds exactly 4 of each, so 28 − 12
+        assertEquals(16, spy.scheduled.size)
+        assertTrue(spy.scheduled.size < 64, "must stay under the iOS pending cap")
+        assertFalse(spy.scheduled.any { swiftWeekday(local(it.fireAt).dayOfWeek) in setOf(2, 4, 6) },
+                    "no reminder on a rest day")
+        assertEquals(spy.scheduled.size, spy.scheduled.map { local(it.fireAt).toLocalDate() }.toSet().size,
+                     "every slot is a one-shot for a concrete date, not a weekly series")
+        assertTrue(spy.scheduled.all { local(it.fireAt).hour == 8 && local(it.fireAt).minute == 15 })
+    }
+
+    @Test
+    fun morningWorkoutRemovesTodaysReminder() {
+        val spy = NotificationSpy()
+        val store = makeStore(notifications = spy)
+        // Every day trains — no rest-day interference. Read off the current
+        // default rather than naming weekdays: named, they would turn this
+        // into a rest-day fixture the moment the default moves.
+        for (wd in store.settings.restWeekdays) store.toggleRestDay(wd)
+        store.setReminderTime(hour = 20, minute = 0)
+        store.setReminderEnabled(true)
+
+        val morning = moment(hour = 7)
+        store.completeWorkout(session = store.nextSession, result = FeedbackResult.plan, date = morning)
+
+        assertTrue(slots(spy, sameDayAs = morning).isEmpty(),
+                   "a workout done before the reminder time must take today's slot down")
+        val tomorrow = local(morning).plusDays(1).toInstant()
+        assertFalse(slots(spy, sameDayAs = tomorrow).isEmpty(), "tomorrow's reminder must survive today's workout")
+        assertEquals(27, spy.scheduled.size)   // 28-day window minus done today
+    }
+
+    /** Trained after the reminder already fired: nothing to cancel, and the
+     *  rebuild must not schedule a new slot into today's past. */
+    @Test
+    fun eveningWorkoutKeepsWindowIntact() {
+        val spy = NotificationSpy()
+        val store = makeStore(notifications = spy)
+        for (wd in store.settings.restWeekdays) store.toggleRestDay(wd)   // as above
+        store.setReminderTime(hour = 9, minute = 0)
+        store.setReminderEnabled(true)
+
+        val evening = moment(hour = 21)
+        store.completeWorkout(session = store.nextSession, result = FeedbackResult.plan, date = evening)
+
+        assertTrue(slots(spy, sameDayAs = evening).isEmpty(), "no slot may be scheduled into today's past")
+        val tomorrow = local(evening).plusDays(1).toInstant()
+        assertFalse(slots(spy, sameDayAs = tomorrow).isEmpty())
+    }
+
+    @Test
+    fun toggleRestDayReschedulesReminders() {
+        val spy = NotificationSpy()
+        val store = makeStore(notifications = spy)
+        store.setReminderEnabled(true)
+
+        store.toggleRestDay(3)   // Tuesday joins the default Mon+Wed+Fri
+        store.rescheduleReminders(now = moment(hour = 6))
+        assertEquals(12, spy.scheduled.size)   // 28 minus 4 each of Mon, Tue, Wed, Fri
+        assertFalse(spy.scheduled.any { swiftWeekday(local(it.fireAt).dayOfWeek) == 3 },
+                    "a stale Tuesday reminder must not survive the toggle")
+    }
+
+    @Test
+    fun legacyWeeklySeriesIsClearedOnReschedule() {
+        val spy = NotificationSpy()
+        val store = makeStore(notifications = spy)
+        spy.scheduled += ScheduledReminder("reminder-wd-3", Instant.EPOCH)
+
+        store.rescheduleReminders(now = moment(hour = 6))
+        assertTrue(spy.scheduled.isEmpty(), "the pre-1.8 weekly series must be removed and nothing added while disabled")
+    }
+
+    /** A relaunch rebuilds the window on activation, and a time change moves
+     *  every slot — the schedule never drifts from the settings. */
+    @Test
+    fun windowSurvivesRestartAndTimeChange() {
+        val first = makeStore(notifications = NotificationSpy())
+        first.setReminderEnabled(true)
+
+        val spy = NotificationSpy()
+        val relaunched = makeStore(notifications = spy)
+        relaunched.rescheduleReminders(now = moment(hour = 6))   // the activation path
+        assertEquals(16, spy.scheduled.size, "a restart must rebuild the full window")
+
+        relaunched.setReminderTime(hour = 7, minute = 45)
+        relaunched.rescheduleReminders(now = moment(hour = 6))
+        assertTrue(spy.scheduled.all { local(it.fireAt).hour == 7 && local(it.fireAt).minute == 45 },
+                   "a time change must move every slot in the window")
+    }
+
+    @Test
+    fun disablingReminderClearsEverything() {
+        val spy = NotificationSpy()
+        val store = makeStore(notifications = spy)
+        store.setReminderEnabled(true)
+        assertFalse(spy.scheduled.isEmpty())
+
+        store.setReminderEnabled(false)
+        assertTrue(spy.scheduled.isEmpty(), "disabling must remove every pending reminder")
+    }
+
+    @Test
+    fun frozenLaunchKeepsThePendingReminderWindow() {
+        assumeNotRoot()
+        val spy = NotificationSpy()
+        val seed = makeStore(notifications = spy)
+        seed.setReminderEnabled(true)
+        val pending = spy.scheduled.size
+        assertTrue(pending > 0)
+
+        setPermissions(tempPath, "---------")
+        try {
+            val frozen = makeStore(notifications = spy)
+            frozen.rescheduleReminders()
+            assertEquals(pending, spy.scheduled.size, "a frozen launch must not clear the reminders it cannot see")
+
+            setPermissions(tempPath, "rw-r--r--")
+            frozen.reloadIfNeeded()
+            frozen.rescheduleReminders()
+            assertEquals(pending, spy.scheduled.size, "the window is rebuilt once the journal is readable again")
+        } finally {
+            setPermissions(tempPath, "rw-r--r--")
+        }
+    }
+
+    @Test
+    fun reminderDenialFlipsToggleOff() {
+        val spy = NotificationSpy()
+        spy.grant = false
+        val store = makeStore(notifications = spy)
+        store.setReminderEnabled(true)
+        assertFalse(store.settings.reminderEnabled, "denial must be reflected in the toggle")
+        assertTrue(spy.scheduled.isEmpty())
+        // Android: the store keeps the refusal for the note under the switch.
+        assertTrue(store.reminderRefused, "the refusal must name itself")
+    }
+
+    /** A backup restored onto a device that never granted notifications must
+     *  not let the imported reminderEnabled flag survive a denied
+     *  authorization — and on Android the denied note says why, rather than
+     *  the switch going quietly off (owner decision, 09.10.2026). */
+    @Test
+    fun importWithRemindersRerunsAuthorization() {
+        val sourceSpy = NotificationSpy()
+        val source = makeStore(notifications = sourceSpy)
+        source.setReminderEnabled(true)
+        val backup = source.exportBackup()
+
+        val spy = NotificationSpy()
+        spy.grant = false
+        val fresh = makeStore(path = tempDir.resolve("dredfit-import.json"), notifications = spy)
+        fresh.importBackup(backup)
+
+        assertFalse(fresh.settings.reminderEnabled, "an imported reminderEnabled must not survive a denied authorization")
+        assertTrue(spy.scheduled.isEmpty())
+        assertTrue(fresh.reminderRefused, "the denied state must show, not a switch that quietly went off")
+    }
+
+    // Android-only: the other two ways out of an import.
+
+    @Test
+    fun importWithRemindersOnAGrantingPhoneKeepsTheFlagAndSchedules() {
+        val source = makeStore(notifications = NotificationSpy())
+        source.setReminderEnabled(true)
+        val backup = source.exportBackup()
+
+        val spy = NotificationSpy()
+        val fresh = makeStore(path = tempDir.resolve("dredfit-import.json"), notifications = spy)
+        fresh.importBackup(backup)
+
+        assertTrue(fresh.settings.reminderEnabled, "the imported flag is kept as it came")
+        assertFalse(spy.scheduled.isEmpty(), "and the window is drawn on this phone")
+        assertFalse(fresh.reminderRefused)
+    }
+
+    @Test
+    fun importWithoutRemindersClearsWhatThisPhoneHadPending() {
+        val backup = makeStore(path = tempDir.resolve("source.json"), notifications = NotificationSpy()).exportBackup()
+        val spy = NotificationSpy()
+        val store = makeStore(notifications = spy)
+        store.setReminderEnabled(true)
+        assertFalse(spy.scheduled.isEmpty())
+
+        store.importBackup(backup)
+        assertFalse(store.settings.reminderEnabled)
+        assertTrue(spy.scheduled.isEmpty(), "the imported OFF must clear the window left behind")
+    }
+
+    /** Android-only: the switch clears a refusal, so the note never outlives
+     *  a fresh answer. */
+    @Test
+    fun aGrantedSecondAskClearsTheRefusal() {
+        val spy = NotificationSpy()
+        spy.grant = false
+        val store = makeStore(notifications = spy)
+        store.setReminderEnabled(true)
+        assertTrue(store.reminderRefused)
+        spy.grant = true
+        store.setReminderEnabled(true)
+        assertFalse(store.reminderRefused)
+        assertTrue(store.settings.reminderEnabled)
+        assertFalse(spy.scheduled.isEmpty())
+    }
+
+    /** Android-only: the activation rebuilds the window — the iOS sequence's
+     *  last step, which the Swift tests drive by calling the rebuild by hand. */
+    @Test
+    fun activationRebuildsTheWindow() {
+        val spy = NotificationSpy()
+        val store = makeStore(notifications = spy)
+        store.setReminderEnabled(true)
+        spy.scheduled.clear()
+        store.activate(now = moment(hour = 6))
+        assertEquals(16, spy.scheduled.size)
     }
 }

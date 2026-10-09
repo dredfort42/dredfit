@@ -86,7 +86,15 @@ fun AppStore.importBackup(bytes: ByteArray) {
             if (r.id in exportedHere) r.copy(healthExported = true) else r
         })
     }
-    // On iOS the Health switch and the reminder authorization are re-checked
-    // here — device-local facts a backup cannot prove. They join with health/
-    // and reminders/.
+    // On iOS the Health switch is re-checked here too — a device-local fact a
+    // backup cannot prove; it joins with health/.
+    if (settings.reminderEnabled) {
+        // The permission is per device (owner decision, 09.10.2026: the
+        // imported flag is kept as it came, and checked now): a backup
+        // restored onto a new phone must actually ask, and a refusal turns
+        // the switch off with the note that says why.
+        setReminderEnabled(true)
+    } else {
+        rescheduleReminders()   // clears anything left behind
+    }
 }

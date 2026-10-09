@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The one folder a content:// URI may point into: the rendered share cards
-     (ui/progress/ShareCard.kt), one fixed file per slot in the cache. -->
+<!-- The folders a content:// URI may point into: the rendered share cards
+     (ui/progress/ShareCard.kt), one fixed file per slot in the cache, and the
+     reminder's generated sound (reminders/ReminderSoundFile.kt) — the
+     notification channel plays it through the system, which cannot open a
+     file in the app's private storage by path. -->
 <paths>
     <cache-path name="share" path="share/" />
+    <files-path name="sounds" path="sounds/" />
 </paths>

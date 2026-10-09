@@ -120,6 +120,8 @@ tasks.withType<Test>().configureEach {
         fileTree(rootProject.file("../ios/DredfitWidgets")) { include("**/*.swift") },
         fileTree("src/main/kotlin") { include("**/*.kt") },
     ).withPropertyName("scannedSources").withPathSensitivity(PathSensitivity.RELATIVE)
+    // ReminderTriggerTest reads the manifest's receivers in place.
+    inputs.file("src/main/AndroidManifest.xml").withPropertyName("manifest").withPathSensitivity(PathSensitivity.RELATIVE)
     testLogging {
         events("failed")
         exceptionFormat = TestExceptionFormat.FULL
