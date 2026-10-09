@@ -4,7 +4,7 @@
 //  ports only if both read and write it the same way.
 //
 //  swift/sessions.json was written by Swift's plain `JSONEncoder` over
-//  `Engine.generateSession` (DredfitCore, a scratch SwiftPM probe, 09.10.2026):
+//  `Engine.generateSession` (android/tools/swift-backup-probe, regenerate.sh):
 //  [0] the initial plan, [1] counter 1 with the bar, [2] the first uneven plan
 //  of a run (`loads`), [3] the first plan of that run with a `probe`.
 //

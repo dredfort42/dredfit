@@ -1,6 +1,6 @@
 //
 //  What Swift's JSONDecoder accepts, refuses as a whole file, and refuses only
-//  for one field — measured against the decoder itself (a scratch probe over
+//  for one field — measured against the decoder itself (a probe over
 //  the app's own `AppData`, 09.10.2026) and pinned here, because kotlinx is
 //  more lenient: it reads an unquoted `+7` as a literal, and `07` as seven.
 //  No Swift file of this name; on iOS these are the standard library's rules.

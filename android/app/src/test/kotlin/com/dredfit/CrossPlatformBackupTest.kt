@@ -3,10 +3,10 @@
 //  with the same state, and one exported here reads on iOS. No Swift file of
 //  this name — on iOS the one format is the only format.
 //
-//  The fixtures were written by Swift itself — a scratch SwiftPM probe over
-//  DredfitCore plus byte-identical copies of the app's Journal.swift,
-//  AppSettings.swift, AppStore+PersistedState.swift and V2EngineState.swift
-//  (09.10.2026):
+//  The fixtures were written by Swift itself — android/tools/swift-backup-probe,
+//  which compiles the app's own Journal.swift, AppSettings.swift,
+//  AppStore+PersistedState.swift and V2EngineState.swift (linked, not copied)
+//  over DredfitCore; its regenerate.sh rewrites every file below:
 //  - ios/ios-backup.json: `JSONEncoder().encode(AppData(engineState:records:
 //    settings:))` exactly as `exportURL` writes it — six workouts run through
 //    the engine, every optional record field and every settings key set at
@@ -19,7 +19,7 @@
 //
 //  The reverse direction is checked against the same probe: the Android
 //  export this suite writes to build/cross-platform/android-backup.json
-//  decodes there with no flag raised (android/CLAUDE.md, verified facts).
+//  decodes there with no flag raised (the probe's README has the command).
 //
 
 package com.dredfit
