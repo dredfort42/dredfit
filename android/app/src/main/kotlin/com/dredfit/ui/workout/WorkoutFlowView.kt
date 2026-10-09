@@ -49,6 +49,8 @@ import com.dredfit.journal.WorkoutSnapshot
 import com.dredfit.signals.DeviceSignals
 import com.dredfit.store.AppStore
 import com.dredfit.store.currentPositions
+import com.dredfit.store.lastRecord
+import com.dredfit.store.progressCurve
 import com.dredfit.store.recordsSinceReset
 import com.dredfit.ui.Observed
 import com.dredfit.ui.SaveFailureBanner
@@ -246,6 +248,8 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, on
                     }
                     is Phase.Milestone -> MilestoneView(
                         milestones = phase.earned,
+                        // Up to the workout that earned these.
+                        steps = store.progressCurve(through = store.lastRecord?.date),
                         // The current run, as the curve beside it: after a
                         // fresh start "then" is the new run's first.
                         retrospective = Retrospective.make(store.recordsSinceReset, store.currentPositions),

@@ -2,11 +2,8 @@
 //  One screen for everything a workout earned. Port of
 //  ios/Dredfit/Views/Workout/MilestoneView.swift: the headline steps down as
 //  rows are added, the whole thing scrolls, and the accent rule sweeps in
-//  unless the system asks for no animation.
-//
-//  Not here yet: "Share" and its card (ShareCard.swift) — the share card is a
-//  rendered bitmap with the progress curve, which arrives with Progress
-//  (phase 2c-2). The screen says everything the card would carry.
+//  unless the system asks for no animation. Share sends the card
+//  (ui/progress/ShareCard.kt) with the curve up to this workout.
 //
 
 package com.dredfit.ui.workout
@@ -16,6 +13,21 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import com.dredfit.ui.currentLocale
+import com.dredfit.ui.progress.ShareCardFactory
+import com.dredfit.ui.progress.shareCard
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.time.format.DateTimeFormatter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -54,8 +66,10 @@ import com.dredfit.workout.Milestone
 import com.dredfit.workout.Retrospective
 
 @Composable
-fun MilestoneView(milestones: List<Milestone>, retrospective: Retrospective?, onDone: () -> Unit) {
+fun MilestoneView(milestones: List<Milestone>, steps: List<Int>, retrospective: Retrospective?, onDone: () -> Unit) {
     val c = Theme.colors
+    val headline = tr(ShareCardFactory.headline(milestones))
+    val card = rememberMilestoneCard(milestones, steps, retrospective, headline)
     val headlineSize = when (milestones.size) {
         1 -> 34f
         2 -> 28f
@@ -82,10 +96,45 @@ fun MilestoneView(milestones: List<Milestone>, retrospective: Retrospective?, on
                 }
             }
         }
+        card?.let { ready ->
+            // The outline is the whole button, so it owes 3:1 — targetStroke,
+            // the Progress header's share ring's role.
+            val shape = RoundedCornerShape(18.dp)
+            Box(Modifier.fillMaxWidth().padding(bottom = 10.dp).heightIn(min = 52.dp).clip(shape)
+                    .border(1.5.dp, c.targetStroke, shape)
+                    .clickable(role = Role.Button) { shareCard(context, ready, headline) }.testTag("milestone-share"),
+                contentAlignment = Alignment.Center) {
+                Text(tr("Share"), style = dredfitFont(17f, Weight.semibold), color = c.ink)
+            }
+        }
         // Keyed, not literal: "Done" is taken by the workout's set button.
         PrimaryButton(tr("milestone.done"), tag = "milestone-done", modifier = Modifier.padding(bottom = 16.dp),
                       onClick = onDone)
     }
+}
+
+/** The card is rendered and written before the button appears, so the
+ *  share sheet's preview shows what is about to be sent. The subline only
+ *  when this workout IS an anniversary. Shared by the render and the
+ *  preview, so they cannot drift. */
+@Composable
+private fun rememberMilestoneCard(milestones: List<Milestone>, steps: List<Int>, retrospective: Retrospective?,
+                                  headline: String): ShareCardFactory.Card? {
+    val context = LocalContext.current
+    val locale = currentLocale()
+    val date = DateTimeFormatter.ofPattern(android.text.format.DateFormat.getBestDateTimePattern(locale, "dMMMMy"), locale)
+        .format(java.time.ZonedDateTime.now())
+    val subline = if (milestones.any { it is Milestone.Jubilee }) {
+        retrospective?.let { tr(it.comparisonLine) + "\n" + tr(it.sinceLine) }
+    } else null
+    var card by remember { mutableStateOf<ShareCardFactory.Card?>(null) }
+    LaunchedEffect(headline, subline, steps, date) {
+        if (milestones.isEmpty()) return@LaunchedEffect
+        card = withContext(Dispatchers.Default) {
+            ShareCardFactory.card(context, headline, ShareCardFactory.Slot.milestone, date, subline, steps)
+        }
+    }
+    return card
 }
 
 @Composable
