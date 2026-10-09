@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
     private var store by mutableStateOf<Observed<AppStore>?>(null)
 
     /** Per activity: Play launches its card over the activity that asks. */
-    private val reviewPrompt by lazy { PlayReviewPrompt(this) }
+    private val reviewPrompt by lazy { app.reviewPromptForTests ?: PlayReviewPrompt(this) }
 
     /** Midnight, a clock change or a zone change while the screen is up —
      *  `UIApplication.significantTimeChangeNotification` on iOS. */

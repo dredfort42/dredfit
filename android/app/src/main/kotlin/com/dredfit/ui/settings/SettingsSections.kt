@@ -188,8 +188,9 @@ fun EquipmentSection(observedStore: Observed<AppStore>) {
 /** The caption under "Play tones in Silent mode". Android has no ringer
  *  switch: the phone's sound mode is what `CountdownSounds.play` reads, and
  *  silent AND vibrate both mute the tones unless the switch lets them
- *  through — the haptics fire either way. The OFF caption is iOS's own and
- *  true here as written; the ON one is Android's. */
+ *  through — the haptics fire either way. The OFF caption is iOS's own: true
+ *  of silent, though vibrate mutes the tones too and it does not say so (an
+ *  owner question, as a second Android key). The ON one is Android's. */
 object SilentModeCaption {
     fun key(playsTonesInSilentMode: Boolean): String =
         if (playsTonesInSilentMode) "The tones play even when the phone is set to silent or vibrate."

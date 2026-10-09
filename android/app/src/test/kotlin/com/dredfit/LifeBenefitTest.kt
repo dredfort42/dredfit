@@ -146,7 +146,8 @@ class LifeBenefitTest {
     fun noCatalogEntryIsItsOwnKey() {
         for (catalog in listOf("Dredfit/Localizable.xcstrings",
                                "DredfitWidgets/Localizable.xcstrings",
-                               "DredfitCore/Sources/DredfitCore/Resources/Localizable.xcstrings")) {
+                               "DredfitCore/Sources/DredfitCore/Resources/Localizable.xcstrings",
+                               SetsNoticeTest.ANDROID_CATALOG)) {
             val strings = strings(catalog)
             // Only dotted keys: a plain English sentence IS its own key here by
             // design — that is how the base language is written in this project.
