@@ -87,17 +87,12 @@ fun screenDateText(day: Instant, zone: ZoneId): String {
 }
 
 /** The locale's own list — "a, b and c" — as `.formatted(.list(type: .and))`;
- *  `narrow` is `width: .narrow`, which ICU offers from Android 13 — below it
- *  the standard width stands in. */
+ *  `narrow` is `width: .narrow`, which is iOS's table on every API level
+ *  (NarrowList.kt), not ICU's. */
 @Composable
 fun listFormatted(items: List<String>, narrow: Boolean = false): String {
     if (items.size <= 1) return items.firstOrNull() ?: ""
     val locale = currentLocale()
-    val formatter = if (narrow && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-        android.icu.text.ListFormatter.getInstance(locale, android.icu.text.ListFormatter.Type.AND,
-                                                    android.icu.text.ListFormatter.Width.NARROW)
-    } else {
-        android.icu.text.ListFormatter.getInstance(locale)
-    }
-    return formatter.format(items)
+    if (narrow) return NarrowList.join(items, locale)
+    return android.icu.text.ListFormatter.getInstance(locale).format(items)
 }
