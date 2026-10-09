@@ -67,6 +67,12 @@ dependencies {
 }
 
 tasks.withType<Test>().configureEach {
+    // LifeBenefitTest reads the iOS app catalog in place, never a copy; as
+    // a declared input, an edit there reruns the suite instead of leaving
+    // an up-to-date green from before it.
+    inputs.file(rootProject.file("../ios/Dredfit/Localizable.xcstrings"))
+        .withPropertyName("iosAppCatalog")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
     testLogging {
         events("failed")
         exceptionFormat = TestExceptionFormat.FULL
