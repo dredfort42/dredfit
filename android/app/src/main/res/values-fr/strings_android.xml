@@ -3,4 +3,5 @@
 <resources>
     <string name="android_rate_on_google_play_1b86d374">Noter sur Google Play</string>
     <string name="android_the_tones_play_even_when_the_phone_is_se_2f936e1b">Les sons se font entendre même quand le téléphone est en mode Silencieux ou Vibreur.</string>
+    <string name="android_when_the_phone_is_set_to_silent_or_vibra_a20ca2f7">Quand le téléphone est en mode Silencieux ou Vibreur, les sons se taisent — la vibration continue.</string>
 </resources>

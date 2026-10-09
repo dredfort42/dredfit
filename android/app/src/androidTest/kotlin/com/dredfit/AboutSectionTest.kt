@@ -12,6 +12,8 @@ package com.dredfit
 
 import android.app.Activity
 import android.app.Instrumentation
+import android.content.ActivityNotFoundException
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.res.Configuration
 import androidx.compose.runtime.CompositionLocalProvider
@@ -29,8 +31,10 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.anyIntent
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.dredfit.ui.settings.AboutLinks
 import com.dredfit.ui.settings.AboutSection
+import com.dredfit.ui.settings.openPlayListing
 import com.dredfit.ui.theme.DredfitTheme
 import org.hamcrest.Matchers.allOf
 import org.junit.Assert.assertEquals
@@ -73,6 +77,23 @@ class AboutSectionTest {
         }
         compose.onNodeWithText("Оценить в Google Play").assertExists()
         compose.onNodeWithText("Порекомендовать Dredfit").assertExists()
+    }
+
+    /** A phone with no Play Store: "Rate" falls back to the web page; one
+     *  that opens no link at all gets nothing, and no crash. */
+    @Test
+    fun withoutAPlayStoreRateOpensTheWebPage() {
+        val opened = mutableListOf<String>()
+        fun phone(hasBrowser: Boolean) = object : ContextWrapper(InstrumentationRegistry.getInstrumentation().targetContext) {
+            override fun startActivity(intent: Intent) {
+                if (intent.data?.scheme == "market" || !hasBrowser) throw ActivityNotFoundException()
+                opened += intent.data.toString()
+            }
+        }
+        openPlayListing(phone(hasBrowser = true))
+        assertEquals(listOf(AboutLinks.PLAY_LISTING_WEB), opened)
+        openPlayListing(phone(hasBrowser = false))
+        assertEquals(1, opened.size)
     }
 
     @Test

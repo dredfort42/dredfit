@@ -82,6 +82,47 @@
           }
         }
       }
+    },
+    "When the phone is set to silent or vibrate, the tones go quiet — the vibration keeps going.": {
+      "comment": "Android only. Settings > Sounds, the caption under \"Play tones in Silent mode\" while it is OFF. Android has no ringer switch: the phone's sound mode is what mutes the tones, and vibrate mutes them as silent does. The vibration fires either way.",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steht das Handy auf lautlos oder Vibration, bleiben die Töne stumm – die Vibration läuft weiter."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con el teléfono en silencio o en vibración, los tonos no suenan, pero la vibración sigue."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand le téléphone est en mode Silencieux ou Vibreur, les sons se taisent — la vibration continue."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con il telefono in modalità Silenzioso o Vibrazione i suoni si spengono – la vibrazione continua."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com o celular no modo Silencioso ou só vibrando, os sons ficam mudos — a vibração continua."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Когда телефон в бесшумном режиме или на вибрации, звуки молчат — вибрация продолжает работать."
+          }
+        }
+      }
     }
   },
   "version": "1.1"

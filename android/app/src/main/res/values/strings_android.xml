@@ -3,4 +3,5 @@
 <resources>
     <string name="android_rate_on_google_play_1b86d374">Rate on Google Play</string>
     <string name="android_the_tones_play_even_when_the_phone_is_se_2f936e1b">The tones play even when the phone is set to silent or vibrate.</string>
+    <string name="android_when_the_phone_is_set_to_silent_or_vibra_a20ca2f7">When the phone is set to silent or vibrate, the tones go quiet — the vibration keeps going.</string>
 </resources>

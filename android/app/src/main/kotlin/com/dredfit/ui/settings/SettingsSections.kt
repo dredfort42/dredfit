@@ -8,9 +8,10 @@
 //  caption about widgets and the Lock Screen (no widget exists here yet).
 //
 //  Said differently on Android (owner decisions, 09.10.2026), from the
-//  Android-only catalog android/app/Localizable.xcstrings: the ON caption of
-//  "Play tones in Silent mode" — iOS's names the iPhone's ringer SWITCH, and
-//  Android's names the phone's sound mode — and About's rate row, which goes
+//  Android-only catalog android/app/Localizable.xcstrings: both captions of
+//  "Play tones in Silent mode" — iOS's name the iPhone's ringer SWITCH and
+//  Silent mode alone, Android's the phone's sound mode, where vibrate mutes
+//  the tones as silent does — and About's rate row, which goes
 //  to Google Play. Both About rows wait for the Play listing behind
 //  `BuildConfig.PLAY_LISTING_LIVE`.
 //
@@ -188,13 +189,13 @@ fun EquipmentSection(observedStore: Observed<AppStore>) {
 /** The caption under "Play tones in Silent mode". Android has no ringer
  *  switch: the phone's sound mode is what `CountdownSounds.play` reads, and
  *  silent AND vibrate both mute the tones unless the switch lets them
- *  through — the haptics fire either way. The OFF caption is iOS's own: true
- *  of silent, though vibrate mutes the tones too and it does not say so (an
- *  owner question, as a second Android key). The ON one is Android's. */
+ *  through — the haptics fire either way. Both captions are Android's own:
+ *  iOS's OFF one names Silent mode alone, and on Android vibrate mutes the
+ *  tones too (owner decision, 09.10.2026). */
 object SilentModeCaption {
     fun key(playsTonesInSilentMode: Boolean): String =
         if (playsTonesInSilentMode) "The tones play even when the phone is set to silent or vibrate."
-        else "In Silent mode the tones go quiet — the vibration keeps going."
+        else "When the phone is set to silent or vibrate, the tones go quiet — the vibration keeps going."
 }
 
 @Composable
@@ -292,8 +293,9 @@ fun AboutSection(listingLive: Boolean = BuildConfig.PLAY_LISTING_LIVE) {
     }
 }
 
-/** The Play Store app where there is one; the web page where there is not. */
-private fun openPlayListing(context: Context) {
+/** The Play Store app where there is one; the web page where there is not.
+ *  Internal for AboutSectionTest, which has no phone without a store. */
+internal fun openPlayListing(context: Context) {
     try {
         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AboutLinks.PLAY_STORE_APP)))
     } catch (_: ActivityNotFoundException) {

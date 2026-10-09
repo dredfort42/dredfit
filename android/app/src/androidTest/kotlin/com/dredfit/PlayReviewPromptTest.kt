@@ -62,6 +62,22 @@ class PlayReviewPromptTest {
         assertSame(activity, manager.launchedOver.single())
     }
 
+    /** Play answers on a later main-thread turn; an activity finished in
+     *  between (closed, recreated) gets no card launched over it. */
+    @Test
+    fun anActivityGoneByPlaysAnswerGetsNoCard() {
+        ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
+            lateinit var manager: Recording
+            scenario.onActivity { activity ->
+                manager = Recording(FakeReviewManager(activity), refuses = false)
+                PlayReviewPrompt(activity, manager).request()
+                activity.finish()
+            }
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            assertEquals(0, manager.launchedOver.size)
+        }
+    }
+
     @Test
     fun aRefusalLaunchesNothing() {
         val (manager, _) = ask(refuses = true)

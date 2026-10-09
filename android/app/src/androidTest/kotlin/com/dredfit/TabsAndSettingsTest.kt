@@ -262,13 +262,13 @@ class TabsAndSettingsTest : DredfitUITest() {
         await(AX.silentModeToggle)
     }
 
-    /** OFF says what silent mode does to the tones; ON says Android's own
-     *  sentence (the phone's sound mode), not iOS's ringer switch. */
+    /** Both captions are Android's own sentences (the phone's sound mode),
+     *  not iOS's ringer switch and Silent mode alone. */
     @Test
     fun theSilentModeCaptionFollowsTheSwitch() {
         launch(Seed.Clean, fast = true)
         tap(AX.settings)
-        val off = "In Silent mode the tones go quiet — the vibration keeps going."
+        val off = "When the phone is set to silent or vibrate, the tones go quiet — the vibration keeps going."
         val on = "The tones play even when the phone is set to silent or vibrate."
         compose.waitUntil(5_000) { shows(off) }
         assertFalse(shows(on))

@@ -34,19 +34,21 @@ class AboutLinksTest {
         assertEquals("https://play.google.com/store/apps/details?id=com.dredfit.dredfit", AboutLinks.PLAY_LISTING_WEB)
     }
 
-    /** OFF: iOS's own caption, true here (silent mutes the tones, the
-     *  haptics carry on). ON: Android's — iOS's names the ringer SWITCH. */
+    /** Both captions are Android's: iOS's ON one names the ringer SWITCH,
+     *  and its OFF one names Silent mode alone, while `CountdownSounds.play`
+     *  mutes the tones in vibrate mode too. */
     @Test
-    fun theSilentModeCaptionIsAndroidsWhenTheSwitchIsOn() {
+    fun theSilentModeCaptionsAreAndroidsOwn() {
         val off = SilentModeCaption.key(playsTonesInSilentMode = false)
         val on = SilentModeCaption.key(playsTonesInSilentMode = true)
-        assertEquals("In Silent mode the tones go quiet — the vibration keeps going.", off)
+        assertEquals("When the phone is set to silent or vibrate, the tones go quiet — the vibration keeps going.", off)
         assertEquals("The tones play even when the phone is set to silent or vibrate.", on)
 
         val ios = IosCatalogs.strings("Dredfit/Localizable.xcstrings")
         val android = IosCatalogs.strings(SetsNoticeTest.ANDROID_CATALOG)
-        assertNotNull(ios[off], "the OFF caption is the iOS catalog's")
-        assertNotNull(android[on], "the ON caption is the Android catalog's")
-        assertNull(android[off])
+        for (caption in listOf(off, on)) {
+            assertNotNull(android[caption], "\"$caption\" is the Android catalog's")
+            assertNull(ios[caption], "\"$caption\" is not the iOS catalog's")
+        }
     }
 }
