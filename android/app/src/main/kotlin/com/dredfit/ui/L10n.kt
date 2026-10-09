@@ -13,6 +13,7 @@ import com.dredfit.core.SessionExercise
 import com.dredfit.l10n.AppStrings
 import com.dredfit.l10n.CoreStrings
 import com.dredfit.l10n.WidgetStrings
+import com.dredfit.workout.Words
 import java.util.Locale
 
 /**
@@ -26,6 +27,18 @@ fun tr(key: String, vararg args: Any): String {
     if (id != null) return stringResource(id, *args)
     if (args.isEmpty()) return key
     return String.format(Locale.ROOT, key.replace("%@", "%s").replace("%lld", "%d"), *args)
+}
+
+/** What the workout flow says (`Words`, plain Kotlin), in the reader's
+ *  language: its arguments first — a `Words` among them resolved the same
+ *  way — then its key; a composition has no key and joins its parts. */
+@Composable
+fun tr(words: Words): String {
+    val args = words.args.map { if (it is Words) tr(it) else it }
+    val key = words.key
+    val id = key?.let { AppStrings.string(it) ?: CoreStrings.string(it) ?: WidgetStrings.string(it) }
+    if (id != null) return stringResource(id, *args.toTypedArray())
+    return Words(null, words.format, args).english
 }
 
 /** "3×12", "3×10 per side", "3×40 sec" — `SessionExercise.display` with the
