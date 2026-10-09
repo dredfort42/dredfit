@@ -155,7 +155,7 @@ fun WorkView(observed: Observed<WorkoutSession>, observedStore: Observed<AppStor
                  color = if (emphasis.accented) c.accentText else c.ink2)
         }
 
-        SetDots(flow, Modifier.padding(top = 30.dp))
+        SetDots(observed, Modifier.padding(top = 30.dp))
 
         Box(Modifier.padding(top = 10.dp)) {
             when {
@@ -262,7 +262,8 @@ private fun PrimaryControl(observed: Observed<WorkoutSession>) {
 /** The set dots: done in ink, under way in accent, ahead in ink2 — and the
  *  probe's dot hollow: the same session, not the same movement. */
 @Composable
-private fun SetDots(flow: WorkoutSession, modifier: Modifier) {
+private fun SetDots(observed: Observed<WorkoutSession>, modifier: Modifier) {
+    val flow by observed
     val c = Theme.colors
     val dot = scaledDot()
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(10.dp)) {

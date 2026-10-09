@@ -77,12 +77,23 @@ fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: (
         val active = holder.active
         Box(Modifier.fillMaxSize().background(c.bg)) {
             if (active != null) {
-                WorkoutFlowView(active, observedStore) { holder.active = null }
+                WorkoutFlowView(active, observedStore) {
+                    // The claim on the snapshot ends with the flow, not with
+                    // the composition that drew it (WorkoutFlowView.kt).
+                    store.workoutFlowDisappeared()
+                    active.flow.value.disappear()
+                    holder.active = null
+                }
             } else {
                 Column(Modifier.fillMaxSize().safeDrawingPadding()) {
                     // The gear floats over the top-trailing corner.
                     SaveFailureBanner(observedStore, trailingClearance = 44.dp)
                     TodayScreen(observedStore, start = { request ->
+                        // Claimed for as long as the flow lives, so a
+                        // foreground hours into an idle session — or a
+                        // recreated activity — cannot settle the workout out
+                        // from under the athlete still in it.
+                        store.workoutFlowAppeared()
                         holder.active = ActiveWorkout.start(request.session, store, signals(),
                                                             request.resume, request.settleImmediately)
                     })

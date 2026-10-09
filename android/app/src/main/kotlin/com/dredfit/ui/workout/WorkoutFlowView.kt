@@ -22,6 +22,7 @@ package com.dredfit.ui.workout
 
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -120,17 +122,14 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, on
     val exitShown by rememberUpdatedState(exitConfirmShown)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
-    // On screen: the flow claims its snapshot (a foreground hours into an
-    // idle session must not settle the workout out from under the athlete),
-    // primes the signals and starts. Once — `appear` is guarded — so a
-    // recreated activity picks the same flow up where it was.
-    DisposableEffect(observed) {
-        store.workoutFlowAppeared()
+    // On screen: the flow primes the signals and starts. Once — `appear` is
+    // guarded — so a recreated activity picks the same flow up where it was.
+    // The CLAIM on the snapshot is not taken here but where the flow is
+    // started and closed (RootScreen): a recreated activity disposes this
+    // composition, and its onResume would run the settlement of a forgotten
+    // workout before the new composition could claim the snapshot back.
+    LaunchedEffect(observed) {
         observed.act { appear() }
-        onDispose {
-            store.workoutFlowDisappeared()
-            flow.disappear()
-        }
     }
 
     // One second of the flow, while the app is in front — a backgrounded iOS
@@ -146,17 +145,24 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, on
     // Only leaving is leaving: a pulled-down shade keeps the app started.
     DisposableEffect(lifecycle, observed) {
         val main = Handler(Looper.getMainLooper())
+        // Re-armed on its SCHEDULE, like `Timer.publish`, not a second after
+        // the beat's own work (tones, vibration): a drifting beat crosses a
+        // countdown's second boundary, `read` jumps two seconds, and a 3-2-1
+        // loses its tick.
+        var next = 0L
         val beat = object : Runnable {
             override fun run() {
                 observed.act { if (exitShown) primeComingBack() else tick() }
-                main.postDelayed(this, 1000)
+                next += 1000
+                main.postAtTime(this, next)
             }
         }
         val watcher = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> {
                     observed.act { sceneCameBack() }
-                    main.postDelayed(beat, 1000)
+                    next = SystemClock.uptimeMillis() + 1000
+                    main.postAtTime(beat, next)
                 }
                 Lifecycle.Event.ON_STOP -> {
                     main.removeCallbacks(beat)
@@ -190,7 +196,18 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, on
         if (flow.hasProgress) exitConfirmShown = true else discardWorkout()
     }
 
-    BackHandler { exit() }
+    // On the rating and the milestone iOS offers no way out but the answer —
+    // the header with Exit is not there — and "Finish now" or "Discard" over
+    // a finished workout would damage its record. So Back is Exit on every
+    // screen that shows Exit, waits for the rating on the rating, and is the
+    // milestone's own Done there.
+    BackHandler {
+        when (flow.phase) {
+            Phase.Feedback -> Unit
+            is Phase.Milestone -> onClose()
+            else -> exit()
+        }
+    }
 
     val c = Theme.colors
     Column(Modifier.fillMaxSize().background(c.bg).safeDrawingPadding()) {

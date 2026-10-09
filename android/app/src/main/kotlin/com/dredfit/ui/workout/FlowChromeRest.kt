@@ -29,8 +29,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.dredfit.ui.theme.Kicker
@@ -73,12 +71,10 @@ fun RestRing(remaining: Int, fraction: Float, nextLabel: String, canExtend: Bool
     val spoken = tr("%lld seconds of rest left", remaining)
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(Modifier.weight(1f))
-        Box(Modifier.size(ring).clearAndSetSemantics {
-                contentDescription = spoken
-                // A figure that moves every second, read without the reader
-                // talking over itself — iOS's `.updatesFrequently`.
-                liveRegion = LiveRegionMode.Polite
-            },
+        // No live region: a figure that moves every second must not make the
+        // reader talk over itself (iOS's `.updatesFrequently` announces
+        // nothing on its own either) — it is there to be asked for.
+        Box(Modifier.size(ring).clearAndSetSemantics { contentDescription = spoken },
             contentAlignment = Alignment.Center) {
             Canvas(Modifier.fillMaxSize()) {
                 val line = 7.dp.toPx()

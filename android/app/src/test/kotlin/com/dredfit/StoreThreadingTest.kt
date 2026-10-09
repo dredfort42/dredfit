@@ -127,10 +127,11 @@ class StoreThreadingTest : AppStoreTestCase() {
         val store = queuedStore()
         assertTrue(store.journalFrozen)
         setPermissions(tempPath, "rw-------")
-        // A real journal behind the freeze: one workout the activation's
-        // decay and settlement read.
+        // A real journal behind the freeze: one workout eight days ago, which
+        // the activation's silent decay reads — and can only read once the
+        // journal has landed.
         val writer = AppStore(tempDir.resolve("other.json"))
-        writer.completeWorkout(session = writer.nextSession, result = FeedbackResult.plan)
+        writer.completeWorkout(session = writer.nextSession, result = FeedbackResult.plan, date = daysAgo(8))
         Files.copy(tempDir.resolve("other.json"), tempPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
 
         store.activate()
@@ -138,9 +139,11 @@ class StoreThreadingTest : AppStoreTestCase() {
         assertTrue(store.records.isEmpty())
         disk.runAll()
         assertTrue(store.journalFrozen, "and its result on its way to main")
+        assertNull(store.settings.silentDecayAppliedFor, "nothing of the activation ran ahead of the journal")
         main.runAll()
         assertFalse(store.journalFrozen)
         assertEquals(1, store.records.size)
+        assertNotNull(store.settings.silentDecayAppliedFor, "the rest of the activation ran on the journal that landed")
     }
 
     @Test

@@ -164,7 +164,16 @@ class WorkoutFlowViewTest : WorkoutSessionTestCase() {
      *  spends it is pinned on a device (SettleWindowTest, androidTest). */
     @Test
     fun theSettleWindowIsLongEnoughForADoubleTapAndShortOnlyForTheSuite() {
-        assertFalse(UITestFlags.fast, "nothing outside the UI suite turns the fast flag on")
+        // The app's own sources never write the flag — only androidTest does —
+        // so a release build reads `false` forever.
+        val main = IosCatalogs.iosRoot.parent.resolve("android/app/src/main/kotlin")
+        val writers = java.nio.file.Files.walk(main).use { paths ->
+            paths.filter { it.toString().endsWith(".kt") }
+                .filter { Regex("""UITestFlags\.fast\s*=[^=]""").containsMatchIn(java.nio.file.Files.readString(it)) }
+                .toList()
+        }
+        assertEquals(emptyList(), writers, "the app sets the UI suite's fast flag")
+        assertFalse(UITestFlags.fast)
         assertEquals(350, SettleWindowLength.value.toMillis())
         UITestFlags.fast = true
         try {

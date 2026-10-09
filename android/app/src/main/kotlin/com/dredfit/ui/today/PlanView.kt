@@ -106,7 +106,7 @@ fun PlanView(observedStore: Observed<AppStore>, start: (WorkoutRequest) -> Unit,
             }
         }
 
-        PlanNotes(store)
+        PlanNotes(observedStore)
 
         if (store.showsMigrationNotice) {
             Box(Modifier.padding(top = 10.dp)) { MigrationCard { observedStore.act { dismissMigrationNotice() } } }
@@ -154,7 +154,8 @@ fun PlanView(observedStore: Observed<AppStore>, start: (WorkoutRequest) -> Unit,
 /** The two quiet sentences the plan says about ITSELF, before any card asks
  *  for a decision. */
 @Composable
-private fun PlanNotes(store: AppStore) {
+private fun PlanNotes(observedStore: Observed<AppStore>) {
+    val store by observedStore
     val c = Theme.colors
     // Said ONCE: with the comeback card up, the card names the same drop.
     if (store.silentDecayAppliedForCurrentBreak && !store.shouldOfferComeback()) {
