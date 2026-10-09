@@ -8,11 +8,16 @@
 
 package com.dredfit.ui
 
+import android.Manifest
 import android.app.Activity
 import android.app.UiModeManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -50,6 +55,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import com.dredfit.signals.DeviceSignals
 import com.dredfit.store.AppStore
@@ -72,9 +78,14 @@ import com.dredfit.ui.today.TodayScreen
 import com.dredfit.ui.workout.ActiveWorkout
 import com.dredfit.ui.workout.ReviewPrompt
 import com.dredfit.ui.workout.WorkoutFlowView
+import com.dredfit.ongoing.NotificationAsk
+import com.dredfit.workout.OngoingHost
+import java.io.File
+import java.io.IOException
 
-/** The flow in flight, owned by the process so a recreated activity finds it. */
-class FlowHolder {
+/** The flow in flight, owned by the process so a recreated activity finds it,
+ *  and the ongoing notification every flow drives. */
+class FlowHolder(val ongoing: OngoingHost) {
     var active by mutableStateOf<ActiveWorkout?>(null)
 }
 
@@ -108,6 +119,7 @@ fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: (
         // Read in the first composition, so a fresh install's first frame is
         // already the onboarding and Today is never composed under it.
         var onboardingShown by rememberSaveable { mutableStateOf(store.shouldShowOnboarding) }
+        val askToNotify = rememberNotificationAsk()
         val active = holder.active
         Box(Modifier.fillMaxSize().background(c.bg)) {
             when {
@@ -115,7 +127,7 @@ fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: (
                     // The claim on the snapshot ends with the flow, not with
                     // the composition that drew it (WorkoutFlowView.kt).
                     store.workoutFlowDisappeared()
-                    active.flow.value.disappear()
+                    active.close()
                     holder.active = null
                 }
                 onboardingShown -> OnboardingView {
@@ -138,7 +150,9 @@ fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: (
                                     // recreated activity — cannot settle the workout
                                     // out from under the athlete still in it.
                                     store.workoutFlowAppeared()
-                                    holder.active = ActiveWorkout.start(request.session, store, signals(),
+                                    // Not for a flow that opens on the rating: no tile is drawn there.
+                                    askToNotify(request.settleImmediately || request.resume?.atFeedback == true)
+                                    holder.active = ActiveWorkout.start(request.session, store, signals(), holder.ongoing,
                                                                         request.resume, request.settleImmediately)
                                 })
                                 RootTab.calendar -> CalendarScreen(observedStore)
@@ -192,6 +206,37 @@ private fun TabBar(tab: RootTab, select: (RootTab) -> Unit) {
         }
     }
 }
+
+/**
+ * POST_NOTIFICATIONS, asked once as the first workout starts
+ * (`NotificationAsk`). The workout never waits for the answer, and a refusal
+ * changes nothing but the shade: the service, the beat and every signal run
+ * the same, and the workout shows in the system's Task Manager instead.
+ *
+ * The "asked" mark is a file in `noBackupFilesDir`: a permission belongs to
+ * the device, and a mark restored onto a new phone would leave it never
+ * asked there. A mark that cannot be written only means asking again.
+ */
+@Composable
+private fun rememberNotificationAsk(): (opensOnTheRating: Boolean) -> Unit {
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
+    return { opensOnTheRating ->
+        val permission = Manifest.permission.POST_NOTIFICATIONS
+        val mark = File(context.noBackupFilesDir, NOTIFICATIONS_ASKED)
+        val granted = ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+        if (NotificationAsk.shouldAsk(Build.VERSION.SDK_INT, granted, askedBefore = mark.exists(), opensOnTheRating)) {
+            try {
+                mark.createNewFile()
+            } catch (unwritable: IOException) {
+                Log.w("RootScreen", "the notification ask could not be marked", unwritable)
+            }
+            launcher.launch(permission)
+        }
+    }
+}
+
+private const val NOTIFICATIONS_ASKED = "notifications-asked"
 
 /** Android 14's contrast setting stands in for iOS's Increased Contrast:
  *  any raised level (medium or high) takes the palette's second column.

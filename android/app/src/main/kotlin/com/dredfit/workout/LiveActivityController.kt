@@ -1,14 +1,109 @@
 //
-//  The tile as the workout flow drives it. Port of the `WorkoutActivityDriving`
-//  protocol of ios/Dredfit/LiveActivityController.swift; the controller
-//  itself (ActivityKit there, an ongoing notification here) is phase 3. A
-//  test watches what the tile would show through this seam.
+//  The tile as the workout flow drives it. Port of
+//  ios/Dredfit/LiveActivityController.swift: the `WorkoutActivityDriving`
+//  protocol, and the controller behind it — ActivityKit there, the ongoing
+//  notification here. The controller is plain Kotlin over `OngoingHost`, so
+//  the order of start / update / end runs in a JVM test; the notification,
+//  its foreground service and the wake lock are ongoing/OngoingNotification.kt.
 //
 
 package com.dredfit.workout
+
+import java.time.Instant
 
 interface WorkoutActivityDriving {
     fun start(sessionNumber: Int, state: ActivityState)
     fun update(state: ActivityState)
     fun end()
+}
+
+/** The device half: the foreground service with its notification, and the
+ *  CPU kept awake while a countdown has to land on its second. */
+interface OngoingHost {
+    /** Between the first `show` and `hide` — false again when the system
+     *  refused the service, so the flow falls back to the iOS rule. */
+    val isUp: Boolean
+    /** Starts the service on the first call, redraws the notification after. */
+    fun show(content: OngoingContent)
+    /** Stops the service and takes the notification away; the controller
+     *  has released the CPU first. */
+    fun hide()
+    /** Holds or releases the partial wake lock; a repeat is a no-op. Only
+     *  between `show` and `hide`. */
+    fun keepAwake(awake: Boolean)
+}
+
+/**
+ * `WorkoutActivityController` for Android. As on iOS, an update or an end
+ * with no tile up does nothing: the flow ends the tile on the rating, and a
+ * late update from a sheet closing must not bring it back.
+ */
+class OngoingWorkout(private val host: OngoingHost, private val now: () -> Instant) : WorkoutActivityDriving {
+
+    private var started = false
+
+    /** The notification is up and the service with it. */
+    val isShown: Boolean get() = started && host.isUp
+
+    /** When this flow put it up — the floor of the forgotten-workout clock,
+     *  so an older snapshot on disk cannot retire a tile just shown. */
+    var shownAt: Instant? = null
+        private set
+
+    private var awake = false
+
+    /** The state last drawn, and the end its chronometer counts to. */
+    private var last: ActivityState? = null
+    private var countingTo: Instant? = null
+
+    override fun start(sessionNumber: Int, state: ActivityState) {
+        started = true
+        shownAt = now()
+        draw(state)
+    }
+
+    override fun update(state: ActivityState) {
+        if (!isShown) return
+        draw(state)
+    }
+
+    /**
+     * Redraws a countdown whose end has passed without an update — the flow
+     * standing at an end while the person is away, or behind "Leave the
+     * workout?". A system chronometer counts on below zero; iOS's
+     * `Text(timerInterval:)` stops, so the tile drops the countdown instead.
+     * Called every beat; draws only once per end.
+     */
+    fun refresh() {
+        val end = countingTo ?: return
+        val state = last ?: return
+        if (isShown && end <= now()) draw(state)
+    }
+
+    private fun draw(state: ActivityState) {
+        val content = OngoingContent.of(state, now())
+        last = state
+        countingTo = content.countdownTo
+        host.show(content)
+    }
+
+    override fun end() {
+        if (!started) return
+        // Released here, before the service goes: the tile can end on its
+        // own (the cool-down's last position, the forgotten-workout rule)
+        // with a countdown still running, and no beat after it would ever
+        // ask for the lock back.
+        keepAwake(false)
+        started = false
+        host.hide()
+    }
+
+    /** The CPU stays up only while the tile is: a lock outliving the
+     *  notification would be a workout nobody can see holding the battery. */
+    fun keepAwake(awake: Boolean) {
+        val wanted = awake && isShown
+        if (wanted == this.awake) return
+        this.awake = wanted
+        host.keepAwake(wanted)
+    }
 }

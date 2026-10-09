@@ -1,8 +1,8 @@
 //
 //  The screens of a workout: warm-up > work > rest > … > cool-down > rating.
 //  Port of ios/Dredfit/Views/Workout/WorkoutFlowView.swift. What happens on
-//  them is `WorkoutSession`'s; this view renders it, forwards taps, ticks the
-//  clocks once a second while the app is in front, and keeps the screen on.
+//  them is `WorkoutSession`'s; this view renders it, forwards taps, tells the
+//  flow's beat (WorkoutBeat.kt) when it is on screen, and keeps the screen on.
 //
 //  The screens are split across sibling files the way the flow is:
 //  WorkoutFlowViewWarmup/Cooldown (the guided blocks), WorkoutFlowViewWork
@@ -36,7 +36,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -63,11 +62,13 @@ import com.dredfit.ui.theme.AlertAction
 import com.dredfit.ui.theme.DredfitAlert
 import com.dredfit.ui.theme.Theme
 import com.dredfit.ui.tr
-import com.dredfit.workout.ActivityState
 import com.dredfit.workout.GuidedStage
 import com.dredfit.workout.Retrospective
 import com.dredfit.workout.TechniqueTarget
-import com.dredfit.workout.WorkoutActivityDriving
+import com.dredfit.workout.BeatTimer
+import com.dredfit.workout.OngoingHost
+import com.dredfit.workout.OngoingWorkout
+import com.dredfit.workout.WorkoutBeat
 import com.dredfit.workout.WorkoutSession
 import com.dredfit.workout.WorkoutSession.Phase
 import com.dredfit.workout.canExtendRest
@@ -87,8 +88,6 @@ import com.dredfit.workout.reentering
 import com.dredfit.workout.restTechniqueTarget
 import com.dredfit.workout.resumePositionCountdown
 import com.dredfit.workout.resumeRestCountdown
-import com.dredfit.workout.sceneCameBack
-import com.dredfit.workout.sceneLeft
 import java.time.Instant
 
 /**
@@ -98,13 +97,62 @@ import java.time.Instant
  * activity (a theme or language change) finds the same flow; a process death
  * loses it, and Today's "Continue the workout?" picks the snapshot up.
  */
-class ActiveWorkout(val session: Session, val flow: Observed<WorkoutSession>, val signals: DeviceSignals) {
+class ActiveWorkout(val session: Session, val flow: Observed<WorkoutSession>, val signals: DeviceSignals,
+                    /** The flow's second, owned with the flow rather than by the
+                     *  screen: behind the ongoing notification it beats on with
+                     *  no screen at all (WorkoutBeat.kt). */
+                    val beat: WorkoutBeat) {
+
+    /** The flow is over — rated, left for later, discarded: the beat stops
+     *  and the tile goes. */
+    fun close() {
+        beat.close()
+        flow.value.disappear()
+    }
+
     companion object {
-        fun start(session: Session, store: AppStore, signals: DeviceSignals, resume: WorkoutSnapshot? = null,
-                  settleImmediately: Boolean = false): ActiveWorkout =
-            ActiveWorkout(session, Observed(WorkoutSession(
+        fun start(session: Session, store: AppStore, signals: DeviceSignals, ongoing: OngoingHost,
+                  resume: WorkoutSnapshot? = null, settleImmediately: Boolean = false): ActiveWorkout {
+            val tile = OngoingWorkout(ongoing, Instant::now)
+            val flow = Observed(WorkoutSession(
                 session = session, store = store, resume = resume, settleImmediately = settleImmediately,
-                liveActivity = NoOngoingNotification, signals = signals, now = Instant::now)), signals)
+                liveActivity = tile, signals = signals, now = Instant::now))
+            return ActiveWorkout(session, flow, signals, WorkoutBeat(flow.value, tile, MainLooperBeat(), flow::act))
+        }
+    }
+}
+
+/**
+ * The beat's timer: the main looper, like iOS's `Timer.publish(every: 1)`,
+ * rather than a coroutine `delay` — the flow's clocks are wall-clock end
+ * dates, and a composition's coroutines run on the frame clock a UI test
+ * drives in virtual time; a tick has to stay a real second everywhere.
+ *
+ * Re-armed on its SCHEDULE, like `Timer.publish`, not a second after the
+ * beat's own work (tones, vibration): a drifting beat crosses a countdown's
+ * second boundary, `read` jumps two seconds, and a 3-2-1 loses its tick.
+ */
+private class MainLooperBeat : BeatTimer {
+    private val main = Handler(Looper.getMainLooper())
+    private var next = 0L
+    private var beat: () -> Unit = {}
+    private val runnable = object : Runnable {
+        override fun run() {
+            beat()
+            next += 1000
+            main.postAtTime(this, next)
+        }
+    }
+
+    override fun start(beat: () -> Unit) {
+        this.beat = beat
+        main.removeCallbacks(runnable)
+        next = SystemClock.uptimeMillis() + 1000
+        main.postAtTime(runnable, next)
+    }
+
+    override fun stop() {
+        main.removeCallbacks(runnable)
     }
 }
 
@@ -131,14 +179,6 @@ fun AppStore.askForReviewIfEarned(lastResult: FeedbackResult?, prompt: ReviewPro
     prompt.request()
 }
 
-/** The ongoing notification (iOS's Live Activity) arrives with phase 3; until
- *  then the flow drives nothing. */
-private object NoOngoingNotification : WorkoutActivityDriving {
-    override fun start(sessionNumber: Int, state: ActivityState) = Unit
-    override fun update(state: ActivityState) = Unit
-    override fun end() = Unit
-}
-
 @Composable
 fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, reviewPrompt: ReviewPrompt,
                     onClose: () -> Unit) {
@@ -152,7 +192,6 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, re
     // The rating that earned the milestones on screen — what gates the
     // review ask. Saveable: a recreated activity keeps the milestone up.
     var lastResult by rememberSaveable { mutableStateOf<FeedbackResult?>(null) }
-    val exitShown by rememberUpdatedState(exitConfirmShown)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     // On screen: the flow primes the signals and starts. Once — `appear` is
@@ -165,50 +204,31 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, re
         observed.act { appear() }
     }
 
-    // One second of the flow, while the app is in front — a backgrounded iOS
-    // app runs no timer either, and every countdown is an end date, so a
-    // skipped tick loses nothing. Nothing the clocks drive happens behind
-    // "Leave the workout?": the clocks run on and are only primed.
-    //
-    // A main-looper timer, like iOS's `Timer.publish(every: 1)`, rather than
-    // a coroutine `delay`: the flow's clocks are wall-clock end dates, and a
-    // composition's coroutines run on the frame clock a UI test drives in
-    // virtual time — a tick has to stay a real second everywhere.
-    //
-    // Only leaving is leaving: a pulled-down shade keeps the app started.
-    DisposableEffect(lifecycle, observed) {
-        val main = Handler(Looper.getMainLooper())
-        // Re-armed on its SCHEDULE, like `Timer.publish`, not a second after
-        // the beat's own work (tones, vibration): a drifting beat crosses a
-        // countdown's second boundary, `read` jumps two seconds, and a 3-2-1
-        // loses its tick.
-        var next = 0L
-        val beat = object : Runnable {
-            override fun run() {
-                observed.act { if (exitShown) primeComingBack() else tick() }
-                next += 1000
-                main.postAtTime(this, next)
-            }
-        }
+    // The screen tells the beat when it is up (WorkoutBeat.kt): leaving is
+    // leaving, as on iOS, and off screen the beat runs on only for the
+    // countdown's seconds behind the ongoing notification. Every countdown
+    // is an end date, so a skipped tick loses nothing. Only leaving is
+    // leaving: a pulled-down shade keeps the app started.
+    DisposableEffect(lifecycle, active) {
         val watcher = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_START -> {
-                    observed.act { sceneCameBack() }
-                    next = SystemClock.uptimeMillis() + 1000
-                    main.postAtTime(beat, next)
-                }
-                Lifecycle.Event.ON_STOP -> {
-                    main.removeCallbacks(beat)
-                    observed.act { sceneLeft() }
-                }
+                Lifecycle.Event.ON_START -> active.beat.screen(visible = true)
+                Lifecycle.Event.ON_STOP -> active.beat.screen(visible = false)
                 else -> Unit
             }
         }
         lifecycle.addObserver(watcher)
         onDispose {
             lifecycle.removeObserver(watcher)
-            main.removeCallbacks(beat)
+            active.beat.screen(visible = false)
         }
+    }
+    // Nothing the clocks drive happens behind "Leave the workout?": the
+    // clocks run on and are only primed. Not saveable, like the alert: a
+    // recreated activity comes back without it, and the beat with it.
+    DisposableEffect(active, exitConfirmShown) {
+        active.beat.exitAlertShown = exitConfirmShown
+        onDispose { active.beat.exitAlertShown = false }
     }
 
     // The screen stays on for the whole session — except while a block is

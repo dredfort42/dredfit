@@ -22,12 +22,14 @@ internal object AndroidStrings {
         "Rate on Google Play",
         "The tones play even when the phone is set to silent or vibrate.",
         "When the phone is set to silent or vibrate, the tones go quiet — the vibration keeps going.",
+        "Workout in progress",
     )
 
     private fun stringIds(): IntArray = intArrayOf(
         R.string.android_rate_on_google_play_1b86d374,
         R.string.android_the_tones_play_even_when_the_phone_is_se_2f936e1b,
         R.string.android_when_the_phone_is_set_to_silent_or_vibra_a20ca2f7,
+        R.string.android_workout_in_progress_90335fa4,
     )
 
     private fun pluralKeys(): Array<String> = arrayOf<String>()

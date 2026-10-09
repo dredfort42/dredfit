@@ -108,6 +108,8 @@ object AX {
     // button has no identifier, so the iOS suite taps them by label).
     const val skipConfirm = "skip-confirm"
     const val exitFinishLater = "exit-finish-later"
+    const val exitFinishNow = "exit-finish-now"
+    const val exitDiscard = "exit-discard"
     const val nextWorkout = "next-workout"
     const val changeRating = "change-rating"
 

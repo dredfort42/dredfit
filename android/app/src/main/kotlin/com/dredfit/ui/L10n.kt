@@ -6,6 +6,7 @@
 
 package com.dredfit.ui
 
+import android.content.res.Resources
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
@@ -34,18 +35,23 @@ import java.util.Locale
  */
 @Composable
 fun tr(key: String, vararg args: Any): String {
-    val plural = AppStrings.plural(key) ?: CoreStrings.plural(key) ?: WidgetStrings.plural(key)
-        ?: AndroidStrings.plural(key)
+    val plural = pluralId(key)
     if (plural != null) {
         val count = pluralCount(args.toList()) ?: 0
         return pluralStringResource(plural, count, *args)
     }
-    val id = AppStrings.string(key) ?: CoreStrings.string(key) ?: WidgetStrings.string(key)
-        ?: AndroidStrings.string(key)
+    val id = stringId(key)
     if (id != null) return stringResource(id, *args)
     if (args.isEmpty()) return key
     return Words(null, key, args.toList()).english
 }
+
+/** The four catalogs' resource for `key`, in the one order every lookup uses. */
+private fun pluralId(key: String): Int? = AppStrings.plural(key) ?: CoreStrings.plural(key)
+    ?: WidgetStrings.plural(key) ?: AndroidStrings.plural(key)
+
+private fun stringId(key: String): Int? = AppStrings.string(key) ?: CoreStrings.string(key)
+    ?: WidgetStrings.string(key) ?: AndroidStrings.string(key)
 
 /** The argument a plural key is declined by: its last integer. */
 fun pluralCount(args: List<Any>): Int? = args.lastOrNull { it is Int || it is Long }?.let { (it as Number).toInt() }
@@ -58,11 +64,22 @@ fun tr(words: Words): String {
     val args = words.args.map { if (it is Words) tr(it) else it }
     if (words.isNarrowList) return listFormatted(args.map { it.toString() }, narrow = true)
     val key = words.key ?: return Words(null, words.format, args).english
-    val known = AppStrings.plural(key) ?: CoreStrings.plural(key) ?: WidgetStrings.plural(key)
-        ?: AndroidStrings.plural(key)
-        ?: AppStrings.string(key) ?: CoreStrings.string(key) ?: WidgetStrings.string(key)
-        ?: AndroidStrings.string(key)
-    if (known != null) return tr(key, *args.toTypedArray())
+    if (pluralId(key) != null || stringId(key) != null) return tr(key, *args.toTypedArray())
+    return Words(null, words.format, args).english
+}
+
+/**
+ * `tr(words)` outside a composition — the ongoing notification's text, which
+ * the system draws long after any screen. The same lookups, resolved
+ * against `resources` (the app's, in its current language) instead of the
+ * composition's configuration.
+ */
+fun Resources.tr(words: Words): String {
+    val args = words.args.map { if (it is Words) tr(it) else it }
+    if (words.isNarrowList) return NarrowList.join(args.map { it.toString() }, configuration.locales[0])
+    val key = words.key ?: return Words(null, words.format, args).english
+    pluralId(key)?.let { return getQuantityString(it, pluralCount(args) ?: 0, *args.toTypedArray()) }
+    stringId(key)?.let { return getString(it, *args.toTypedArray()) }
     return Words(null, words.format, args).english
 }
 
