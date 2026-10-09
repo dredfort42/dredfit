@@ -82,6 +82,10 @@ object SwiftJson {
     /** Swift's reference date, 2001-01-01T00:00:00Z, in Unix seconds. */
     private const val REFERENCE_EPOCH_SECOND = 978_307_200L
 
+    /** 0001-01-01T00:00:00Z and 9999-12-31T23:59:59Z, since the reference date. */
+    private const val DATE_MIN = -62_135_596_800.0 - REFERENCE_EPOCH_SECOND
+    private const val DATE_MAX = 253_402_300_799.0 - REFERENCE_EPOCH_SECOND
+
     /**
      * Swift's default date strategy (`.deferredToDate`): a `Date` is its
      * `timeIntervalSinceReferenceDate`, a Double. Every date in an iOS file
@@ -90,7 +94,10 @@ object SwiftJson {
      * magnitude, so a date read here and written back is the same Double.
      */
     fun date(e: JsonElement?): Instant? {
-        val seconds = double(e) ?: return null
+        // Swift's Date takes any Double; java.time throws past its range, and
+        // a calendar throws well inside it. A hand-edited date is held to
+        // the years 1…9999, which no real record leaves.
+        val seconds = (double(e) ?: return null).coerceIn(DATE_MIN, DATE_MAX)
         val whole = floor(seconds)
         // `ofEpochSecond` carries a rounded-up 1e9 into the seconds itself.
         val nanos = Math.round((seconds - whole) * 1e9)
@@ -98,6 +105,15 @@ object SwiftJson {
     }
 
     fun date(instant: Instant): JsonPrimitive = JsonPrimitive(sinceReference(instant))
+
+    /**
+     * The instant a Swift `Date` can hold — a Double of seconds, coarser than
+     * a nanosecond at today's magnitude. Every date the app STORES goes
+     * through this when it is made, so a record in memory and the same record
+     * read back from a file are equal: identity (`WorkoutRecord.id`) and an
+     * import's lineage check compare them.
+     */
+    fun swiftDate(instant: Instant): Instant = date(date(instant)) ?: instant
 
     /** `timeIntervalSinceReferenceDate`. */
     fun sinceReference(instant: Instant): Double =
