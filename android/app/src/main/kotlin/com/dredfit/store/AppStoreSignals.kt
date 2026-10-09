@@ -150,6 +150,14 @@ fun AppStore.unnamedLessSuspect(): Pattern? {
     return suspect
 }
 
+/** The plan row stands on an easier variation than the last workout left
+ *  the movement on — moved by something other than the athlete's own handle
+ *  (the decay, a comeback, a fresh start), which the row does not guess at. */
+fun AppStore.aVariationJustDropped(exercise: SessionExercise): Boolean {
+    val before = records.lastOrNull()?.positionsAfter?.get(exercise.pattern) ?: return false
+    return exercise.variation < before.variation
+}
+
 /** "Tough", and no number entered for any movement. */
 private fun namesNothing(record: WorkoutRecord): Boolean = record.actuals.isNullOrEmpty()
 

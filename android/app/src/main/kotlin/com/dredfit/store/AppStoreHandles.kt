@@ -10,6 +10,7 @@ import com.dredfit.core.Engine
 import com.dredfit.core.LoadUnit
 import com.dredfit.core.Library
 import com.dredfit.core.Pattern
+import com.dredfit.core.SessionExercise
 import com.dredfit.core.cutMax
 import com.dredfit.core.easierPosition
 import com.dredfit.core.easierVariation
@@ -27,13 +28,15 @@ fun AppStore.canMakeEasier(pattern: Pattern): Boolean =
 /**
  * The movement one step down the ladder, in pieces: on `pull_bar` 3 → 2 the
  * UNIT changes, which a glued "3×15" → "3×15 sec" would not say. `name` and
- * `dose` are the English base strings; the screen localizes them.
+ * `dose` are the English base strings; the screen localizes `name` and prints
+ * the dose from `exercise` in the reader's words (`displayOf`).
  */
 data class EasierStep(
     val name: String,
     val dose: String,
     val unitChanged: Boolean,
     val variation: Int,
+    val exercise: SessionExercise,
 )
 
 /** Asks the engine on a COPY and writes nothing, so what is shown is what
@@ -43,7 +46,8 @@ fun AppStore.easierStep(pattern: Pattern): EasierStep? {
     val before: LoadUnit = Library.unit(pattern, engineState.position(pattern).variation)
     val after = Engine.easierVariation(state = engineState, pattern = pattern)
     return Engine.generateSession(after).exercises.firstOrNull { it.pattern == pattern }?.let {
-        EasierStep(name = it.name, dose = it.display, unitChanged = it.unit != before, variation = it.variation)
+        EasierStep(name = it.name, dose = it.display, unitChanged = it.unit != before, variation = it.variation,
+                   exercise = it)
     }
 }
 
