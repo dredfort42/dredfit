@@ -14,48 +14,19 @@ package com.dredfit
 import com.dredfit.core.Library
 import com.dredfit.core.Pattern
 import com.dredfit.workout.LifeBenefit
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlin.test.fail
 
 class LifeBenefitTest {
 
-    /** `ios/`, found by walking up from the working directory — Gradle runs a
-     *  module's tests in the module (`android/app`), but a run from elsewhere
-     *  must not read as a missing catalog. Derived in ONE place, as on iOS. */
-    private val iosRoot: Path
-        get() {
-            var dir: Path? = Paths.get(System.getProperty("user.dir")).toAbsolutePath()
-            while (dir != null) {
-                val candidate = dir.resolve("ios")
-                if (Files.isDirectory(candidate.resolve("Dredfit"))) return candidate
-                dir = dir.parent
-            }
-            fail("no ios/Dredfit above ${System.getProperty("user.dir")}")
-        }
+    private fun strings(catalog: String): JsonObject = IosCatalogs.strings(catalog)
 
-    /** The `strings` object of a catalog under `ios/`. */
-    private fun strings(catalog: String): JsonObject {
-        val root = Json.parseToJsonElement(Files.readString(iosRoot.resolve(catalog))).jsonObject
-        return assertNotNull(root["strings"]?.jsonObject)
-    }
-
-    /** `localizations.<lang>.stringUnit.value`, or null anywhere along the way. */
-    private fun value(entry: JsonObject?, lang: String): String? =
-        (((entry?.get("localizations") as? JsonObject)?.get(lang) as? JsonObject)
-            ?.get("stringUnit") as? JsonObject)?.get("value")?.jsonPrimitive?.contentOrNull
+    private fun value(entry: JsonObject?, lang: String): String? = IosCatalogs.unit(entry, lang)
 
     // MARK: - Base lines
 
