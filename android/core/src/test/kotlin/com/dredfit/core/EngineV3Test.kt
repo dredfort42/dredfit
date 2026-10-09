@@ -99,6 +99,15 @@ class EngineV3Test {
         assertEquals<Set<Pattern>>(setOf(Pattern.pull), back.lastHard)
     }
 
+    /** Kotlin-only: kotlinx writes a bare `NaN` where Swift's encoder throws,
+     *  and iOS refuses the whole file that carries one. */
+    @Test
+    fun aNonFiniteWeekAgeIsNotWritten() {
+        val s = EngineState.initial
+        s.weekAgeDays = Double.NaN
+        assertFailsWith<IllegalArgumentException> { s.encode() }
+    }
+
     // MARK: - The probe
 
     /** The probe replaces the LAST of the remaining sets: one working set

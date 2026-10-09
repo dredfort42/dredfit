@@ -8,7 +8,6 @@
 
 package com.dredfit.core
 
-import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -50,10 +49,18 @@ class DoseTotalityTest {
         }
         val session = Engine.generateSession(state)
         assertFalse(session.exercises.isEmpty())
+        // The JVM wraps Int overflow where Swift traps, and abs(Int.MIN_VALUE)
+        // stays negative, so the Swift `abs(dose) < countMax` would pass the
+        // seeded value through. On the grid is the claim that can fail here.
+        for (e in session.exercises) {
+            val g = Dose.grid(e.unit)
+            assertTrue(e.load in g.min..g.max, "${e.pattern}: ${e.load}")
+        }
         val clean = state.sanitized()
         for (p in Pattern.allCases) {
             val dose = clean.doses[p] ?: 0
-            assertTrue(abs(dose) < EngineConfig.countMax, "$p: $dose")
+            val g = Dose.grid(Library.unit(p, clean.vars[p] ?: 1))
+            assertTrue(dose in g.min..g.max, "$p: $dose")
         }
     }
 }

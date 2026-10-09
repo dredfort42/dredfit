@@ -224,8 +224,15 @@ class EngineState(
 
     // MARK: - The wire format
 
-    /** The JSON Swift's synthesized `Encodable` writes for this struct. */
-    fun toJson(): JsonObject = JsonObject(linkedMapOf(
+    /** The JSON Swift's synthesized `Encodable` writes for this struct.
+     *  Throws on a non-finite `weekAgeDays` as Swift's encoder does: a bare
+     *  `NaN` is not JSON, and iOS would refuse the whole file it lands in. */
+    fun toJson(): JsonObject {
+        require(weekAgeDays.isFinite()) { "weekAgeDays is not finite: $weekAgeDays" }
+        return encodeFields()
+    }
+
+    private fun encodeFields(): JsonObject = JsonObject(linkedMapOf(
         "counter" to JsonPrimitive(counter),
         "hasBar" to JsonPrimitive(hasBar),
         "vars" to encodeMap(vars),
