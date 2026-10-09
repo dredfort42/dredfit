@@ -23,6 +23,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
 
+@RunsAlone
 @RunWith(AndroidJUnit4::class)
 class ScreenshotWalk : DredfitUITest() {
 

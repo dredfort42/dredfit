@@ -48,6 +48,7 @@ import com.dredfit.core.generateSession
 import com.dredfit.core.roundedAwayFromZero
 import com.dredfit.journal.WorkoutRecord
 import com.dredfit.journal.WorkoutSnapshot
+import com.dredfit.reminders.NotificationScheduling
 import com.dredfit.workout.Milestone
 import com.dredfit.workout.MilestoneDetector
 import com.dredfit.workout.SetFacts
@@ -70,6 +71,9 @@ class AppStore(
     private val disk: Executor = Executor { it.run() },
     /** Where a disk result comes back to — the thread the store lives on. */
     private val main: Executor = Executor { it.run() },
+    /** The reminders' alarms and the notification permission — the system's
+     *  in the app (`SystemNotificationScheduler`), a spy or nothing in a test. */
+    val notifications: NotificationScheduling = NotificationScheduling.none,
 ) {
     /** Its ZONE is the trainee's — iOS's `Calendar.current` — and every
      *  calendar question (rest weekdays, training days, the ISO week) is asked
@@ -91,6 +95,14 @@ class AppStore(
      *  persisted: after a process death nothing owns the snapshot. */
     var workoutIsOnScreen: Boolean = false
         private set
+
+    /** The last ask for the reminder's permission came back refused — what
+     *  names the denied note under the switch (iOS keeps it as the view's
+     *  state, read off the switch bouncing back; here an import asks too,
+     *  from another group of the screen). Not persisted: a permission is the
+     *  device's. Set by `setReminderEnabled`, cleared by the switch. */
+    var reminderRefused: Boolean = false
+        internal set
 
     fun workoutFlowAppeared() { workoutIsOnScreen = true }
     fun workoutFlowDisappeared() { workoutIsOnScreen = false }
@@ -191,6 +203,9 @@ class AppStore(
         }
         journalFrozen = false
         changed()
+        // Left alone while frozen — rebuilt now that the real settings and
+        // journal are here.
+        rescheduleReminders()
     }
 
     /** What a read hands the store, at launch and on a reload alike. */
@@ -299,8 +314,14 @@ class AppStore(
             raisedSteps = raised.ifEmpty { null },
             raisedLanded = if (raised.isEmpty()) null else landed)
         persist()
-        // Reminders and the Health export follow a finished workout on iOS;
-        // they arrive here with reminders/ and health/.
+        // A morning workout takes tonight's reminder down with it. NOT
+        // `now = date`: the record's date is about the JOURNAL, and a settled
+        // workout is dated to the day it happened — yesterday. Scheduled
+        // from a past `now`, today's slot, already gone, would pass the
+        // `fire > now` guard and sit where it can never fire.
+        rescheduleReminders()
+        // The Health export follows a finished workout on iOS; it arrives
+        // here with health/.
         return MilestoneDetector.detect(before = before, after = engineState, session = session, skipped = skipped)
     }
 

@@ -26,9 +26,10 @@ android {
         // The frames for comparing with the iOS store shots are taken on
         // request (`adb shell am instrument -e class com.dredfit.ScreenshotWalk
         // -e screens <prefix> …`), never as part of the suite. The refused-
-        // notification walk needs a permission never granted, which the
-        // suite grants, so it runs alone (NotificationDeniedTest's header).
-        testInstrumentationRunnerArguments["notClass"] = "com.dredfit.ScreenshotWalk,com.dredfit.NotificationDeniedTest"
+        // notification walk and the refused reminder need a permission never
+        // granted, which the suite grants, so each runs alone. All three are
+        // @RunsAlone (androidTest RunsAlone.kt says why not a notClass list).
+        testInstrumentationRunnerArguments["notAnnotation"] = "com.dredfit.RunsAlone"
         // About's "Rate on Google Play" and "Recommend Dredfit" point at the
         // Play listing, which does not exist yet: a link to a missing page is
         // worse than no link. Flip to true once the listing is live
@@ -120,6 +121,8 @@ tasks.withType<Test>().configureEach {
         fileTree(rootProject.file("../ios/DredfitWidgets")) { include("**/*.swift") },
         fileTree("src/main/kotlin") { include("**/*.kt") },
     ).withPropertyName("scannedSources").withPathSensitivity(PathSensitivity.RELATIVE)
+    // ReminderTriggerTest reads the manifest's receivers in place.
+    inputs.file("src/main/AndroidManifest.xml").withPropertyName("manifest").withPathSensitivity(PathSensitivity.RELATIVE)
     testLogging {
         events("failed")
         exceptionFormat = TestExceptionFormat.FULL

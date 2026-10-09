@@ -3,11 +3,6 @@
 //  which persists in the same call; every write that also moves the engine
 //  stays in AppStore.kt. Port of ios/Dredfit/AppStore+SettingsWrites.swift.
 //
-//  Not here yet: `setReminderEnabled`, which asks the system for permission —
-//  it arrives with reminders/, as does the rescheduling iOS runs after a rest
-//  day or a reminder time changes. The settings themselves are written now,
-//  so a backup carries them across untouched.
-//
 
 package com.dredfit.store
 
@@ -25,14 +20,48 @@ fun AppStore.toggleRestDay(weekday: Int) {
         if (days.size >= 7) return
     }
     update { it.copy(settings = it.settings.copy(restWeekdays = days)) }
+    rescheduleReminders()
 }
 
 fun AppStore.setSounds(on: Boolean) {
     update { it.copy(settings = it.settings.copy(soundsEnabled = on)) }
 }
 
+/** ON asks the system first and turns itself back OFF on a refusal — the
+ *  switch shows what the phone will actually do. The answer may come later
+ *  (a system dialog); a store with nobody to show the dialog is answered at
+ *  once with what the phone already allows. */
+fun AppStore.setReminderEnabled(on: Boolean) {
+    reminderRefused = false
+    update { it.copy(settings = it.settings.copy(reminderEnabled = on)) }
+    if (!on) return rescheduleReminders()
+    reminderScheduler.requestAuthorization { granted ->
+        if (granted) {
+            rescheduleReminders()
+        } else {
+            // The system said no: the switch reflects it, and the note under
+            // it says why (it is the only setting with no way back from
+            // inside the app).
+            reminderRefused = true
+            update { it.copy(settings = it.settings.copy(reminderEnabled = false)) }
+            // And the window goes with it. iOS stops here, but a window drawn
+            // while the flag was on (an activation before a restore's
+            // re-check, an import) would outlive the switch: allowed later in
+            // the system settings, it would remind with the switch OFF.
+            rescheduleReminders()
+        }
+    }
+}
+
+/** The denied note goes with the screen that showed it, as the view's state
+ *  does on iOS. */
+fun AppStore.forgetReminderRefusal() {
+    reminderRefused = false
+}
+
 fun AppStore.setReminderTime(hour: Int, minute: Int) {
     update { it.copy(settings = it.settings.copy(reminderHour = hour, reminderMinute = minute)) }
+    rescheduleReminders()
 }
 
 // MARK: - Onboarding

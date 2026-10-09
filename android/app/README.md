@@ -26,7 +26,13 @@ app/src/
 │   │   journal/     Journal, V2EngineState (the backup itself is
 │   │                store/AppStoreBackup.kt, after AppStore+Backup.swift)
 │   │   health/      Health Connect — reads and writes, like HealthStore + EnergyEstimate
-│   │   reminders/   NotificationScheduling, ReminderSound
+│   │   reminders/   the training reminder: ReminderScheduler (iOS's 28-day
+│   │                window, plain Kotlin), NotificationScheduling (the seam)
+│   │                and SystemNotificationScheduler (inexact alarms allowed
+│   │                in Doze, the channel, the permission), ReminderSoundFile
+│   │                (the generated WAV, the channel ids), ReminderReceiver
+│   │                (posts; rebuilds on boot / clock / zone / update) —
+│   │                android/README.md says why each
 │   │   signals/     CountdownSounds and the device half of WorkoutSignals —
 │   │                synthesised, no media files
 │   │   ongoing/     the ongoing-workout notification (the Live Activity's

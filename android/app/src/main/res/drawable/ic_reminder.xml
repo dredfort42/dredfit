@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The reminder's status-bar icon: a bell. A status-bar icon is a
+     silhouette — the system tints it, so only the alpha is read. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- The dome and its rim. -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M6,17V11a6,6 0,0 1,12 0V17l2,2H4z" />
+    <!-- The knob. -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M11,3h2v2.2h-2z" />
+    <!-- The clapper. -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M10,20h4a2,2 0,0 1,-4 0z" />
+</vector>

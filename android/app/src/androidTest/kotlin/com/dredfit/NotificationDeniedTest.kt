@@ -9,11 +9,11 @@
 //  RUNS ALONE, on a fresh install, so the permission has never been granted:
 //  every other suite grants it (DredfitUITest.launch), and revoking it kills
 //  the process the instrumentation runs in. Excluded from the suite by
-//  `notClass` in build.gradle.kts, like ScreenshotWalk; run it with
+//  @RunsAlone, like ScreenshotWalk; run it with
 //
 //    ./gradlew :app:connectedDebugAndroidTest \
 //      -Pandroid.testInstrumentationRunnerArguments.class=com.dredfit.NotificationDeniedTest \
-//      -Pandroid.testInstrumentationRunnerArguments.notClass=com.dredfit.ScreenshotWalk
+//      -Pandroid.testInstrumentationRunnerArguments.notAnnotation=org.junit.Ignore
 //
 
 package com.dredfit
@@ -30,6 +30,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@RunsAlone
 @RunWith(AndroidJUnit4::class)
 class NotificationDeniedTest : OngoingTestCase() {
 

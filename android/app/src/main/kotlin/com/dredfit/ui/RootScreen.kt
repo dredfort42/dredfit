@@ -40,6 +40,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,7 +81,6 @@ import com.dredfit.ui.workout.ReviewPrompt
 import com.dredfit.ui.workout.WorkoutFlowView
 import com.dredfit.ongoing.NotificationAsk
 import com.dredfit.workout.OngoingHost
-import java.io.File
 import java.io.IOException
 
 /** The flow in flight, owned by the process so a recreated activity finds it,
@@ -93,7 +93,7 @@ enum class RootTab { today, calendar, progress }
 
 @Composable
 fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: () -> DeviceSignals,
-               reviewPrompt: ReviewPrompt) {
+               reviewPrompt: ReviewPrompt, todayRequests: Int = 0) {
     val store by observedStore
     // The ONE place the theme is applied, so it covers the workout, every
     // sheet and every alert.
@@ -120,6 +120,15 @@ fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: (
         // already the onboarding and Today is never composed under it.
         var onboardingShown by rememberSaveable { mutableStateOf(store.shouldShowOnboarding) }
         val askToNotify = rememberNotificationAsk()
+        // A tapped reminder: Today, and Settings out of its way. A workout in
+        // flight stays where it is — it covers everything, and a reminder is
+        // never a reason to leave one.
+        LaunchedEffect(todayRequests) {
+            if (todayRequests > 0) {
+                tab = RootTab.today
+                settingsShown = false
+            }
+        }
         val active = holder.active
         Box(Modifier.fillMaxSize().background(c.bg)) {
             when {
@@ -212,10 +221,7 @@ private fun TabBar(tab: RootTab, select: (RootTab) -> Unit) {
  * (`NotificationAsk`). The workout never waits for the answer, and a refusal
  * changes nothing but the shade: the service, the beat and every signal run
  * the same, and the workout shows in the system's Task Manager instead.
- *
- * The "asked" mark is a file in `noBackupFilesDir`: a permission belongs to
- * the device, and a mark restored onto a new phone would leave it never
- * asked there. A mark that cannot be written only means asking again.
+ * The mark (`NotificationAsk.mark`) is shared with the reminder's ask.
  */
 @Composable
 private fun rememberNotificationAsk(): (opensOnTheRating: Boolean) -> Unit {
@@ -223,7 +229,7 @@ private fun rememberNotificationAsk(): (opensOnTheRating: Boolean) -> Unit {
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
     return { opensOnTheRating ->
         val permission = Manifest.permission.POST_NOTIFICATIONS
-        val mark = File(context.noBackupFilesDir, NOTIFICATIONS_ASKED)
+        val mark = NotificationAsk.mark(context.noBackupFilesDir)
         val granted = ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
         if (NotificationAsk.shouldAsk(Build.VERSION.SDK_INT, granted, askedBefore = mark.exists(), opensOnTheRating)) {
             try {
@@ -236,7 +242,6 @@ private fun rememberNotificationAsk(): (opensOnTheRating: Boolean) -> Unit {
     }
 }
 
-private const val NOTIFICATIONS_ASKED = "notifications-asked"
 
 /** Android 14's contrast setting stands in for iOS's Increased Contrast:
  *  any raised level (medium or high) takes the palette's second column.

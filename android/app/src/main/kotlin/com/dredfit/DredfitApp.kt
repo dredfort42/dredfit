@@ -18,6 +18,7 @@ package com.dredfit
 
 import android.app.Application
 import com.dredfit.ongoing.OngoingNotification
+import com.dredfit.reminders.SystemNotificationScheduler
 import com.dredfit.signals.DeviceSignals
 import com.dredfit.store.AppStore
 import com.dredfit.ui.FlowHolder
@@ -48,6 +49,12 @@ class DredfitApp : Application() {
      *  as there is one flow. */
     val ongoing by lazy { OngoingNotification(this) }
 
+    /** The reminders' alarms, channel and permission — one per process, so
+     *  a question asked from Settings is answered to the store that asked,
+     *  whichever activity the answer reaches. Built on first use, by the
+     *  disk thread that builds the store or a receiver on the main one. */
+    val reminders by lazy { SystemNotificationScheduler(this) }
+
     /** The UI suite's stand-in for Play In-App Review, so a walk sees the
      *  ask the milestone's Done makes instead of sending it to Play. Set
      *  only by androidTest (ReviewAskWalkTest) before the activity opens;
@@ -63,7 +70,7 @@ class DredfitApp : Application() {
         if (loading) return
         loading = true
         disk.execute {
-            val loaded = AppStore(statePath, disk = disk, main = mainExecutor)
+            val loaded = AppStore(statePath, disk = disk, main = mainExecutor, notifications = reminders)
             mainExecutor.execute {
                 val observed = Observed(loaded)
                 // The one subscription: every change the store makes — a

@@ -26,11 +26,13 @@ package com.dredfit
 
 import com.dredfit.core.Engine
 import com.dredfit.core.Pattern
+import com.dredfit.reminders.NotificationScheduling
 import com.dredfit.store.AppData
 import com.dredfit.store.StateFile
 import com.dredfit.store.exportBackup
 import com.dredfit.store.importBackup
 import com.dredfit.store.totalProgress
+import com.dredfit.workout.Words
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -40,6 +42,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import java.math.BigDecimal
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -52,6 +55,15 @@ class CrossPlatformBackupTest : AppStoreTestCase() {
 
     private fun resource(name: String): String =
         assertNotNull(javaClass.getResource("/ios/$name"), name).readText()
+
+    /** A phone that allows notifications: the backup's `reminderEnabled`
+     *  arrives as it was. On one that refuses, the import turns it off — the
+     *  device-permission re-check (HardeningTest), not this suite's subject. */
+    private val allowing = object : NotificationScheduling {
+        override fun requestAuthorization(answer: (Boolean) -> Unit) = answer(true)
+        override fun removePendingRequests(ids: List<String>) = Unit
+        override fun addReminder(id: String, title: String, body: Words, fireAt: Instant) = Unit
+    }
 
     @Test
     fun anIosBackupDecodesHereExactlyAsSwiftReadsIt() {
@@ -105,7 +117,7 @@ class CrossPlatformBackupTest : AppStoreTestCase() {
     fun anIosBackupImportsWithTheSameState() {
         val bytes = resource("ios-backup.json").toByteArray()
         val expected = AppData.decode(String(bytes))
-        val store = makeStore()
+        val store = makeStore(notifications = allowing)
         store.importBackup(bytes)
 
         assertEquals(expected.engineState, store.engineState)
@@ -127,7 +139,7 @@ class CrossPlatformBackupTest : AppStoreTestCase() {
      *  one the Swift probe decodes (written to build/ for it). */
     @Test
     fun anAndroidExportReadsBackInFull() {
-        val store = makeStore()
+        val store = makeStore(notifications = allowing)
         store.importBackup(resource("ios-backup.json").toByteArray())
         val exported = store.exportBackup()
 

@@ -3,9 +3,12 @@
 //  sounds, the theme and the footer. Port of
 //  ios/Dredfit/Views/Settings/SettingsSections.swift.
 //
-//  Left out, each for a reason of its own (android/CLAUDE.md, Deferred):
-//  the reminder under the rest days (reminders/, phase 3) and the Appearance
-//  caption about widgets and the Lock Screen (no widget exists here yet).
+//  Left out (android/CLAUDE.md, Deferred): the Appearance caption about
+//  widgets and the Lock Screen (no widget exists here yet).
+//
+//  The reminder's denied note leads to the app's notification settings
+//  (ACTION_APP_NOTIFICATION_SETTINGS), where iOS's leads to iOS Settings —
+//  hence an Android key for its row.
 //
 //  Said differently on Android (owner decisions, 09.10.2026), from the
 //  Android-only catalog android/app/Localizable.xcstrings: both captions of
@@ -23,6 +26,22 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.Settings
+import android.text.format.DateFormat
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
+import androidx.compose.material3.rememberTimePickerState
+import androidx.compose.runtime.DisposableEffect
+import com.dredfit.store.forgetReminderRefusal
+import com.dredfit.store.setReminderEnabled
+import com.dredfit.store.setReminderTime
+import com.dredfit.ui.theme.BellGlyph
+import com.dredfit.ui.theme.MinTarget
+import java.util.Date
+import java.util.Locale
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -123,6 +142,132 @@ fun RhythmSection(observedStore: Observed<AppStore>) {
             }
             SettingsCaption(tr("Highlighted days are rest days"))
             SettingsCaption(tr("3–4 rest days a week is the recommended rhythm. At least one training day always stays."))
+        }
+        ReminderField(observedStore)
+    }
+}
+
+// MARK: - Reminder
+
+/**
+ * The switch, its rule, the time, and — after a refusal — the note with the
+ * way to the notification settings. ON asks the system first
+ * (`setReminderEnabled`); a refusal flips the switch back off, taking the
+ * time row with it, and the note names the state. On iOS the bounce is the
+ * only evidence the view gets; here the store keeps it (`reminderRefused`),
+ * because an import asks too, from another group of the screen. Like the
+ * view's state on iOS, it goes with the screen.
+ */
+@Composable
+private fun ReminderField(observedStore: Observed<AppStore>) {
+    val store by observedStore
+    val context = LocalContext.current
+    val c = Theme.colors
+    var picking by remember { mutableStateOf(false) }
+    DisposableEffect(Unit) {
+        onDispose { observedStore.act { forgetReminderRefusal() } }
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            SwitchRow(tr("Reminder"), store.settings.reminderEnabled, tag = "reminder-toggle") { on ->
+                observedStore.act { setReminderEnabled(on) }
+            }
+            // The rule, said where the switch is: it is the objection
+            // reminders get refused over.
+            SettingsCaption(tr("On training days only — never on a rest day, and never after you have trained."))
+        }
+        if (store.settings.reminderEnabled) {
+            val time = ReminderTime.text(store.settings.reminderHour, store.settings.reminderMinute,
+                                         is24Hour = DateFormat.is24HourFormat(context), locale = currentLocale())
+            Row(Modifier.fillMaxWidth().heightIn(min = MinTarget).clickable(role = Role.Button) { picking = true }
+                    .testTag("reminder-time"),
+                verticalAlignment = Alignment.CenterVertically) {
+                Text(tr("Time"), style = dredfitFont(15f), color = c.ink2, modifier = Modifier.weight(1f))
+                // iOS's compact picker: the time in a soft capsule.
+                Text(time, style = dredfitFont(15f, Weight.medium), color = c.ink,
+                     modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(c.restFill)
+                         .padding(horizontal = 10.dp, vertical = 5.dp))
+            }
+        }
+        if (store.reminderRefused) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                SettingsCaption(tr("Notifications are off for Dredfit, so the reminder can't be set from here."),
+                                Modifier.testTag("reminder-denied"))
+                SettingsRow({ BellGlyph(c.ink, 16.dp) }, tr("Open notification settings"), tag = "reminder-open-settings") {
+                    openNotificationSettings(context)
+                }
+            }
+        }
+    }
+    if (picking) {
+        ReminderTimeDialog(store.settings.reminderHour, store.settings.reminderMinute,
+                           is24Hour = DateFormat.is24HourFormat(context), onClose = { picking = false }) { hour, minute ->
+            observedStore.act { setReminderTime(hour, minute) }
+        }
+    }
+}
+
+/** The time as the phone writes it: the locale's pattern, in the 12- or
+ *  24-hour form the person chose in the system settings. Formatted by ICU
+ *  itself: the patterns ICU picks hold letters java.time on Android cannot
+ *  read (a day period "B", a reserved "#"), and a formatter built from one
+ *  threw for some locales — Settings would not open (ReminderTimeTest). The
+ *  time is placed on the epoch's day in GMT, so no zone can shift it. */
+object ReminderTime {
+    fun text(hour: Int, minute: Int, is24Hour: Boolean, locale: Locale): String {
+        val format = android.icu.text.DateFormat.getInstanceForSkeleton(if (is24Hour) "Hm" else "hm", locale)
+        format.timeZone = android.icu.util.TimeZone.GMT_ZONE
+        return format.format(Date((hour * 60L + minute) * 60_000L))
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ReminderTimeDialog(hour: Int, minute: Int, is24Hour: Boolean, onClose: () -> Unit,
+                               set: (Int, Int) -> Unit) {
+    val c = Theme.colors
+    val state = rememberTimePickerState(initialHour = hour, initialMinute = minute, is24Hour = is24Hour)
+    AlertDialog(
+        onDismissRequest = onClose,
+        containerColor = c.cardBG,
+        text = {
+            TimePicker(state, colors = TimePickerDefaults.colors(
+                clockDialColor = c.bg, clockDialSelectedContentColor = c.bg, clockDialUnselectedContentColor = c.ink,
+                selectorColor = c.accent, containerColor = c.cardBG,
+                periodSelectorBorderColor = c.hairline, periodSelectorSelectedContainerColor = c.accentSoft,
+                periodSelectorUnselectedContainerColor = c.cardBG, periodSelectorSelectedContentColor = c.ink,
+                periodSelectorUnselectedContentColor = c.ink2,
+                timeSelectorSelectedContainerColor = c.accentSoft, timeSelectorUnselectedContainerColor = c.bg,
+                timeSelectorSelectedContentColor = c.ink, timeSelectorUnselectedContentColor = c.ink))
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                onClose()
+                set(state.hour, state.minute)
+            }, modifier = Modifier.heightIn(min = MinTarget).testTag("reminder-time-set")) {
+                Text(tr("OK"), style = dredfitFont(15.5f, Weight.semibold), color = c.ink)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onClose, modifier = Modifier.heightIn(min = MinTarget)) {
+                Text(tr("Cancel"), style = dredfitFont(15.5f, Weight.medium), color = c.ink)
+            }
+        },
+    )
+}
+
+/** The app's own page of notification settings — its channels and the
+ *  master switch, the one place a refusal can be taken back. */
+private fun openNotificationSettings(context: Context) {
+    val channels = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+    try {
+        context.startActivity(channels)
+    } catch (_: ActivityNotFoundException) {
+        try {
+            context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                         Uri.fromParts("package", context.packageName, null)))
+        } catch (_: ActivityNotFoundException) {
+            // A phone with no settings screen to open: the note still says why.
         }
     }
 }

@@ -2,8 +2,7 @@
 //  What the app coming to the foreground runs, in order. Every step makes
 //  its own change through the store; this file only sequences them.
 //  Port of ios/Dredfit/AppStore+Activation.swift. The iOS sequence also
-//  reschedules reminders and asks Health for the weight; each joins this list
-//  with the module that owns it (reminders/, health/).
+//  asks Health for the weight; it joins this list with health/.
 //
 
 package com.dredfit.store
@@ -35,4 +34,7 @@ private fun AppStore.activateLoaded(now: Instant) {
     // the comeback both measure their gap from the last record.
     settleAbandonedWorkout(now)
     refreshDay(now)
+    // The window rebuilt on every return, so it never runs dry while the
+    // app is in use.
+    rescheduleReminders(now)
 }

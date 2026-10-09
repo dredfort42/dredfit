@@ -10,6 +10,7 @@
 package com.dredfit
 
 import com.dredfit.core.Pattern
+import com.dredfit.reminders.NotificationScheduling
 import com.dredfit.store.AppStore
 import org.junit.jupiter.api.Assumptions.assumeFalse
 import org.junit.jupiter.api.io.TempDir
@@ -30,7 +31,9 @@ abstract class AppStoreTestCase {
     /** The state file of this test — iOS's `tempURL`. */
     val tempPath: Path get() = tempDir.resolve("dredfit-test.json")
 
-    fun makeStore(path: Path = tempPath, clock: Clock? = null): AppStore = AppStore(path, clock)
+    fun makeStore(path: Path = tempPath, clock: Clock? = null,
+                  notifications: NotificationScheduling = NotificationScheduling.none): AppStore =
+        AppStore(path, clock, notifications = notifications)
 
     /** A fixed hour-10 instant on the given day, in the system zone. */
     fun date(y: Int, m: Int, d: Int, zone: ZoneId = ZoneId.systemDefault()): Instant =

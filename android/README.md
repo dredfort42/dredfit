@@ -189,8 +189,10 @@ the notification is for (`ongoing/NotificationAsk.kt`, owner decision
 
 - **Not asked:** "Rate the workout" and "Finish now" from Today open on the
   rating, which draws no tile, so they do not use up the one ask.
-- **Never asked again**, whatever the answer. The mark is a file in
-  `noBackupFilesDir`, because a permission belongs to the device.
+- **Never asked again** by a workout, whatever the answer. The mark is a
+  file in `noBackupFilesDir`, because a permission belongs to the device.
+  The reminder's switch is the one other door, and it asks for itself (see
+  "The training reminder").
 - **The workout never waits for the answer.**
 - **A refusal changes only the shade.** The service, the beat and every
   signal run the same, and Android lists the workout in Task Manager instead
@@ -225,3 +227,151 @@ the notification is for (`ongoing/NotificationAsk.kt`, owner decision
   notification and the lock with the process. The service is not sticky. The
   snapshot and Today's "Continue the workout?" bring the workout back, and
   nothing restarts on its own.
+
+## The training reminder
+
+The rule is iOS's (`ReminderScheduler.swift`), ported line for line to
+`reminders/ReminderScheduler.kt`:
+
+- **Which days.** A 28-day window of one-shot reminders, one per day the
+  rule accepts: not a marked rest weekday, and not a day already trained.
+  The weekdays are the marked ones, even before the first workout (no
+  `restApplies` here).
+- **Which time.** `reminderHour:reminderMinute` on the wall of the
+  trainee's zone. A slot already past is left out, today's included.
+- **When it is rebuilt.** Whole, on every change: the switch, the time, a
+  rest-day toggle, a finished workout (a morning workout takes tonight's
+  reminder down), every return to the app, a journal read on the second
+  try, and an import. A frozen launch leaves the window alone.
+- **The words.** Title "Dredfit", text "Today's workout is ready", the iOS
+  catalog keys.
+- **The same price as iOS.** Reminders run dry after four weeks without
+  opening the app (BACKLOG №8). Android has no cap of 64 pending
+  notifications, so it could roll the window on, but the two phones stay
+  alike until the owner says otherwise.
+
+### Which alarm
+
+The [Schedule alarms](https://developer.android.com/develop/background-work/services/alarms/schedule)
+page names `setAndAllowWhileIdle()` for exactly this case: a "user-specified
+action that should happen after a specific time (even if system in idle
+state)". It is inexact, and it is allowed in Doze. That is what the app uses
+(`reminders/SystemNotificationScheduler.kt`).
+
+- **No permission.** No dialog, nothing for Play to review.
+- **Never early.** A reminder never fires before its time.
+- **Not to the minute.** Android 12+ fires such an alarm "within one hour of
+  the supplied trigger time". `dumpsys alarm` shows `window=+1h0m0s0ms` for
+  each reminder. On the idle emulator the real alarm posted 69 s after its
+  minute (`ReminderTest.theAlarmItselfPostsTheReminder`). iOS's calendar
+  trigger fires on the minute, but the iOS app promises a training day, not
+  a minute: the caption says "On training days only".
+- **Never on the wrong day.** An alarm that comes late across midnight is
+  dropped (`ReminderScheduler.stillItsDay`): "Today's workout is ready" at
+  00:20 would speak of a day that may be a rest day. The new day has its
+  own slot, if it is a training day.
+
+Weighed and left:
+
+- **Exact alarms.** These need `SCHEDULE_EXACT_ALARM`. The permission is
+  user-granted ("Alarms & reminders"). It is
+  [denied by default](https://developer.android.com/about/versions/14/changes/schedule-exact-alarms)
+  to fresh installs from Android 14, and it is revocable. Or they need
+  `USE_EXACT_ALARM`, which is limited to alarm-clock and calendar apps. The
+  page asks for exact alarms "only if a user-facing function in your app
+  requires precisely-timed actions".
+- **`setWindow`.** Its window is at least 10 minutes from Android 12. It is
+  not allowed in Doze, so in deep Doze it waits for a maintenance window,
+  which can be hours away.
+- **WorkManager.** Work runs when the system batches it, deferred by the
+  app's standby bucket. For an app opened every few days that can be hours
+  late, and it would add a dependency.
+
+**What an alarm loses, and how it comes back.** An alarm is an instant and
+dies with a reboot. An iOS calendar trigger is a wall time that the system
+keeps. So `ReminderRescheduleReceiver` rebuilds the window from the store on
+four broadcasts:
+
+- `BOOT_COMPLETED`
+- `TIME_SET`
+- `TIMEZONE_CHANGED` (09:00 moves with the zone, as an iOS trigger does)
+- `MY_PACKAGE_REPLACED`
+
+The rebuild is idempotent: it removes every id and adds the window again.
+`RECEIVE_BOOT_COMPLETED` is a normal permission, granted at install.
+
+A Force stop in the system settings also clears the alarms. The next open of
+the app draws them again.
+
+### The permission
+
+iOS asks on the switch, and so does Android. Turning the reminder on IS the
+request (`NotificationAsk.reminderStep`):
+
+- **Already allowed:** the window is drawn.
+- **Android 13+, not yet granted, with the activity there to ask from:**
+  the system's dialog is shown, whatever the workout's door asked before.
+  The answer is read from the phone, not from the dialog's result.
+- **Anything else is a refusal:** below 13 with the app's notifications off,
+  a reminder channel switched off, or two refusals already given (the
+  system then answers without a dialog).
+
+A refusal turns the switch back off. The note under it is iOS's:
+"Notifications are off for Dredfit, so the reminder can't be set from here."
+Its row, "Open notification settings", opens the app's page of notification
+settings (`ACTION_APP_NOTIFICATION_SETTINGS`), its channels included.
+
+- **On iOS** the note shows only when the switch bounces.
+- **On Android** the store keeps the refusal (`reminderRefused`, not
+  persisted), because an import asks too.
+
+An imported backup keeps `reminderEnabled` as it came (owner decision,
+09.10.2026). Then, as on iOS, the import turns the reminder on again, which
+asks. A refusal lands in the same note, never in a switch that quietly went
+off.
+
+**Android's own restore.** `allowBackup` brings the state file back with
+`reminderEnabled` as it was on the old phone. The permission may not come
+with it. The first launch on the new device makes the import's re-check
+(owner decision, 09.10.2026). That launch is known by a missing mark: a file
+in `noBackupFilesDir`, which a backup never carries. A BackupAgent's
+`onRestoreFinished` was weighed and left: it runs without the app's
+Application, and a custom agent replaces auto backup's own.
+
+A refusal also takes down any window drawn while the flag was on. iOS stops
+at the switch, but here the activation draws the window before the check
+runs. Alarms left behind would remind with the switch off once
+notifications were allowed later.
+
+### The sound and the channel
+
+The tone is iOS's `SignalTone.reminder`: the go's motif, slowed and
+softened. It is written once as a 16-bit mono WAV, byte for byte iOS's
+`wavFile`, to `files/sounds/dredfit_reminder_v1.wav`. It is never
+rewritten. The channel plays it through the FileProvider
+(`content://com.dredfit.dredfit.share/sounds/…`), because the system cannot
+open a file in the app's private storage by path.
+
+A channel's sound is fixed when the channel is created. Recreating a deleted
+id brings its old settings back. So the version is in both names:
+
+- the file, `_v1`;
+- the channel, `reminder-v1`.
+
+A new tone ships as `_v2` and `reminder-v2`, and the old channel is deleted
+(`ReminderChannel.stale`). If the file cannot be written, the reminder posts
+on `reminder-v1-stock` with the system's sound, as iOS falls back to
+`.default`. A channel of the current version that already exists is kept,
+whichever kind it is (`ReminderChannel.choose`): what the person set on it,
+a block included, must not be undone when the file becomes writable.
+
+The channel is named "Reminder" (the iOS key) and carries the iOS caption as
+its description. Its importance is DEFAULT: a sound and a place in the shade,
+no heads-up. A tap opens Today, closes Settings if it was open, and leaves a
+workout in flight where it is.
+
+### Play Console
+
+Nothing to declare for the reminder. It adds no exact-alarm permission. The
+only new permission, `RECEIVE_BOOT_COMPLETED`, is a normal one, and
+`POST_NOTIFICATIONS` was already declared for the ongoing notification.

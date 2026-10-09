@@ -1,6 +1,47 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Open notification settings": {
+      "comment": "Android only. Settings > Weekly rhythm, under the note that notifications are off for Dredfit: opens the app's notification settings in the phone's Settings. The Android twin of iOS's \"Open iOS Settings\".",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Benachrichtigungseinstellungen öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir ajustes de notificaciones"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les paramètres de notification"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri impostazioni notifiche"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir configurações de notificação"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть настройки уведомлений"
+          }
+        }
+      }
+    },
     "Rate on Google Play": {
       "comment": "Android only. Settings > About: opens the app's Google Play page, where a review is written. The Android twin of iOS's \"Rate on the App Store\".",
       "localizations": {
