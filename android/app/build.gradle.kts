@@ -58,7 +58,9 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.activity.compose)
 
-    testImplementation(kotlin("test"))
+    // The JUnit 5 flavour by name: AGP does not pick kotlin-test's variant
+    // from the test framework the way the plain JVM plugin does.
+    testImplementation(kotlin("test-junit5"))
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform.launcher)
