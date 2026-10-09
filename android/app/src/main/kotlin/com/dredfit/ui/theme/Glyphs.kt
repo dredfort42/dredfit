@@ -49,10 +49,10 @@ fun PauseGlyph(paused: Boolean, color: Color, size: Dp = 13.dp) {
     }
 }
 
-/** "chevron.right". */
+/** "chevron.right"; rotated by the caller for the other three directions. */
 @Composable
-fun ChevronGlyph(color: Color, size: Dp = 12.dp) {
-    Canvas(Modifier.size(size)) {
+fun ChevronGlyph(color: Color, size: Dp = 12.dp, modifier: Modifier = Modifier) {
+    Canvas(modifier.size(size)) {
         val w = this.size.minDimension
         val p = Path().apply { moveTo(w * 0.3f, w * 0.1f); lineTo(w * 0.7f, w / 2); lineTo(w * 0.3f, w * 0.9f) }
         drawPath(p, color, style = Stroke(w * 0.16f, cap = StrokeCap.Round, join = StrokeJoin.Round))
@@ -86,5 +86,99 @@ fun GearGlyph(color: Color, size: Dp = 19.dp) {
                             center.y + (r * 0.98f) * kotlin.math.sin(a).toFloat())
             drawLine(color, from, to, line * 1.6f, StrokeCap.Round)
         }
+    }
+}
+
+/** "square.and.arrow.up" (`up`) and "square.and.arrow.down": an open tray
+ *  and an arrow out of it or into it. */
+@Composable
+fun TrayArrowGlyph(color: Color, up: Boolean, size: Dp = 16.dp) {
+    Canvas(Modifier.size(size)) {
+        val w = this.size.minDimension
+        val line = w * 0.09f
+        val stroke = Stroke(line, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val tray = Path().apply {
+            moveTo(w * 0.3f, w * 0.42f); lineTo(w * 0.14f, w * 0.42f); lineTo(w * 0.14f, w * 0.95f)
+            lineTo(w * 0.86f, w * 0.95f); lineTo(w * 0.86f, w * 0.42f); lineTo(w * 0.7f, w * 0.42f)
+        }
+        drawPath(tray, color, style = stroke)
+        val top = if (up) w * 0.05f else w * 0.12f
+        val bottom = if (up) w * 0.62f else w * 0.7f
+        drawLine(color, Offset(w / 2, top), Offset(w / 2, bottom), line, StrokeCap.Round)
+        val tip = if (up) top else bottom
+        val back = if (up) tip + w * 0.18f else tip - w * 0.18f
+        val head = Path().apply { moveTo(w * 0.32f, back); lineTo(w / 2, tip); lineTo(w * 0.68f, back) }
+        drawPath(head, color, style = stroke)
+    }
+}
+
+/** "questionmark.circle". */
+@Composable
+fun QuestionGlyph(color: Color, size: Dp = 16.dp) {
+    Canvas(Modifier.size(size)) {
+        val w = this.size.minDimension
+        val line = w * 0.09f
+        drawCircle(color, radius = w / 2 - line / 2, style = Stroke(line))
+        val hook = Path().apply {
+            moveTo(w * 0.36f, w * 0.38f)
+            cubicTo(w * 0.36f, w * 0.2f, w * 0.64f, w * 0.2f, w * 0.64f, w * 0.38f)
+            cubicTo(w * 0.64f, w * 0.5f, w * 0.5f, w * 0.5f, w * 0.5f, w * 0.62f)
+        }
+        drawPath(hook, color, style = Stroke(line, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        drawCircle(color, radius = line * 0.75f, center = Offset(w / 2, w * 0.76f))
+    }
+}
+
+/** "arrow.right". */
+@Composable
+fun ArrowRightGlyph(color: Color, size: Dp = 11.dp) {
+    Canvas(Modifier.size(size)) {
+        val w = this.size.minDimension
+        val line = w * 0.14f
+        val stroke = Stroke(line, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        drawLine(color, Offset(w * 0.08f, w / 2), Offset(w * 0.92f, w / 2), line, StrokeCap.Round)
+        drawPath(Path().apply { moveTo(w * 0.55f, w * 0.15f); lineTo(w * 0.92f, w / 2); lineTo(w * 0.55f, w * 0.85f) },
+                 color, style = stroke)
+    }
+}
+
+/** The tab bar's three: "circle.inset.filled" (Today), "calendar" and
+ *  "chart.line.uptrend.xyaxis" (Progress). */
+@Composable
+fun TodayGlyph(color: Color, size: Dp = 22.dp) {
+    Canvas(Modifier.size(size)) {
+        val w = this.size.minDimension
+        val line = w * 0.08f
+        drawCircle(color, radius = w / 2 - line / 2, style = Stroke(line))
+        drawCircle(color, radius = w * 0.28f)
+    }
+}
+
+@Composable
+fun CalendarGlyph(color: Color, size: Dp = 22.dp) {
+    Canvas(Modifier.size(size)) {
+        val w = this.size.minDimension
+        val line = w * 0.08f
+        drawRoundRect(color, topLeft = Offset(w * 0.08f, w * 0.14f),
+                      size = androidx.compose.ui.geometry.Size(w * 0.84f, w * 0.78f),
+                      cornerRadius = androidx.compose.ui.geometry.CornerRadius(w * 0.14f), style = Stroke(line))
+        drawRect(color, Offset(w * 0.08f, w * 0.14f), androidx.compose.ui.geometry.Size(w * 0.84f, w * 0.18f))
+        for (row in 0 until 2) for (col in 0 until 4) {
+            drawCircle(color, radius = line * 0.6f, center = Offset(w * (0.24f + col * 0.17f), w * (0.52f + row * 0.2f)))
+        }
+    }
+}
+
+@Composable
+fun ChartGlyph(color: Color, size: Dp = 22.dp) {
+    Canvas(Modifier.size(size)) {
+        val w = this.size.minDimension
+        val line = w * 0.08f
+        val stroke = Stroke(line, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        drawPath(Path().apply { moveTo(w * 0.08f, w * 0.06f); lineTo(w * 0.08f, w * 0.92f); lineTo(w * 0.94f, w * 0.92f) },
+                 color, style = stroke)
+        drawPath(Path().apply {
+            moveTo(w * 0.2f, w * 0.72f); lineTo(w * 0.42f, w * 0.48f); lineTo(w * 0.6f, w * 0.6f); lineTo(w * 0.88f, w * 0.24f)
+        }, color, style = stroke)
     }
 }

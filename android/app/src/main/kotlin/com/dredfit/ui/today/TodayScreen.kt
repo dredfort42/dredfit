@@ -20,12 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.dredfit.core.Pattern
 import com.dredfit.core.Session
+import com.dredfit.journal.WorkoutRecord
 import com.dredfit.journal.WorkoutSnapshot
 import com.dredfit.store.AppStore
 import com.dredfit.store.doneToday
 import com.dredfit.store.nextSession
 import com.dredfit.store.restAppliesToday
 import com.dredfit.ui.Observed
+import com.dredfit.ui.progress.HistorySheet
 import com.dredfit.ui.technique.TechniqueSheet
 import com.dredfit.ui.theme.AlertAction
 import com.dredfit.ui.theme.DredfitAlert
@@ -46,6 +48,8 @@ data class SuspectStepDown(val pattern: Pattern, val name: String)
 sealed interface TodayDestination {
     data class Technique(val target: TechniqueTarget) : TodayDestination
     data object NextWorkout : TodayDestination
+    /** Today's own record, from the screen that is about today. */
+    data class History(val record: WorkoutRecord) : TodayDestination
 }
 
 /** The questions Today asks before it acts. They live here, not in the views
@@ -88,6 +92,7 @@ fun TodayScreen(observedStore: Observed<AppStore>, start: (WorkoutRequest) -> Un
         is TodayDestination.Technique ->
             TechniqueSheet(destination.target, planned = true, observedStore = observedStore) { today.destination = null }
         TodayDestination.NextWorkout -> NextWorkoutSheet(observedStore) { today.destination = null }
+        is TodayDestination.History -> HistorySheet(observedStore, destination.record) { today.destination = null }
         null -> Unit
     }
     if (today.freshStartConfirmShown) {
