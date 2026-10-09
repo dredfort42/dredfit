@@ -29,4 +29,16 @@ object NextTimeBlock {
         }
         return k
     }
+
+    /** The plan as the block's sentence names it, probe included: on a
+     *  probing plan the probe has taken a working set, and "2×45 s" alone
+     *  would read as a set taken off. A name only when the variation changes
+     *  — a passed probe lands the plan on another exercise, and "3×15 s" with
+     *  no name would read as a collapse rather than a promotion. */
+    fun planWords(planned: SessionExercise, after: SessionExercise): Words {
+        val plan = if (planned.variation == after.variation) Words.display(planned)
+                   else Words.join("%@ · %@", Words.name(planned.name), Words.display(planned))
+        val probe = planned.probe ?: return plan
+        return Words.of("%@ + probe: %@ · %@", plan, Words.name(probe.name), Words.display(probe))
+    }
 }

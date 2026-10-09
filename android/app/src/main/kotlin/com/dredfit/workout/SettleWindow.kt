@@ -4,8 +4,7 @@
 //  the modifier itself is a screen's (phase 2c). Consecutive workout screens
 //  put different buttons in the same place, so the second tap of a double tap
 //  meant for the first screen would act on the second. Keyed by the screen,
-//  never by what it shows. (The UI suite's 50 ms is not ported — see
-//  GetReady.kt.)
+//  never by what it shows. The Compose modifier is ui/workout/SettleWindow.kt.
 //
 
 package com.dredfit.workout
@@ -14,6 +13,8 @@ import java.time.Duration
 
 object SettleWindowLength {
     /** Long enough to swallow the second tap of a double tap, short enough
-     *  that nobody reaches for a button inside it on purpose. */
-    val value: Duration = Duration.ofMillis(350)
+     *  that nobody reaches for a button inside it on purpose. The UI suite
+     *  taps as soon as a screen appears, so under its fast flag the window
+     *  all but closes, as under iOS's launch flags. */
+    val value: Duration get() = Duration.ofMillis(if (UITestFlags.fast) 50 else 350)
 }

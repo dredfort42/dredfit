@@ -4,10 +4,8 @@
 //  hold ended by thumb pays, and the time a declared hold runs for. Every
 //  rule here is a pure function on purpose: a rule stated inside a view is a
 //  rule no gating test can reach.
-//
-//  Not ported: `testTheHoldPanelStepsByFiveOntoTheGrid` — its subject,
-//  `AdjustPanel.holdStep`, is a static of the SwiftUI view `AdjustPanel`,
-//  whose Compose twin (ui/workout/) is not written yet.
+//  `AdjustPanel.holdStep` lives on the panel's Compose file
+//  (ui/workout/AdjustPanel.kt) as plain Kotlin, as it is a static on iOS.
 //
 
 package com.dredfit
@@ -22,6 +20,7 @@ import com.dredfit.core.Session
 import com.dredfit.core.SessionExercise
 import com.dredfit.core.SessionProbe
 import com.dredfit.core.generateSession
+import com.dredfit.ui.workout.AdjustPanel
 import com.dredfit.workout.SetFacts
 import com.dredfit.workout.holdEndedByTap
 import com.dredfit.workout.holdTarget
@@ -395,5 +394,20 @@ class HoldFactsTest {
         val ex = session.exercises.firstOrNull { it.pattern == pattern } ?: return null
         val loads = ex.loads ?: return null
         return if (loads.toSet().size > 1) ex else null
+    }
+
+    /** One rep, or FIVE seconds: a hold is set on the grid it is planned on,
+     *  and a number off the grid — the clock's 38 — lands on the next line in
+     *  the tapped direction. The corridor, not the step, is the floor. */
+    @Test
+    fun theHoldPanelStepsByFiveOntoTheGrid() {
+        assertEquals(35, AdjustPanel.holdStep(30, +1))
+        assertEquals(25, AdjustPanel.holdStep(30, -1))
+        assertEquals(40, AdjustPanel.holdStep(38, +1))
+        assertEquals(35, AdjustPanel.holdStep(38, -1))
+        assertEquals(0, AdjustPanel.holdStep(5, -1), "the corridor, not the step, is the floor")
+        // The tap the panel takes clamps to that corridor.
+        assertEquals(5, AdjustPanel.bump(5, -1, LoadUnit.hold, SetFacts.corridor(LoadUnit.hold)))
+        assertEquals(11, AdjustPanel.bump(10, +1, LoadUnit.reps, SetFacts.corridor(LoadUnit.reps)))
     }
 }

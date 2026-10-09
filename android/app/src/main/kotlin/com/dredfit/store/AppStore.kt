@@ -14,6 +14,22 @@
 //  never mutates one in place. Every new state comes out of an engine entry
 //  point (a fresh instance) or out of an explicit `copy()`.
 //
+//  THE DISK IS OFF THE MAIN THREAD, AND THE ORDER IS NOT. iOS writes the file
+//  synchronously inside every change; on Android a slow flash write on the
+//  main thread is an ANR, so the app hands the store two executors (`disk`, a
+//  single thread, and `main`). What a change means is unchanged: the new
+//  state is in memory — and every reader sees it — before `update` returns,
+//  exactly as on iOS. Only the bytes travel: they are ENCODED here, on the
+//  caller's thread, so what reaches the disk is a snapshot of the state at
+//  the moment of the change and never a half-made later one; one thread
+//  writes them in the order the changes were made; and while one write is
+//  queued a newer change replaces its bytes rather than queueing a second
+//  file (the file is always written whole, so only the newest one matters).
+//  The result comes back on `main`, where `lastPersistError` lives. The JVM
+//  tests run both executors inline, which is iOS's synchronous store to the
+//  byte. The read at launch is the constructor's: the app constructs the
+//  store on the disk thread (DredfitApp), before any write can be queued.
+//
 
 package com.dredfit.store
 
@@ -40,12 +56,20 @@ import java.nio.file.Path
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
+import java.util.concurrent.Executor
+import java.util.concurrent.atomic.AtomicReference
 import java.util.logging.Logger
 
 class AppStore(
     storagePath: Path,
     /** A test's clock; null in the app, which reads the system's afresh. */
     private val fixedClock: Clock? = null,
+    /** Where the file is read again and written — ONE thread in the app, so
+     *  every disk operation keeps the order it was asked for in. Inline by
+     *  default: a JVM test gets iOS's synchronous store. */
+    private val disk: Executor = Executor { it.run() },
+    /** Where a disk result comes back to — the thread the store lives on. */
+    private val main: Executor = Executor { it.run() },
 ) {
     /** Its ZONE is the trainee's — iOS's `Calendar.current` — and every
      *  calendar question (rest weekdays, training days, the ISO week) is asked
@@ -130,11 +154,37 @@ class AppStore(
         }
     }
 
-    /** Second chance for a launch whose state file could not be read or put
-     *  aside — called when the app comes to the foreground. */
-    fun reloadIfNeeded() {
+    /** A second read already on its way to the disk thread. */
+    private var reloading = false
+
+    /**
+     * Second chance for a launch whose state file could not be read or put
+     * aside — called when the app comes to the foreground. The read runs on
+     * `disk` and lands on `main`; `then` runs once it has landed, whatever it
+     * found, and at once when there is nothing to read — so the rest of the
+     * activation never runs ahead of a journal still on its way. A call that
+     * finds a read already under way returns without `then`: the activation
+     * that started that read is the one that continues.
+     */
+    fun reloadIfNeeded(then: () -> Unit = {}) {
+        if (reloading) return
+        if (!journalFrozen || mutatedWhileFrozen) return then()
+        reloading = true
+        disk.execute {
+            val read = stateFile.read(reload = true)
+            main.execute {
+                reloading = false
+                adoptReload(read)
+                then()
+            }
+        }
+    }
+
+    private fun adoptReload(read: StateFile.Read) {
+        // Used while the read was on the disk thread: a reload now would
+        // replace the person's changes with the file's state.
         if (!journalFrozen || mutatedWhileFrozen) return
-        when (val read = stateFile.read(reload = true)) {
+        when (read) {
             StateFile.Read.Absent, StateFile.Read.Unreadable -> return
             StateFile.Read.Undecodable -> Unit
             is StateFile.Read.Loaded -> adopt(read.data)
@@ -443,16 +493,42 @@ class AppStore(
             changed()
             return
         }
-        try {
-            stateFile.write(AppData(engineState, records, settings, pendingWorkout))
-            lastPersistError = null
-        } catch (e: IOException) {
-            // The next mutation retries the full write, but this is the only
-            // durability path — a failure must leave a trace.
-            log.severe("persist failed: ${e.message}")
-            lastPersistError = e
-        }
+        // Encoded HERE, on the thread that made the change: the bytes are the
+        // state of this moment, whatever the next change does to the fields.
+        val bytes = AppData(engineState, records, settings, pendingWorkout).encode().toByteArray(Charsets.UTF_8)
+        // A write still waiting takes the newer bytes instead of a second
+        // turn: the file is written whole, and only the newest state matters.
+        if (queuedWrite.getAndSet(bytes) == null) disk.execute(::writeQueued)
         changed()
+    }
+
+    /** The bytes waiting for the disk thread; null when nothing waits. */
+    private val queuedWrite = AtomicReference<ByteArray?>(null)
+
+    /** On `disk`. Takes the newest bytes, so a change made while this write
+     *  runs gets a turn of its own afterwards. */
+    private fun writeQueued() {
+        val bytes = queuedWrite.getAndSet(null) ?: return
+        val failure = try {
+            stateFile.write(bytes)
+            null
+        } catch (e: IOException) {
+            e
+        }
+        main.execute { writeFinished(failure) }
+    }
+
+    /** On `main`, in the order the writes were made — so the last word is
+     *  the newest write's, and an error stands until a write succeeds. */
+    private fun writeFinished(failure: IOException?) {
+        // The next mutation retries the full write, but this is the only
+        // durability path — a failure must leave a trace.
+        if (failure != null) log.severe("persist failed: ${failure.message}")
+        val before = lastPersistError
+        lastPersistError = failure
+        // Inline (the tests) `persist` reports right after this anyway; from
+        // the disk thread nothing else tells the screen the banner came or went.
+        if ((before == null) != (failure == null)) changed()
     }
 
     companion object {

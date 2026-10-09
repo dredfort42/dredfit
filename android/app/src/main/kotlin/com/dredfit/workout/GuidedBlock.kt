@@ -12,7 +12,14 @@ enum class GuidedBlock {
     warmup, cooldown;
 
     /** The transition's length depends on the position it announces (#83). */
-    fun stageSeconds(stage: GuidedStage, of: GuidedPosition): Int = when (stage) {
+    fun stageSeconds(stage: GuidedStage, of: GuidedPosition): Int = when {
+        // The fast flag collapses every stage of the cool-down; the warm-up
+        // keeps its lengths and only its transitions collapse (GetReady).
+        this == cooldown && UITestFlags.fast -> 1
+        else -> unhurriedSeconds(stage, of)
+    }
+
+    private fun unhurriedSeconds(stage: GuidedStage, of: GuidedPosition): Int = when (stage) {
         GuidedStage.getReady -> GetReady.stageSeconds(needsSetup = of.needsSetup)
         GuidedStage.whole -> if (this == warmup) Warmup.moveSeconds else Cooldown.positionSeconds
         GuidedStage.firstHalf, GuidedStage.secondHalf ->
