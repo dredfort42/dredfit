@@ -2,10 +2,8 @@
 //  What the app coming to the foreground runs, in order. Every step makes
 //  its own change through the store; this file only sequences them.
 //  Port of ios/Dredfit/AppStore+Activation.swift. The iOS sequence also
-//  settles a forgotten workout (before the day is re-anchored — the order
-//  matters), reschedules reminders and asks Health for the weight; each joins
-//  this list with the module that owns it (the workout flow, reminders/,
-//  health/).
+//  reschedules reminders and asks Health for the weight; each joins this list
+//  with the module that owns it (reminders/, health/).
 //
 
 package com.dredfit.store
@@ -27,5 +25,9 @@ fun AppStore.activate(now: Instant = clock.instant()) {
     // The disk may have recovered while the app was away; without this a
     // failed write waits for the next unrelated change.
     if (lastPersistError != null) retryPersist()
+    // BEFORE the day is re-anchored, never after: the settlement writes a
+    // journal entry dated to the day it happened, and the silent decay and
+    // the comeback both measure their gap from the last record.
+    settleAbandonedWorkout(now)
     refreshDay(now)
 }

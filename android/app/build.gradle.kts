@@ -67,6 +67,21 @@ dependencies {
 }
 
 tasks.withType<Test>().configureEach {
+    // LifeBenefitTest and SetsNoticeTest read iOS files in place, never a
+    // copy — the String Catalogs and the Swift sources that ask for their
+    // keys — and SetsNoticeTest scans this module's own Kotlin sources. As
+    // declared inputs, an edit to any of them reruns the suites instead of
+    // leaving an up-to-date green from before it.
+    inputs.files(
+        rootProject.file("../ios/Dredfit/Localizable.xcstrings"),
+        rootProject.file("../ios/DredfitWidgets/Localizable.xcstrings"),
+        rootProject.file("../ios/DredfitCore/Sources/DredfitCore/Resources/Localizable.xcstrings"),
+    ).withPropertyName("iosCatalogs").withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.files(
+        fileTree(rootProject.file("../ios/Dredfit")) { include("**/*.swift") },
+        fileTree(rootProject.file("../ios/DredfitWidgets")) { include("**/*.swift") },
+        fileTree("src/main/kotlin") { include("**/*.kt") },
+    ).withPropertyName("scannedSources").withPathSensitivity(PathSensitivity.RELATIVE)
     testLogging {
         events("failed")
         exceptionFormat = TestExceptionFormat.FULL

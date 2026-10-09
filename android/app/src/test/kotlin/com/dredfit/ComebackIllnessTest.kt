@@ -1,8 +1,8 @@
 //
 //  Port of ios/DredfitTests/ComebackIllnessTests.swift: the app half of the
-//  comeback (#127, #128) — the accept guard and the sighted decline path.
-//  `testThePreviewShowsBothOffersAsNumbers` waits for `comebackPreview`,
-//  which states plans in UI words and arrives with the Today screen.
+//  comeback (#127, #128) — the accept guard, the sighted decline path and
+//  the numbered preview. The preview is compared in its English words
+//  (`Words.english`), the strings the Swift test compares.
 //
 
 package com.dredfit
@@ -16,12 +16,15 @@ import com.dredfit.core.Pattern
 import com.dredfit.journal.WorkoutRecord
 import com.dredfit.store.AppData
 import com.dredfit.store.AppStore
+import com.dredfit.store.comebackPreview
 import com.dredfit.store.declineComeback
 import com.dredfit.store.offersFreshStart
 import java.nio.file.Files
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class ComebackIllnessTest : AppStoreTestCase() {
@@ -73,5 +76,15 @@ class ComebackIllnessTest : AppStoreTestCase() {
     fun theFreshStartIsReachableFromNinetyDays() {
         assertFalse(returned(after = 89).offersFreshStart(), "89 midnights is one short of the fresh start")
         assertTrue(returned(after = 90).offersFreshStart(), "90 midnights reaches it, and the boundary is inclusive")
+    }
+
+    @Test
+    fun thePreviewShowsBothOffersAsNumbers() {
+        val store = returned(after = 90)
+        val preview = assertNotNull(store.comebackPreview())
+        assertNotEquals(preview.was.english, preview.easier.english,
+                        "after a long break the two offers must differ")
+        assertTrue("×" in preview.was.english, "the old plan is numbers, not adjectives")
+        assertTrue("×" in preview.easier.english)
     }
 }

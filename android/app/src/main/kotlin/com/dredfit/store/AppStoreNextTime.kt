@@ -1,8 +1,7 @@
 //
-//  What the next plan will be for one movement. Read-only.
-//  Port of ios/Dredfit/AppStore+NextTime.swift, without `previewPlan`: it
-//  states a position the way a plan does (PlannedPosition.swift), which
-//  arrives with the workout's summary screens that read it.
+//  What the next plan will be for one movement, read before the rating
+//  lands. Read-only: the store answers by DRY-RUNNING the engine.
+//  Port of ios/Dredfit/AppStore+NextTime.swift.
 //
 
 package com.dredfit.store
@@ -11,7 +10,33 @@ import com.dredfit.core.Engine
 import com.dredfit.core.EngineConfig
 import com.dredfit.core.EngineState
 import com.dredfit.core.Pattern
+import com.dredfit.core.FeedbackResult
+import com.dredfit.core.Session
+import com.dredfit.core.SessionExercise
+import com.dredfit.core.applyFeedback
+import com.dredfit.core.probe
 import com.dredfit.core.raiseDose
+import com.dredfit.workout.asPlanned
+
+/**
+ * The plan a movement will get after this session, computed the way
+ * `completeWorkout` will compute it — the same entry point and arguments,
+ * the rating assumed "on plan" and the gap measured now — with the probe the
+ * next session would hand it, stated the way a plan states one. Null when the
+ * session is not the one this state generated.
+ */
+@Suppress("LongParameterList")
+fun AppStore.previewPlan(after: Session, pattern: Pattern, overrides: Map<Pattern, Double>, skipped: Set<Pattern>,
+                         setsSkipped: Map<Pattern, Int>, probes: Map<Pattern, Int>,
+                         raised: Map<Pattern, Int>): SessionExercise? {
+    if (after.sessionNumber != engineState.counter + 1) return null
+    val next = Engine.applyFeedback(state = engineState, session = after, result = FeedbackResult.plan,
+                                    overrides = overrides, skipped = skipped, setsSkipped = setsSkipped,
+                                    gapDays = gapFraction(), probes = probes, raised = raised)
+    val position = positions(next)[pattern] ?: return null
+    val probe = Engine.probe(pattern, at = next.position(pattern), lastHard = next.lastHard, shown = next.shown)
+    return position.asPlanned(pattern, probe = probe)
+}
 
 /**
  * Steps the LAST workout added to a movement "for next time", while the plan

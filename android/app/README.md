@@ -14,13 +14,21 @@ app/src/
 │   │                — the iOS rule "extensions only read, every mutating
 │   │                decision stays in AppStore" becomes a compiler rule here:
 │   │                an extension function cannot touch private state
-│   │   workout/     Warmup, GetReady, Cooldown, BlockPause, SessionAhead,
-│   │                SetFacts, Retrospective, Milestones, LifeBenefit
+│   │   workout/     the flow without its screens: WorkoutSession and its
+│   │                WorkoutSession<Part>.kt extensions, Countdown, GuidedBlock,
+│   │                Warmup, GetReady, Cooldown, BlockPause, SessionAhead,
+│   │                SetFacts, Retrospective, Milestones, LifeBenefit — plain
+│   │                Kotlin on an injected clock; what it says is `Words`
+│   │                (key + args, resolved by `ui/L10n.kt`), what it plays
+│   │                goes through `WorkoutSignalling` (WorkoutSignals.kt), what
+│   │                the ongoing notification shows through
+│   │                `WorkoutActivityDriving`
 │   │   journal/     Journal, V2EngineState (the backup itself is
 │   │                store/AppStoreBackup.kt, after AppStore+Backup.swift)
 │   │   health/      Health Connect — write-only, like HealthStore + EnergyEstimate
 │   │   reminders/   NotificationScheduling, ReminderSound
-│   │   signals/     CountdownSounds, WorkoutSignals — synthesised, no media files
+│   │   signals/     CountdownSounds and the device half of WorkoutSignals —
+│   │                synthesised, no media files
 │   │   widgets/     Glance: TodayStatusWidget, TodayProvider, WidgetSnapshot
 │   │                (the two-week snapshot is rewritten after every persisted
 │   │                change; the widget never computes rest days itself)

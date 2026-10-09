@@ -3,13 +3,15 @@
 //  time" — where it is kept, where it lands, and what the store says about
 //  it afterwards.
 //
-//  Not ported yet, each with the code it needs: the correction range
-//  (`SetFacts.correctionRange`, the workout flow's writing half), the preview
-//  (`previewPlan` / PlannedPosition), the summary's and the history's words
-//  (`NextTimeBlock`, `RaiseLabel`, `ExerciseRow`, `HistorySheet`) and the
-//  snapshot's `measuredHold` (the hold screens). The `HistorySheet.afterLine`
-//  check inside `theJournalNamesTheShareThatLandedAndKeepsTheDecision` waits
-//  for the same screen.
+//  Not ported — each a screen's words, which nothing on Android computes
+//  outside its view yet: `testTheHistoryRowNamesTheFactAndTheAddition`
+//  whole (`HistorySheet.factLine` / `afterLine`,
+//  ios/Dredfit/Views/Progress/HistorySheet.swift), the `HistorySheet.afterLine`
+//  check inside `theJournalNamesTheShareThatLandedAndKeepsTheDecision`, the
+//  `NextTimeBlock.planWords` sentence of
+//  `theSentenceNamesTheProbeTheNextPlanCarries` (a static of the summary's
+//  view, ios/Dredfit/Views/Workout/ExerciseSummary.swift; its `samePlan`
+//  half is ported). 15 of the 16 tests are here.
 //
 
 package com.dredfit
@@ -24,23 +26,83 @@ import com.dredfit.core.Pattern
 import com.dredfit.core.Position
 import com.dredfit.core.Session
 import com.dredfit.core.SessionExercise
+import com.dredfit.core.SessionProbe
 import com.dredfit.core.raiseDose
 import com.dredfit.journal.RecordedPosition
 import com.dredfit.journal.WorkoutRecord
+import com.dredfit.journal.WorkoutSnapshot
 import com.dredfit.store.AppStore
 import com.dredfit.store.currentPositions
 import com.dredfit.store.landed
 import com.dredfit.store.nextSession
+import com.dredfit.store.previewPlan
 import com.dredfit.store.raisedForNextPlan
+import com.dredfit.ui.today.ExerciseRow
+import com.dredfit.workout.NextTimeBlock
+import com.dredfit.workout.RaiseLabel
+import com.dredfit.workout.SetFacts
+import com.dredfit.workout.Words
+import com.dredfit.workout.asPlanned
+import com.dredfit.workout.correctionRange
+import com.dredfit.workout.holdReachSeconds
 import kotlinx.serialization.json.Json
 import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class NextTimeTest : AppStoreTestCase() {
+
+    // MARK: - The clock is the ceiling
+
+    /** Every set but the last stands as it ran — its range is the number
+     *  itself, a rest after it or not. The last: the whole corridor when
+     *  nothing follows it, and the person may have kept holding. */
+    @Test
+    fun onlyTheLastSetOpensARange() {
+        val corridor = SetFacts.corridor(LoadUnit.hold)
+        for (restFollowed in listOf(false, true)) {
+            for (endedByTap in listOf(false, true)) {
+                assertEquals(30..30, SetFacts.correctionRange(measured = 30, isLastSet = false,
+                                                              restFollowed = restFollowed,
+                                                              endedByTap = endedByTap))
+            }
+        }
+        assertEquals(corridor, SetFacts.correctionRange(measured = 30, isLastSet = true,
+                                                        restFollowed = false, endedByTap = false))
+        assertEquals(corridor, SetFacts.correctionRange(measured = 30, isLastSet = true,
+                                                        restFollowed = false, endedByTap = true))
+        // Off the corridor either way, the number is still one the panel
+        // could stand on.
+        assertEquals(corridor.first..corridor.first,
+                     SetFacts.correctionRange(measured = 2, isLastSet = false,
+                                              restFollowed = true, endedByTap = false))
+        assertEquals(corridor.last..corridor.last,
+                     SetFacts.correctionRange(measured = 500, isLastSet = false,
+                                              restFollowed = true, endedByTap = false))
+    }
+
+    /** The last set with a rest after it — the one before a probe — goes
+     *  down to the floor and up to what the clock ran: its seconds, or the
+     *  thumb's estimate plus the allowance the estimate took off. */
+    @Test
+    fun aLastSetARestFollowedGoesNoHigherThanTheClockRan() {
+        val corridor = SetFacts.corridor(LoadUnit.hold)
+        assertEquals(corridor.first..45,
+                     SetFacts.correctionRange(measured = 45, isLastSet = true,
+                                              restFollowed = true, endedByTap = false))
+        assertEquals(corridor.first..(41 + SetFacts.holdReachSeconds),
+                     SetFacts.correctionRange(measured = 41, isLastSet = true,
+                                              restFollowed = true, endedByTap = true))
+        // Still a range the panel can stand on at the corridor's top.
+        assertEquals(corridor,
+                     SetFacts.correctionRange(measured = 89, isLastSet = true,
+                                              restFollowed = true, endedByTap = true))
+    }
 
     // MARK: - The addition through the store
 
@@ -88,6 +150,40 @@ class NextTimeTest : AppStoreTestCase() {
         // …and the store the record came from says so on tomorrow's plan.
         assertEquals(1, store.raisedForNextPlan(hold.pattern))
         assertEquals(0, store.raisedForNextPlan(session.exercises[0].pattern))
+    }
+
+    /** The preview is the rating's own arithmetic, not a second copy of it:
+     *  what the summary promises under "on plan" is what "on plan" then sets. */
+    @Test
+    fun thePreviewIsWhatTheRatingWillSet() {
+        val (store, session, hold) = storeWithHold()
+        val overrides: Map<Pattern, Double> = mapOf(hold.pattern to hold.load.toDouble() - 5)
+        val preview = assertNotNull(store.previewPlan(
+            after = session, pattern = hold.pattern, overrides = overrides, skipped = emptySet(),
+            setsSkipped = emptyMap(), probes = emptyMap(), raised = mapOf(hold.pattern to 2)))
+        store.completeWorkout(session = session, result = FeedbackResult.plan, overrides = overrides,
+                              raised = mapOf(hold.pattern to 2))
+        assertEquals(store.currentPositions[hold.pattern]?.asPlanned(hold.pattern, probe = null), preview)
+        assertNull(store.previewPlan(after = session, pattern = hold.pattern,
+                                     overrides = emptyMap(), skipped = emptySet(), setsSkipped = emptyMap(),
+                                     probes = emptyMap(), raised = emptyMap()),
+                   "a session the state no longer generates previews nothing")
+    }
+
+    /** A probing plan is named with its probe, the way the comeback card
+     *  names one; a plan on another variation is named with its movement.
+     *  Two plans the same but for the probe are two plans. (The sentence,
+     *  `NextTimeBlock.planWords`, is the summary view's — see the header;
+     *  the rule that tells two plans apart is the flow's.) */
+    @Test
+    fun theSentenceNamesTheProbeTheNextPlanCarries() {
+        val knee = SessionExercise(pattern = Pattern.coreAntiExt, name = "Knee plank", variation = 1,
+                                   unit = LoadUnit.hold, load = 45, perSide = false, sets = 2,
+                                   restSetSec = 60, restExerciseSec = 60, loads = null, probe = null)
+        val probe = SessionProbe(variation = 2, name = "High plank", unit = LoadUnit.hold, load = 15, perSide = false)
+        val probing = knee.copy(probe = probe)
+        assertFalse(NextTimeBlock.samePlan(probing, knee), "the same sets, and one of them probes")
+        assertTrue(NextTimeBlock.samePlan(probing, knee.copy(probe = probe)))
     }
 
     /** Changing the rating afterwards keeps the addition: it was a decision
@@ -204,6 +300,30 @@ class NextTimeTest : AppStoreTestCase() {
         assertEquals(0, record.raisedShare(Pattern.pushH))
     }
 
+    /** The summary's count after a correction: steps whose plan equals the
+     *  plan one step below are steps the engine will park, and they come off
+     *  the count from the top. A preview that cannot be had leaves the count
+     *  alone — an unknown is not "nothing moves". */
+    @Test
+    fun theStepperCountsOnlyTheStepsThatStillMoveThePlan() {
+        val flat = SessionExercise(pattern = Pattern.coreAntiExt, name = "Plank", variation = 1,
+                                   unit = LoadUnit.hold, load = 40, perSide = false, sets = 3,
+                                   restSetSec = 60, restExerciseSec = 60, loads = null, probe = null)
+        val raised = flat.copy(loads = listOf(45, 40, 40))
+        val top = flat.copy(loads = null, load = 45)
+        // 0 → 45-40-40, 1 → 3×45, 2 → 3×45: the second step burns.
+        val plans = listOf(raised, top, top)
+        assertEquals(1, NextTimeBlock.stepsThatStillMove(2) { plans[minOf(it, 2)] })
+        assertEquals(1, NextTimeBlock.stepsThatStillMove(1) { plans[minOf(it, 2)] })
+        // Everything parked: the count goes to zero.
+        assertEquals(0, NextTimeBlock.stepsThatStillMove(2) { top })
+        // Every step live: nothing comes off.
+        val live = listOf(raised, top, top.copy(loads = null, load = 50))
+        assertEquals(2, NextTimeBlock.stepsThatStillMove(2) { live[minOf(it, 2)] })
+        assertEquals(2, NextTimeBlock.stepsThatStillMove(2) { null })
+        assertEquals(0, NextTimeBlock.stepsThatStillMove(-1) { top })
+    }
+
     /** The note on tomorrow's plan belongs to a rise still standing: once
      *  something else moves the movement — a decay or a comeback would — the
      *  note stands down. */
@@ -214,6 +334,19 @@ class NextTimeTest : AppStoreTestCase() {
         assertEquals(1, store.raisedForNextPlan(hold.pattern))
         store.update { s -> s.copy(engineState = Engine.raiseDose(state = s.engineState, pattern = hold.pattern, steps = 1)) }
         assertEquals(0, store.raisedForNextPlan(hold.pattern))
+    }
+
+    /** The clock's numbers come back off disk bounded like the estimate
+     *  marks: a set the scale does not have, or a number outside the
+     *  corridor, is dropped rather than shown as "what the clock saw". */
+    @Test
+    fun theClocksNumbersOffDiskAreBounded() {
+        var snap = WorkoutSnapshot(sessionNumber = 3, exIndex = 0, setIndex = 0,
+                                   restEndDate = null, restTotalSec = null,
+                                   workoutStart = Instant.now(), savedAt = Instant.now())
+        assertEquals(emptyMap(), snap.measuredHold)
+        snap = snap.copy(holdMeasuredSec = mapOf(0 to 30, 1 to 7, 9 to 30, 2 to 400, 3 to -1))
+        assertEquals(mapOf(0 to 30, 1 to 7), snap.measuredHold)
     }
 
     /** Off disk the count is clamped to what the engine accepts. */
@@ -227,5 +360,19 @@ class NextTimeTest : AppStoreTestCase() {
         assertEquals(EngineConfig.raiseStepsMax, record.raisedSteps?.get(Pattern.coreAntiExt))
         assertEquals(0, record.raisedSteps?.get(Pattern.squat))
         assertEquals(EngineConfig.raiseStepsMax, record.raisedLanded?.get(Pattern.coreAntiExt))
+    }
+
+    // MARK: - The words
+
+    @Test
+    fun theAdditionIsPrintedInTheMovementsOwnUnit() {
+        assertEquals("+5 s", RaiseLabel.text(steps = 1, unit = LoadUnit.hold).english)
+        assertEquals("+10 s", RaiseLabel.text(steps = 2, unit = LoadUnit.hold).english)
+        assertEquals("+1", RaiseLabel.text(steps = 1, unit = LoadUnit.reps).english)
+        assertNull(ExerciseRow.raisedNote(steps = 0, unit = LoadUnit.hold))
+        // Built through the same key and the same placeholder the note uses.
+        assertEquals(Words.keyed("plan.raised", "%@ — your addition", Words.of("+%lld s", 5)),
+                     ExerciseRow.raisedNote(steps = 1, unit = LoadUnit.hold))
+        assertEquals("+5 s — your addition", ExerciseRow.raisedNote(steps = 1, unit = LoadUnit.hold)?.english)
     }
 }
