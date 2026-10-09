@@ -7,6 +7,7 @@
 
 package com.dredfit
 
+import android.Manifest
 import android.app.LocaleManager
 import android.os.Build
 import android.os.LocaleList
@@ -88,6 +89,13 @@ abstract class DredfitUITest {
             InstrumentationRegistry.getInstrumentation().runOnMainSync {
                 locales.applicationLocales = LocaleList.forLanguageTags("en")
             }
+        }
+        // A workout's start asks for POST_NOTIFICATIONS (RootScreen.kt); the
+        // system's dialog would cover the flow every walk drives. Granted,
+        // never revoked: a revoke kills the process the suite runs in.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            InstrumentationRegistry.getInstrumentation().uiAutomation
+                .grantRuntimePermission(app.packageName, Manifest.permission.POST_NOTIFICATIONS)
         }
         app.resetForTests({ InstrumentationRegistry.getInstrumentation().runOnMainSync(it) }) { path ->
             write(path, seed, appearance)
