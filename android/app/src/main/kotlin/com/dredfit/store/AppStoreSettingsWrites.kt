@@ -44,6 +44,11 @@ fun AppStore.setReminderEnabled(on: Boolean) {
             // inside the app).
             reminderRefused = true
             update { it.copy(settings = it.settings.copy(reminderEnabled = false)) }
+            // And the window goes with it. iOS stops here, but a window drawn
+            // while the flag was on (an activation before a restore's
+            // re-check, an import) would outlive the switch: allowed later in
+            // the system settings, it would remind with the switch OFF.
+            rescheduleReminders()
         }
     }
 }

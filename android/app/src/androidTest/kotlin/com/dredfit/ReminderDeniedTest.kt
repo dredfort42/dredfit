@@ -4,8 +4,10 @@
 //  way to the app's notification settings. An imported backup that carries
 //  the reminder ON is re-checked the same way (owner decision, 09.10.2026)
 //  and lands in the same note. Refused twice, the system answers "no"
-//  without a dialog — the note again, at once. Granted at last (from the
-//  shell, as from the system settings), the switch draws the window.
+//  without a dialog — the note again, at once. Android's own restore (the
+//  state back, the device mark not) is re-checked on the first launch and
+//  lands in the same note. Granted at last (from the shell, as from the
+//  system settings), the switch draws the window.
 //
 //  ONE method, in order, because the order is the subject: Android shows the
 //  dialog twice at most, and a revoke would kill the process the
@@ -35,6 +37,7 @@ import com.dredfit.ReminderTest.Companion.TAG_OPEN_SETTINGS
 import com.dredfit.ReminderTest.Companion.TAG_TIME
 import com.dredfit.ReminderTest.Companion.TAG_TOGGLE
 import com.dredfit.store.AppStore
+import com.dredfit.store.DeviceMark
 import com.dredfit.store.exportBackup
 import com.dredfit.store.importBackup
 import org.junit.After
@@ -112,7 +115,24 @@ class ReminderDeniedTest : ReminderTestCase() {
         compose.onNodeWithTag(TAG_TOGGLE).assertIsOff()
         assertFalse(granted())
 
-        // 5. Granted in the system's settings (here, the shell's grant): the
+        // 5. Android's own restore: the state file comes back with the
+        //    reminder ON, the device mark (noBackupFilesDir) does not. The
+        //    first launch re-checks — refused here — and the switch is off
+        //    with the note, never on with nothing to post.
+        tap(AX.settingsDone)
+        onStore { update { it.copy(settings = it.settings.copy(reminderEnabled = true)) } }
+        val mark = DeviceMark.file(app.noBackupFilesDir)
+        assertTrue("the device mark of the earlier launches", mark.exists())
+        assertTrue(mark.delete())
+        relaunchFromDisk()
+        assertTrue("re-checked and turned off", awaitTrue(timeoutMs = 10_000) { !readStore { settings.reminderEnabled } })
+        assertTrue("the check is marked done", mark.exists())
+        tap(AX.settings)
+        await(TAG_DENIED)
+        compose.onNodeWithTag(TAG_TOGGLE).assertIsOff()
+        assertTrue(pendingIds().isEmpty())
+
+        // 6. Granted in the system's settings (here, the shell's grant): the
         //    switch stays on and draws the window.
         instrumentation.uiAutomation.grantRuntimePermission(app.packageName, Manifest.permission.POST_NOTIFICATIONS)
         tapOnce(TAG_TOGGLE)

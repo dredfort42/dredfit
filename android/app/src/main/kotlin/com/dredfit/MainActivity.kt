@@ -14,6 +14,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
@@ -30,11 +31,14 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import com.dredfit.review.PlayReviewPrompt
 import com.dredfit.store.AppStore
+import com.dredfit.store.DeviceMark
 import com.dredfit.store.activate
+import com.dredfit.store.recheckRemindersOnANewDevice
 import com.dredfit.ui.Observed
 import com.dredfit.ui.RootScreen
 import com.dredfit.ui.reanchor
 import com.dredfit.ui.theme.Palette
+import java.io.IOException
 
 class MainActivity : ComponentActivity() {
 
@@ -73,7 +77,10 @@ class MainActivity : ComponentActivity() {
             // A cold start: onResume has already run without a store. A
             // recreated activity gets the store inline here, and its own
             // onResume activates it.
-            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) loaded.act { activate() }
+            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                loaded.act { activate() }
+                recheckAfterARestore(loaded)
+            }
         }
         setContent {
             val loaded = store
@@ -82,6 +89,23 @@ class MainActivity : ComponentActivity() {
             } else {
                 RootScreen(loaded, app.flows, app::signals, reviewPrompt, todayRequests)
             }
+        }
+    }
+
+    /** The first launch on this device of a state that came from a backup:
+     *  the reminder's permission is re-checked (`recheckRemindersOnANewDevice`),
+     *  once — the mark is written only when the check ran. */
+    private fun recheckAfterARestore(loaded: Observed<AppStore>) {
+        val mark = DeviceMark.file(noBackupFilesDir)
+        if (mark.exists()) return
+        var checked = false
+        loaded.act { checked = recheckRemindersOnANewDevice() }
+        if (!checked) return
+        try {
+            mark.createNewFile()
+        } catch (unwritable: IOException) {
+            // Unmarked, the next return checks again: a question at worst.
+            Log.w("MainActivity", "the device mark could not be written", unwritable)
         }
     }
 
@@ -102,7 +126,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        store?.act { activate() }
+        store?.let {
+            it.act { activate() }
+            recheckAfterARestore(it)
+        }
     }
 
     override fun onStart() {

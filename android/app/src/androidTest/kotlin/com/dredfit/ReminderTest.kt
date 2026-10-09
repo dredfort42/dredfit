@@ -30,6 +30,7 @@ import androidx.test.runner.lifecycle.Stage
 import com.dredfit.reminders.ReminderChannel
 import com.dredfit.reminders.ReminderScheduler
 import com.dredfit.reminders.SystemNotificationScheduler
+import com.dredfit.store.DeviceMark
 import com.dredfit.store.setReminderEnabled
 import com.dredfit.store.setReminderTime
 import org.junit.After
@@ -183,6 +184,26 @@ class ReminderTest : ReminderTestCase() {
         shell("cmd alarm set-time ${moved + 60_000}")
         shell("cmd alarm set-time ${System.currentTimeMillis() - 60_000}")
         assertTrue("TIME_SET rebuilt the window", awaitTrue(timeoutMs = 90_000) { pendingIds().isNotEmpty() })
+    }
+
+    /** Android's own restore onto a phone that allows notifications: the
+     *  first launch (no device mark) re-checks, the reminder stays on, and
+     *  the window is drawn. ReminderDeniedTest has the refusing phone. */
+    @Test
+    fun aRestoredReminderOnAnAllowingPhoneStaysOn() {
+        launch(Seed.Clean, fast = false)
+        onStore { setReminderEnabled(true) }
+        val mark = DeviceMark.file(app.noBackupFilesDir)
+        assertTrue(mark.exists())
+        clearReminders()
+        assertTrue(mark.delete())
+        relaunchFromDisk()
+        assertTrue("the check ran", awaitTrue(timeoutMs = 10_000) { mark.exists() })
+        assertTrue(readStore { settings.reminderEnabled })
+        assertTrue("the window is drawn", awaitTrue { pendingIds().size == expectedSlots(9, 0) })
+        tap(AX.settings)
+        await(TAG_TIME)
+        assertFalse(exists(TAG_DENIED))
     }
 
     companion object {
