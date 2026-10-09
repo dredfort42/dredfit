@@ -16,9 +16,8 @@
 //      accentText  #B44504   #E8590C
 //      accentSoft  #FBE3D6   #3A2013
 //
-//  The Increased Contrast columns of the asset catalog are not here: Android's
-//  counterpart (the contrast level of Android 14+) arrives with Settings'
-//  appearance, which is where the app reads display preferences.
+//  The Increased Contrast columns are `lightHighContrast`/`darkHighContrast`,
+//  taken when Android 14+'s contrast level is raised (RootScreen.kt).
 //
 
 package com.dredfit.ui.theme
@@ -45,6 +44,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -81,6 +81,26 @@ data class Palette(
             // Equal to `accent` on purpose: #E8590C reads 5.5:1 on the dark
             // ground, where the light value would read 3.58:1.
             accentText = Color(0xFFE8590C), accentSoft = Color(0xFF3A2013))
+
+        /** The Increased Contrast columns: one tier up (#119). */
+        val lightHighContrast = Palette(
+            bg = Color(0xFFFFFFFF), cardBG = Color(0xFFE0E0DD), ink = Color(0xFF111214),
+            ink2 = Color(0xFF535558), ink3 = Color(0xFF727478), hairline = Color(0xFFD0D2D5),
+            restFill = Color(0xFFC4C6CA), accent = Color(0xFFC94D07), accentText = Color(0xFF993B04),
+            accentSoft = Color(0xFFFBE3D6))
+        val darkHighContrast = Palette(
+            bg = Color(0xFF090A0C), cardBG = Color(0xFF25262B), ink = Color(0xFFF2F2F4),
+            ink2 = Color(0xFFA2A3A8), ink3 = Color(0xFF7B7C82), hairline = Color(0xFF2F3136),
+            restFill = Color(0xFF35363A), accent = Color(0xFFE8590C), accentText = Color(0xFFFF7526),
+            accentSoft = Color(0xFF3A2013))
+
+        /** The column a screen is drawn in. */
+        fun of(dark: Boolean, highContrast: Boolean): Palette = when {
+            dark && highContrast -> darkHighContrast
+            dark -> this.dark
+            highContrast -> lightHighContrast
+            else -> light
+        }
     }
 }
 
@@ -93,8 +113,8 @@ object Theme {
 }
 
 @Composable
-fun DredfitTheme(dark: Boolean, content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalPalette provides if (dark) Palette.dark else Palette.light, content = content)
+fun DredfitTheme(dark: Boolean, highContrast: Boolean = false, content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalPalette provides Palette.of(dark, highContrast), content = content)
 }
 
 /** The floor every tap target in the flow holds to (#193): a bare 14 pt word
@@ -123,6 +143,13 @@ fun dredfitFont(size: Float, weight: FontWeight = FontWeight.Normal, cap: Float?
         fontFeatureSettings = if (monospacedDigit) "tnum" else null,
     )
 }
+
+/** `dynamicTypeSize.isAccessibilitySize`: the sizes past the ordinary range,
+ *  where iOS layouts move a column under its neighbour. Android's own font
+ *  scales run to 1.3 and its accessibility steps start at 1.5. */
+@Composable
+@ReadOnlyComposable
+fun isAccessibilitySize(): Boolean = LocalDensity.current.fontScale >= 1.5f
 
 /** SwiftUI's weights by name, so a port reads like its source. */
 object Weight {
@@ -214,7 +241,7 @@ fun QuietButton(title: String, tag: String?, modifier: Modifier = Modifier, onCl
 /** The small uppercase line over a heading. ink2, never ink3: 12 pt
  *  semibold is small text, and ink3 is 2.35:1 on the light ground. */
 @Composable
-fun Kicker(text: String, modifier: Modifier = Modifier, color: Color = Theme.colors.ink2) {
+fun Kicker(text: String, modifier: Modifier = Modifier, color: Color = Theme.colors.ink2, maxLines: Int = Int.MAX_VALUE) {
     Text(text.uppercase(), modifier = modifier, style = dredfitFont(12f, Weight.semibold, tracking = 0.8f),
-         color = color)
+         color = color, maxLines = maxLines, overflow = TextOverflow.Ellipsis)
 }

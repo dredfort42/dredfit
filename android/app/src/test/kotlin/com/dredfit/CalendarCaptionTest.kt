@@ -1,11 +1,8 @@
 //
 //  Port of ios/DredfitTests/CalendarCaptionTests.swift: what the calendar
 //  side of the store says — the week card's number and the next training day.
-//
-//  Not ported: `test_nextTrainingDateLabel_forAGivenDay_speaksFromThatDayAndNotFromToday`
-//  — the label's words live in a @Composable (`ui/today/NextTrainingDateLabel.kt`,
-//  it reads the locale off `LocalConfiguration`), which a JVM unit test cannot
-//  call. The day it names is `nextTrainingDate`, pinned below.
+//  All five tests; the label's words are `NextTrainingDateLabel.words`
+//  (ui/today/NextTrainingDateLabel.kt), the locale a parameter.
 //
 
 package com.dredfit
@@ -17,10 +14,14 @@ import com.dredfit.store.restAppliesToday
 import com.dredfit.store.sameDay
 import com.dredfit.store.swiftWeekday
 import com.dredfit.store.weekSummary
+import com.dredfit.ui.today.NextTrainingDateLabel
+import com.dredfit.workout.Words
 import java.time.Instant
+import java.util.Locale
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class CalendarCaptionTest : AppStoreTestCase() {
@@ -28,6 +29,8 @@ class CalendarCaptionTest : AppStoreTestCase() {
     /** ISO week Mon 6 Jul 2026 – Sun 12 Jul 2026. */
     private val monday: Instant get() = date(2026, 7, 6)
     private val wednesday: Instant get() = date(2026, 7, 8)
+    private val saturday: Instant get() = date(2026, 7, 11)
+    private val sunday: Instant get() = date(2026, 7, 12)
 
     /** Seeded directly: `completeWorkout` always stamps a
      *  `totalProgressAfter`, and the branch under test exists only for
@@ -75,6 +78,24 @@ class CalendarCaptionTest : AppStoreTestCase() {
         store.update { it.copy(settings = it.settings.copy(restWeekdays = setOf(weekday))) }
         assertFalse(store.restAppliesToday, "Today offers the plan")
         assertTrue(store.sameDay(store.nextTrainingDate, store.today))
+    }
+
+    /** Saturday and Sunday off, so Monday is the next training day seen from
+     *  either — the same date, two different words. */
+    @Test
+    fun nextTrainingDateLabel_forAGivenDay_speaksFromThatDayAndNotFromToday() {
+        val store = makeStore()
+        store.update { it.copy(settings = it.settings.copy(restWeekdays = setOf(7, 1))) }
+        val fromSaturday = NextTrainingDateLabel.words(store, saturday, Locale.US)
+        val fromSunday = NextTrainingDateLabel.words(store, sunday, Locale.US)
+        assertEquals(store.nextTrainingDate(saturday), store.nextTrainingDate(sunday),
+                     "the fixture must aim both days at the same Monday, or the words below " +
+                         "are allowed to differ for an uninteresting reason")
+        assertEquals(Words.of("tomorrow"), fromSunday, "one day before it, the next training day is tomorrow")
+        assertNotEquals(fromSaturday, fromSunday,
+                        "two days before it, it is not — a relative word baked at write time reads wrong on every later day")
+        assertNotEquals(Words.of("today"), fromSaturday, "and it is certainly not today: Saturday is a rest day here")
+        assertEquals("on Monday", fromSaturday.english)
     }
 
     /** `toggleRestDay` refuses the seventh day, so this state only arrives

@@ -53,6 +53,7 @@ fun pluralCount(args: List<Any>): Int? = args.lastOrNull { it is Int || it is Lo
 @Composable
 fun tr(words: Words): String {
     val args = words.args.map { if (it is Words) tr(it) else it }
+    if (words.isNarrowList) return listFormatted(args.map { it.toString() }, narrow = true)
     val key = words.key ?: return Words(null, words.format, args).english
     val known = AppStrings.plural(key) ?: CoreStrings.plural(key) ?: WidgetStrings.plural(key)
         ?: AppStrings.string(key) ?: CoreStrings.string(key) ?: WidgetStrings.string(key)
@@ -85,9 +86,13 @@ fun screenDateText(day: Instant, zone: ZoneId): String {
     return DateTimeFormatter.ofPattern(pattern, locale).format(day.atZone(zone))
 }
 
-/** The locale's own list — "a, b and c" — as `.formatted(.list(type: .and))`. */
+/** The locale's own list — "a, b and c" — as `.formatted(.list(type: .and))`;
+ *  `narrow` is `width: .narrow`, which is iOS's table on every API level
+ *  (NarrowList.kt), not ICU's. */
 @Composable
-fun listFormatted(items: List<String>): String {
+fun listFormatted(items: List<String>, narrow: Boolean = false): String {
     if (items.size <= 1) return items.firstOrNull() ?: ""
-    return android.icu.text.ListFormatter.getInstance(currentLocale()).format(items)
+    val locale = currentLocale()
+    if (narrow) return NarrowList.join(items, locale)
+    return android.icu.text.ListFormatter.getInstance(locale).format(items)
 }

@@ -27,7 +27,13 @@ data class Words(
 ) {
     /** The base string, arguments filled in — what an English device shows,
      *  and what a test compares against. */
-    val english: String get() = fill(format) { arg -> if (arg is Words) arg.english else arg.toString() }
+    val english: String
+        get() = if (isNarrowList) args.joinToString(", ") { if (it is Words) it.english else it.toString() }
+        else fill(format) { arg -> if (arg is Words) arg.english else arg.toString() }
+
+    /** `.formatted(.list(type: .and, width: .narrow))`: the screen joins the
+     *  items the locale's own way; English's narrow list is commas alone. */
+    val isNarrowList: Boolean get() = key == null && format == NARROW_LIST
 
     /** Fills the placeholders, each argument rendered by `render`; `%1$@`
      *  takes its argument by position, as Foundation does. */
@@ -45,6 +51,10 @@ data class Words(
 
     companion object {
         private val PLACEHOLDER = Regex("%%|%(\\d+\\$)?(lld|ld|d|@)")
+        private const val NARROW_LIST = "\u0000narrow-list"
+
+        /** A list of names the locale joins — see `isNarrowList`. */
+        fun narrowList(items: List<Words>): Words = Words(null, NARROW_LIST, items)
 
         /** `String(localized: "English \(arg)")`: the key IS the English. */
         fun of(key: String, vararg args: Any): Words = Words(key, key, args.toList())

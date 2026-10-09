@@ -1,16 +1,16 @@
 //
 //  The completed state of Today. Port of ios/Dredfit/Views/Today/DoneView.swift:
 //  the one sentence about what the rating moved, and the way to give a
-//  different one — they are one thought.
-//
-//  Not here yet: "What you did today", the door to the history sheet — that
-//  sheet arrives with Progress (phase 2c-2), and a door to nothing would be a
-//  control that lies.
+//  different one — they are one thought — and the door back to what was
+//  actually done today.
 //
 
 package com.dredfit.ui.today
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,6 +76,18 @@ fun DoneView(observedStore: Observed<AppStore>, today: TodayState) {
         if (record != null) {
             Text(resultCaption(store, record), style = dredfitFont(15f), color = c.ink2, textAlign = TextAlign.Center,
                  modifier = Modifier.padding(top = 6.dp))
+        }
+        // The door back to what was actually done today: a control of its
+        // own, not the heading made tappable.
+        if (record != null) {
+            val pill = RoundedCornerShape(50)
+            Box(Modifier.padding(top = 18.dp).heightIn(min = MinTarget).clip(pill).border(1.5.dp, c.hairline, pill)
+                    .clickable(role = Role.Button) { today.destination = TodayDestination.History(record) }
+                    .testTag("today-record").padding(horizontal = 18.dp),
+                contentAlignment = Alignment.Center) {
+                // accentText, not accent: 3.58:1 in light does not carry small text.
+                Text(tr("What you did today"), style = dredfitFont(14.5f, Weight.medium), color = c.accentText)
+            }
         }
         // Quiet, and last: correcting a rating is the rarest thing anyone does
         // here — and the way back from a rating nobody gave (an unrated

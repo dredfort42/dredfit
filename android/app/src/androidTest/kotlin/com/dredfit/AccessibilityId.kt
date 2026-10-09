@@ -5,9 +5,8 @@
 //  two suites greppable in one step. A renamed tag lights up no compiler
 //  error inside a string literal; one constant per name is the guard.
 //
-//  Absent on purpose until their screens exist (phase 2c-2): the onboarding,
-//  history, calendar, progress and the rest of Settings — and
-//  `easierHandlePrefix`, which on iOS names a handle that must NOT come back.
+//  Absent on purpose: `easierHandlePrefix`, which on iOS names a handle that
+//  must NOT come back.
 //
 
 package com.dredfit
@@ -22,6 +21,10 @@ object AX {
     const val planRowPrefix = "plan-row-"
     const val techniqueHint = "technique-hint"
     const val nextWorkoutDone = "next-workout-done"
+
+    // Onboarding
+    const val onboardingPrimary = "onboarding-primary"
+    const val onboardingSkip = "onboarding-skip"
 
     // Resume and the comeback card
     const val resumeContinue = "resume-continue"
@@ -91,10 +94,37 @@ object AX {
     const val jubileeRetro = "jubilee-retro"
     const val milestoneLife = "milestone-life"
 
+    // Progress, calendar, settings
+    const val totalSteps = "total-steps"
+    const val historyDone = "history-done"
+    const val settingsRhythm = "settings-rhythm"
+    const val howItWorks = "how-it-works"
+    const val howItWorksDone = "how-it-works-done"
+    const val hasBarToggle = "hasbar-toggle"
+    fun weekday(index: Int) = "weekday-$index"
+    fun day(number: Int) = "day-$number"
+
     // Android-only: the alerts' buttons carry names here (an iOS alert
     // button has no identifier, so the iOS suite taps them by label).
     const val skipConfirm = "skip-confirm"
     const val exitFinishLater = "exit-finish-later"
     const val nextWorkout = "next-workout"
     const val changeRating = "change-rating"
+
+    // Android-only: the tab bar (iOS taps its tabs by label), the controls
+    // the iOS suite reaches by label, and the history sheet's walk.
+    fun tab(name: String) = "tab-$name"
+    const val onboardingCare = "onboarding-care"
+    const val todayRecord = "today-record"
+    const val historyEarlier = "history-earlier"
+    const val historyLater = "history-later"
+    const val showAll = "show-all"
+    fun progressRow(pattern: String) = "progress-row-$pattern"
+    const val progressMilestone = "progress-milestone"
+    const val shareProgress = "share-progress"
+    const val monthPrevious = "month-previous"
+    const val soundsToggle = "sounds-toggle"
+    const val silentModeToggle = "silent-mode-toggle"
+    const val exportHistory = "export-history"
+    fun appearance(raw: String) = "appearance-$raw"
 }

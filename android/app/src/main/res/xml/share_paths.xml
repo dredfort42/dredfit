@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The one folder a content:// URI may point into: the rendered share cards
+     (ui/progress/ShareCard.kt), one fixed file per slot in the cache. -->
+<paths>
+    <cache-path name="share" path="share/" />
+</paths>

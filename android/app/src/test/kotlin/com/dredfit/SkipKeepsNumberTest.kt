@@ -3,13 +3,8 @@
 //  entered for a set is never discarded by skipping it — whatever the number,
 //  and however the set is skipped.
 //
-//  Not ported: the three `HistorySheet.setFacts(squat, in: record)` reads at
-//  the end of `aNumberEnteredOnThePlanIsKeptBySkippingTheSet`,
-//  `skippingTheRemainingSetsKeepsTheNumberOfTheSetInFrontOnly` and
-//  `skippingTheRemainingSetsWithNoNumberLeavesThemOut` — the history line is
-//  a screen's (ios/Dredfit/Views/Progress/HistorySheet.swift) and nothing on
-//  Android computes it yet. The flow up to the rating and the fold are
-//  ported in all six tests.
+//  All six tests, the history line included (`HistorySheet.setFacts`,
+//  ui/progress/HistorySheet.kt).
 //
 
 package com.dredfit
@@ -17,6 +12,7 @@ package com.dredfit
 import com.dredfit.core.EngineConfig
 import com.dredfit.core.FeedbackResult
 import com.dredfit.core.Pattern
+import com.dredfit.ui.progress.HistorySheet
 import com.dredfit.workout.WorkoutSession
 import com.dredfit.workout.commitSetEdit
 import com.dredfit.workout.completeSet
@@ -47,6 +43,7 @@ class SkipKeepsNumberTest : WorkoutSessionTestCase() {
     @Test
     fun aNumberEnteredOnThePlanIsKeptBySkippingTheSet() {
         val (flow, store) = squatFlow()
+        val squat = flow.exercise
         flow.completeSet()
         flow.skipRest()
         enter(8, flow)
@@ -58,7 +55,7 @@ class SkipKeepsNumberTest : WorkoutSessionTestCase() {
         flow.completeSet()
         flow.finishNow()
         flow.rate(FeedbackResult.plan)
-        assertNotNull(store.records.lastOrNull())
+        assertEquals(listOf(8, 8, 6), HistorySheet.setFacts(squat, assertNotNull(store.records.lastOrNull()))?.first)
     }
 
     /** The number last confirmed is the one entered: 6, corrected back to 8
@@ -99,6 +96,7 @@ class SkipKeepsNumberTest : WorkoutSessionTestCase() {
     @Test
     fun skippingTheRemainingSetsKeepsTheNumberOfTheSetInFrontOnly() {
         val (flow, store) = fourSetSquatFlow()
+        val squat = flow.exercise
         flow.completeSet()
         flow.skipRest()
         flow.completeSet()
@@ -113,7 +111,7 @@ class SkipKeepsNumberTest : WorkoutSessionTestCase() {
         assertEquals(listOf(8, 8, 6), flow.actualSets[Pattern.squat])
         flow.finishNow()
         flow.rate(FeedbackResult.plan)
-        assertNotNull(store.records.lastOrNull())
+        assertEquals(listOf(8, 8, 6), HistorySheet.setFacts(squat, assertNotNull(store.records.lastOrNull()))?.first)
     }
 
     /** The same escape with no number for the set in front — 6 was entered
@@ -122,6 +120,7 @@ class SkipKeepsNumberTest : WorkoutSessionTestCase() {
     @Test
     fun skippingTheRemainingSetsWithNoNumberLeavesThemOut() {
         val (flow, store) = fourSetSquatFlow()
+        val squat = flow.exercise
         flow.completeSet()
         flow.skipRest()
         enter(6, flow)
@@ -134,7 +133,7 @@ class SkipKeepsNumberTest : WorkoutSessionTestCase() {
         assertEquals(listOf(8, 6), flow.actualSets[Pattern.squat])
         flow.finishNow()
         flow.rate(FeedbackResult.plan)
-        assertNotNull(store.records.lastOrNull())
+        assertEquals(listOf(8, 6), HistorySheet.setFacts(squat, assertNotNull(store.records.lastOrNull()))?.first)
     }
 
     /** A process death between the OK and the skip: a number off the plan is

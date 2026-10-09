@@ -62,6 +62,9 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.activity.compose)
+    // FileProvider (the share card's content:// URI) and WindowCompat — used
+    // directly, so declared rather than borrowed from activity's graph.
+    implementation(libs.androidx.core)
 
     // The JUnit 5 flavour by name: AGP does not pick kotlin-test's variant
     // from the test framework the way the plain JVM plugin does.
@@ -80,6 +83,9 @@ dependencies {
     // InputManager.getInstance — gone from Android 17 (API 37): every
     // Compose test failed in its first idle wait (09.10.2026).
     androidTestImplementation(libs.androidx.test.espresso.core)
+    // Stubs the system pickers (export/import) and the share sheet, so a
+    // test can see the intent go out without a picker it cannot drive.
+    androidTestImplementation(libs.androidx.test.espresso.intents)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
