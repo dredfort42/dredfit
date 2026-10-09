@@ -10,11 +10,11 @@ import com.dredfit.core.Engine
 import com.dredfit.core.EngineState
 import com.dredfit.core.EngineStateDecodingException
 import com.dredfit.core.SwiftDecodingException
+import com.dredfit.core.SwiftJson
 import com.dredfit.core.migrateFromV2
 import com.dredfit.journal.V2EngineState
 import com.dredfit.journal.WorkoutRecord
 import com.dredfit.journal.WorkoutSnapshot
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -70,11 +70,7 @@ class AppData(
          * "nothing to resume".
          */
         fun decode(text: String): AppData {
-            val root = try {
-                Json.parseToJsonElement(text)
-            } catch (e: IllegalArgumentException) {
-                throw SwiftDecodingException("not JSON: ${e.message}")
-            }
+            val root = SwiftJson.parse(text)
             val c = root as? JsonObject ?: throw SwiftDecodingException("root: not an object")
             val records = c["records"] as? JsonArray ?: throw SwiftDecodingException("records: not an array")
 

@@ -14,6 +14,7 @@
 
 package com.dredfit.core
 
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -71,10 +72,48 @@ object SwiftJson {
 
     fun saturated(v: Long): Int = v.coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt()
 
+    /** A token Swift reads as a number only when it is one by the JSON
+     *  grammar: `07` and `7.` pass its scanner but convert to nothing, so the
+     *  field falls to its default there — and must here. */
     private fun number(e: JsonElement?): JsonPrimitive? {
         val p = e as? JsonPrimitive ?: return null
-        if (p is JsonNull || p.isString || p.content == "true" || p.content == "false") return null
+        if (p is JsonNull || p.isString || !JSON_NUMBER.matches(p.content)) return null
         return p
+    }
+
+    private val JSON_NUMBER = Regex("-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]+)?")
+
+    /** What Swift's scanner takes as a number token before converting it:
+     *  a `-` or a digit, then number characters only. */
+    private val SCANNED_NUMBER = Regex("[-0-9][-+.eE0-9]*")
+
+    // MARK: - The document
+
+    /**
+     * Swift's `JSONDecoder` front end. kotlinx reads an unquoted token
+     * (`+7`, `seven`, `0x1p3`) as a literal even when not lenient; Swift
+     * refuses the whole file for one, so this does too. A UTF-8 byte-order
+     * mark Swift skips, and so does this. Probed against the Swift decoder on
+     * 09.10.2026: `+7` `.5` `1d` `NaN` `tru` refuse the file; `07` `7.` `1e`
+     * `-` pass the scanner and fail only the field.
+     */
+    fun parse(text: String): JsonElement {
+        val root = try {
+            Json.parseToJsonElement(text.removePrefix("\uFEFF"))
+        } catch (e: IllegalArgumentException) {
+            throw SwiftDecodingException("not JSON: ${e.message}")
+        }
+        val pending = ArrayDeque<JsonElement>().apply { add(root) }
+        while (pending.isNotEmpty()) {
+            when (val e = pending.removeLast()) {
+                is JsonObject -> pending.addAll(e.values)
+                is JsonArray -> pending.addAll(e)
+                is JsonNull -> Unit
+                is JsonPrimitive -> if (!e.isString && e.content != "true" && e.content != "false" &&
+                    !SCANNED_NUMBER.matches(e.content)) throw SwiftDecodingException("not JSON: ${e.content}")
+            }
+        }
+        return root
     }
 
     // MARK: - Date
