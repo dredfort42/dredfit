@@ -98,6 +98,29 @@ class AbandonedWorkoutTest : AppStoreTestCase() {
         assertWithinASecond(lastNight.minusSeconds(30 * 60), record.date.minusSeconds(duration))
     }
 
+    /** What the flow carried to the rating reaches the settled record too:
+     *  the movement it was cut short on, the probe's number, the steps added
+     *  for next time and the warm-up's length. Settling stands in for a tap
+     *  nobody made; it must not quietly drop what was already decided. */
+    @Test
+    fun aSettledWorkoutKeepsWhatTheFlowCarriedToTheRating() {
+        val store = makeStore()
+        val exercises = store.nextSession.exercises
+        val first = exercises.first().pattern
+        val last = exercises.last().pattern
+        val savedAt = Instant.now().minus(forgotten).minusSeconds(60)
+        store.saveWorkoutSnapshot(atFeedback(store, savedAt).copy(
+            probes = mapOf(first to 6), interrupted = last, warmupSec = 240, raisedSteps = mapOf(first to 1)))
+
+        val relaunched = makeStore()
+        assertTrue(relaunched.settleAbandonedWorkout())
+        val record = assertNotNull(relaunched.records.firstOrNull())
+        assertEquals(last, record.interrupted, "the movement the workout was cut short on")
+        assertEquals(mapOf(first to 6), record.probes, "the number the probe showed")
+        assertEquals(mapOf(first to 1), record.raisedSteps, "the steps added for next time")
+        assertEquals(240, record.warmupSec, "the warm-up as it ran")
+    }
+
     @Test
     fun aFreshSnapshotIsLeftAloneToBeResumed() {
         val store = makeStore()
