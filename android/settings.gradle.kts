@@ -16,5 +16,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "dredfit"
 
-// `:app` arrives with phase 2; the engine stands on its own until then.
 include(":core")
+include(":app")

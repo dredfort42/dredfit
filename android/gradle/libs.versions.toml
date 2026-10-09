@@ -1,9 +1,13 @@
 # The one version catalog. Every version below was verified by
-# `./gradlew :core:test` on the Android Studio JBR (OpenJDK 25).
+# `./gradlew :core:test :app:testDebugUnitTest :app:assembleDebug` on the
+# Android Studio JBR (OpenJDK 25), compileSdk 37.
 [versions]
 kotlin = "2.4.21"
 kotlinx-serialization = "1.11.0"
 junit = "5.14.4"
+agp = "9.4.1"
+compose-bom = "2026.09.00"
+activity-compose = "1.13.0"
 
 [libraries]
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
@@ -11,5 +15,11 @@ junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-application = { id = "com.android.application", version.ref = "agp" }
