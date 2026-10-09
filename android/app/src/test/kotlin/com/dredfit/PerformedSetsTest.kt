@@ -67,6 +67,35 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+// The helpers the Swift extension declares and its sibling extensions
+// (SkipKeepsNumberTests, SkippedSetsHistoryTests) call: top-level here, as
+// a Kotlin class cannot be extended with tests.
+
+/** A 3×8 squat in the store's own state: session 1 opens on it. */
+fun WorkoutSessionTestCase.squatFlow(): Pair<WorkoutSession, AppStore> {
+    val state = EngineState.initial
+    state.doses[Pattern.squat] = 8
+    val store = makeStore()
+    store.update { it.copy(engineState = state) }
+    val flow = makeFlow(store)
+    flow.declineWarmup()
+    flow.exIndex = index(Pattern.squat, flow)
+    assertEquals(LoadUnit.reps, flow.exercise.unit, "the premise: reps")
+    assertEquals(3, flow.exercise.sets, "the premise: three sets")
+    assertEquals(8, flow.exercise.load, "the premise: 8 each")
+    assertNull(flow.exercise.loads)
+    return flow to store
+}
+
+/** "Went differently" → 6 on the set in front of the person, then "Skip
+ *  this set". */
+fun enterSixAndSkipTheSet(flow: WorkoutSession) {
+    flow.startAdjusting()
+    flow.adjustValue = 6
+    flow.commitSetEdit()
+    flow.skipSet()
+}
+
 class PerformedSetsTest : WorkoutSessionTestCase() {
 
     /** "Plank" 3×30 s in the store's own state: session 2 carries it. */
@@ -104,22 +133,6 @@ class PerformedSetsTest : WorkoutSessionTestCase() {
         flow.startHoldExercise()
         run(flow) { flow.phase == Phase.ExerciseSummary }
         assertEquals(listOf(45, 30, 45), flow.actuals[Pattern.coreAntiExt], "the premise: the gap reads the plan")
-    }
-
-    /** A 3×8 squat in the store's own state: session 1 opens on it. */
-    private fun squatFlow(): Pair<WorkoutSession, AppStore> {
-        val state = EngineState.initial
-        state.doses[Pattern.squat] = 8
-        val store = makeStore()
-        store.update { it.copy(engineState = state) }
-        val flow = makeFlow(store)
-        flow.declineWarmup()
-        flow.exIndex = index(Pattern.squat, flow)
-        assertEquals(LoadUnit.reps, flow.exercise.unit, "the premise: reps")
-        assertEquals(3, flow.exercise.sets, "the premise: three sets")
-        assertEquals(8, flow.exercise.load, "the premise: 8 each")
-        assertNull(flow.exercise.loads)
-        return flow to store
     }
 
     // MARK: - The fold
@@ -203,15 +216,6 @@ class PerformedSetsTest : WorkoutSessionTestCase() {
     }
 
     // MARK: - A number entered before a skip
-
-    /** "Went differently" → 6 on the set in front of the person, then "Skip
-     *  this set". */
-    private fun enterSixAndSkipTheSet(flow: WorkoutSession) {
-        flow.startAdjusting()
-        flow.adjustValue = 6
-        flow.commitSetEdit()
-        flow.skipSet()
-    }
 
     /** "8, entered 6 then Skip this set, 6" on 3×8: the 6 the person entered
      *  is theirs and counts — 8, 6, 6 is 6.67 — while the set still goes off
