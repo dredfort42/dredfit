@@ -25,8 +25,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // The frames for comparing with the iOS store shots are taken on
         // request (`adb shell am instrument -e class com.dredfit.ScreenshotWalk
-        // -e screens <prefix> …`), never as part of the suite.
-        testInstrumentationRunnerArguments["notClass"] = "com.dredfit.ScreenshotWalk"
+        // -e screens <prefix> …`), never as part of the suite. The refused-
+        // notification walk needs a permission never granted, which the
+        // suite grants, so it runs alone (NotificationDeniedTest's header).
+        testInstrumentationRunnerArguments["notClass"] = "com.dredfit.ScreenshotWalk,com.dredfit.NotificationDeniedTest"
         // About's "Rate on Google Play" and "Recommend Dredfit" point at the
         // Play listing, which does not exist yet: a link to a missing page is
         // worse than no link. Flip to true once the listing is live
