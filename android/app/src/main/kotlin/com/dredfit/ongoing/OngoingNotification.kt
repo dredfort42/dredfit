@@ -88,7 +88,6 @@ class OngoingNotification(context: Context) : OngoingHost {
 
     override fun hide() {
         isUp = false
-        keepAwake(false)
         // A service still on its way stops itself once it is in the
         // foreground (`onStartCommand`): stopping it earlier would break the
         // promise `startForegroundService` made, and the system crashes an

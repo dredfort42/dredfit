@@ -41,7 +41,9 @@ class HostSpy : OngoingHost {
         private set
 
     val shown: List<OngoingContent> get() = calls.filterIsInstance<Call.Show>().map { it.content }
-    val awake: Boolean get() = calls.filterIsInstance<Call.Awake>().lastOrNull()?.awake == true && isUp
+    /** The lock as the device would hold it: whatever the last call said —
+     *  `hide` releases nothing by itself. */
+    val awake: Boolean get() = calls.filterIsInstance<Call.Awake>().lastOrNull()?.awake == true
 
     override fun show(content: OngoingContent) {
         calls += Call.Show(content)
@@ -149,6 +151,19 @@ class OngoingNotificationTest : WorkoutSessionTestCase() {
         tile.keepAwake(true)
         tile.end()
         assertFalse(host.awake, "the end releases what the tile held")
+    }
+
+    @Test
+    fun aTileEndingDuringACountdownReleasesTheCpuBeforeTheServiceGoes() {
+        val host = HostSpy()
+        val tile = OngoingWorkout(host) { now }
+        tile.start(sessionNumber = 1, state = ActivityState(ActivityState.Phase.rest, title, detail, now.plusSeconds(60)))
+        tile.keepAwake(true)
+        tile.end()
+        assertEquals(listOf(HostSpy.Call.Awake(true), HostSpy.Call.Awake(false), HostSpy.Call.Hide),
+                     host.calls.drop(1), "no beat comes after the end to let the lock go")
+        tile.keepAwake(true)
+        assertFalse(host.awake, "and nothing takes it back once the tile is down")
     }
 
     @Test

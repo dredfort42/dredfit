@@ -25,7 +25,8 @@ interface OngoingHost {
     val isUp: Boolean
     /** Starts the service on the first call, redraws the notification after. */
     fun show(content: OngoingContent)
-    /** Stops the service, takes the notification away, releases the CPU. */
+    /** Stops the service and takes the notification away; the controller
+     *  has released the CPU first. */
     fun hide()
     /** Holds or releases the partial wake lock; a repeat is a no-op. Only
      *  between `show` and `hide`. */
@@ -64,8 +65,12 @@ class OngoingWorkout(private val host: OngoingHost, private val now: () -> Insta
 
     override fun end() {
         if (!started) return
+        // Released here, before the service goes: the tile can end on its
+        // own (the cool-down's last position, the forgotten-workout rule)
+        // with a countdown still running, and no beat after it would ever
+        // ask for the lock back.
+        keepAwake(false)
         started = false
-        awake = false
         host.hide()
     }
 
