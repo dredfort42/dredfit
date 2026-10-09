@@ -14,6 +14,10 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,7 +32,13 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
@@ -46,6 +56,7 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.log10
 import kotlin.math.pow
+import kotlin.math.roundToInt
 
 object StepsChart {
 
@@ -112,7 +123,26 @@ fun StepsChart(points: List<StepsChart.StepPoint>, bands: List<StepsChart.BreakB
     val first = points.first().date.toEpochMilli()
     val span = (points.last().date.toEpochMilli() - first).coerceAtLeast(1)
 
-    Canvas(modifier.fillMaxSize().testTag("steps-chart").pointerInput(points) {
+    BoxWithConstraints(modifier.fillMaxSize()) {
+    // TalkBack's view of the chart, what Swift Charts hands VoiceOver for
+    // free: one element per point, in order, its date as the axis prints it
+    // and its value, and the double-tap opens that workout's record — the
+    // same thing a tap on the chart does. Invisible and with no pointer input
+    // of its own, so a finger still reaches the Canvas underneath.
+    val yWidthPx = ticks.maxOf { measurer.measure(it.toString(), axisStyle).size.width } +
+        with(LocalDensity.current) { 6.dp.toPx() }
+    val plotWidthPx = constraints.maxWidth - yWidthPx
+    points.forEachIndexed { i, pt ->
+        val label = dateFormat.format(pt.date.atZone(zone)) + ", " + tr("%lld steps", pt.value)
+        val x = plotWidthPx * (pt.date.toEpochMilli() - first).toFloat() / span
+        Box(Modifier.offset { IntOffset((x - 6.dp.toPx()).roundToInt(), 0) }.width(12.dp).fillMaxHeight()
+                .semantics {
+                    contentDescription = label
+                    onClick { onOpen(pt.date); true }
+                    testTag = "chart-point-$i"
+                })
+    }
+    Canvas(Modifier.fillMaxSize().testTag("steps-chart").pointerInput(points) {
         detectTapGestures { tap ->
             val yWidth = ticks.maxOf { measurer.measure(it.toString(), axisStyle).size.width } + 6.dp.toPx()
             val plotWidth = size.width - yWidth
@@ -172,5 +202,6 @@ fun StepsChart(points: List<StepsChart.StepPoint>, bands: List<StepsChart.BreakB
             if (!isLast && dates.size > 1 && left + label.size.width > lastLeft - 4.dp.toPx()) continue
             drawText(label, topLeft = Offset(left.coerceAtLeast(0f), plotHeight + 4.dp.toPx()))
         }
+    }
     }
 }

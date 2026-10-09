@@ -19,6 +19,7 @@ import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
@@ -27,6 +28,7 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.Intents.intending
@@ -133,6 +135,35 @@ class TabsAndSettingsTest : DredfitUITest() {
         compose.onNodeWithTag(AX.progressRow("squat")).assertIsNotSelected()
         // The break of the seed is explained under the chart.
         assertTrue(shows("A break of 12 days.", substring = true))
+    }
+
+    /** TalkBack reads the chart as Swift Charts gives it to VoiceOver: one
+     *  element per workout, its date as the axis prints it and its value,
+     *  and activating one opens THAT workout's record. */
+    @Test
+    fun theChartSpeaksEachPointAndOpensItsRecord() {
+        launch(Seed.History, fast = true)
+        tap(AX.tab("progress"))
+        await(AX.totalSteps)
+        val count = DredfitUITest.HISTORY_DAYS.size
+        val nodes = compose.onAllNodes(SemanticsMatcher("a chart point") {
+            it.config.getOrNull(SemanticsProperties.TestTag)?.startsWith("chart-point-") == true
+        }).fetchSemanticsNodes()
+        assertEquals("one element per plotted workout", count, nodes.size)
+        val today = LocalDate.now(ZoneId.systemDefault())
+        val format = java.time.format.DateTimeFormatter.ofPattern(
+            android.text.format.DateFormat.getBestDateTimePattern(java.util.Locale.ENGLISH, "MMMd"), java.util.Locale.ENGLISH)
+        val last = compose.onNodeWithTag("chart-point-${count - 1}").fetchSemanticsNode()
+            .config[SemanticsProperties.ContentDescription].single()
+        assertTrue("date then value: $last", last.startsWith(format.format(today) + ", ") && last.endsWith(" steps"))
+        compose.onNodeWithTag("chart-point-0").performSemanticsAction(SemanticsActions.OnClick)
+        await(AX.historyDone)
+        assertTrue("the first point opens workout 1", shows("Workout 1"))
+        tap(AX.historyDone)
+        compose.waitUntil(3_000) { !exists(AX.historyDone) }
+        compose.onNodeWithTag("chart-point-${count - 1}").performSemanticsAction(SemanticsActions.OnClick)
+        await(AX.historyDone)
+        assertTrue("the last point opens workout $count", shows("Workout $count"))
     }
 
     /** The share sheet receives the rendered card as a PNG stream. */
