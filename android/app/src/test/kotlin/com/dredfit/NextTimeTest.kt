@@ -7,11 +7,8 @@
 //  outside its view yet: `testTheHistoryRowNamesTheFactAndTheAddition`
 //  whole (`HistorySheet.factLine` / `afterLine`,
 //  ios/Dredfit/Views/Progress/HistorySheet.swift), the `HistorySheet.afterLine`
-//  check inside `theJournalNamesTheShareThatLandedAndKeepsTheDecision`, the
-//  `NextTimeBlock.planWords` sentence of
-//  `theSentenceNamesTheProbeTheNextPlanCarries` (a static of the summary's
-//  view, ios/Dredfit/Views/Workout/ExerciseSummary.swift; its `samePlan`
-//  half is ported). 15 of the 16 tests are here.
+//  check inside `theJournalNamesTheShareThatLandedAndKeepsTheDecision`.
+//  15 of the 16 tests are here.
 //
 
 package com.dredfit
@@ -172,9 +169,7 @@ class NextTimeTest : AppStoreTestCase() {
 
     /** A probing plan is named with its probe, the way the comeback card
      *  names one; a plan on another variation is named with its movement.
-     *  Two plans the same but for the probe are two plans. (The sentence,
-     *  `NextTimeBlock.planWords`, is the summary view's — see the header;
-     *  the rule that tells two plans apart is the flow's.) */
+     *  Two plans the same but for the probe are two plans. */
     @Test
     fun theSentenceNamesTheProbeTheNextPlanCarries() {
         val knee = SessionExercise(pattern = Pattern.coreAntiExt, name = "Knee plank", variation = 1,
@@ -182,6 +177,11 @@ class NextTimeTest : AppStoreTestCase() {
                                    restSetSec = 60, restExerciseSec = 60, loads = null, probe = null)
         val probe = SessionProbe(variation = 2, name = "High plank", unit = LoadUnit.hold, load = 15, perSide = false)
         val probing = knee.copy(probe = probe)
+        assertEquals("2×45 sec + probe: High plank · 15 sec", NextTimeBlock.planWords(probing, after = knee).english)
+        assertEquals("%@ + probe: %@ · %@", NextTimeBlock.planWords(probing, after = knee).key)
+        assertEquals(Words.display(knee).english, NextTimeBlock.planWords(knee, after = knee).english)
+        val high = knee.copy(name = "High plank", variation = 2, load = 15, sets = 3)
+        assertEquals("High plank · 3×15 sec", NextTimeBlock.planWords(high, after = probing).english)
         assertFalse(NextTimeBlock.samePlan(probing, knee), "the same sets, and one of them probes")
         assertTrue(NextTimeBlock.samePlan(probing, knee.copy(probe = probe)))
     }
