@@ -330,6 +330,19 @@ An imported backup keeps `reminderEnabled` as it came (owner decision,
 asks. A refusal lands in the same note, never in a switch that quietly went
 off.
 
+**Android's own restore.** `allowBackup` brings the state file back with
+`reminderEnabled` as it was on the old phone. The permission may not come
+with it. The first launch on the new device makes the import's re-check
+(owner decision, 09.10.2026). That launch is known by a missing mark: a file
+in `noBackupFilesDir`, which a backup never carries. A BackupAgent's
+`onRestoreFinished` was weighed and left: it runs without the app's
+Application, and a custom agent replaces auto backup's own.
+
+A refusal also takes down any window drawn while the flag was on. iOS stops
+at the switch, but here the activation draws the window before the check
+runs. Alarms left behind would remind with the switch off once
+notifications were allowed later.
+
 ### The sound and the channel
 
 The tone is iOS's `SignalTone.reminder`: the go's motif, slowed and
