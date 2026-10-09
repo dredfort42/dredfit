@@ -83,9 +83,9 @@ class StateFile(val path: Path) {
     @Throws(IOException::class)
     fun write(data: AppData) {
         val bytes = data.encode().toByteArray(Charsets.UTF_8)
-        val dir = path.toAbsolutePath().parent
-        Files.createDirectories(dir)
-        val temp = Files.createTempFile(dir, ".${path.fileName}", ".tmp")
+        // No directory is created here: Swift's `.atomic` write fails into a
+        // missing one too, and the app's files directory always exists.
+        val temp = Files.createTempFile(path.toAbsolutePath().parent, ".${path.fileName}", ".tmp")
         try {
             FileChannel.open(temp, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING).use { ch ->
                 val buffer = ByteBuffer.wrap(bytes)
