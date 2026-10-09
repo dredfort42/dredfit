@@ -43,6 +43,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dredfit.journal.WorkoutRecord
@@ -221,7 +222,8 @@ private fun DayCell(store: AppStore, day: CalendarScreen.Day, open: (() -> Unit)
     var cell = Modifier.size(MinTarget)
     if (open != null) cell = cell.clip(CircleShape).clickable(role = Role.Button, onClick = open)
     cell = if (state == CalendarScreen.DayState.out) cell.semantics { hideFromAccessibility() }
-    else cell.clearAndSetSemantics { contentDescription = label }.testTag("day-${day.number}")
+    // The tag inside the block: a testTag modifier after it would be cleared.
+    else cell.clearAndSetSemantics { contentDescription = label; testTag = "day-${day.number}" }
     Box(cell, contentAlignment = Alignment.Center) {
         Box(Modifier.size(36.dp).then(medallion(state)), contentAlignment = Alignment.Center) {
             Text("${day.number}", style = dredfitFont(15f, if (state == CalendarScreen.DayState.today) FontWeight.Bold else FontWeight.Normal,

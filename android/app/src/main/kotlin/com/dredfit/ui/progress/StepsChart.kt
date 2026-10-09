@@ -145,8 +145,10 @@ fun StepsChart(points: List<StepsChart.StepPoint>, bands: List<StepsChart.BreakB
             val ty = y(tick)
             drawLine(c.hairline, Offset(0f, ty), Offset(plotWidth, ty), 1.dp.toPx())
             val label = yLabels[i]
+            // Centred on its grid line, but never below the plot's floor:
+            // the "0" would otherwise reach down into the date labels' band.
             drawText(label, topLeft = Offset(plotWidth + 6.dp.toPx(),
-                                             (ty - label.size.height / 2).coerceIn(0f, plotHeight - label.size.height / 2)))
+                                             (ty - label.size.height / 2).coerceAtMost(plotHeight - label.size.height).coerceAtLeast(0f)))
         }
         val line = Path()
         points.forEachIndexed { i, pt ->

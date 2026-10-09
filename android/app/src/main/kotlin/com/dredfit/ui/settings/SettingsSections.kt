@@ -46,6 +46,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dredfit.store.AppStore
@@ -128,9 +129,9 @@ private fun Chip(title: String, on: Boolean, enabled: Boolean, ringed: Boolean, 
         Box(Modifier.fillMaxWidth().heightIn(min = 38.dp).clip(shape).background(if (on) c.accentSoft else c.bg, shape)
                 .border(1.5.dp, if (on) c.accent else c.hairline, shape)
                 .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
-                // Colour alone does not reach TalkBack.
-                .clearAndSetSemantics { contentDescription = label; selected = on; role = Role.Button }
-                .testTag(tag),
+                // Colour alone does not reach TalkBack. The tag is set INSIDE:
+                // a testTag modifier after this one would be cleared with the rest.
+                .clearAndSetSemantics { contentDescription = label; selected = on; role = Role.Button; testTag = tag },
             contentAlignment = Alignment.Center) {
             Text(title, style = dredfitFont(13f, Weight.semibold), color = if (on) c.ink else c.ink2, maxLines = 1,
                  overflow = TextOverflow.Clip)
