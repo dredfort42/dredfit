@@ -3,10 +3,9 @@
 //  say so, and the next write that works must take the message back.
 //
 //  No fake writer — `StateFile.write` is the real one, atomicity included.
-//  The iOS fixture is a directory that does not exist yet; that cannot fail
-//  here, because this `StateFile.write` creates its directory. A READ-ONLY
-//  directory fails it instead (the temp file beside the target cannot be
-//  created), and making it writable is what "the disk recovered" means.
+//  The iOS fixture is a directory that does not exist yet; this one is a
+//  READ-ONLY directory (the temp file beside the target cannot be created),
+//  and making it writable is what "the disk recovered" means.
 //
 
 package com.dredfit
@@ -20,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.test.assertContentEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -100,5 +100,22 @@ class SaveFailureTest : AppStoreTestCase() {
 
         assertNull(store.lastPersistError, "coming back to the app is the second chance a quiet session gets")
         assertTrue(Files.exists(statePath))
+    }
+
+    /** Kotlin-only, Swift's `.atomic` stated as a test: the write goes to a
+     *  sibling file renamed over the target. In place it would succeed here —
+     *  the file itself is writable — and a crash mid-write would leave half a
+     *  journal. */
+    @Test
+    fun theWriteGoesThroughASiblingFileNeverInPlace() {
+        recover()
+        val store = makeStore(statePath)
+        store.setSounds(false)
+        assertNull(store.lastPersistError)
+        val before = Files.readAllBytes(statePath)
+        setPermissions(directory, "r-xr-xr-x")
+        store.setSounds(true)
+        assertNotNull(store.lastPersistError, "an in-place write would have gone through")
+        assertContentEquals(before, Files.readAllBytes(statePath), "the old file stands whole")
     }
 }
