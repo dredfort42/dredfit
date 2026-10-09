@@ -3,8 +3,8 @@
 //  cold-launch activation. The reminder tests (ten) arrive with reminders/.
 //  `testStaleDateArithmetic` is not ported: a notification has no stale
 //  state to dim into — the ongoing notification drops a countdown whose end
-//  has passed instead (OngoingNotificationTest), and goes with the
-//  forgotten-workout rule (WorkoutBeatTest).
+//  has passed instead (OngoingNotificationTest), and goes at the resume
+//  window (WorkoutBeatTest).
 //
 
 package com.dredfit
