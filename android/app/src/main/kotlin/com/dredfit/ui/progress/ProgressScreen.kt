@@ -166,14 +166,14 @@ fun ProgressScreen(observedStore: Observed<AppStore>, modifier: Modifier = Modif
     Column(modifier.fillMaxSize()) {
         Column(Modifier.padding(horizontal = 24.dp)) {
             Kicker(tr("Progress"), Modifier.padding(top = 18.dp))
-            StatRow(store, card, headline, Modifier.padding(top = 12.dp))
+            StatRow(store.totalProgress, store.records.size, card, headline, Modifier.padding(top = 12.dp))
         }
         val effective = ProgressScreen.effectivePattern(store, chartPattern)
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp).padding(bottom = 12.dp)) {
             // The row must not move when a pattern is picked: the title stays
             // on one line and "Show all" keeps its space when idle.
             Row(Modifier.fillMaxWidth().padding(top = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Kicker(tr(ProgressScreen.chartTitle(store, effective)), Modifier.weight(1f))
+                Kicker(tr(ProgressScreen.chartTitle(store, effective)), Modifier.weight(1f), maxLines = 1)
                 Spacer(Modifier.width(8.dp))
                 Text(tr("Show all"), style = dredfitFont(13f, Weight.semibold), color = c.accentText, maxLines = 1,
                      modifier = Modifier.alpha(if (effective != null) 1f else 0f)
@@ -204,28 +204,32 @@ fun ProgressScreen(observedStore: Observed<AppStore>, modifier: Modifier = Modif
     history?.let { HistorySheet(observedStore, it) { history = null } }
 }
 
-/** Number and caption keep their intrinsic width — a four-digit total must
+/** Plain values, never the store: a composable handed the store object is
+ *  SKIPPED under strong skipping (same instance) and keeps old numbers after
+ *  an import or the decay (skeptic finding; android/CLAUDE.md, SetDots).
+ *
+ *  Number and caption keep their intrinsic width — a four-digit total must
  *  not break mid-digit; the share button yields instead. At accessibility
  *  sizes the caption moves under the number. */
 @Composable
-private fun StatRow(store: AppStore, card: ShareCardFactory.Card?, headline: String, modifier: Modifier) {
-    val share = @Composable { ShareButton(if (store.records.isNotEmpty()) card else null, headline) }
+private fun StatRow(total: Int, workouts: Int, card: ShareCardFactory.Card?, headline: String, modifier: Modifier) {
+    val share = @Composable { ShareButton(if (workouts > 0) card else null, headline) }
     if (isAccessibilitySize()) {
         Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                TotalNumber(store)
+                TotalNumber(total)
                 Spacer(Modifier.weight(1f))
                 share()
             }
-            StepsCaption(store, oneLine = false)
+            StepsCaption(workouts, oneLine = false)
         }
     } else {
         Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             // Only the button is centred: the pair measures as one block and
             // the caption keeps the number's baseline.
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                TotalNumber(store, Modifier.alignBy(LastBaseline))
-                StepsCaption(store, oneLine = true, Modifier.alignBy(LastBaseline))
+                TotalNumber(total, Modifier.alignBy(LastBaseline))
+                StepsCaption(workouts, oneLine = true, Modifier.alignBy(LastBaseline))
             }
             Spacer(Modifier.weight(1f).widthIn(min = 8.dp))
             share()
@@ -234,21 +238,21 @@ private fun StatRow(store: AppStore, card: ShareCardFactory.Card?, headline: Str
 }
 
 @Composable
-private fun TotalNumber(store: AppStore, modifier: Modifier = Modifier) {
-    Text("${store.totalProgress}", style = dredfitFont(56f, Weight.heavy, cap = 84f, tracking = -2f, monospacedDigit = true),
+private fun TotalNumber(total: Int, modifier: Modifier = Modifier) {
+    Text("$total", style = dredfitFont(56f, Weight.heavy, cap = 84f, tracking = -2f, monospacedDigit = true),
          color = Theme.colors.ink, maxLines = 1, softWrap = false, modifier = modifier.testTag("total-steps"))
 }
 
 /** One word, in every language — that keeps a four-digit total and a
  *  Russian caption on one row. */
 @Composable
-private fun StepsCaption(store: AppStore, oneLine: Boolean, modifier: Modifier = Modifier) {
+private fun StepsCaption(workouts: Int, oneLine: Boolean, modifier: Modifier = Modifier) {
     val c = Theme.colors
     Column(modifier, verticalArrangement = Arrangement.spacedBy(1.dp)) {
         val lines = if (oneLine) 1 else Int.MAX_VALUE
         Text(tr("progress.stepsLabel"), style = dredfitFont(14.5f), color = c.ink2, maxLines = lines,
              softWrap = !oneLine, overflow = TextOverflow.Visible)
-        Text(tr("%lld workouts", store.records.size), style = dredfitFont(14.5f), color = c.ink2, maxLines = lines,
+        Text(tr("%lld workouts", workouts), style = dredfitFont(14.5f), color = c.ink2, maxLines = lines,
              softWrap = !oneLine, overflow = TextOverflow.Visible)
     }
 }

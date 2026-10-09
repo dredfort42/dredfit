@@ -68,6 +68,7 @@ import com.dredfit.ui.tr
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 
@@ -165,7 +166,7 @@ fun CalendarScreen(observedStore: Observed<AppStore>, modifier: Modifier = Modif
                 Row(Modifier.fillMaxWidth()) {
                     for (day in week) {
                         Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                            DayCell(store, day,
+                            DayCell(day, store.zone,
                                     open = when {
                                         day.state == CalendarScreen.DayState.done -> {
                                             { historyRecord = store.record(day.date.atStartOfDay(store.zone).toInstant()) }
@@ -180,9 +181,10 @@ fun CalendarScreen(observedStore: Observed<AppStore>, modifier: Modifier = Modif
         }
         Legend(Modifier.padding(top = 22.dp))
         if (CalendarScreen.showsDoneCard(store, month)) {
-            DoneCard(store, Modifier.padding(top = 20.dp)) { nextPreviewShown = true }
+            DoneCard(store.nextSession.sessionNumber, nextTrainingDateLabel(store), Modifier.padding(top = 20.dp)) { nextPreviewShown = true }
         } else {
-            MonthStat(store, month, monthTitle, Modifier.padding(top = 20.dp))
+            MonthStat(CalendarScreen.completed(store, month), month == CalendarScreen.shownMonth(store, 0), monthTitle,
+                      Modifier.padding(top = 20.dp))
         }
     }
     if (nextPreviewShown) NextWorkoutSheet(observedStore) { nextPreviewShown = false }
@@ -200,16 +202,17 @@ private fun MonthStep(label: String, back: Boolean, tag: String, onClick: () -> 
 }
 
 @Composable
-private fun DayCell(store: AppStore, day: CalendarScreen.Day, open: (() -> Unit)?) {
+private fun DayCell(day: CalendarScreen.Day, zone: ZoneId, open: (() -> Unit)?) {
+    val date = screenDateText(day.date.atStartOfDay(zone).toInstant(), zone)
     val c = Theme.colors
     val state = day.state
     val label = when (state) {
-        CalendarScreen.DayState.done -> screenDateText(day.instant(store), store.zone) + ", " + tr("completed")
-        CalendarScreen.DayState.planned -> screenDateText(day.instant(store), store.zone) + ", " + tr("planned")
-        CalendarScreen.DayState.today -> screenDateText(day.instant(store), store.zone) + ", " + tr("today")
-        CalendarScreen.DayState.rest -> screenDateText(day.instant(store), store.zone) + ", " + tr("rest day")
+        CalendarScreen.DayState.done -> date + ", " + tr("completed")
+        CalendarScreen.DayState.planned -> date + ", " + tr("planned")
+        CalendarScreen.DayState.today -> date + ", " + tr("today")
+        CalendarScreen.DayState.rest -> date + ", " + tr("rest day")
         // Just the date: TalkBack gets the same silence about a missed day.
-        CalendarScreen.DayState.missed, CalendarScreen.DayState.out -> screenDateText(day.instant(store), store.zone)
+        CalendarScreen.DayState.missed, CalendarScreen.DayState.out -> date
     }
     val foreground = when (state) {
         // bg, not white: the digit sits on the ink fill and flips with it.
@@ -246,7 +249,6 @@ private fun medallion(state: CalendarScreen.DayState): Modifier {
     }
 }
 
-private fun CalendarScreen.Day.instant(store: AppStore) = date.atStartOfDay(store.zone).toInstant()
 
 /** One row while the four fit it, two by two when they do not — the
  *  language decides this as much as the type size. */
@@ -301,7 +303,7 @@ private fun LegendItem(label: String, mark: androidx.compose.ui.graphics.drawsco
 }
 
 @Composable
-private fun DoneCard(store: AppStore, modifier: Modifier, onClick: () -> Unit) {
+private fun DoneCard(nextNumber: Int, nextLabel: String, modifier: Modifier, onClick: () -> Unit) {
     val c = Theme.colors
     val shape = RoundedCornerShape(20.dp)
     Row(modifier.fillMaxWidth().clip(shape).background(c.ink, shape).clickable(role = Role.Button, onClick = onClick)
@@ -309,7 +311,7 @@ private fun DoneCard(store: AppStore, modifier: Modifier, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(tr("Completed today ✓"), style = dredfitFont(16f, Weight.semibold), color = c.bg)
-            Text(tr("Next: workout %lld · %@", store.nextSession.sessionNumber, nextTrainingDateLabel(store)),
+            Text(tr("Next: workout %lld · %@", nextNumber, nextLabel),
                  style = dredfitFont(13f), color = c.bg.copy(alpha = 0.6f))
         }
         ChevronGlyph(c.bg.copy(alpha = 0.6f), 14.dp)
@@ -317,15 +319,15 @@ private fun DoneCard(store: AppStore, modifier: Modifier, onClick: () -> Unit) {
 }
 
 @Composable
-private fun MonthStat(store: AppStore, month: YearMonth, monthTitle: String, modifier: Modifier) {
+private fun MonthStat(completed: Int, thisMonth: Boolean, monthTitle: String, modifier: Modifier) {
     val c = Theme.colors
     val shape = RoundedCornerShape(16.dp)
     Row(modifier.fillMaxWidth().background(c.cardBG, shape).padding(horizontal = 18.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically) {
         // The count follows the month on screen, so the label must too.
-        Text(if (month == CalendarScreen.shownMonth(store, 0)) tr("This month") else monthTitle,
+        Text(if (thisMonth) tr("This month") else monthTitle,
              style = dredfitFont(13.5f), color = c.ink2, modifier = Modifier.weight(1f))
-        Text(tr("%lld completed", CalendarScreen.completed(store, month)),
+        Text(tr("%lld completed", completed),
              style = dredfitFont(15f, Weight.semibold, monospacedDigit = true), color = c.ink,
              modifier = Modifier.testTag("month-completed"))
     }

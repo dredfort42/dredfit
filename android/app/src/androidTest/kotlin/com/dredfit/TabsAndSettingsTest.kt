@@ -7,6 +7,11 @@
 //  picker and the share sheet, both stubbed with Espresso-Intents so the
 //  test sees the intent go out without a picker it cannot drive.
 //
+//  Differences from the iOS twins: the calendar's record is seeded, not
+//  walked, so iOS's exact "Actual: 3×3" becomes "one named actual line" on
+//  today's seeded shortfall (`todaysDoorOpensTodaysRecord`); the progress
+//  total is 6 after one "on plan" (iOS walks "easy" and reads 12).
+//
 
 package com.dredfit
 
@@ -14,6 +19,9 @@ import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
@@ -62,6 +70,23 @@ class TabsAndSettingsTest : DredfitUITest() {
         compose.waitUntil(3_000) { !exists(AX.historyDone) }
     }
 
+    /** The card under the grid follows the week as it is NOW: tomorrow made
+     *  a rest day in Settings, the card stops saying "tomorrow" (it kept the
+     *  old words while it read the store object — skeptic finding). */
+    @Test
+    fun theDoneCardFollowsARestDayChangedInSettings() {
+        launch(Seed.History, fast = true)
+        tap(AX.tab("calendar"))
+        compose.waitUntil(5_000) { shows("· tomorrow", substring = true) }
+        val tomorrow = LocalDate.now(ZoneId.systemDefault()).plusDays(1).dayOfWeek.value % 7 + 1
+        tap(AX.settings)
+        tap(AX.weekday(tomorrow))
+        tap(AX.settingsDone)
+        compose.waitUntil(3_000) { !exists(AX.settingsRhythm) }
+        compose.waitUntil(3_000) { !shows("· tomorrow", substring = true) }
+        assertTrue(shows("Completed today ✓"))
+    }
+
     /** Today's completed state carries the door to what was just done. */
     @Test
     fun todaysDoorOpensTodaysRecord() {
@@ -69,6 +94,14 @@ class TabsAndSettingsTest : DredfitUITest() {
         tap(AX.todayRecord)
         await(AX.historyDone)
         assertTrue(shows("Workout ${DredfitUITest.HISTORY_DAYS.size}"))
+        // The seed ran today's first movement one short: the row names the
+        // fact, in the plan's own spelling — iOS's "Actual: 3×3" check.
+        val actual = compose.onAllNodes(SemanticsMatcher("an actual line") {
+            it.config.getOrNull(SemanticsProperties.TestTag)?.startsWith("history-actual-") == true
+        }, useUnmergedTree = true).fetchSemanticsNodes()
+        assertEquals("one movement went differently", 1, actual.size)
+        assertTrue("the line is named, not a bare number",
+                   shows("Actual: ", substring = true) || shows("Held: ", substring = true))
     }
 
     // MARK: - Progress
@@ -149,6 +182,8 @@ class TabsAndSettingsTest : DredfitUITest() {
         tap(monday)
         compose.onNodeWithTag(monday).assertIsNotSelected()
         tap(AX.settingsDone)
+        // Closing settings returns to Today.
+        await(AX.startWorkout)
     }
 
     @Test
@@ -169,7 +204,7 @@ class TabsAndSettingsTest : DredfitUITest() {
         tap(AX.settings)
         tap(AX.howItWorks)
         compose.waitUntil(3_000) { shows("Variation and dose") }
-        for (section in listOf("What your answer does", "Deload", "Rotation", "Trying the next variation",
+        for (section in listOf("What your answer does", "Deload", "Rotation", "Weekly rhythm", "Trying the next variation",
                                "Skips", "Why there are no questionnaires")) {
             assertTrue("section \"$section\" is missing", shows(section))
         }

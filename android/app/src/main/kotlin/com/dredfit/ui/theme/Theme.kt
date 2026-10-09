@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -240,7 +241,7 @@ fun QuietButton(title: String, tag: String?, modifier: Modifier = Modifier, onCl
 /** The small uppercase line over a heading. ink2, never ink3: 12 pt
  *  semibold is small text, and ink3 is 2.35:1 on the light ground. */
 @Composable
-fun Kicker(text: String, modifier: Modifier = Modifier, color: Color = Theme.colors.ink2) {
+fun Kicker(text: String, modifier: Modifier = Modifier, color: Color = Theme.colors.ink2, maxLines: Int = Int.MAX_VALUE) {
     Text(text.uppercase(), modifier = modifier, style = dredfitFont(12f, Weight.semibold, tracking = 0.8f),
-         color = color)
+         color = color, maxLines = maxLines, overflow = TextOverflow.Ellipsis)
 }

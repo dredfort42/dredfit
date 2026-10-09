@@ -24,6 +24,7 @@ import com.dredfit.core.generateSession
 import com.dredfit.store.AppStore
 import com.dredfit.store.AppearanceChoice
 import com.dredfit.store.nextSession
+import com.dredfit.workout.SetFacts
 import com.dredfit.workout.UITestFlags
 import org.junit.After
 import org.junit.Rule
@@ -125,8 +126,16 @@ abstract class DredfitUITest {
             for ((i, daysAgo) in HISTORY_DAYS.withIndex()) {
                 // Mostly "on plan", an "easy" now and then — the curve climbs.
                 val result = if (i % 4 == 3) FeedbackResult.more else FeedbackResult.plan
-                store.completeWorkout(session = store.nextSession, result = result,
-                                      date = now.minusDays(daysAgo).toInstant())
+                val session = store.nextSession
+                // Today's workout ran its first movement one short on the last
+                // set, so its record carries a fact line ("Actual: …").
+                val facts = if (daysAgo == 0L) {
+                    val ex = session.exercises[0]
+                    mapOf(ex.pattern to (0 until ex.sets).map { if (it == ex.sets - 1) ex.plannedLoad(it) - 1 else ex.plannedLoad(it) })
+                } else emptyMap()
+                store.completeWorkout(session = session, result = result,
+                                      overrides = SetFacts.overrides(facts, skipping = emptyMap(), exercises = session.exercises),
+                                      setActuals = facts, date = now.minusDays(daysAgo).toInstant())
             }
         }
     }

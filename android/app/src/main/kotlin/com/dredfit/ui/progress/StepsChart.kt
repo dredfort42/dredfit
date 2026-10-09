@@ -4,7 +4,7 @@
 //  ios/Dredfit/Views/Progress/StepsChart.swift — Swift Charts there, a Canvas
 //  here (no chart library: the app carries no third-party dependency), drawn
 //  to the same marks: a 2 dp accent line with a dot on its last point, a
-//  zero-based y scale of at least 8 with three labelled grid lines on the
+//  zero-based y scale of at least 8 with about three labelled grid lines on the
 //  trailing side, three dates under it, and restFill bands behind the line.
 //
 

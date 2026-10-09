@@ -19,7 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -257,7 +257,9 @@ fun HistorySheet(observedStore: Observed<AppStore>, record: WorkoutRecord, onDis
             val exercises = shown.exercises
             if (!exercises.isNullOrEmpty()) {
                 LazyColumn(Modifier.weight(1f).padding(horizontal = 24.dp).padding(top = 8.dp)) {
-                    items(exercises, key = { it.pattern.rawValue }) { ex ->
+                    // By position, not pattern: a hand-edited record can carry one
+                    // pattern twice, and a repeated key would crash the list.
+                    itemsIndexed(exercises) { _, ex ->
                         HistoryRow(ex, shown, easedByHand, Modifier.padding(vertical = 11.dp))
                         HorizontalDivider(color = c.hairline)
                     }

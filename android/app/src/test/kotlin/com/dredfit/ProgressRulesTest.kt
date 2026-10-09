@@ -13,12 +13,14 @@
 package com.dredfit
 
 import com.dredfit.core.Dose
+import com.dredfit.core.Engine
 import com.dredfit.core.EngineConfig
 import com.dredfit.core.FeedbackResult
 import com.dredfit.core.Library
 import com.dredfit.core.LoadUnit
 import com.dredfit.core.Pattern
 import com.dredfit.core.SessionExercise
+import com.dredfit.core.setCut
 import com.dredfit.journal.WorkoutRecord
 import com.dredfit.store.nextSession
 import com.dredfit.ui.progress.CalendarScreen
@@ -85,6 +87,8 @@ class ProgressRulesTest : AppStoreTestCase() {
         val bands = ProgressScreen.breakBands(points, zone)
         assertEquals(3, bands.size)
         assertEquals(8, ProgressScreen.explainedBand(bands)?.days)
+        // Of two that cost steps, the FRESHEST explains the chart.
+        assertEquals(22, ProgressScreen.explainedBand(bands.map { it.copy(costSteps = true) })?.days)
         val harmless = bands.map { it.copy(costSteps = false) }
         assertEquals(30, ProgressScreen.explainedBand(harmless)?.days)
         assertEquals(listOf(Words.of("A break of %lld days.", 8), Words.of("The plan met you lower."), Words.of("Others are marked too.")),
@@ -111,9 +115,16 @@ class ProgressRulesTest : AppStoreTestCase() {
     @Test
     fun belowTheTopVariationTheLabelCountsToTheProbe() {
         val store = makeStore()
-        val milestone = PatternProgressRow.nextMilestone(store, Pattern.squat)
-        assertTrue(milestone is PatternProgressRow.NextMilestone.Probe, "$milestone")
-        assertEquals("next variation probe in ${milestone.steps}",
+        val p = Pattern.squat
+        // A cut set on the way, so every term of the distance counts.
+        store.update { s -> s.copy(engineState = Engine.setCut(state = s.engineState, pattern = p, cut = 1)) }
+        val milestone = PatternProgressRow.nextMilestone(store, p)
+        // Measured independently: the next variation's entry tick minus where
+        // the row stands — the label lands on the tick the bar draws.
+        val entry = Engine.progress(p, variation = 2, sets = EngineConfig.setsBase,
+                                    dose = Dose.grid(Library.unit(p, 2)).min)
+        assertEquals(PatternProgressRow.NextMilestone.Probe(entry - Engine.progress(store.engineState, p)), milestone)
+        assertEquals("next variation probe in ${entry - Engine.progress(store.engineState, p)}",
                      PatternProgressRow.label(milestone)?.english)
     }
 
@@ -123,8 +134,8 @@ class ProgressRulesTest : AppStoreTestCase() {
         val p = Pattern.squat
         store.update { s -> s.copy(engineState = s.engineState.copy().also { it.vars[p] = Library.count(p) }) }
         val milestone = PatternProgressRow.nextMilestone(store, p)
-        assertTrue(milestone is PatternProgressRow.NextMilestone.SetIn || milestone == PatternProgressRow.NextMilestone.SetOncePullsCatchUp,
-                   "$milestone")
+        // A squat is no push: its set never waits for the pulls.
+        assertTrue(milestone is PatternProgressRow.NextMilestone.SetIn, "$milestone")
         store.update { s -> s.copy(engineState = s.engineState.copy().also {
             it.sets[p] = EngineConfig.setsMax
             it.doses[p] = Dose.grid(Library.unit(p, Library.count(p))).max

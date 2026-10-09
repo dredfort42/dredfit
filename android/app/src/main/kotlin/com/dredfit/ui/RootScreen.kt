@@ -35,7 +35,6 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -104,8 +103,9 @@ fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: (
         var tab by rememberSaveable { mutableStateOf(RootTab.today) }
         var settingsShown by remember { mutableStateOf(false) }
         // Decided once, when the root first appears — as `onAppear` does.
-        var onboardingShown by rememberSaveable { mutableStateOf<Boolean?>(null) }
-        LaunchedEffect(Unit) { if (onboardingShown == null) onboardingShown = store.shouldShowOnboarding }
+        // Read in the first composition, so a fresh install's first frame is
+        // already the onboarding and Today is never composed under it.
+        var onboardingShown by rememberSaveable { mutableStateOf(store.shouldShowOnboarding) }
         val active = holder.active
         Box(Modifier.fillMaxSize().background(c.bg)) {
             when {
@@ -116,7 +116,7 @@ fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: (
                     active.flow.value.disappear()
                     holder.active = null
                 }
-                onboardingShown == true -> OnboardingView {
+                onboardingShown -> OnboardingView {
                     observedStore.act { completeOnboarding() }
                     onboardingShown = false
                 }
