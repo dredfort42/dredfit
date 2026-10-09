@@ -266,6 +266,10 @@ state)". It is inexact, and it is allowed in Doze. That is what the app uses
   minute (`ReminderTest.theAlarmItselfPostsTheReminder`). iOS's calendar
   trigger fires on the minute, but the iOS app promises a training day, not
   a minute: the caption says "On training days only".
+- **Never on the wrong day.** An alarm that comes late across midnight is
+  dropped (`ReminderScheduler.stillItsDay`): "Today's workout is ready" at
+  00:20 would speak of a day that may be a rest day. The new day has its
+  own slot, if it is a training day.
 
 Weighed and left:
 
@@ -344,7 +348,9 @@ id brings its old settings back. So the version is in both names:
 A new tone ships as `_v2` and `reminder-v2`, and the old channel is deleted
 (`ReminderChannel.stale`). If the file cannot be written, the reminder posts
 on `reminder-v1-stock` with the system's sound, as iOS falls back to
-`.default`.
+`.default`. A channel of the current version that already exists is kept,
+whichever kind it is (`ReminderChannel.choose`): what the person set on it,
+a block included, must not be undone when the file becomes writable.
 
 The channel is named "Reminder" (the iOS key) and carries the iOS caption as
 its description. Its importance is DEFAULT: a sound and a place in the shade,
