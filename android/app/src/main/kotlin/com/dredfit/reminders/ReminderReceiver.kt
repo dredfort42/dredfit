@@ -52,11 +52,13 @@ class ReminderReceiver : BroadcastReceiver() {
 class ReminderRescheduleReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (!ReminderTriggers.reschedules(intent.action)) return
-        // The system tells each process about a new zone on a path of its own,
-        // with no order against this broadcast: a rebuild that read the cached
-        // zone would put 09:00 on the OLD wall. Dropping the cache makes the
-        // next read the system's current zone — what the process would be
-        // told anyway.
+        // The system tells a running process about a new zone on a path of its
+        // own (a one-way call that drops the cached zone), with nothing
+        // ordering it against this broadcast; a rebuild that read the stale
+        // cache would put 09:00 on the OLD wall. On API 37 the call arrived
+        // first (the mutant without this line stayed green, 09.10.2026), so
+        // this only makes the order certain: the next read is the system's
+        // current zone, as the process is about to be told.
         if (intent.action == Intent.ACTION_TIMEZONE_CHANGED) TimeZone.setDefault(null)
         val app = context.applicationContext as DredfitApp
         val pending = goAsync()
