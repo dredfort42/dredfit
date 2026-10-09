@@ -300,7 +300,7 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(after.rampWindow, EngineConfig.rampWindowSessions)
     }
 
-    /// A run of returns (§22.3): comebacks in a row with no session between
+    /// A run of returns: comebacks in a row with no session between
     /// them each deepen the drop by one. At the 14-day minimum the first
     /// return walks the base two rungs, 12 → 10; the second walks three,
     /// 10 → 7 — not another two, which would land on 8.
