@@ -10,11 +10,11 @@
 //  ONE method, in order, because the order is the subject: Android shows the
 //  dialog twice at most, and a revoke would kill the process the
 //  instrumentation runs in. RUNS ALONE, on a fresh install, like
-//  NotificationDeniedTest (excluded by `notClass` in build.gradle.kts):
+//  NotificationDeniedTest (@RunsAlone):
 //
 //    ./gradlew :app:connectedDebugAndroidTest \
 //      -Pandroid.testInstrumentationRunnerArguments.class=com.dredfit.ReminderDeniedTest \
-//      -Pandroid.testInstrumentationRunnerArguments.notClass=com.dredfit.ScreenshotWalk
+//      -Pandroid.testInstrumentationRunnerArguments.notAnnotation=org.junit.Ignore
 //
 
 package com.dredfit
@@ -44,6 +44,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.nio.file.Files
 
+@RunsAlone
 @RunWith(AndroidJUnit4::class)
 class ReminderDeniedTest : ReminderTestCase() {
 

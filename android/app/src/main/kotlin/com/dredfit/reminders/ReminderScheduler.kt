@@ -64,6 +64,16 @@ class ReminderScheduler(val notifications: NotificationScheduling) {
          *  stay in the list so the two ports remove the same set. */
         val ids: List<String> = (1..7).map { "reminder-wd-$it" } + (0 until WINDOW_DAYS).map { "$DAY_PREFIX$it" }
 
+        /**
+         * Whether a reminder that fires at `now` still fires on its own day.
+         * The alarm is inexact — up to an hour late (SystemNotificationScheduler)
+         * — and iOS's never is: a 23:30 slot posted at 00:20 would say
+         * "Today's workout is ready" on the next day, a rest day perhaps.
+         * Such a reminder is dropped; the new day has its own slot, if any.
+         */
+        fun stillItsDay(fireAt: Instant, now: Instant, zone: ZoneId): Boolean =
+            fireAt.atZone(zone).toLocalDate() == now.atZone(zone).toLocalDate()
+
         const val TITLE = "Dredfit"
         val BODY: Words = Words.of("Today's workout is ready")
     }

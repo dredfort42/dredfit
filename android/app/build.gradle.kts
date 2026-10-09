@@ -27,9 +27,9 @@ android {
         // request (`adb shell am instrument -e class com.dredfit.ScreenshotWalk
         // -e screens <prefix> …`), never as part of the suite. The refused-
         // notification walk and the refused reminder need a permission never
-        // granted, which the suite grants, so each runs alone
-        // (NotificationDeniedTest's and ReminderDeniedTest's headers).
-        testInstrumentationRunnerArguments["notClass"] = "com.dredfit.ScreenshotWalk,com.dredfit.NotificationDeniedTest,com.dredfit.ReminderDeniedTest"
+        // granted, which the suite grants, so each runs alone. All three are
+        // @RunsAlone (androidTest RunsAlone.kt says why not a notClass list).
+        testInstrumentationRunnerArguments["notAnnotation"] = "com.dredfit.RunsAlone"
         // About's "Rate on Google Play" and "Recommend Dredfit" point at the
         // Play listing, which does not exist yet: a link to a missing page is
         // worse than no link. Flip to true once the listing is live

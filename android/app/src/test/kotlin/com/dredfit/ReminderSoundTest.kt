@@ -113,6 +113,20 @@ class ReminderSoundTest {
                         "the stock-sound channel must not take the branded one's id — its sound could never change")
     }
 
+    /** A channel of this version that exists is kept, whichever kind: the
+     *  person's block or silence on it must survive the file becoming
+     *  writable. */
+    @Test
+    fun anExistingChannelOfThisVersionIsKept() {
+        val branded = ReminderChannel.id(branded = true)
+        val stock = ReminderChannel.id(branded = false)
+        assertEquals(stock, ReminderChannel.choose(listOf("workout", stock), branded = true))
+        assertEquals(branded, ReminderChannel.choose(listOf("workout", branded), branded = false))
+        assertEquals(branded, ReminderChannel.choose(listOf("workout", "reminder-v0"), branded = true),
+                     "none of this version yet: the branded one when the file is there")
+        assertEquals(stock, ReminderChannel.choose(emptyList(), branded = false))
+    }
+
     @Test
     fun everyOtherReminderChannelIsStaleAndNothingElseIs() {
         val current = ReminderChannel.id(branded = true)

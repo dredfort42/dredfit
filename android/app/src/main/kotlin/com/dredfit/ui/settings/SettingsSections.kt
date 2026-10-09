@@ -40,8 +40,7 @@ import com.dredfit.store.setReminderEnabled
 import com.dredfit.store.setReminderTime
 import com.dredfit.ui.theme.BellGlyph
 import com.dredfit.ui.theme.MinTarget
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
+import java.util.Date
 import java.util.Locale
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -209,11 +208,16 @@ private fun ReminderField(observedStore: Observed<AppStore>) {
 }
 
 /** The time as the phone writes it: the locale's pattern, in the 12- or
- *  24-hour form the person chose in the system settings. */
+ *  24-hour form the person chose in the system settings. Formatted by ICU
+ *  itself: the patterns ICU picks hold letters java.time on Android cannot
+ *  read (a day period "B", a reserved "#"), and a formatter built from one
+ *  threw for some locales — Settings would not open (ReminderTimeTest). The
+ *  time is placed on the epoch's day in GMT, so no zone can shift it. */
 object ReminderTime {
     fun text(hour: Int, minute: Int, is24Hour: Boolean, locale: Locale): String {
-        val pattern = DateFormat.getBestDateTimePattern(locale, if (is24Hour) "Hm" else "hm")
-        return DateTimeFormatter.ofPattern(pattern, locale).format(LocalTime.of(hour, minute))
+        val format = android.icu.text.DateFormat.getInstanceForSkeleton(if (is24Hour) "Hm" else "hm", locale)
+        format.timeZone = android.icu.util.TimeZone.GMT_ZONE
+        return format.format(Date((hour * 60L + minute) * 60_000L))
     }
 }
 

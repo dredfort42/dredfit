@@ -1,7 +1,8 @@
 //
 //  Port of ios/DredfitTests/ReminderSchedulerTests.swift — the reminder
 //  window on its own: what is removed, what is added, and which days are left
-//  out — all four Swift tests. The rest are Android-only: an alarm is an
+//  out — all four Swift tests. The rest are Android-only (and a late alarm
+//  crossing midnight, which iOS's on-the-minute trigger never is): an alarm is an
 //  INSTANT where an iOS calendar trigger is a wall time, so the instant each
 //  wall time becomes has to be right across a DST change, a skipped and a
 //  repeated hour, and a zone change (which ReminderRescheduleReceiver turns
@@ -168,6 +169,20 @@ class ReminderSchedulerTest : AppStoreTestCase() {
         assertEquals(ReminderScheduler.WINDOW_DAYS, asked.size)
         assertTrue(asked.all { it.atZone(berlin).toLocalTime().toSecondOfDay() == 0 }, "midnights, DST day included")
         assertEquals(berlin(2026, 3, 29, 0), asked[1])
+    }
+
+    /** An alarm up to an hour late can cross midnight: it posts only on
+     *  its own day, in the zone of the moment it fires. */
+    @Test
+    fun aLateReminderPostsOnlyOnItsOwnDay() {
+        val slot = berlin(2026, 3, 28, 23, 30)
+        assertTrue(ReminderScheduler.stillItsDay(slot, slot, berlin))
+        assertTrue(ReminderScheduler.stillItsDay(slot, slot.plusSeconds(29 * 60), berlin), "23:59 is still the 28th")
+        assertFalse(ReminderScheduler.stillItsDay(slot, slot.plusSeconds(31 * 60), berlin), "00:01 is the 29th")
+        // The same two instants: 23:30 → 00:30 in Berlin, 07:30 → 08:30 in Tokyo.
+        assertFalse(ReminderScheduler.stillItsDay(slot, slot.plusSeconds(3600), berlin))
+        assertTrue(ReminderScheduler.stillItsDay(slot, slot.plusSeconds(3600), ZoneId.of("Asia/Tokyo")),
+                   "read in the zone of the firing")
     }
 
     @Test

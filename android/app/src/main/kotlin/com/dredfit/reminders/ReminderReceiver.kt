@@ -15,6 +15,8 @@ import android.content.Context
 import android.content.Intent
 import com.dredfit.DredfitApp
 import com.dredfit.store.rescheduleReminders
+import java.time.Instant
+import java.time.ZoneId
 import java.util.TimeZone
 
 /** What rebuilds the window, beside the app's own returns. Plain, so a JVM
@@ -40,6 +42,8 @@ object ReminderTriggers {
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != SystemNotificationScheduler.ACTION_FIRE) return
+        val at = intent.getLongExtra(SystemNotificationScheduler.EXTRA_AT, -1)
+        if (at >= 0 && !ReminderScheduler.stillItsDay(Instant.ofEpochMilli(at), Instant.now(), ZoneId.systemDefault())) return
         val app = context.applicationContext as DredfitApp
         app.reminders.post(title = intent.getStringExtra(SystemNotificationScheduler.EXTRA_TITLE) ?: ReminderScheduler.TITLE,
                            bodyKey = intent.getStringExtra(SystemNotificationScheduler.EXTRA_BODY)

@@ -17,6 +17,7 @@
 
 package com.dredfit
 
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.util.Log
 import androidx.compose.ui.test.assertIsOff
@@ -34,6 +35,7 @@ import com.dredfit.store.setReminderTime
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,8 +82,24 @@ class ReminderTest : ReminderTestCase() {
     @Test
     fun aFiredReminderSaysWhatIOSSaysOnItsChannelAndATapOpensToday() {
         launch(Seed.Clean, fast = false)
-        onStore { setReminderEnabled(true) }
-        val id = pendingIds().last()
+        // Today's slot, a few minutes ahead, fired early by hand: the alarm
+        // checks its day, not its minute.
+        val at = ZonedDateTime.now().plusMinutes(3)
+        onStore {
+            setReminderTime(at.hour, at.minute)
+            setReminderEnabled(true)
+        }
+        val manager = app.getSystemService(NotificationManager::class.java)
+        // A channel of an older sound version, left by an earlier build.
+        manager.createNotificationChannel(NotificationChannel("reminder-v0", "Reminder", NotificationManager.IMPORTANCE_DEFAULT))
+
+        // Another day's slot fired today (an alarm an hour late across
+        // midnight) says nothing.
+        checkNotNull(pendingIntent(pendingIds().last())) { "no alarm for the last day" }.send()
+        Thread.sleep(2_000)
+        assertNull("another day's reminder is dropped", reminder())
+
+        val id = "${ReminderScheduler.DAY_PREFIX}0"
         checkNotNull(pendingIntent(id)) { "no alarm for $id" }.send()
 
         assertTrue("the reminder is posted", awaitTrue { reminder() != null })
@@ -91,7 +109,8 @@ class ReminderTest : ReminderTestCase() {
         assertEquals(ReminderChannel.id(branded = true), posted.channelId)
         assertEquals(NotificationCompat.CATEGORY_REMINDER, posted.category)
 
-        val channel = app.getSystemService(NotificationManager::class.java).getNotificationChannel(posted.channelId)
+        assertNull("the older version's channel is deleted", manager.getNotificationChannel("reminder-v0"))
+        val channel = manager.getNotificationChannel(posted.channelId)
         assertEquals("Reminder", channel.name.toString())
         assertEquals(NotificationManager.IMPORTANCE_DEFAULT, channel.importance)
         assertEquals("the generated tone, through the FileProvider",
@@ -150,17 +169,20 @@ class ReminderTest : ReminderTestCase() {
         assertTrue(pendingIds().isEmpty())
         shell("cmd alarm set-timezone $other")
         assertTrue("TIMEZONE_CHANGED rebuilt the window",
-                   awaitTrue(timeoutMs = 20_000) { pendingIds().size == expectedSlots(9, 0, ZoneId.of(other)) })
+                   awaitTrue(timeoutMs = 90_000) { pendingIds().size == expectedSlots(9, 0, ZoneId.of(other)) })
         assertEquals(expectedSlots(9, 0, ZoneId.of(other)), systemAlarms().size)
 
         app.reminders.removePendingRequests(ReminderScheduler.ids)
         assertTrue(pendingIds().isEmpty())
         // A clock moved by a minute and back: the system broadcasts TIME_SET
-        // only when the clock really moves.
+        // only when the clock really moves. 90 s, because a system broadcast
+        // to a manifest receiver queues behind others: after the whole suite
+        // TIME_SET missed a 20 s wait, and BOOT_COMPLETED arrived 34 s after
+        // the boot (android/CLAUDE.md).
         val moved = System.currentTimeMillis()
         shell("cmd alarm set-time ${moved + 60_000}")
         shell("cmd alarm set-time ${System.currentTimeMillis() - 60_000}")
-        assertTrue("TIME_SET rebuilt the window", awaitTrue(timeoutMs = 20_000) { pendingIds().isNotEmpty() })
+        assertTrue("TIME_SET rebuilt the window", awaitTrue(timeoutMs = 90_000) { pendingIds().isNotEmpty() })
     }
 
     companion object {

@@ -102,9 +102,19 @@ object ReminderChannel {
      *  can be written, the next reminder moves to the branded channel. */
     fun id(branded: Boolean): String = if (branded) "$PREFIX${ReminderSoundFile.VERSION}" else "$PREFIX${ReminderSoundFile.VERSION}-stock"
 
-    /** Reminder channels of other versions, or of the other kind: deleted,
-     *  so Settings lists one "Reminder", never two. Other channels (the
-     *  workout's) are not this rule's. */
+    /**
+     * The channel to post on. One of THIS version that already exists is
+     * kept, whichever kind: the person may have blocked it, silenced it or
+     * moved its importance, and a switch to the other kind would create a
+     * fresh channel with the defaults and undo that (skeptic finding,
+     * 09.10.2026). The branded one is created only when none exists yet.
+     */
+    fun choose(existing: List<String>, branded: Boolean): String =
+        listOf(id(branded = true), id(branded = false)).firstOrNull { it in existing } ?: id(branded)
+
+    /** Reminder channels of other versions: deleted, so Settings lists one
+     *  "Reminder", never two. Other channels (the workout's) are not this
+     *  rule's. */
     fun stale(existing: List<String>, current: String): List<String> =
         existing.filter { it.startsWith(PREFIX) && it != current }
 }

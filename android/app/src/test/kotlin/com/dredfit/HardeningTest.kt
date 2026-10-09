@@ -1,10 +1,10 @@
 //
 //  Port of ios/DredfitTests/HardeningTests.swift — the day anchor, the
 //  cold-launch activation and the ten reminder tests (the spy answers at once,
-//  where iOS awaits `reminderAuthTask`), plus six Android-only ones: the
+//  where iOS awaits `reminderAuthTask`), plus seven Android-only ones: the
 //  import's other two outcomes, the refusal cleared by a granted ask, the
 //  rebuilds the activation, a rest-day toggle, a time change and a second
-//  read make by themselves. `morningWorkoutRemovesTodaysReminder` and
+//  read make by themselves, and a settled workout rebuilding from now. `morningWorkoutRemovesTodaysReminder` and
 //  `eveningWorkoutKeepsWindowIntact` run on a pinned clock (the Swift ones
 //  read the real one, and pass vacuously after 20:00).
 //  `testStaleDateArithmetic` is not ported: a notification has no stale
@@ -422,11 +422,13 @@ class HardeningTest : AppStoreTestCase() {
     fun aJournalReadOnTheSecondTryRebuildsTheWindow() {
         assumeNotRoot()
         val spy = NotificationSpy()
-        makeStore(notifications = spy).setReminderEnabled(true)
+        // One pinned clock for both rebuilds, so the counts compare.
+        val clock = Clock.fixed(moment(hour = 6), ZoneId.systemDefault())
+        makeStore(clock = clock, notifications = spy).setReminderEnabled(true)
         val pending = spy.scheduled.size
         setPermissions(tempPath, "---------")
         try {
-            val frozen = makeStore(notifications = spy)
+            val frozen = makeStore(clock = clock, notifications = spy)
             spy.scheduled.clear()   // a window lost meanwhile (a reboot, a removal)
             setPermissions(tempPath, "rw-r--r--")
             frozen.reloadIfNeeded()
@@ -434,6 +436,25 @@ class HardeningTest : AppStoreTestCase() {
         } finally {
             setPermissions(tempPath, "rw-r--r--")
         }
+    }
+
+    /** Android-only: a workout settled on a later day (dated to yesterday)
+     *  rebuilds from NOW, not from its date — scheduled from yesterday,
+     *  today's 09:00, already gone, would pass the `fire > now` guard, and an
+     *  alarm in the past fires at once. iOS's comment names the rule; no
+     *  Swift test holds it (skeptic finding, 09.10.2026). */
+    @Test
+    fun aWorkoutDatedYesterdayRebuildsFromNow() {
+        val spy = NotificationSpy()
+        val now = moment(hour = 10)
+        val store = makeStore(clock = Clock.fixed(now, ZoneId.systemDefault()), notifications = spy)
+        for (wd in store.settings.restWeekdays) store.toggleRestDay(wd)
+        store.setReminderTime(hour = 9, minute = 0)
+        store.setReminderEnabled(true)
+        store.completeWorkout(session = store.nextSession, result = FeedbackResult.plan,
+                              date = local(now).minusDays(1).toInstant())
+        assertTrue(slots(spy, sameDayAs = now).isEmpty(), "today's 09:00 is gone at 10:00")
+        assertEquals(27, spy.scheduled.size)
     }
 
     /** Android-only: the activation rebuilds the window — the iOS sequence's

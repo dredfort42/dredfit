@@ -130,6 +130,7 @@ class SystemNotificationScheduler(context: Context) : NotificationScheduling {
     override fun addReminder(id: String, title: String, body: Words, fireAt: Instant) {
         worker.execute {
             val intent = fireIntent(id).putExtra(EXTRA_TITLE, title).putExtra(EXTRA_BODY, body.key ?: body.format)
+                .putExtra(EXTRA_AT, fireAt.toEpochMilli())
             val pending = PendingIntent.getBroadcast(app, 0, intent,
                                                      PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
             alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, fireAt.toEpochMilli(), pending)
@@ -175,14 +176,16 @@ class SystemNotificationScheduler(context: Context) : NotificationScheduling {
     /**
      * The reminder's channel, created on the way: the branded sound when its
      * file could be written, the system's otherwise (ReminderChannel says why
-     * two ids), and any other reminder channel deleted. Recreated each time,
+     * two ids, and why an existing one is kept), and any other reminder
+     * channel deleted. Recreated each time,
      * so its name follows the app's language — creating an existing channel
      * only renames it; its sound and importance stay the person's.
      */
     fun ensureChannel(): String {
         val sound = ReminderSoundFile.provision(app.filesDir)
-        val id = ReminderChannel.id(branded = sound != null)
-        for (stale in ReminderChannel.stale(manager.notificationChannels.map { it.id }, id)) {
+        val existing = manager.notificationChannels.map { it.id }
+        val id = ReminderChannel.choose(existing, branded = sound != null)
+        for (stale in ReminderChannel.stale(existing, id)) {
             manager.deleteNotificationChannel(stale)
         }
         val res = app.resources
@@ -218,6 +221,8 @@ class SystemNotificationScheduler(context: Context) : NotificationScheduling {
         const val ACTION_FIRE = "com.dredfit.reminders.FIRE"
         const val EXTRA_TITLE = "title"
         const val EXTRA_BODY = "body"
+        /** The slot's own instant, so a late firing can tell its day. */
+        const val EXTRA_AT = "at"
         const val URI_SCHEME = "dredfit-reminder"
         /** The ongoing notification is 1. */
         const val NOTIFICATION_ID = 2
