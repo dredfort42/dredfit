@@ -13,11 +13,13 @@ package com.dredfit.journal
 
 import com.dredfit.core.EngineConfig
 import com.dredfit.core.FeedbackResult
+import com.dredfit.core.LoadUnit
 import com.dredfit.core.Pattern
 import com.dredfit.core.Session
 import com.dredfit.core.SessionExercise
 import com.dredfit.core.SwiftDecodingException
 import com.dredfit.core.SwiftJson
+import com.dredfit.workout.Countdown
 import com.dredfit.workout.SetFacts
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -196,6 +198,16 @@ data class WorkoutRecord(
     }
 }
 
+/** How long one guided block ran, resolved once at its ending. No start
+ *  means the block was DECLINED: zero, not unknown — unknown falls back to
+ *  the planned length, declined bills nothing. */
+object BlockRun {
+    fun seconds(began: Instant?, ended: Instant): Int {
+        if (began == null) return 0
+        return maxOf(0, Countdown.seconds(began, ended).toInt())
+    }
+}
+
 internal fun encodeIntLists(map: Map<Pattern, List<Int>>): JsonArray =
     SwiftJson.encodePatternMap(map) { SwiftJson.encodeInts(it) }
 
@@ -205,8 +217,7 @@ internal fun encodeIntLists(map: Map<Pattern, List<Int>>): JsonArray =
  * REQUIRED on the wire (Swift ignores a property's default when decoding) and
  * nothing is clamped on the way in: it is sanitized where it is read. The
  * whole snapshot decodes under `try?`, so any failure is "nothing to resume".
- * Field docs: Journal.swift. Only what the store reads is derived here; the
- * flow's readers arrive with the workout screens.
+ * Field docs: Journal.swift.
  */
 data class WorkoutSnapshot(
     val sessionNumber: Int,
@@ -243,6 +254,37 @@ data class WorkoutSnapshot(
      *  exercise is a one-element array. Sanitized: this came off disk. */
     val facts: Map<Pattern, List<Int>>
         get() = SetFacts.sanitized(setActuals ?: actuals.mapValues { listOf(it.value) })
+
+    /** The probe's own channel, clamped like every count off disk. */
+    val probeFacts: Map<Pattern, Int>
+        get() = (probes ?: emptyMap()).mapValues { clamp(it.value, 0, EngineConfig.countMax) }
+
+    val skips: Map<Pattern, Int> get() = SetFacts.sanitizedSkips(setsSkipped ?: emptyMap())
+
+    val skippedSets: Map<Pattern, Set<Int>> get() = SetFacts.sanitizedSkippedSets(skippedSetIndices ?: emptyMap())
+
+    val skippedWithNumber: Map<Pattern, Set<Int>>
+        get() = SetFacts.sanitizedSkippedSets(skippedWithNumberIndices ?: emptyMap())
+
+    /** The additions "for next time", in the range the engine takes. */
+    val raises: Map<Pattern, Int>
+        get() = (raisedSteps ?: emptyMap()).mapValues { clamp(it.value, 0, EngineConfig.raiseStepsMax) }
+            .filterValues { it > 0 }
+
+    /** What the clock wrote per set: indices an exercise can have, seconds a
+     *  hold can be stored as. */
+    val measuredHold: Map<Int, Int>
+        get() {
+            val corridor = SetFacts.corridor(LoadUnit.hold)
+            return (holdMeasuredSec ?: emptyMap())
+                .filter { (index, seconds) -> index in 0 until EngineConfig.setsMax && seconds in corridor }
+        }
+
+    val approximateSets: Set<Int>
+        get() = (approxSets ?: emptyList()).filter { it in 0 until EngineConfig.setsMax }.toSet()
+
+    val endedByTapSets: Set<Int>
+        get() = (tapEndedSets ?: emptyList()).filter { it in 0 until EngineConfig.setsMax }.toSet()
 
     /** Whether anything happened worth keeping — the one answer to both
      *  "offer it back?" and "record it when the occasion has passed?". */

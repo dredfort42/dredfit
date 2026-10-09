@@ -1,11 +1,12 @@
 //
 //  A fact belongs to the set it happened on.
 //
-//  Port of the READING half of ios/Dredfit/SetFacts.swift — what the journal,
-//  the snapshot and a changed rating need: the stored shapes, their
-//  sanitizers, and the fold of per-set facts into the one number the engine
-//  takes. The writing half (`recording`, the hold rules) arrives with the
-//  workout screens. The reasoning behind every rule is in the Swift file.
+//  Port of ios/Dredfit/SetFacts.swift: the stored shapes and their
+//  sanitizers, how a set's number is read and written, and the fold of the
+//  per-set facts into the one number the engine takes. The hold rules are
+//  SetFactsHolds.kt, the absence and the settlement SetFactsInterruption.kt.
+//  The reasoning behind every rule is in the Swift file. (`SetFactsLabel`,
+//  the SwiftUI view at its end, arrives with the rating screen.)
 //
 
 package com.dredfit.workout
@@ -79,6 +80,12 @@ object SetFacts {
         return out
     }
 
+    /** Whether `count` more skipped sets can be RECORDED as skipped sets: a
+     *  movement counts as trained only while the floor's worth of sets
+     *  survives. Counted on the PLAN IN FRONT OF THE PERSON. */
+    fun skipFits(count: Int, of: Int, alreadySkipped: Int): Boolean =
+        of - alreadySkipped - count >= EngineConfig.setsFloor
+
     // MARK: - Reading
 
     /** The number set `index` runs at. THE CARRY-FORWARD IS ASYMMETRIC: a
@@ -91,6 +98,18 @@ object SetFacts {
         if (index < values.size) return values[index]
         return minOf(values.last(), ex.plannedLoad(set = index))
     }
+
+    /** What is in force for set `index` when that differs from the SET'S OWN
+     *  plan; null when the set simply runs to plan. */
+    fun offPlan(facts: Map<Pattern, List<Int>>, ex: SessionExercise, set: Int): Int? {
+        val value = inForce(facts, ex, set)
+        return if (value == ex.plannedLoad(set = set)) null else value
+    }
+
+    /** Whether recorded sets differ from THIS plan, set for set — never
+     *  against the flat base. */
+    fun differs(values: List<Int>, from: SessionExercise): Boolean =
+        values.withIndex().any { (i, v) -> v != from.plannedLoad(set = i) }
 
     /** Every set of the exercise — bounded by the scale, not by the record. */
     fun allSets(facts: Map<Pattern, List<Int>>, ex: SessionExercise): List<Int> {
@@ -107,6 +126,65 @@ object SetFacts {
         return done.ifEmpty { every }
     }
 
+    // MARK: - Writing
+
+    /**
+     * Records `value` for the set under way and nothing else; the sets before
+     * it keep what they ran at and are filled in first, AS THE SCREEN READ
+     * THEM (`inForce`, set for set — never the last number carried forward,
+     * or 35-30-30 held as asked would read 35-35-30). Everything landing back
+     * on the plan, compared per set, is nothing said at all.
+     */
+    fun recording(value: Int, facts: Map<Pattern, List<Int>>, ex: SessionExercise, set: Int): Map<Pattern, List<Int>> {
+        val out = LinkedHashMap(facts)
+        val values = (facts[ex.pattern] ?: emptyList()).toMutableList()
+        val index = maxOf(set, 0)
+        while (values.size < index) {
+            val planned = ex.plannedLoad(set = values.size)
+            values += minOf(values.lastOrNull() ?: planned, planned)
+        }
+        val written = values.take(index) + value
+        val onPlan = written.withIndex().all { (i, v) -> v == ex.plannedLoad(set = i) }
+        if (onPlan) out.remove(ex.pattern) else out[ex.pattern] = written
+        return out
+    }
+
+    /**
+     * Records ONE set and leaves every other set of the exercise standing —
+     * the summary's writer, where every set is already behind. The exercise
+     * is frozen as the cards read it (`inForce`) and one value changes; a
+     * record back on the plan set for set is dropped. Bounded by the
+     * exercise's own length.
+     */
+    fun recordingSet(value: Int, facts: Map<Pattern, List<Int>>, ex: SessionExercise, set: Int): Map<Pattern, List<Int>> {
+        val index = maxOf(set, 0)
+        val sets = minOf(maxOf(ex.sets, 1), EngineConfig.setsMax)
+        if (index >= sets) return facts
+        val values = (0 until sets).map { inForce(facts, ex, set = it) }.toMutableList()
+        values[index] = value
+        val out = LinkedHashMap(facts)
+        val onPlan = values.withIndex().all { (i, v) -> v == ex.plannedLoad(set = i) }
+        if (onPlan) out.remove(ex.pattern) else out[ex.pattern] = values
+        return out
+    }
+
+    // MARK: - The collapse
+
+    /** How long ONE side of a per-side hold runs: what the first side ran,
+     *  never longer than the plan, floored at the hold corridor's minimum
+     *  (a 3 s side could neither be stored nor stopped). */
+    fun holdSideSeconds(planned: Int, firstSideHeld: Int?): Int {
+        if (firstSideHeld == null) return planned
+        val floor = corridor(LoadUnit.hold).first
+        return maxOf(minOf(firstSideHeld, planned), minOf(floor, planned))
+    }
+
+    /** A number above the plan of THIS set, on a set that is not the last.
+     *  The note built on it must not claim the engine measures order — the
+     *  fold is the mean. */
+    fun maximumOutOfOrder(value: Int, ex: SessionExercise, set: Int): Boolean =
+        set < ex.sets - 1 && value > ex.plannedLoad(set = set)
+
     /** The RAW mean of the performed sets — the engine snaps it. A mean below
      *  the base that would round onto it reports nothing. */
     fun override(facts: Map<Pattern, List<Int>>, ex: SessionExercise, skipping: Set<Int>): Double? {
@@ -116,6 +194,29 @@ object SetFacts {
         val raw = values.fold(0.0) { acc, v -> acc + v } / values.size
         if (raw < ex.load && snap(raw, ex.unit) >= ex.load) return null
         return raw
+    }
+
+    /** The knowable half of the probe's condition: a fold below the plan's
+     *  mean is already the step down the engine will take. */
+    fun foldFallsShort(facts: Map<Pattern, List<Int>>, of: SessionExercise, skipping: Set<Int>): Boolean {
+        val fold = override(facts, of, skipping) ?: return false
+        return fold < of.plannedVolume.toDouble() / maxOf(of.sets, 1).toDouble()
+    }
+
+    /** What the PROBE set records when it ends: its own target, unless a
+     *  number was entered by hand. `isProbe` is a parameter on purpose — the
+     *  half "nothing else records itself" is the one a refactor loses. */
+    fun recordingProbe(probes: Map<Pattern, Int>, pattern: Pattern, isProbe: Boolean, target: Int): Map<Pattern, Int> {
+        if (!isProbe || probes[pattern] != null) return probes
+        return LinkedHashMap(probes).also { it[pattern] = target }
+    }
+
+    /** "The whole plan, or more": nothing set aside, no set dropped, every
+     *  exercise reaching the VOLUME it was asked for. The probe is outside it. */
+    fun didFullPlan(facts: Map<Pattern, List<Int>>, skips: Map<Pattern, Int>, skipped: Set<Pattern>,
+                    exercises: List<SessionExercise>): Boolean {
+        if (skipped.isNotEmpty() || !skips.values.all { it <= 0 }) return false
+        return exercises.all { ex -> allSets(facts, ex).sum() >= ex.plannedVolume }
     }
 
     /** The whole session's `overrides`, keyed the way the engine wants them.
