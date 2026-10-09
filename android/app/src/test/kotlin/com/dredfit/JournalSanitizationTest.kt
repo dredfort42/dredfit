@@ -4,8 +4,7 @@
 //  come back out of the store file and go straight into arithmetic.
 //
 //  Not ported: `testACorruptExerciseSnapshotCannotTrapTheDurationEstimate`
-//  (the Health backfill, which arrives with health/), and the last line of
-//  the first test (`Retrospective.make`, which arrives with its screen).
+//  (the Health backfill, which arrives with health/).
 //
 
 package com.dredfit
@@ -18,11 +17,13 @@ import com.dredfit.core.Position
 import com.dredfit.journal.RecordedPosition
 import com.dredfit.journal.WorkoutRecord
 import com.dredfit.store.AppStore
+import com.dredfit.store.currentPositions
 import com.dredfit.store.gapDays
 import com.dredfit.store.recentGaps
 import com.dredfit.store.shouldOfferComeback
 import com.dredfit.store.trainingDays
 import com.dredfit.store.weekSummary
+import com.dredfit.workout.Retrospective
 import kotlinx.serialization.json.Json
 import java.time.Instant
 import kotlin.test.Test
@@ -73,6 +74,8 @@ class JournalSanitizationTest : AppStoreTestCase() {
             assertTrue(steps >= 0, "$p: $steps")
             assertTrue(steps <= Engine.ladderSpan(p), "$p: $steps")
         }
+        // The screen that does the subtraction still renders.
+        Retrospective.make(records = s.records, current = s.currentPositions)
     }
 
     @Test
