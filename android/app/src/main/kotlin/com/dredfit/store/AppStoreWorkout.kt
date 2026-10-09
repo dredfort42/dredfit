@@ -58,7 +58,7 @@ fun AppStore.unfinishedWorkoutAwaitingAnswer(now: Instant = clock.instant()): Wo
 fun AppStore.settleAbandonedWorkout(now: Instant = clock.instant()): Boolean {
     if (workoutIsOnScreen) return false
     val snap = pendingWorkout ?: return false
-    if (!WorkoutSessionStore.isForgotten(snap.savedAt, now)) return false
+    if (Duration.between(snap.savedAt, now) < WorkoutSessionStore.forgottenAfter) return false
     return settlePendingWorkout()
 }
 

@@ -125,9 +125,12 @@ abstract class OngoingTestCase : DredfitUITest() {
      *  the CPU. */
     protected fun hearTheCountdown(withinMs: Long) {
         synchronized(fired) { fired.clear() }
-        assertTrue("the go never came", awaitTrue(withinMs) { synchronized(fired) { fired.any { it.tone == Tone.Go } } })
+        assertTrue("the 3-2-1 never came", awaitTrue(withinMs) { synchronized(fired) { fired.size >= 3 } })
+        // The go waits for the person (WorkoutBeat.kt): the rest stands at
+        // its end, as a suspended iOS app's would, until somebody is back.
+        Thread.sleep(2_500)
         val heard = synchronized(fired) { fired.toList() }
-        assertEquals("heard: $heard", listOf(Tone.Tick, Tone.Tick, Tone.Tick, Tone.Go), heard.map { it.tone })
+        assertEquals("heard: $heard", listOf(Tone.Tick, Tone.Tick, Tone.Tick), heard.map { it.tone })
         assertTrue("every one with the app out of front: $heard", heard.none { it.inFront })
         for ((a, b) in heard.zipWithNext()) {
             val gap = b.atMs - a.atMs

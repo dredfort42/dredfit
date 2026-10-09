@@ -204,12 +204,11 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, re
         observed.act { appear() }
     }
 
-    // The screen tells the beat when it is up (WorkoutBeat.kt): on screen
-    // the flow beats once a second, and off screen it beats on only while
-    // the ongoing notification holds it — otherwise it is left, as a
-    // backgrounded iOS app is; every countdown is an end date, so a skipped
-    // tick loses nothing. Only leaving is leaving: a pulled-down shade keeps
-    // the app started.
+    // The screen tells the beat when it is up (WorkoutBeat.kt): leaving is
+    // leaving, as on iOS, and off screen the beat runs on only for the
+    // countdown's seconds behind the ongoing notification. Every countdown
+    // is an end date, so a skipped tick loses nothing. Only leaving is
+    // leaving: a pulled-down shade keeps the app started.
     DisposableEffect(lifecycle, active) {
         val watcher = LifecycleEventObserver { _, event ->
             when (event) {

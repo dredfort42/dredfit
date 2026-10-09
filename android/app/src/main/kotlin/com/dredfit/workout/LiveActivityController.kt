@@ -52,15 +52,39 @@ class OngoingWorkout(private val host: OngoingHost, private val now: () -> Insta
 
     private var awake = false
 
+    /** The state last drawn, and the end its chronometer counts to. */
+    private var last: ActivityState? = null
+    private var countingTo: Instant? = null
+
     override fun start(sessionNumber: Int, state: ActivityState) {
         started = true
         shownAt = now()
-        host.show(OngoingContent.of(state, now()))
+        draw(state)
     }
 
     override fun update(state: ActivityState) {
         if (!isShown) return
-        host.show(OngoingContent.of(state, now()))
+        draw(state)
+    }
+
+    /**
+     * Redraws a countdown whose end has passed without an update — the flow
+     * standing at an end while the person is away, or behind "Leave the
+     * workout?". A system chronometer counts on below zero; iOS's
+     * `Text(timerInterval:)` stops, so the tile drops the countdown instead.
+     * Called every beat; draws only once per end.
+     */
+    fun refresh() {
+        val end = countingTo ?: return
+        val state = last ?: return
+        if (isShown && end <= now()) draw(state)
+    }
+
+    private fun draw(state: ActivityState) {
+        val content = OngoingContent.of(state, now())
+        last = state
+        countingTo = content.countdownTo
+        host.show(content)
     }
 
     override fun end() {

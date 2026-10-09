@@ -167,6 +167,22 @@ class OngoingNotificationTest : WorkoutSessionTestCase() {
     }
 
     @Test
+    fun aCountdownLeftPastItsEndIsRedrawnWithoutItOnce() {
+        val host = HostSpy()
+        var t = now
+        val tile = OngoingWorkout(host) { t }
+        tile.start(sessionNumber = 1, state = ActivityState(ActivityState.Phase.rest, title, detail, now.plusSeconds(60)))
+        t = now.plusSeconds(59)
+        tile.refresh()
+        assertEquals(1, host.shown.size, "still ahead: the system's chronometer counts it")
+        t = now.plusSeconds(61)
+        tile.refresh()
+        tile.refresh()
+        assertEquals(listOf(now.plusSeconds(60), null), host.shown.map { it.countdownTo },
+                     "past its end with no update: drawn once without it, never below zero")
+    }
+
+    @Test
     fun aRefusedServiceIsNoTile() {
         val host = HostSpy().also { it.accepts = false }
         val tile = OngoingWorkout(host) { now }

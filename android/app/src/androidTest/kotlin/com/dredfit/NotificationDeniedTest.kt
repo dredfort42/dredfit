@@ -4,6 +4,8 @@
 //  it in Task Manager instead of the shade), and the rest's 3-2-1 still
 //  sounds with the app in the background.
 //
+//  Asked ONCE: the second start asks nothing (owner decision, 09.10.2026).
+//
 //  RUNS ALONE, on a fresh install, so the permission has never been granted:
 //  every other suite grants it (DredfitUITest.launch), and revoking it kills
 //  the process the instrumentation runs in. Excluded from the suite by
@@ -22,6 +24,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -67,6 +70,22 @@ class NotificationDeniedTest : OngoingTestCase() {
         driver.tapUntilGone(AX.exitDiscard)
         await(AX.startWorkout)
         assertGone("a discarded workout leaves nothing behind")
+
+        // Asked once: the next start opens the warm-up offer with no dialog.
+        driver.tapUntilGone(AX.startWorkout)
+        await(AX.warmupIntroSkip)
+        Thread.sleep(1_500)
+        assertTrue("the refusal is remembered — no second ask", awaitTrue { !paused() })
+        assertTrue(exists(AX.warmupIntroSkip))
+    }
+
+    private fun paused(): Boolean {
+        var there = false
+        instrumentation.runOnMainSync {
+            there = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.PAUSED)
+                .any { it is MainActivity }
+        }
+        return there
     }
 
     /** The permission controller's deny button, found through the

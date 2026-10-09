@@ -1,8 +1,9 @@
 //
 //  The ongoing notification on a device: it comes with the workout, shows
-//  what the iOS Live Activity shows, keeps the flow's tones and haptics on
-//  their seconds with the app in the background or the screen off, opens the
-//  flow on a tap, and goes — with its service and the wake lock — when the
+//  what the iOS Live Activity shows, keeps a rest's 3-2-1 on its seconds with
+//  the app in the background or the screen off — the go, as on iOS, waits
+//  for the person — opens the flow on a tap, and goes — with its service and
+//  the wake lock — when the
 //  workout is finished or thrown away. Android-only: iOS's tile is drawn by
 //  the system, and a backgrounded iOS app plays nothing.
 //
@@ -54,13 +55,15 @@ class OngoingWorkoutTest : OngoingTestCase() {
         shell("input keyevent KEYCODE_HOME")
         awaitStage(Stage.STOPPED)
         hearTheCountdown(withinMs = seconds * 1000L + 10_000)
-        val next = awaitOngoing { it.text?.startsWith("set 2 of") == true }
-        assertEquals("the same movement, its next set", set.title, next.title)
-        assertTrue("released once the rest handed over the set", awaitTrue { !app.ongoing.isAwake })
+        awaitOngoing { it.text == "Next up" && !it.chronometer }
+        assertTrue("released while the rest stands at its end", awaitTrue { !app.ongoing.isAwake })
 
-        // A tap on the notification brings the flow back where it is.
+        // A tap on the notification brings the flow back, and the first tick
+        // back hands over the set.
         checkNotNull(ongoing()?.contentIntent).send()
         awaitStage(Stage.RESUMED)
+        val next = awaitOngoing { it.text?.startsWith("set 2 of") == true }
+        assertEquals("the same movement, its next set", set.title, next.title)
         await(AX.exerciseDone)
 
         // Finished from a running rest: the lock is held right up to the
@@ -92,10 +95,12 @@ class OngoingWorkoutTest : OngoingTestCase() {
         shell("input keyevent KEYCODE_SLEEP")
         awaitStage(Stage.STOPPED)
         hearTheCountdown(withinMs = seconds * 1000L + 10_000)
+        assertTrue("released while the rest stands at its end", awaitTrue { !app.ongoing.isAwake })
 
         shell("input keyevent KEYCODE_WAKEUP")
         shell("wm dismiss-keyguard")
         awaitStage(Stage.RESUMED)
+        awaitOngoing { it.text?.startsWith("set 2 of") == true }
         driver.tapUntilGone(AX.exerciseDone)
         await(AX.skipRest)
         assertTrue(awaitTrue { app.ongoing.isAwake })

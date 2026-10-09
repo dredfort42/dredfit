@@ -125,12 +125,19 @@ class OngoingNotification(context: Context) : OngoingHost {
     }
 
     /** Recreated on every start, so the channel's name follows the app's
-     *  language; creating an existing channel only renames it. LOW: the
-     *  tones are the app's own, and the notification itself never sounds. */
+     *  language; creating an existing channel only renames it. DEFAULT, not
+     *  LOW: a LOW channel is a "silent" one, which the system may keep off
+     *  the lock screen and out of the status bar — where the iOS tile lives.
+     *  Silent all the same: the channel has no sound and no vibration (the
+     *  tones are the app's own), and every drawing is `setSilent`. */
     private fun createChannel() {
         val name = app.resources.tr(Words.of("Workout in progress"))
         manager.createNotificationChannel(
-            NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_LOW).apply { setShowBadge(false) })
+            NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_DEFAULT).apply {
+                setShowBadge(false)
+                setSound(null, null)
+                enableVibration(false)
+            })
     }
 
     private fun build(content: OngoingContent): Notification {
