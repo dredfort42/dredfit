@@ -9,9 +9,13 @@
 
 package com.dredfit
 
+import com.dredfit.core.Pattern
 import com.dredfit.store.AppStore
+import org.junit.jupiter.api.Assumptions.assumeFalse
 import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.attribute.PosixFilePermissions
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
@@ -37,4 +41,28 @@ abstract class AppStoreTestCase {
      *  neighbouring calendar day). */
     fun daysAgo(n: Long, zone: ZoneId = ZoneId.systemDefault()): Instant =
         LocalDate.now(zone).minusDays(n).atStartOfDay(zone).toInstant()
+
+    /** Where a read puts `tempPath` aside first — `<name>.corrupt.json`. */
+    val corruptPath: Path get() = tempDir.resolve("dredfit-test.corrupt.json")
+
+    /** Every test that makes a file unreadable by permission: root reads
+     *  through 0o000 and writes through 0o555, as on iOS. */
+    fun assumeNotRoot() = assumeFalse(System.getProperty("user.name") == "root", "root ignores permissions")
+
+    /** A POSIX mode on `path`, as iOS's `setAttributes([.posixPermissions:])`. */
+    fun setPermissions(path: Path, mode: String) {
+        Files.setPosixFilePermissions(path, PosixFilePermissions.fromString(mode))
+    }
+
+    /** `"squat",x,"push_h",x,…` — a `[Pattern: Int]` the way Swift writes
+     *  it, for the suites that seed a state file by hand. */
+    fun pairs(value: (Pattern) -> Any): String =
+        Pattern.allCases.joinToString(",") { p -> "\"${p.rawValue}\",${value(p)}" }
+
+    /** Writes `json` as the state file and opens a store on it — the door
+     *  the app loads through. */
+    fun storeFrom(json: String, path: Path = tempPath): AppStore {
+        Files.writeString(path, json)
+        return makeStore(path)
+    }
 }
