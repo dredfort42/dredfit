@@ -3,6 +3,11 @@
      network calls and carries no analytics (README.md). -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- The haptic half of every countdown signal (signals/WorkoutSignals.kt):
+         in silent mode it is the whole channel. A normal permission, granted
+         at install. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:name=".DredfitApp"
         android:allowBackup="true"
