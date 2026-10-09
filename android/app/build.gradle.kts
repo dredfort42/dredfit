@@ -22,6 +22,11 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "0.1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // The frames for comparing with the iOS store shots are taken on
+        // request (`adb shell am instrument -e class com.dredfit.ScreenshotWalk
+        // -e screens <prefix> …`), never as part of the suite.
+        testInstrumentationRunnerArguments["notClass"] = "com.dredfit.ScreenshotWalk"
     }
 
     buildFeatures {
@@ -64,6 +69,18 @@ dependencies {
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform.launcher)
+
+    // The Compose UI suite (androidTest) — the counterpart of
+    // ios/DredfitUITests, JUnit 4 because the instrumentation runner is.
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    // ui-test-junit4 brings espresso-core 3.5.0, which calls
+    // InputManager.getInstance — gone from Android 17 (API 37): every
+    // Compose test failed in its first idle wait (09.10.2026).
+    androidTestImplementation(libs.androidx.test.espresso.core)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
 tasks.withType<Test>().configureEach {
