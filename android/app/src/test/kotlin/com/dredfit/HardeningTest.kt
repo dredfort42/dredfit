@@ -1,9 +1,12 @@
 //
 //  Port of ios/DredfitTests/HardeningTests.swift — the day anchor, the
 //  cold-launch activation and the ten reminder tests (the spy answers at once,
-//  where iOS awaits `reminderAuthTask`), plus four Android-only ones: the
-//  import's other two outcomes, the refusal cleared by a granted ask, and the
-//  activation's rebuild.
+//  where iOS awaits `reminderAuthTask`), plus six Android-only ones: the
+//  import's other two outcomes, the refusal cleared by a granted ask, the
+//  rebuilds the activation, a rest-day toggle, a time change and a second
+//  read make by themselves. `morningWorkoutRemovesTodaysReminder` and
+//  `eveningWorkoutKeepsWindowIntact` run on a pinned clock (the Swift ones
+//  read the real one, and pass vacuously after 20:00).
 //  `testStaleDateArithmetic` is not ported: a notification has no stale
 //  state to dim into — the ongoing notification drops a countdown whose end
 //  has passed instead (OngoingNotificationTest), and goes at the resume
@@ -31,6 +34,7 @@ import com.dredfit.store.setReminderTime
 import com.dredfit.store.swiftWeekday
 import com.dredfit.store.toggleRestDay
 import com.dredfit.workout.Words
+import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -195,10 +199,14 @@ class HardeningTest : AppStoreTestCase() {
         assertTrue(spy.scheduled.all { local(it.fireAt).hour == 8 && local(it.fireAt).minute == 15 })
     }
 
+    /** The clock is pinned to the morning, where the Swift test reads the
+     *  real one: after 20:00 today's slot is already past, the assertion holds
+     *  with no rule behind it, and dropping the done-day filter — or the
+     *  rebuild after a completion — survived the mutation run (09.10.2026). */
     @Test
     fun morningWorkoutRemovesTodaysReminder() {
         val spy = NotificationSpy()
-        val store = makeStore(notifications = spy)
+        val store = makeStore(clock = Clock.fixed(moment(hour = 7), ZoneId.systemDefault()), notifications = spy)
         // Every day trains — no rest-day interference. Read off the current
         // default rather than naming weekdays: named, they would turn this
         // into a rest-day fixture the moment the default moves.
@@ -221,7 +229,7 @@ class HardeningTest : AppStoreTestCase() {
     @Test
     fun eveningWorkoutKeepsWindowIntact() {
         val spy = NotificationSpy()
-        val store = makeStore(notifications = spy)
+        val store = makeStore(clock = Clock.fixed(moment(hour = 21), ZoneId.systemDefault()), notifications = spy)
         for (wd in store.settings.restWeekdays) store.toggleRestDay(wd)   // as above
         store.setReminderTime(hour = 9, minute = 0)
         store.setReminderEnabled(true)
@@ -387,6 +395,45 @@ class HardeningTest : AppStoreTestCase() {
         assertFalse(store.reminderRefused)
         assertTrue(store.settings.reminderEnabled)
         assertFalse(spy.scheduled.isEmpty())
+    }
+
+    /** Android-only: the writes rebuild the window BY THEMSELVES. The Swift
+     *  tests call the rebuild by hand after a rest-day toggle and a time
+     *  change, so a write that forgot it passed them (mutation run,
+     *  09.10.2026); here the clock is pinned and nothing is called by hand. */
+    @Test
+    fun aRestDayToggleAndATimeChangeRebuildTheWindowByThemselves() {
+        val spy = NotificationSpy()
+        val store = makeStore(clock = Clock.fixed(moment(hour = 6), ZoneId.systemDefault()), notifications = spy)
+        store.setReminderEnabled(true)
+        assertEquals(16, spy.scheduled.size)
+
+        store.toggleRestDay(3)
+        assertEquals(12, spy.scheduled.size, "Tuesday's slots go with the toggle")
+
+        store.setReminderTime(hour = 7, minute = 45)
+        assertTrue(spy.scheduled.all { local(it.fireAt).hour == 7 && local(it.fireAt).minute == 45 },
+                   "every slot moves with the time")
+    }
+
+    /** Android-only: a journal read on the second try rebuilds the window
+     *  from what it holds, as `reloadIfNeeded` does on iOS. */
+    @Test
+    fun aJournalReadOnTheSecondTryRebuildsTheWindow() {
+        assumeNotRoot()
+        val spy = NotificationSpy()
+        makeStore(notifications = spy).setReminderEnabled(true)
+        val pending = spy.scheduled.size
+        setPermissions(tempPath, "---------")
+        try {
+            val frozen = makeStore(notifications = spy)
+            spy.scheduled.clear()   // a window lost meanwhile (a reboot, a removal)
+            setPermissions(tempPath, "rw-r--r--")
+            frozen.reloadIfNeeded()
+            assertEquals(pending, spy.scheduled.size, "the reload itself rebuilds it")
+        } finally {
+            setPermissions(tempPath, "rw-r--r--")
+        }
     }
 
     /** Android-only: the activation rebuilds the window — the iOS sequence's
