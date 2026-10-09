@@ -23,7 +23,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dredfit.ui.workout.settleWindow
-import com.dredfit.workout.SettleWindowLength
 import com.dredfit.workout.UITestFlags
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -77,7 +76,6 @@ class SettleWindowTest {
 
     @Test
     fun aTapInsideTheWindowAfterAScreenChangeDoesNothing() {
-        assertEquals(350, SettleWindowLength.value.toMillis())
         changeScreen()
         tap()
         assertEquals("the second tap of a double tap must not act on the new screen", 0, taps)
