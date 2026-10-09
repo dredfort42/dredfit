@@ -21,7 +21,12 @@ fun AppStore.refreshDay(now: Instant = clock.instant()) {
 /** One seam for a cold launch and a return alike. Order matters: the decay
  *  can only correct a journal that has loaded. */
 fun AppStore.activate(now: Instant = clock.instant()) {
-    reloadIfNeeded()
+    // In the app the second read of a frozen journal runs on the disk thread
+    // and the rest waits for it; inline it is the same sequence as on iOS.
+    reloadIfNeeded { activateLoaded(now) }
+}
+
+private fun AppStore.activateLoaded(now: Instant) {
     // The disk may have recovered while the app was away; without this a
     // failed write waits for the next unrelated change.
     if (lastPersistError != null) retryPersist()

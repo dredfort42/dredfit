@@ -81,8 +81,12 @@ class StateFile(val path: Path) {
      * write leaves the old file exactly as it was.
      */
     @Throws(IOException::class)
-    fun write(data: AppData) {
-        val bytes = data.encode().toByteArray(Charsets.UTF_8)
+    fun write(data: AppData) = write(data.encode().toByteArray(Charsets.UTF_8))
+
+    /** The same write for bytes already encoded: the store encodes on the
+     *  thread that made the change and writes on its disk thread. */
+    @Throws(IOException::class)
+    fun write(bytes: ByteArray) {
         // No directory is created here: Swift's `.atomic` write fails into a
         // missing one too, and the app's files directory always exists.
         val temp = Files.createTempFile(path.toAbsolutePath().parent, ".${path.fileName}", ".tmp")
