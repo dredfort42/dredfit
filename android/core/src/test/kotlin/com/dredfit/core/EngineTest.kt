@@ -337,6 +337,23 @@ class EngineTest {
         assertEquals(EngineConfig.rampWindowSessions, after.rampWindow)
     }
 
+    /** A run of returns (§22.3): comebacks in a row with no session between
+     *  them each deepen the drop by one. At the 14-day minimum the first
+     *  return walks the base two rungs, 12 → 10; the second walks three,
+     *  10 → 7 — not another two, which would land on 8. */
+    @Test
+    fun returnsInARowDeepenTheDrop() {
+        val state = EngineState.initial
+        state.doses[Pattern.squat] = 12
+        state.shown[Pattern.squat] = mutableMapOf(1 to 12)
+        val first = Engine.applyComeback(state = state, gapDays = 14)
+        assertEquals(10, first.doses[Pattern.squat])
+        assertEquals(1, first.returnRun)
+        val second = Engine.applyComeback(state = first, gapDays = 14)
+        assertEquals(7, second.doses[Pattern.squat], "the second return in a row drops one rung deeper")
+        assertEquals(2, second.returnRun)
+    }
+
     // MARK: - Handles
 
     /** "Give me something easier" lands under the JOURNAL of the variation
@@ -488,5 +505,22 @@ class EngineTest {
         assertTrue(a.estimatedTotalMin > 0)
         assertEquals(b.estimatedTotalMin, a.estimatedTotalMin, 2.0,
                      "the probe replaces a set, it does not add a block of work")
+    }
+
+    /** The duration is rounded as the reference's `toFixed(1)`: the nearest
+     *  tenth to the exact double, a tie to the larger number. 2079 s / 60 sits
+     *  just under 34.65 (34.6, where `roundedAwayFromZero(x * 10)` says 34.7);
+     *  2115 s / 60 is exactly 35.25, a real tie (35.3, where half-to-even —
+     *  `kotlin.math.round` too — says 35.2). */
+    @Test
+    fun durationRoundsLikeTheReference() {
+        fun minutes(seconds: Int): Double {
+            val hold = SessionExercise(pattern = Pattern.coreAntiExt, name = "hold", variation = 1,
+                                       unit = LoadUnit.hold, load = seconds, perSide = false, sets = 1,
+                                       restSetSec = 0, restExerciseSec = 0, loads = null, probe = null)
+            return Engine.estimatedMin(exercises = listOf(hold), ends = 0)
+        }
+        assertEquals(34.6, minutes(2079))
+        assertEquals(35.3, minutes(2115))
     }
 }

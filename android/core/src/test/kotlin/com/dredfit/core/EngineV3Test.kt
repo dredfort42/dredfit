@@ -496,4 +496,22 @@ class EngineV3Test {
         assertEquals(10, next.doses[Pattern.squat], "fast adaptation: the fact is the next dose")
         assertEquals(1, next.sub[Pattern.squat], "…and the raise sits on top of it")
     }
+
+    /** The raise lands after the SKIPPED SET too (§41.13: on top of the
+     *  rating and the cut). "Plan" leaves 3×8 with one sub-step (9-8-8); the
+     *  skip takes a set, so 2 sets are on screen and one step is the rung:
+     *  9-9. A raise counted before the cut walks the band of three instead —
+     *  a second sub-step the cut then clamps away, and the "+1" is lost. */
+    @Test
+    fun raiseLandsAfterTheSkippedSet() {
+        val s = state(Pattern.squat, variation = 2, dose = 8, seed = Seed(shown = mapOf(2 to 8)))
+        val session = Engine.generateSession(s)
+        val next = Engine.applyFeedback(state = s, session = session, result = FeedbackResult.plan,
+                                        overrides = emptyMap(), skipped = emptySet(),
+                                        setsSkipped = mapOf(Pattern.squat to 1), gapDays = 7.0 / 3.0,
+                                        probes = emptyMap(), raised = mapOf(Pattern.squat to 1))
+        assertEquals(1, next.cut[Pattern.squat])
+        assertEquals(9, next.doses[Pattern.squat], "one step over two sets on screen is the rung")
+        assertNull(next.sub[Pattern.squat])
+    }
 }
