@@ -1,7 +1,10 @@
 //
 //  Port of ios/DredfitTests/HardeningTests.swift — the day anchor and the
-//  cold-launch activation. The reminder tests (ten) arrive with reminders/,
-//  and `testStaleDateArithmetic` with the Live Activity's counterpart.
+//  cold-launch activation. The reminder tests (ten) arrive with reminders/.
+//  `testStaleDateArithmetic` is not ported: a notification has no stale
+//  state to dim into — the ongoing notification drops a countdown whose end
+//  has passed instead (OngoingNotificationTest), and goes with the
+//  forgotten-workout rule (WorkoutBeatTest).
 //
 
 package com.dredfit

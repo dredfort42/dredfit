@@ -8,11 +8,15 @@
 
 package com.dredfit.ui
 
+import android.Manifest
 import android.app.Activity
 import android.app.UiModeManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -50,6 +54,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import com.dredfit.signals.DeviceSignals
 import com.dredfit.store.AppStore
@@ -72,9 +77,11 @@ import com.dredfit.ui.today.TodayScreen
 import com.dredfit.ui.workout.ActiveWorkout
 import com.dredfit.ui.workout.ReviewPrompt
 import com.dredfit.ui.workout.WorkoutFlowView
+import com.dredfit.workout.OngoingHost
 
-/** The flow in flight, owned by the process so a recreated activity finds it. */
-class FlowHolder {
+/** The flow in flight, owned by the process so a recreated activity finds it,
+ *  and the ongoing notification every flow drives. */
+class FlowHolder(val ongoing: OngoingHost) {
     var active by mutableStateOf<ActiveWorkout?>(null)
 }
 
@@ -108,6 +115,7 @@ fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: (
         // Read in the first composition, so a fresh install's first frame is
         // already the onboarding and Today is never composed under it.
         var onboardingShown by rememberSaveable { mutableStateOf(store.shouldShowOnboarding) }
+        val askToNotify = rememberNotificationAsk()
         val active = holder.active
         Box(Modifier.fillMaxSize().background(c.bg)) {
             when {
@@ -115,7 +123,7 @@ fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: (
                     // The claim on the snapshot ends with the flow, not with
                     // the composition that drew it (WorkoutFlowView.kt).
                     store.workoutFlowDisappeared()
-                    active.flow.value.disappear()
+                    active.close()
                     holder.active = null
                 }
                 onboardingShown -> OnboardingView {
@@ -138,7 +146,8 @@ fun RootScreen(observedStore: Observed<AppStore>, holder: FlowHolder, signals: (
                                     // recreated activity — cannot settle the workout
                                     // out from under the athlete still in it.
                                     store.workoutFlowAppeared()
-                                    holder.active = ActiveWorkout.start(request.session, store, signals(),
+                                    askToNotify()
+                                    holder.active = ActiveWorkout.start(request.session, store, signals(), holder.ongoing,
                                                                         request.resume, request.settleImmediately)
                                 })
                                 RootTab.calendar -> CalendarScreen(observedStore)
@@ -189,6 +198,28 @@ private fun TabBar(tab: RootTab, select: (RootTab) -> Unit) {
                     modifier = Modifier.testTag("tab-${item.name}"),
                 )
             }
+        }
+    }
+}
+
+/**
+ * POST_NOTIFICATIONS (Android 13+), asked as a workout starts: the moment
+ * the ongoing notification first appears, which is the one thing it is for.
+ * iOS asks nothing — a Live Activity needs no permission — and Android caps
+ * the asking itself: after a second "Don't allow" the dialog no longer shows.
+ * The workout never waits for the answer, and a refusal changes nothing but
+ * the shade: the service, the beat and every signal run the same, and the
+ * workout shows in the system's Task Manager instead.
+ */
+@Composable
+private fun rememberNotificationAsk(): () -> Unit {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return {}
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
+    return {
+        val permission = Manifest.permission.POST_NOTIFICATIONS
+        if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+            launcher.launch(permission)
         }
     }
 }

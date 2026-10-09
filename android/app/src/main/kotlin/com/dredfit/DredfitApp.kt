@@ -17,6 +17,7 @@
 package com.dredfit
 
 import android.app.Application
+import com.dredfit.ongoing.OngoingNotification
 import com.dredfit.signals.DeviceSignals
 import com.dredfit.store.AppStore
 import com.dredfit.ui.FlowHolder
@@ -41,7 +42,11 @@ class DredfitApp : Application() {
 
     /** The workout in flight — the process's, so a recreated activity finds
      *  it; a process death loses it to the snapshot and Today's resume card. */
-    val flows = FlowHolder()
+    val flows by lazy { FlowHolder(ongoing) }
+
+    /** The ongoing-workout notification and its service — one per process,
+     *  as there is one flow. */
+    val ongoing by lazy { OngoingNotification(this) }
 
     /** The UI suite's stand-in for Play In-App Review, so a walk sees the
      *  ask the milestone's Done makes instead of sending it to Play. Set
@@ -88,6 +93,9 @@ class DredfitApp : Application() {
     internal fun resetForTests(onMain: (Runnable) -> Unit, seed: (Path) -> Unit) {
         onMain(Runnable {
             store = null
+            // Closed, not just dropped: a flow dropped alone would keep its
+            // beat, its service and its wake lock into the next test.
+            flows.active?.close()
             flows.active = null
         })
         disk.submit { seed(statePath) }.get()

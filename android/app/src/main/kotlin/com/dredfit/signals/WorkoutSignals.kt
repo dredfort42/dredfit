@@ -75,8 +75,15 @@ class DeviceSignals(
         announcement.value = message
     }
 
+    /** The UI suite's ear: every pair as it fires. Set only by androidTest
+     *  (OngoingWorkoutTest, to hear a countdown with the app in the
+     *  background); nothing in the app writes it. */
+    @Volatile
+    var firedForTests: ((Tone) -> Unit)? = null
+
     private fun fire(enabled: Boolean, tone: Tone, effect: VibrationEffect) {
         if (!enabled) return
+        firedForTests?.invoke(tone)
         sounds.play(tone, playsInSilentMode())
         vibrator?.vibrate(effect)
     }

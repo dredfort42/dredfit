@@ -8,6 +8,23 @@
          at install. -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- The ongoing-workout notification (ongoing/OngoingNotification.kt),
+         Android's Live Activity. Its foreground service is of type `health`
+         (android/README.md says why not specialUse, shortService or
+         mediaPlayback); on Android 14+ that type needs FOREGROUND_SERVICE_HEALTH
+         and one of its listed prerequisites, of which HIGH_SAMPLING_RATE_SENSORS
+         is the one granted at install with no prompt — the app reads no
+         sensor. The first three are granted at install; POST_NOTIFICATIONS
+         (Android 13+) is asked for when a workout starts (RootScreen.kt);
+         denied, the service still runs and the workout with it. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
+    <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- The CPU kept up while a countdown runs with the screen off, so a 3-2-1
+         lands on its second (workout/WorkoutBeat.kt). -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application
         android:name=".DredfitApp"
         android:allowBackup="true"
@@ -23,6 +40,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".ongoing.OngoingWorkoutService"
+            android:exported="false"
+            android:foregroundServiceType="health" />
         <!-- Hands the share card to the share sheet as content://, read-only
              and only for the duration of the share (FLAG_GRANT_READ_URI). -->
         <provider

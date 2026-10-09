@@ -22,6 +22,10 @@ object WorkoutSessionStore {
     /** Past this the workout was FORGOTTEN — elapsed time, not calendar days. */
     val forgottenAfter: Duration = Duration.ofHours(12)
 
+    /** A workout last written at `lastWrite` was forgotten by `now` — the
+     *  settlement's rule, and the end of the ongoing notification (WorkoutBeat). */
+    fun isForgotten(lastWrite: Instant, now: Instant): Boolean = Duration.between(lastWrite, now) >= forgottenAfter
+
     /** The snapshot is only worth anything while it still describes the plan
      *  the engine would hand out. */
     fun valid(snap: WorkoutSnapshot?, plan: Session, counter: Int): WorkoutSnapshot? {
