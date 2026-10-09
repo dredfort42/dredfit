@@ -29,6 +29,12 @@ app/src/
 │   │   reminders/   NotificationScheduling, ReminderSound
 │   │   signals/     CountdownSounds and the device half of WorkoutSignals —
 │   │                synthesised, no media files
+│   │   ongoing/     the ongoing-workout notification (the Live Activity's
+│   │                counterpart) and its `health` foreground service; what it
+│   │                shows is workout/RestLiveActivity.kt, the start/update/end
+│   │                order workout/LiveActivityController.kt, the off-screen
+│   │                beat and its wake lock workout/WorkoutBeat.kt
+│   │                (android/README.md says why)
 │   │   review/      PlayReviewPrompt — Play In-App Review, the one third-party
 │   │                SDK (android/README.md); when to ask is plain Kotlin
 │   │                (`askForReviewIfEarned`, ui/workout/WorkoutFlowView.kt)
