@@ -74,6 +74,31 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
                        accuracy: 1)
     }
 
+    /// What the flow carried to the rating reaches the settled record too:
+    /// the movement it was cut short on, the probe's number, the steps added
+    /// for next time and the warm-up's length. Settling stands in for a tap
+    /// nobody made; it must not quietly drop what was already decided.
+    func testASettledWorkoutKeepsWhatTheFlowCarriedToTheRating() throws {
+        let store = makeStore()
+        let exercises = store.nextSession.exercises
+        let first = try XCTUnwrap(exercises.first).pattern
+        let last = try XCTUnwrap(exercises.last).pattern
+        var snap = atFeedback(for: store, savedAt: Date.now.addingTimeInterval(-forgotten - 60))
+        snap.probes = [first: 6]
+        snap.interrupted = last
+        snap.warmupSec = 240
+        snap.raisedSteps = [first: 1]
+        store.saveWorkoutSnapshot(snap)
+
+        let relaunched = makeStore()
+        XCTAssertTrue(relaunched.settleAbandonedWorkout())
+        let record = try XCTUnwrap(relaunched.records.first)
+        XCTAssertEqual(record.interrupted, last, "the movement the workout was cut short on")
+        XCTAssertEqual(record.probes, [first: 6], "the number the probe showed")
+        XCTAssertEqual(record.raisedSteps, [first: 1], "the steps added for next time")
+        XCTAssertEqual(record.warmupSec, 240, "the warm-up as it ran")
+    }
+
     func testAFreshSnapshotIsLeftAloneToBeResumed() {
         let store = makeStore()
         store.saveWorkoutSnapshot(atFeedback(for: store, savedAt: .now))
