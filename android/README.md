@@ -390,7 +390,7 @@ iOS ships three home-screen families and three lock-screen accessories.
 | --- | --- |
 | small: kicker, the day's status | 2×2 and up (`TodayFamily.SMALL`, 110×110 dp) |
 | medium: kicker, total steps, status, the week strip | 4 columns and ≥ 140 dp tall (`MEDIUM`, 250×140) — the default, 4×2 |
-| large: kicker, status, the next plan line, the plan list, the week line | 4×4 and up (`LARGE`, 250×320) |
+| large: kicker, status, the next plan line, the plan list, the week line | 4×4 and up (`LARGE`, 250×340) |
 | accessoryCircular, Rectangular, Inline | none |
 
 - **One widget, not three.** The Android picker offers one entry per
@@ -399,8 +399,11 @@ iOS ships three home-screen families and three lock-screen accessories.
   gives the widget, so a resize needs no app process. The default is the
   medium: at the size a widget is most often given, it shows the most of
   what iOS shows.
-- **Breakpoints.** They follow what each layout needs. A 4×3 stays a medium,
-  because six plan rows do not fit it.
+- **Breakpoints.** They follow what each layout needs. The large's six plan
+  rows, headline and week line take about 312 dp at the default font size;
+  the threshold leaves room for a larger one. Text is in sp, so it follows
+  the person's font size, where iOS's home-screen sizes are fixed points: at
+  the largest font sizes the last row can be cut.
 - **No lock-screen twin.** Android has no accessory families. Android 16's
   lock-screen widgets are the same home-screen widget in a hub the system
   shows while charging or docked
@@ -443,10 +446,18 @@ the store stays free of a locale. The rest days are still the store's.
 - Never from a frozen journal.
 
 **Where.** In `noBackupFilesDir`: the file is derived from the state file, and
-a restored phone must not show a day that is not its own.
+a restored phone must not show a day that is not its own. It is synced
+before the rename, as the state file is.
 
 `WidgetCenter.publish` drops a snapshot equal to the last one: most writes (a
-plan shown, a setting) change nothing the widget shows.
+plan shown, a setting) change nothing the widget shows. A fresh process's
+first snapshot is compared with the file, so a cold start redraws nothing
+that is already on the home screen.
+
+**No widget service.** TV, Automotive and some ARC builds lack
+`android.software.app_widgets`, and `AppWidgetManager.getInstance` returns
+null there. Nothing is written or drawn, as iOS degrades on a nil App Group
+URL.
 
 ### Midnight
 
@@ -492,7 +503,9 @@ session, and a broadcast redraws the rest.
   pairs. From Android 12 the launcher picks by the SYSTEM's mode, never by the
   in-app Appearance. The Settings caption "Widgets and the Lock Screen keep
   following the system." is therefore shown, as on iOS. Increased contrast
-  (Android 14+) takes the second column and is read at each draw. On Android
+  (Android 14+) takes the second column; it is read at each draw, and a
+  change redraws the widget while the process lives (it is not a
+  configuration change, so DredfitApp listens for it). On Android
   10–11 Glance resolves day/night itself when it draws: a live process
   redraws on the change (`DredfitApp.onConfigurationChanged`); a dead one
   shows the new mode at the next draw.
@@ -515,6 +528,10 @@ session, and a broadcast redraws the rest.
 - **No wakeups.** No periodic update, and the midnight alarm is non-wakeup.
 - **A redraw only when the snapshot changes,** plus one at midnight. Each
   redraw is one short WorkManager job (Glance's session).
-- **Permissions.** None added. Glance brings WorkManager 2.7.1 and DataStore.
-  WorkManager declares `ACCESS_NETWORK_STATE` for work that waits on a
-  network. Glance's work never does, so the manifest removes it.
+- **WorkManager starts on demand.** Glance runs its sessions on WorkManager
+  2.7.1. Its startup initializer would open its database in every process,
+  including for the many who never place the widget. The manifest removes
+  the initializer, and DredfitApp is its `Configuration.Provider`.
+- **Permissions.** None added. WorkManager declares `ACCESS_NETWORK_STATE`
+  for work that waits on a network. Glance's work never does, so the
+  manifest removes it.
