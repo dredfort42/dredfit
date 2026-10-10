@@ -102,8 +102,11 @@ class AppStoreTestWidgetSnapshot : AppStoreTestCase() {
 
         assertEquals(store.nextSession.exercises.size, snap.plan.size)
         assertEquals(store.nextSession.exercises.first().name, snap.plan.first().name)
-        assertEquals(Words.display(store.nextSession.exercises.first()), snap.plan.first().detail,
+        assertEquals(store.nextSession.exercises.map { it.name }, snap.plan.map { it.name })
+        assertEquals(store.nextSession.exercises.map { Words.display(it) }, snap.plan.map { it.detail },
                      "the widget cannot format loads itself — they arrive as the parts of the app's own words")
+        assertTrue(snap.plan.any { it.unit == com.dredfit.core.LoadUnit.hold },
+                   "the fixture's plan must carry a hold, or the unit's journey goes unchecked")
         assertFalse(snap.plan.any { it.head.isEmpty() })
     }
 
