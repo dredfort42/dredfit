@@ -19,17 +19,21 @@
 //
 //  What Glance cannot draw the way SwiftUI does, and what stands in:
 //  circles and rings are tinted shape drawables (res/drawable/widget_*.xml);
-//  "heavy"/"semibold" are Glance's Bold/Medium (it has three weights);
-//  `minimumScaleFactor` and head truncation do not exist in RemoteViews, so a
-//  long line ends in an ellipsis; no kerning; no tabular figures.
+//  "heavy"/"semibold" are Bold/Medium (Glance has three weights); the lines
+//  iOS shrinks before it truncates — the headline, a plan row's name (whose
+//  HEAD goes, I-12), the week line — are TextViews of our own with uniform
+//  autosize (`FittedLine`), because Glance's Text has no such knob. The rest
+//  end in an ellipsis. No kerning; no tabular figures.
 //
 
 package com.dredfit.widgets
 
 import android.app.UiModeManager
+import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import android.widget.RemoteViews
 import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -38,13 +42,16 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.toArgb
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.AndroidRemoteViews
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
@@ -53,7 +60,7 @@ import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
-import androidx.glance.color.ColorProvider
+import androidx.glance.color.DayNightColorProvider
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -65,6 +72,7 @@ import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
+import androidx.glance.layout.wrapContentHeight
 import androidx.glance.semantics.semantics
 import androidx.glance.semantics.testTag
 import androidx.glance.state.GlanceStateDefinition
@@ -168,14 +176,14 @@ class WidgetColors(highContrast: Boolean) {
     private val day = Palette.of(dark = false, highContrast = highContrast)
     private val night = Palette.of(dark = true, highContrast = highContrast)
 
-    val bg: ColorProvider = ColorProvider(day.bg, night.bg)
-    val ink: ColorProvider = ColorProvider(day.ink, night.ink)
-    val ink2: ColorProvider = ColorProvider(day.ink2, night.ink2)
-    val hairline: ColorProvider = ColorProvider(day.hairline, night.hairline)
-    val restFill: ColorProvider = ColorProvider(day.restFill, night.restFill)
-    val accent: ColorProvider = ColorProvider(day.accent, night.accent)
+    val bg = DayNightColorProvider(day.bg, night.bg)
+    val ink = DayNightColorProvider(day.ink, night.ink)
+    val ink2 = DayNightColorProvider(day.ink2, night.ink2)
+    val hairline = DayNightColorProvider(day.hairline, night.hairline)
+    val restFill = DayNightColorProvider(day.restFill, night.restFill)
+    val accent = DayNightColorProvider(day.accent, night.accent)
     /** iOS's `Theme.planned`, an alias of ink3 — a graphics tone. */
-    val planned: ColorProvider = ColorProvider(day.ink3, night.ink3)
+    val planned = DayNightColorProvider(day.ink3, night.ink3)
 
     companion object {
         /** Android 14's contrast setting — iOS's Increased Contrast. */
@@ -210,7 +218,7 @@ fun TodayStatusContent(entry: TodayEntry, family: TodayFamily, colors: WidgetCol
             TodayFamily.small -> Column(GlanceModifier.fillMaxSize()) {
                 Kicker(say, locale, colors)
                 Spacer(GlanceModifier.defaultWeight())
-                StatusBlock(view, 20.sp, say, colors)
+                StatusBlock(view, R.layout.widget_text_headline_small, say, colors)
             }
             TodayFamily.medium -> Column(GlanceModifier.fillMaxSize()) {
                 Row(GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
@@ -219,7 +227,7 @@ fun TodayStatusContent(entry: TodayEntry, family: TodayFamily, colors: WidgetCol
                     TotalSteps(view, say, colors)
                 }
                 Spacer(GlanceModifier.defaultWeight())
-                StatusBlock(view, 22.sp, say, colors)
+                StatusBlock(view, R.layout.widget_text_headline, say, colors)
                 Spacer(GlanceModifier.defaultWeight())
                 Hairline(colors)
                 Spacer(GlanceModifier.height(10.dp))
@@ -228,7 +236,7 @@ fun TodayStatusContent(entry: TodayEntry, family: TodayFamily, colors: WidgetCol
             TodayFamily.large -> Column(GlanceModifier.fillMaxSize()) {
                 Kicker(say, locale, colors)
                 Spacer(GlanceModifier.height(10.dp))
-                StatusBlock(view, 22.sp, say, colors)
+                StatusBlock(view, R.layout.widget_text_headline, say, colors)
                 view.nextPlanText(locale)?.let {
                     Spacer(GlanceModifier.height(12.dp))
                     Line(say(it), 11.sp, FontWeight.Medium, colors.ink2, "widget-next")
@@ -238,7 +246,9 @@ fun TodayStatusContent(entry: TodayEntry, family: TodayFamily, colors: WidgetCol
                     PlanList(entry, say, colors)
                 }
                 Spacer(GlanceModifier.defaultWeight())
-                view.weekSummary?.let { Line(say(it), 11.5.sp, FontWeight.Normal, colors.ink2, "widget-week") }
+                view.weekSummary?.let {
+                    FittedLine(say(it), R.layout.widget_text_week, colors.ink2, "widget-week", GlanceModifier.fillMaxWidth())
+                }
             }
         }
     }
@@ -251,19 +261,46 @@ private fun Line(text: String, size: TextUnit, weight: FontWeight, color: ColorP
          style = TextStyle(color = color, fontSize = size, fontWeight = weight), maxLines = 1)
 }
 
+/**
+ * A line that shrinks before it truncates — SwiftUI's `minimumScaleFactor`,
+ * which Glance's `Text` cannot say: a TextView of our own with uniform
+ * autosize, its size range and its ellipsis in `layout`
+ * (res/layout/widget_text_*.xml), sized by the launcher at whatever size the
+ * widget has. Its colour is the day/night pair, handed to the launcher from
+ * Android 12 as Glance does for its own text. Give it a width (fill or a
+ * weight): autosize in a wrap-content frame measures nothing and draws "…".
+ * Its height is said outright: a frame filled across and left unsaid is
+ * filled down too, and takes the space a weighted spacer above it was for.
+ */
+@Composable
+private fun FittedLine(text: String, layout: Int, color: DayNightColorProvider, tag: String,
+                       modifier: GlanceModifier = GlanceModifier) {
+    val context = LocalContext.current
+    val views = RemoteViews(context.packageName, layout).apply {
+        setTextViewText(R.id.widget_text, text)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            setColorInt(R.id.widget_text, "setTextColor", color.day.toArgb(), color.night.toArgb())
+        } else {
+            setTextColor(R.id.widget_text, color.getColor(context).toArgb())
+        }
+    }
+    AndroidRemoteViews(views, modifier.wrapContentHeight().semantics { testTag = tag })
+}
+
 @Composable
 private fun Kicker(say: (Words) -> String, locale: Locale, colors: WidgetColors) {
     Line(say(Words.of("Today")).uppercase(locale), 11.sp, FontWeight.Medium, colors.ink2, "widget-kicker")
 }
 
 @Composable
-private fun StatusBlock(view: TodayStatusView, size: TextUnit, say: (Words) -> String, colors: WidgetColors) {
-    Column {
+private fun StatusBlock(view: TodayStatusView, headline: Int, say: (Words) -> String, colors: WidgetColors) {
+    Column(GlanceModifier.fillMaxWidth()) {
         if (view.marksWorkout) {
             Mark(R.drawable.widget_dot, colors.accent, 10, "widget-dot")
             Spacer(GlanceModifier.height(6.dp))
         }
-        Line(say(view.headline), size, FontWeight.Bold, if (view.restful) colors.ink2 else colors.ink, "widget-headline")
+        FittedLine(say(view.headline), headline, if (view.restful) colors.ink2 else colors.ink, "widget-headline",
+                   GlanceModifier.fillMaxWidth())
     }
 }
 
@@ -333,8 +370,8 @@ private fun PlanList(entry: TodayEntry, say: (Words) -> String, colors: WidgetCo
                     // The name takes what the dose leaves: one line each, or a
                     // long dose would grow every row of a list that already
                     // fills the widget.
-                    Line(say(row.title), 13.5.sp, FontWeight.Normal, colors.ink, "widget-plan-name",
-                         GlanceModifier.defaultWeight())
+                    FittedLine(say(row.title), R.layout.widget_text_plan_name, colors.ink, "widget-plan-name",
+                               GlanceModifier.defaultWeight())
                     Spacer(GlanceModifier.width(8.dp))
                     Line(say(row.detail), 13.sp, FontWeight.Medium, colors.ink2, "widget-plan-detail")
                 }
@@ -358,13 +395,14 @@ class TodayStatusWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val center = (context.applicationContext as DredfitApp).widgets
         center.prepare()
-        val colors = WidgetColors(WidgetColors.highContrast(context))
         val open = MainActivity.openToday(context)
         provideContent {
             // Collected, not read once: a session outlives the update that
-            // started it, and a write or a midnight inside it must redraw it.
+            // started it, and a write, a midnight or a new language inside it
+            // must redraw it — the contrast and the words are read again then.
             val feed by center.feed.collectAsState()
-            Draw(context.resources, TodayProvider.entry(feed.snapshot, feed.today), colors, open)
+            Draw(context.resources, TodayProvider.entry(feed.snapshot, feed.today),
+                 WidgetColors(WidgetColors.highContrast(context)), open)
         }
     }
 
@@ -395,11 +433,20 @@ class TodayStatusWidgetReceiver : GlanceAppWidgetReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == WidgetCenter.ACTION_MIDNIGHT) {
             // The same snapshot, for the day it is now; the next midnight
-            // is booked by the redraw.
+            // is booked by the redraw (`onUpdate`).
             (context.applicationContext as DredfitApp).widgets.refresh()
             return
         }
         super.onReceive(context, intent)
+    }
+
+    /** Every way the system draws the widget — placed, after a boot or an
+     *  update, the app's own redraw, a new system language — books the next
+     *  midnight: a widget placed after the app's last write would otherwise
+     *  wait for the next one to learn that days pass. */
+    override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
+        (context.applicationContext as DredfitApp).widgets.bookMidnight()
     }
 
     override fun onDisabled(context: Context) {

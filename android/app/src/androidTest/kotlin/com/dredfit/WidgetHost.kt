@@ -69,7 +69,6 @@ class WidgetHost : AutoCloseable {
     fun place(size: DpSize, night: Boolean = false, top: Int = 0): AppWidgetHostView {
         val id = host.allocateAppWidgetId()
         ids += id
-        assertTrue("the shell's grantbind must let the suite bind", manager.bindAppWidgetIdIfAllowed(id, provider))
         lateinit var view: AppWidgetHostView
         val density = app.resources.displayMetrics.density
         val config = Configuration(app.resources.configuration).apply {
@@ -78,12 +77,18 @@ class WidgetHost : AutoCloseable {
         }
         scenario.onActivity { activity ->
             view = host.createView(activity.createConfigurationContext(config), id, info)
-            view.updateAppWidgetSize(Bundle(), listOf(SizeF(size.width.value, size.height.value)))
             // Rounded up: a layout a pixel short of the size reads as the
             // next family down.
             screen.addView(view, FrameLayout.LayoutParams(ceil(size.width.value * density).toInt(),
                                                           ceil(size.height.value * density).toInt()).apply { topMargin = top })
         }
+        // Bound only once laid out, as on a launcher: a host view picks among
+        // the responsive layouts by its laid-out size, and an update that
+        // lands before its first layout stays on the smallest (no re-pick).
+        instrumentation.waitForIdleSync()
+        assertTrue("the shell's grantbind must let the suite bind", manager.bindAppWidgetIdIfAllowed(id, provider))
+        // What a launcher tells the provider; an unbound id refuses it.
+        scenario.onActivity { view.updateAppWidgetSize(Bundle(), listOf(SizeF(size.width.value, size.height.value))) }
         return view
     }
 

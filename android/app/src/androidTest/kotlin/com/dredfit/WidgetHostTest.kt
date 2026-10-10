@@ -8,7 +8,9 @@
 
 package com.dredfit
 
+import android.app.LocaleManager
 import android.content.Intent
+import android.os.LocaleList
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
@@ -16,6 +18,7 @@ import androidx.test.runner.lifecycle.Stage
 import com.dredfit.core.FeedbackResult
 import com.dredfit.store.AppStore
 import com.dredfit.store.nextSession
+import com.dredfit.store.swiftWeekday
 import com.dredfit.ui.Observed
 import com.dredfit.ui.tr
 import com.dredfit.widgets.TodayProvider
@@ -46,12 +49,14 @@ class WidgetHostTest {
 
     /** A fresh install past onboarding with no rest days (the suite must not
      *  depend on the weekday it runs on), loaded — its launch publishes. */
-    private fun cleanStore(): Observed<AppStore> {
+    private fun cleanStore(restWeekdays: Set<Int> = emptySet(), seed: (AppStore) -> Unit = {}): Observed<AppStore> {
         app.resetForTests({ instrumentation.runOnMainSync(it) }) { path ->
             Files.deleteIfExists(path)
-            AppStore(path).update {
-                it.copy(settings = it.settings.copy(onboardingCompleted = true, restWeekdays = emptySet()))
+            val store = AppStore(path)
+            store.update {
+                it.copy(settings = it.settings.copy(onboardingCompleted = true, restWeekdays = restWeekdays))
             }
+            seed(store)
         }
         val loaded = CountDownLatch(1)
         var store: Observed<AppStore>? = null
@@ -103,6 +108,37 @@ class WidgetHostTest {
         host.awaitText(large, app.resources.tr(first.title, widget = true))
         host.awaitText(large, app.resources.tr(first.detail, widget = true))
         assertFalse("the small has no plan", app.resources.tr(first.title, widget = true) in host.texts(small))
+    }
+
+    /** The lines that shrink before they truncate are TextViews of their own
+     *  (`FittedLine`): their words, read off the inflated widget — and a
+     *  per-app language changed under a placed widget redraws it, though no
+     *  broadcast says so (DredfitApp.onConfigurationChanged). */
+    @Test
+    fun aRestDaySaysItsWordsInEnglishThenInRussian() {
+        val today = java.time.LocalDate.now()
+        cleanStore(restWeekdays = setOf(swiftWeekday(today.dayOfWeek))) { store ->
+            // Rest is rest FROM something: a workout yesterday makes today's
+            // marked weekday a rest day rather than the first workout.
+            store.completeWorkout(session = store.nextSession, result = FeedbackResult.plan,
+                                  date = today.minusDays(1).atTime(18, 0).atZone(ZoneId.systemDefault()).toInstant())
+        }
+        val large = host.place(WidgetHost.LARGE)
+        host.awaitText(large, "Rest day")
+        host.awaitText(large, "Next: Workout 2 · tomorrow")
+        assertTrue(host.texts(large).toString(), host.texts(large).any { it.startsWith("This week · ") })
+        val first = checkNotNull(app.widgets.feed.value.snapshot).plan.first()
+        host.awaitText(large, app.resources.tr(first.title, widget = true))
+
+        val locales = app.getSystemService(LocaleManager::class.java)
+        try {
+            instrumentation.runOnMainSync { locales.applicationLocales = LocaleList.forLanguageTags("ru") }
+            host.awaitText(large, "День отдыха")
+            host.awaitText(large, "Следующая: тренировка 2 · завтра")
+            assertTrue(host.texts(large).toString(), host.texts(large).any { it.startsWith("Эта неделя · ") })
+        } finally {
+            instrumentation.runOnMainSync { locales.applicationLocales = LocaleList.forLanguageTags("en") }
+        }
     }
 
     // MARK: - Midnight
@@ -159,11 +195,15 @@ class WidgetHostTest {
      *  equal to the last one is not written (or drawn) again. */
     @Test
     fun theFileHoldsTheNewestSnapshotAndAnEqualOneIsNotWrittenAgain() {
-        val store = cleanStore()
         val file = File(app.noBackupFilesDir, WidgetSnapshot.FILE_NAME)
-        awaitFile(file)
+        val store = cleanStore()
         val published = checkNotNull(app.widgets.feed.value.snapshot)
-        assertEquals(published, WidgetSnapshot.decode(file.readText()))
+        // Read until it is this launch's: the file outlives a test, and a
+        // previous one may have left it (equal, or not yet replaced).
+        fun fileSaysIt() = file.exists() && WidgetSnapshot.decode(file.readText()) == published
+        val end = System.currentTimeMillis() + 10_000
+        while (!fileSaysIt() && System.currentTimeMillis() < end) Thread.sleep(100)
+        assertTrue("the file holds the launch's snapshot", fileSaysIt())
 
         assertTrue(file.delete())
         app.widgets.publish(published)

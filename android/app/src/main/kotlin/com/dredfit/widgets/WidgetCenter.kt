@@ -60,8 +60,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 class WidgetCenter(private val app: Context, private val disk: Executor) : WidgetPublishing {
 
     /** `read`: whether `snapshot` is this process's word on it — published
-     *  here, or read from the file — rather than the unread start. */
-    data class Feed(val snapshot: WidgetSnapshot?, val today: LocalDate, val read: Boolean)
+     *  here, or read from the file — rather than the unread start.
+     *  `redraws` counts the refreshes, so a live session redraws even when
+     *  the day did not change (a new language, contrast or zone). */
+    data class Feed(val snapshot: WidgetSnapshot?, val today: LocalDate, val read: Boolean, val redraws: Int = 0)
 
     private val feedState = MutableStateFlow(Feed(snapshot = null, today = LocalDate.now(), read = false))
     val feed: StateFlow<Feed> get() = feedState
@@ -77,7 +79,7 @@ class WidgetCenter(private val app: Context, private val disk: Executor) : Widge
         CoroutineExceptionHandler { _, e -> Log.w(TAG, "widget preview failed", e) })
 
     override fun publish(snapshot: WidgetSnapshot) {
-        val before = feedState.getAndUpdate { Feed(snapshot, LocalDate.now(), read = true) }
+        val before = feedState.getAndUpdate { it.copy(snapshot = snapshot, today = LocalDate.now(), read = true) }
         if (before.read && before.snapshot == snapshot) return
         val bytes = snapshot.encode().toByteArray(Charsets.UTF_8)
         disk.execute {
@@ -95,28 +97,28 @@ class WidgetCenter(private val app: Context, private val disk: Executor) : Widge
     fun prepare() {
         if (!feedState.value.read) {
             val stored = read()
-            feedState.update { if (it.read) it else Feed(stored, it.today, read = true) }
+            feedState.update { if (it.read) it else it.copy(snapshot = stored, read = true) }
         }
         feedState.update { it.copy(today = LocalDate.now()) }
     }
 
-    /** A new day on the wall — midnight, a clock or a zone change: the same
-     *  snapshot, drawn for the day it is now. On the caller's thread, so a
-     *  receiver has booked the redraw before it returns. */
+    /** A new day on the wall — midnight, a clock or a zone change — or a new
+     *  language: the same snapshot, drawn for the day and the words of now.
+     *  On the caller's thread, so a receiver has sent the redraw before it
+     *  returns. */
     fun refresh() {
-        feedState.update { it.copy(today = LocalDate.now()) }
+        feedState.update { it.copy(today = LocalDate.now(), redraws = it.redraws + 1) }
         redraw()
     }
 
-    /** Every placed widget redrawn, and the next midnight booked — or
-     *  unbooked when no widget is left. */
+    /** Every placed widget redrawn — the receiver's update then books the
+     *  next midnight — or the midnight unbooked when no widget is left. */
     private fun redraw() {
         val ids = AppWidgetManager.getInstance(app).getAppWidgetIds(receiver)
         if (ids.isEmpty()) return cancelMidnight()
         app.sendBroadcast(Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
                               .setComponent(receiver)
                               .putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids))
-        bookMidnight()
     }
 
     fun bookMidnight() {
