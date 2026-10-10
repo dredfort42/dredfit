@@ -137,16 +137,17 @@ class TodayStatusView(val entry: TodayEntry) {
 // MARK: - Sizes
 
 /** iOS's home-screen families, by the size Glance draws for. The
- *  breakpoints are what each layout needs: the medium's week strip under its
- *  headline wants about 140 dp of height, the large's plan list a tall
- *  four-column widget. */
+ *  breakpoints are what each layout needs: the small two cells square, the
+ *  medium's week strip under its headline about 140 dp of height across four
+ *  columns, the large's plan list a four-by-four (a 4×3 is still a medium:
+ *  six plan rows would not fit it). */
 enum class TodayFamily {
     small, medium, large;
 
     companion object {
         val SMALL = DpSize(110.dp, 110.dp)
         val MEDIUM = DpSize(250.dp, 140.dp)
-        val LARGE = DpSize(250.dp, 280.dp)
+        val LARGE = DpSize(250.dp, 320.dp)
         val sizes: Set<DpSize> = setOf(SMALL, MEDIUM, LARGE)
 
         fun of(size: DpSize): TodayFamily = when {
@@ -321,17 +322,22 @@ private fun Mark(drawable: Int, color: ColorProvider, sizeDp: Int, tag: String) 
 
 @Composable
 private fun PlanList(entry: TodayEntry, say: (Words) -> String, colors: WidgetColors) {
+    // A Glance column holds at most ten children, so each row carries the
+    // hairline above it rather than standing beside it.
     Column(GlanceModifier.fillMaxWidth().semantics { testTag = "widget-plan" }) {
         entry.plan.forEachIndexed { index, row ->
-            if (index > 0) Hairline(colors)
-            Row(GlanceModifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                // The name takes what the dose leaves: one line each, or a
-                // long dose would grow every row of a list that already
-                // fills the widget.
-                Line(say(row.title), 13.5.sp, FontWeight.Normal, colors.ink, "widget-plan-name",
-                     GlanceModifier.defaultWeight())
-                Spacer(GlanceModifier.width(8.dp))
-                Line(say(row.detail), 13.sp, FontWeight.Medium, colors.ink2, "widget-plan-detail")
+            Column(GlanceModifier.fillMaxWidth()) {
+                if (index > 0) Hairline(colors)
+                Row(GlanceModifier.fillMaxWidth().padding(vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    // The name takes what the dose leaves: one line each, or a
+                    // long dose would grow every row of a list that already
+                    // fills the widget.
+                    Line(say(row.title), 13.5.sp, FontWeight.Normal, colors.ink, "widget-plan-name",
+                         GlanceModifier.defaultWeight())
+                    Spacer(GlanceModifier.width(8.dp))
+                    Line(say(row.detail), 13.sp, FontWeight.Medium, colors.ink2, "widget-plan-detail")
+                }
             }
         }
     }

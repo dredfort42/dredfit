@@ -12,6 +12,8 @@ package com.dredfit
 import com.dredfit.core.Pattern
 import com.dredfit.reminders.NotificationScheduling
 import com.dredfit.store.AppStore
+import com.dredfit.widgets.WidgetPublishing
+import com.dredfit.widgets.WidgetSnapshot
 import org.junit.jupiter.api.Assumptions.assumeFalse
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
@@ -32,8 +34,19 @@ abstract class AppStoreTestCase {
     val tempPath: Path get() = tempDir.resolve("dredfit-test.json")
 
     fun makeStore(path: Path = tempPath, clock: Clock? = null,
-                  notifications: NotificationScheduling = NotificationScheduling.none): AppStore =
-        AppStore(path, clock, notifications = notifications)
+                  notifications: NotificationScheduling = NotificationScheduling.none,
+                  widgets: WidgetPublishing = WidgetPublishing.none): AppStore =
+        AppStore(path, clock, notifications = notifications, widgets = widgets)
+
+    /** What the store handed the widget, in order — iOS's temp
+     *  `widgetSnapshotURL`, read back after each write. */
+    class WidgetRecorder : WidgetPublishing {
+        val published = mutableListOf<WidgetSnapshot>()
+        val last: WidgetSnapshot get() = published.last()
+        override fun publish(snapshot: WidgetSnapshot) {
+            published += snapshot
+        }
+    }
 
     /** A fixed hour-10 instant on the given day, in the system zone. */
     fun date(y: Int, m: Int, d: Int, zone: ZoneId = ZoneId.systemDefault()): Instant =

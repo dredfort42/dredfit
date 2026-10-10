@@ -131,6 +131,9 @@ tasks.withType<Test>().configureEach {
     ).withPropertyName("scannedSources").withPathSensitivity(PathSensitivity.RELATIVE)
     // ReminderTriggerTest reads the manifest's receivers in place.
     inputs.file("src/main/AndroidManifest.xml").withPropertyName("manifest").withPathSensitivity(PathSensitivity.RELATIVE)
+    // WidgetPreviewTest reads the picker preview's colours in place.
+    inputs.files("src/main/res/values/widget_preview_colors.xml", "src/main/res/values-night/widget_preview_colors.xml")
+        .withPropertyName("widgetPreviewColors").withPathSensitivity(PathSensitivity.RELATIVE)
     testLogging {
         events("failed")
         exceptionFormat = TestExceptionFormat.FULL
