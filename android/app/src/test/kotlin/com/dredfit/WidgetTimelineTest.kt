@@ -259,6 +259,8 @@ class WidgetTimelineTest {
         assertEquals("This week · 3 workouts · +6 steps", up?.english)
         val down = TodayStatusView(entry(DayStatus.rest, summary = WidgetSnapshot.Week(1, -2))).weekSummary
         assertEquals("This week · 1 workouts · -2 steps", down?.english)
+        val flat = TodayStatusView(entry(DayStatus.rest, summary = WidgetSnapshot.Week(0, 0))).weekSummary
+        assertEquals("This week · 0 workouts · +0 steps", flat?.english, "a flat week is +0, as on iOS")
         assertNull(TodayStatusView(entry(DayStatus.rest)).weekSummary, "no tally, no line")
     }
 

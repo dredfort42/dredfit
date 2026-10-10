@@ -178,6 +178,24 @@ class AppStoreTestWidgetSnapshot : AppStoreTestCase() {
         assertEquals(2, days.getValue(wednesday).sessionNumber, "today's workout carries its number")
     }
 
+    /** Rest is rest FROM something: a fresh install whose onboarding ended on
+     *  a marked weekday is offered the plan on Today, and the widget must not
+     *  tell that person "Rest day" — only today; the marked weekdays still
+     *  rest everywhere else in the grid. */
+    @Test
+    fun aFreshInstallOnAMarkedWeekdayIsOfferedTheWorkout() {
+        val wednesday = LocalDate.of(2026, 10, 7)
+        val clock = Clock.fixed(wednesday.atTime(10, 0).atZone(zone).toInstant(), zone)
+        val widget = WidgetRecorder()
+        val store = makeStore(clock = clock, widgets = widget)
+        store.update { it.copy(settings = it.settings.copy(restWeekdays = setOf(swiftWeekday(DayOfWeek.WEDNESDAY)))) }
+
+        val days = widget.last.days.associateBy { it.date }
+        assertEquals(DayStatus.workout, days.getValue(wednesday).status)
+        assertEquals(1, days.getValue(wednesday).sessionNumber)
+        assertEquals(DayStatus.rest, days.getValue(wednesday.plusDays(7)).status, "next Wednesday still rests")
+    }
+
     /** iOS's init refreshes the snapshot: a widget placed before the app is
      *  next opened still has the launch's state. */
     @Test
