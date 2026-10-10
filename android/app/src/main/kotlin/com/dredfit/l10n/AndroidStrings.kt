@@ -19,7 +19,9 @@ internal object AndroidStrings {
     }
 
     private fun stringKeys(): Array<String> = arrayOf(
+        "For the reminder to arrive on time, let Dredfit run without battery restrictions.",
         "Open notification settings",
+        "Open phone settings",
         "Rate on Google Play",
         "The tones play even when the phone is set to silent or vibrate.",
         "When the phone is set to silent or vibrate, the tones go quiet — the vibration keeps going.",
@@ -27,7 +29,9 @@ internal object AndroidStrings {
     )
 
     private fun stringIds(): IntArray = intArrayOf(
+        R.string.android_for_the_reminder_to_arrive_on_time_let_d_8f240831,
         R.string.android_open_notification_settings_9e8653ce,
+        R.string.android_open_phone_settings_3e3acb55,
         R.string.android_rate_on_google_play_1b86d374,
         R.string.android_the_tones_play_even_when_the_phone_is_se_2f936e1b,
         R.string.android_when_the_phone_is_set_to_silent_or_vibra_a20ca2f7,

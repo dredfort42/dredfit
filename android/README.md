@@ -303,6 +303,58 @@ The rebuild is idempotent: it removes every id and adds the window again.
 A Force stop in the system settings also clears the alarms. The next open of
 the app draws them again.
 
+### Samsung holds the reminder back
+
+Checked on the owner's Galaxy A16 (SM-A165F, Android 16) on 10.10.2026:
+
+- **The app is frozen.** About two minutes after Dredfit leaves the screen,
+  Samsung's app freezer (Freecess) freezes it. Logcat:
+  `FreecessController: FZ : com.dredfit.dredfit … reason: LEV`.
+- **The alarm waits for the screen.** The reminder's alarm is then deferred
+  ("Deferring alarm … due to freecess"). It is sent only when the screen is
+  woken (`UFZ … CancelPolicy`, "Sending alarms blocked by MARsFreecess"). A
+  19:25 reminder arrived at 19:35, the moment the screen was turned on.
+- **Unrestricted fixes it.** With Dredfit set to "Unrestricted" in its
+  battery settings, `dumpsys deviceidle whitelist` lists
+  `User,com.dredfit.dredfit`. Nothing was frozen, and a 19:48 reminder fired
+  at 19:53 with the screen off.
+
+So Settings shows a line under the reminder (owner decision, 10.10.2026):
+"For the reminder to arrive on time, let Dredfit run without battery
+restrictions." A row under it, "Open phone settings", leads to the place to
+change it. Both show only when all three hold (`reminders/BatteryHint.kt`):
+
+- the reminder is on;
+- `PowerManager.isIgnoringBatteryOptimizations` is false for the app;
+- `Build.MANUFACTURER` is Samsung.
+
+How the hint behaves:
+
+- **Not on stock Android.** Doze lets `setAndAllowWhileIdle` through (above),
+  so a Pixel shows nothing.
+- **No other make, yet.** [dontkillmyapp.com](https://dontkillmyapp.com/)
+  ranks Huawei, Xiaomi and OnePlus worse than Samsung, and OPPO, vivo and
+  realme lower down. No phone of theirs was checked. Their own switches may
+  not be what `isIgnoringBatteryOptimizations` reads: Xiaomi's page there
+  names Autostart, the app's battery saver and a lock in Recents. On such a
+  phone the hint could stay after the person did what it asks. Each make
+  waits for a phone of that make.
+- **Where the row goes.** `ACTION_APPLICATION_DETAILS_SETTINGS` opens the
+  app's own page in the phone's settings. On the A16 that page's Battery row
+  holds Unrestricted. On the API 37 emulator the page opens, and its "App
+  battery usage" row leads to "Allow background usage". No public intent
+  opens the battery row itself.
+  - `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` asks in a dialog, but Play
+    restricts it, and it is not used.
+  - `ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS` opens a list of every app
+    on the phone (API 37 emulator), Dredfit to be found in it. It is only the
+    fallback.
+  - **Not checked on a Samsung:** that the intent lands on that page under
+    One UI on Android 16. The owner found the setting there by hand.
+- **When it goes.** Settings reads the exemption again on every resume. A
+  person who comes back from the phone's settings with Unrestricted set no
+  longer sees the line (`ReminderBatteryHintTest`).
+
 ### The permission
 
 iOS asks on the switch, and so does Android. Turning the reminder on IS the
@@ -375,6 +427,9 @@ workout in flight where it is.
 Nothing to declare for the reminder. It adds no exact-alarm permission. The
 only new permission, `RECEIVE_BOOT_COMPLETED`, is a normal one, and
 `POST_NOTIFICATIONS` was already declared for the ongoing notification.
+
+The battery hint adds nothing either: it reads the exemption and opens a
+settings page, and `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` is not declared.
 
 ## The home-screen widget
 

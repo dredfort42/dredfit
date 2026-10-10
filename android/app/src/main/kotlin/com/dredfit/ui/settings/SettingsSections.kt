@@ -7,6 +7,10 @@
 //  (ACTION_APP_NOTIFICATION_SETTINGS), where iOS's leads to iOS Settings —
 //  hence an Android key for its row.
 //
+//  Android only: the battery hint under the reminder (reminders/BatteryHint.kt
+//  says why and on which phones), with its row to the app's page in the
+//  phone's settings.
+//
 //  Said differently on Android (owner decisions, 09.10.2026), from the
 //  Android-only catalog android/app/Localizable.xcstrings: both captions of
 //  "Play tones in Silent mode" — iOS's name the iPhone's ringer SWITCH and
@@ -23,6 +27,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
 import android.text.format.DateFormat
 import androidx.compose.material3.AlertDialog
@@ -32,10 +38,15 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.dredfit.reminders.BatteryHint
 import com.dredfit.store.forgetReminderRefusal
 import com.dredfit.store.setReminderEnabled
 import com.dredfit.store.setReminderTime
 import com.dredfit.ui.theme.BellGlyph
+import com.dredfit.ui.theme.GearGlyph
 import com.dredfit.ui.theme.MinTarget
 import java.util.Date
 import java.util.Locale
@@ -153,7 +164,8 @@ fun RhythmSection(observedStore: Observed<AppStore>) {
  * time row with it, and the note names the state. On iOS the bounce is the
  * only evidence the view gets; here the store keeps it (`reminderRefused`),
  * because an import asks too, from another group of the screen. Like the
- * view's state on iOS, it goes with the screen.
+ * view's state on iOS, it goes with the screen. Android adds the battery
+ * hint, on a phone that holds the reminder back (BatteryHint).
  */
 @Composable
 private fun ReminderField(observedStore: Observed<AppStore>) {
@@ -184,6 +196,17 @@ private fun ReminderField(observedStore: Observed<AppStore>) {
                 Text(time, style = dredfitFont(15f, Weight.medium), color = c.ink,
                      modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(c.restFill)
                          .padding(horizontal = 10.dp, vertical = 5.dp))
+            }
+        }
+        val unrestricted = ignoringBatteryOptimizations()
+        if (BatteryHint.shows(store.settings.reminderEnabled, unrestricted,
+                              BatteryHint.manufacturerForTests ?: Build.MANUFACTURER)) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                SettingsCaption(tr("For the reminder to arrive on time, let Dredfit run without battery restrictions."),
+                                Modifier.testTag("reminder-battery"))
+                SettingsRow({ GearGlyph(c.ink, 16.dp) }, tr("Open phone settings"), tag = "reminder-battery-settings") {
+                    openAppDetails(context)
+                }
             }
         }
         if (store.reminderRefused) {
@@ -265,6 +288,44 @@ private fun openNotificationSettings(context: Context) {
                                          Uri.fromParts("package", context.packageName, null)))
         } catch (_: ActivityNotFoundException) {
             // A phone with no settings screen to open: the note still says why.
+        }
+    }
+}
+
+/** Whether the phone lets Dredfit run without battery restrictions. Read
+ *  again on every resume: the person comes back from the phone's settings,
+ *  and the hint goes once it is fixed. */
+@Composable
+private fun ignoringBatteryOptimizations(): Boolean {
+    val context = LocalContext.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val read = { context.getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(context.packageName) }
+    var ignoring by remember { mutableStateOf(read()) }
+    DisposableEffect(lifecycle) {
+        val watcher = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) ignoring = read()
+        }
+        lifecycle.addObserver(watcher)
+        onDispose { lifecycle.removeObserver(watcher) }
+    }
+    return ignoring
+}
+
+/** The app's own page in the phone's settings: on a Samsung its Battery row
+ *  holds Unrestricted (stock: "App battery usage"). No public intent opens
+ *  that row itself — the one that asks in a dialog,
+ *  ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, is restricted by Play — and
+ *  ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS opens a list of every app on
+ *  the phone to find Dredfit in, so it is only the fallback. */
+private fun openAppDetails(context: Context) {
+    try {
+        context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                     Uri.fromParts("package", context.packageName, null)))
+    } catch (_: ActivityNotFoundException) {
+        try {
+            context.startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+        } catch (_: ActivityNotFoundException) {
+            // A phone with no settings screen to open: the line still says what to change.
         }
     }
 }

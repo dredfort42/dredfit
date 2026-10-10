@@ -31,8 +31,9 @@ app/src/
 │   │                and SystemNotificationScheduler (inexact alarms allowed
 │   │                in Doze, the channel, the permission), ReminderSoundFile
 │   │                (the generated WAV, the channel ids), ReminderReceiver
-│   │                (posts; rebuilds on boot / clock / zone / update) —
-│   │                android/README.md says why each
+│   │                (posts; rebuilds on boot / clock / zone / update),
+│   │                BatteryHint (when Settings asks a Samsung for
+│   │                Unrestricted, plain Kotlin) — android/README.md says why each
 │   │   signals/     CountdownSounds and the device half of WorkoutSignals —
 │   │                synthesised, no media files
 │   │   ongoing/     the ongoing-workout notification (the Live Activity's

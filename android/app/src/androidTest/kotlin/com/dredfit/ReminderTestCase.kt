@@ -12,6 +12,9 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.dredfit.reminders.ReminderReceiver
 import com.dredfit.reminders.ReminderScheduler
 import com.dredfit.reminders.SystemNotificationScheduler
@@ -74,6 +77,15 @@ abstract class ReminderTestCase : OngoingTestCase() {
         return (0 until ReminderScheduler.WINDOW_DAYS).count {
             LocalDate.now(zone).plusDays(it.toLong()).atTime(hour, minute).atZone(zone).isAfter(now)
         }
+    }
+
+    /** One tap, no confirm-by-gone loop: under the system's dialog, or with
+     *  the phone's settings on top, there is no screen to read. */
+    protected fun tapOnce(tag: String) {
+        await(tag)
+        val node = compose.onAllNodesWithTag(tag)[0]
+        runCatching { node.performScrollTo() }
+        node.performClick()
     }
 
     /** Runs `change` on the store, on the main thread, as a tap does. */
