@@ -216,7 +216,9 @@ class WidgetTimelineTest {
     @Test
     fun workoutDayWordsCarryThePlanNotALabel() {
         val rows = listOf(WidgetSnapshot.PlanRow("Push-up", "3×12", LoadUnit.reps, perSide = false))
-        val view = TodayStatusView(entry(DayStatus.workout, sessionNumber = 12, planSession = 12, plan = rows))
+        // A next date given anyway (the store never writes one on a workout
+        // day): the view's own rule still says nothing.
+        val view = TodayStatusView(entry(DayStatus.workout, sessionNumber = 12, next = 4, planSession = 12, plan = rows))
         assertNull(view.nextPlanText(Locale.ENGLISH), "a planned day IS the workout — no next label")
         assertTrue(view.marksWorkout)
     }
