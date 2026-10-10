@@ -339,6 +339,9 @@ How the hint behaves:
   names Autostart, the app's battery saver and a lock in Recents. On such a
   phone the hint could stay after the person did what it asks. Each make
   waits for a phone of that make.
+- **Samsung below Android 16 is not checked.** The app runs from Android 10.
+  Whether an older One UI's battery page sets the same exemption was not
+  checked.
 - **Where the row goes.** `ACTION_APPLICATION_DETAILS_SETTINGS` opens the
   app's own page in the phone's settings. On the A16 that page's Battery row
   holds Unrestricted. On the API 37 emulator the page opens, and its "App

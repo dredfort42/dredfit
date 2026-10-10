@@ -19,7 +19,9 @@
 //  there names Autostart, the app's battery saver and a lock in Recents —
 //  none of them the standard exemption. A hint whose condition the phone's
 //  own switch does not clear would stay after the person did what it asks,
-//  so each make waits for a phone of that make.
+//  so each make waits for a phone of that make. Samsung itself was checked
+//  only on Android 16: whether an older One UI's battery page sets the same
+//  exemption was not (minSdk is 29).
 //
 //  Plain Kotlin, so the rule runs in a JVM test (BatteryHintTest). Settings
 //  reads the phone and re-reads the exemption on every resume

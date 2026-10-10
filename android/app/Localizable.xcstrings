@@ -7,37 +7,37 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Damit die Erinnerung pünktlich kommt, lass Dredfit den Akku ohne Einschränkungen nutzen."
+            "value": "Damit die Erinnerung pünktlich kommt, lass Dredfit ohne Akku-Einschränkungen laufen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Para que el recordatorio llegue a tiempo, deja que Dredfit use la batería sin restricciones."
+            "value": "Para que el recordatorio llegue a tiempo, deja que Dredfit funcione sin restricciones de batería."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pour que le rappel arrive à l’heure, laisse Dredfit utiliser la batterie sans restriction."
+            "value": "Pour que le rappel arrive à l’heure, laisse Dredfit fonctionner sans restriction de batterie."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Perché il promemoria arrivi in orario, lascia che Dredfit usi la batteria senza limitazioni."
+            "value": "Perché il promemoria arrivi in orario, lascia funzionare Dredfit senza limitazioni della batteria."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Para o lembrete chegar na hora, deixe o Dredfit usar a bateria sem restrições."
+            "value": "Para o lembrete chegar na hora, deixe o Dredfit funcionar sem restrições de bateria."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Чтобы напоминание приходило вовремя, разреши Dredfit расходовать батарею без ограничений."
+            "value": "Чтобы напоминание приходило вовремя, сними с Dredfit ограничения по батарее."
           }
         }
       }
