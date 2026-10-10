@@ -79,6 +79,9 @@ dependencies {
     // (09.10.2026, android/README.md); it adds no permission. Nothing else
     // from Play Core or Play services is declared here.
     implementation(libs.play.review)
+    // The home-screen widget (widgets/), iOS's DredfitWidgets: Glance draws
+    // RemoteViews from composables. AndroidX on Google Maven, no network.
+    implementation(libs.androidx.glance.appwidget)
 
     // The JUnit 5 flavour by name: AGP does not pick kotlin-test's variant
     // from the test framework the way the plain JVM plugin does.
@@ -100,6 +103,11 @@ dependencies {
     // Stubs the system pickers (export/import) and the share sheet, so a
     // test can see the intent go out without a picker it cannot drive.
     androidTestImplementation(libs.androidx.test.espresso.intents)
+    // The widget's composables per state (`runGlanceAppWidgetUnitTest`), on
+    // the device: its environment calls android.os.Bundle and Log, which the
+    // JVM unit tests' stub android.jar throws on, and the words need the
+    // real resources to be read in en and ru.
+    androidTestImplementation(libs.androidx.glance.appwidget.testing)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 

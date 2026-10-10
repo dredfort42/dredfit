@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The home-screen widget (widgets/TodayStatusWidget.kt): ONE resizable
+     widget for iOS's small, medium and large (android/README.md says why).
+     - Default 4×2, the medium: it shows the most of the iOS families at the
+       size a widget is most often given (targetCell*, Android 12+; minWidth
+       and minHeight say the same to Android 10–11).
+     - Down to 2×2, the small (minResize*); up to anything, the large from a
+       tall four-column one. The layouts are drawn up front (responsive), so
+       a resize needs no app process.
+     - No periodic update (0): the app redraws after every change and at the
+       next local midnight (widgets/WidgetCenter.kt) — a timer would wake the
+       phone to draw the same snapshot.
+     - Home screen only. Android 16's lock-screen hub takes home-screen widgets
+       by default; nothing here opts out (`not_keyguard`), and a tap there
+       asks for the unlock first, because MainActivity is not shown when
+       locked. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widgets_workout_done_or_rest_day_at_a_glance_0213893e"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:minWidth="250dp"
+    android:minHeight="110dp"
+    android:minResizeWidth="110dp"
+    android:minResizeHeight="110dp"
+    android:previewLayout="@layout/widget_preview"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen" />

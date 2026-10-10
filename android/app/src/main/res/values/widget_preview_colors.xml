@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The picker preview's palette (layout/widget_preview.xml), which the
+     launcher inflates without app code, so it cannot read ui/theme. The
+     light column of `Palette` (Theme.kt); WidgetPreviewTest holds the two
+     together. -->
+<resources>
+    <color name="widget_preview_bg">#FFFFFFFF</color>
+    <color name="widget_preview_ink">#FF111214</color>
+    <color name="widget_preview_ink2">#FF6E7075</color>
+    <color name="widget_preview_accent">#FFE8590C</color>
+</resources>

@@ -5,7 +5,9 @@
 //  alarm loses — every alarm on a reboot, the wall time on a zone change —
 //  `ReminderRescheduleReceiver` rebuilds from the store, exactly as the app
 //  does on every return (`rescheduleReminders`): idempotent, so a second
-//  broadcast, or one with the reminder off, changes nothing.
+//  broadcast, or one with the reminder off, changes nothing. The home-screen
+//  widget rides the same broadcasts (widgets/WidgetCenter.kt): its snapshot
+//  and its midnight are lost or moved by the same events.
 //
 
 package com.dredfit.reminders
@@ -15,6 +17,7 @@ import android.content.Context
 import android.content.Intent
 import com.dredfit.DredfitApp
 import com.dredfit.store.rescheduleReminders
+import com.dredfit.widgets.refreshWidgetSnapshot
 import java.time.Instant
 import java.time.ZoneId
 import java.util.TimeZone
@@ -69,7 +72,14 @@ class ReminderRescheduleReceiver : BroadcastReceiver() {
         // The store loads off the main thread (DredfitApp); the rebuild runs
         // once it is here, and the broadcast ends once the alarms are set.
         app.withStore { store ->
-            store.act { rescheduleReminders() }
+            store.act {
+                rescheduleReminders()
+                // The widget loses the same things: its snapshot was written
+                // in the old zone or by the old build, and its midnight alarm
+                // is an instant that a reboot drops and a new wall moves.
+                refreshWidgetSnapshot()
+            }
+            app.widgets.refresh()
             app.reminders.afterPending { pending.finish() }
         }
     }

@@ -73,13 +73,19 @@ fun tr(words: Words): String {
  * the system draws long after any screen. The same lookups, resolved
  * against `resources` (the app's, in its current language) instead of the
  * composition's configuration.
+ *
+ * `widget`: the home-screen widget's words, which iOS's extension reads from
+ * ITS catalog first — a key both catalogs carry is not always translated
+ * alike ("steps" in ru is «ступеней» on the widget, «ступени» in the app).
  */
-fun Resources.tr(words: Words): String {
-    val args = words.args.map { if (it is Words) tr(it) else it }
+fun Resources.tr(words: Words, widget: Boolean = false): String {
+    val args = words.args.map { if (it is Words) tr(it, widget) else it }
     if (words.isNarrowList) return NarrowList.join(args.map { it.toString() }, configuration.locales[0])
     val key = words.key ?: return Words(null, words.format, args).english
-    pluralId(key)?.let { return getQuantityString(it, pluralCount(args) ?: 0, *args.toTypedArray()) }
-    stringId(key)?.let { return getString(it, *args.toTypedArray()) }
+    val plural = (if (widget) WidgetStrings.plural(key) else null) ?: pluralId(key)
+    plural?.let { return getQuantityString(it, pluralCount(args) ?: 0, *args.toTypedArray()) }
+    val string = (if (widget) WidgetStrings.string(key) else null) ?: stringId(key)
+    string?.let { return getString(it, *args.toTypedArray()) }
     return Words(null, words.format, args).english
 }
 
