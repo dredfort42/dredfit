@@ -29,11 +29,16 @@ import com.dredfit.ui.FlowHolder
 import com.dredfit.ui.Observed
 import com.dredfit.ui.workout.ReviewPrompt
 import com.dredfit.widgets.WidgetCenter
+import androidx.work.Configuration as WorkConfiguration
 import java.nio.file.Path
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class DredfitApp : Application() {
+class DredfitApp : Application(), WorkConfiguration.Provider {
+
+    /** WorkManager, on demand (AndroidManifest.xml removes its startup
+     *  initializer): only a widget's draw needs it. */
+    override fun getWorkManagerConfiguration(): WorkConfiguration = WorkConfiguration.Builder().build()
 
     /** Every read and write of the state file, in order. */
     private val disk: ExecutorService = Executors.newSingleThreadExecutor { Thread(it, "dredfit-disk") }

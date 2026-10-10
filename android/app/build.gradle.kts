@@ -82,6 +82,10 @@ dependencies {
     // The home-screen widget (widgets/), iOS's DredfitWidgets: Glance draws
     // RemoteViews from composables. AndroidX on Google Maven, no network.
     implementation(libs.androidx.glance.appwidget)
+    // Glance's sessions run on WorkManager. Named here because DredfitApp is
+    // its Configuration.Provider: started on demand (the first widget draw),
+    // not by androidx.startup in every process (AndroidManifest.xml).
+    implementation(libs.androidx.work.runtime)
 
     // The JUnit 5 flavour by name: AGP does not pick kotlin-test's variant
     // from the test framework the way the plain JVM plugin does.

@@ -94,6 +94,20 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/today_status_widget" />
         </receiver>
+        <!-- WorkManager (under Glance's widget sessions) starts on demand —
+             DredfitApp is its Configuration.Provider — rather than opening its
+             database in every process at startup, for the many who never
+             place the widget. -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
         <!-- Hands the share card to the share sheet as content://, read-only
              and only for the duration of the share (FLAG_GRANT_READ_URI);
              and the reminder's sound to its notification channel. -->
