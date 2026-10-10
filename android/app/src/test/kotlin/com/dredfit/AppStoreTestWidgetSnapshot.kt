@@ -115,9 +115,13 @@ class AppStoreTestWidgetSnapshot : AppStoreTestCase() {
      *  entry speaks from its own day. */
     @Test
     fun widgetSnapshotLabelsSpeakFromTheirOwnDay() {
+        // On a Wednesday, so the window holds a rest day the write day's
+        // "next" cannot also call tomorrow (next Thursday). On the real clock,
+        // as the Swift twin runs, a Sunday leaves only Monday, and a label
+        // taken from the write day passes there (skeptic finding, 10.10.2026).
+        val today = LocalDate.of(2026, 10, 7)
         val widget = WidgetRecorder()
-        val store = makeStore(widgets = widget)
-        val today = LocalDate.now(zone)
+        val store = makeStore(clock = Clock.fixed(today.atTime(10, 0).atZone(zone).toInstant(), zone), widgets = widget)
         // Exactly one rest day, and it is tomorrow: the dates below are read
         // off a calendar this test owns, not off the shipped default.
         val tomorrowWeekday = swiftWeekday(today.plusDays(1).dayOfWeek)
@@ -125,6 +129,8 @@ class AppStoreTestWidgetSnapshot : AppStoreTestCase() {
         store.completeWorkout(session = store.nextSession, result = FeedbackResult.plan)
 
         val snap = widget.last
+        assertEquals(2, snap.days.count { it.status == DayStatus.rest && it.date > today },
+                     "this Thursday and the next")
         val tomorrow = Words.of("tomorrow")
         fun label(day: WidgetSnapshot.Day) =
             day.nextDate?.let { NextTrainingDateLabel.words(it, day.date, Locale.ENGLISH) }

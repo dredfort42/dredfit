@@ -23,7 +23,9 @@
 //  iOS shrinks before it truncates — the headline, a plan row's name (whose
 //  HEAD goes, I-12), the week line — are TextViews of our own with uniform
 //  autosize (`FittedLine`), because Glance's Text has no such knob. The rest
-//  end in an ellipsis. No kerning; no tabular figures.
+//  end in an ellipsis — the medium's step count among them (iOS shrinks it to
+//  0.8; four columns leave a 22 sp number and its word room in every
+//  language). No kerning; no tabular figures.
 //
 
 package com.dredfit.widgets
@@ -147,15 +149,16 @@ class TodayStatusView(val entry: TodayEntry) {
 /** iOS's home-screen families, by the size Glance draws for. The
  *  breakpoints are what each layout needs: the small two cells square, the
  *  medium's week strip under its headline about 140 dp of height across four
- *  columns, the large's plan list a four-by-four (a 4×3 is still a medium:
- *  six plan rows would not fit it). */
+ *  columns, the large's plan list a four-by-four — six rows, the week line
+ *  and the headline take about 312 dp at the default font size (measured on
+ *  the emulator), and the margin above it is for a larger one. */
 enum class TodayFamily {
     small, medium, large;
 
     companion object {
         val SMALL = DpSize(110.dp, 110.dp)
         val MEDIUM = DpSize(250.dp, 140.dp)
-        val LARGE = DpSize(250.dp, 320.dp)
+        val LARGE = DpSize(250.dp, 340.dp)
         val sizes: Set<DpSize> = setOf(SMALL, MEDIUM, LARGE)
 
         fun of(size: DpSize): TodayFamily = when {

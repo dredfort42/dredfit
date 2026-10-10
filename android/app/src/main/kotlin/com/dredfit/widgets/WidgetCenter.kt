@@ -13,17 +13,23 @@
 //    it redraws whatever session is alive.
 //  - The FILE (`noBackupFilesDir`) is for a process that has not published
 //    yet: a widget the system redraws after a reboot, an update or a process
-//    death, before the store has loaded. Written whole, through a rename.
+//    death, before the store has loaded. Written whole, synced, through a
+//    rename.
 //  - The REDRAW of widgets with no live session goes through the receiver's
 //    own update broadcast, which holds the process with `goAsync` for as long
 //    as Glance needs; a coroutine of the app's would be frozen with a cached
 //    process. Skipped when nothing the widget shows changed: most writes
-//    (a plan shown, a setting) leave the snapshot as it was.
+//    (a plan shown, a setting) leave the snapshot as it was, and a fresh
+//    process's first write usually says what the file already says.
 //  - MIDNIGHT is an inexact, non-wakeup alarm (`setWindow`, RTC) at the next
 //    local midnight, booked while a widget exists: it wakes nothing, and a
 //    phone asleep at midnight redraws when it next wakes — the moment the
 //    widget can be seen again. A clock or zone change re-books it
 //    (ReminderReceiver.kt's broadcasts).
+//  - A device with no widget service (`android.software.app_widgets` absent:
+//    TV, Automotive, some ARC builds) has `AppWidgetManager.getInstance` =
+//    null. Nothing is written or drawn there, as iOS's `snapshotURL` nil
+//    degrades rather than unwraps.
 //
 
 package com.dredfit.widgets
@@ -48,6 +54,7 @@ import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
@@ -57,7 +64,12 @@ import java.time.ZoneId
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
 
-class WidgetCenter(private val app: Context, private val disk: Executor) : WidgetPublishing {
+class WidgetCenter(
+    private val app: Context,
+    private val disk: Executor,
+    /** The day on the wall — a test's own, to see the drawn day move. */
+    private val today: () -> LocalDate = LocalDate::now,
+) : WidgetPublishing {
 
     /** `read`: whether `snapshot` is this process's word on it — published
      *  here, or read from the file — rather than the unread start.
@@ -65,29 +77,37 @@ class WidgetCenter(private val app: Context, private val disk: Executor) : Widge
      *  the day did not change (a new language, contrast or zone). */
     data class Feed(val snapshot: WidgetSnapshot?, val today: LocalDate, val read: Boolean, val redraws: Int = 0)
 
-    private val feedState = MutableStateFlow(Feed(snapshot = null, today = LocalDate.now(), read = false))
+    private val feedState = MutableStateFlow(Feed(snapshot = null, today = today(), read = false))
     val feed: StateFlow<Feed> get() = feedState
 
     private val file: File get() = File(app.noBackupFilesDir, WidgetSnapshot.FILE_NAME)
 
     private val receiver: ComponentName get() = ComponentName(app, TodayStatusWidgetReceiver::class.java)
 
-    /** Once per process, on the first snapshot it publishes (Android 15+). */
+    /** Null where the system has no widget service (see the header). */
+    private val manager: AppWidgetManager? by lazy { AppWidgetManager.getInstance(app) }
+
+    /** Once per process, on the first snapshot that changes anything
+     *  (Android 15+). */
     private val previewSet = AtomicBoolean(false)
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default +
         CoroutineExceptionHandler { _, e -> Log.w(TAG, "widget preview failed", e) })
 
     override fun publish(snapshot: WidgetSnapshot) {
-        val before = feedState.getAndUpdate { it.copy(snapshot = snapshot, today = LocalDate.now(), read = true) }
+        val before = feedState.getAndUpdate { it.copy(snapshot = snapshot, today = today(), read = true) }
+        if (manager == null) return
         if (before.read && before.snapshot == snapshot) return
         val bytes = snapshot.encode().toByteArray(Charsets.UTF_8)
         disk.execute {
+            // A fresh process's first word is mostly the file's again — the
+            // widget already shows it, so neither a write nor a redraw.
+            if (!before.read && read() == snapshot) return@execute
             write(bytes)
             redraw()
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && previewSet.compareAndSet(false, true)) {
-            scope.launch { setPreview() }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && previewSet.compareAndSet(false, true)) {
+                scope.launch { setPreview() }
+            }
         }
     }
 
@@ -99,22 +119,22 @@ class WidgetCenter(private val app: Context, private val disk: Executor) : Widge
             val stored = read()
             feedState.update { if (it.read) it else it.copy(snapshot = stored, read = true) }
         }
-        feedState.update { it.copy(today = LocalDate.now()) }
+        feedState.update { it.copy(today = today()) }
     }
 
     /** A new day on the wall — midnight, a clock or a zone change — or a new
-     *  language: the same snapshot, drawn for the day and the words of now.
-     *  On the caller's thread, so a receiver has sent the redraw before it
-     *  returns. */
+     *  language or contrast: the same snapshot, drawn for the day and the
+     *  words of now. On the caller's thread, so a receiver has sent the
+     *  redraw before it returns. */
     fun refresh() {
-        feedState.update { it.copy(today = LocalDate.now(), redraws = it.redraws + 1) }
+        feedState.update { it.copy(today = today(), redraws = it.redraws + 1) }
         redraw()
     }
 
     /** Every placed widget redrawn — the receiver's update then books the
      *  next midnight — or the midnight unbooked when no widget is left. */
     private fun redraw() {
-        val ids = AppWidgetManager.getInstance(app).getAppWidgetIds(receiver)
+        val ids = manager?.getAppWidgetIds(receiver) ?: return
         if (ids.isEmpty()) return cancelMidnight()
         app.sendBroadcast(Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
                               .setComponent(receiver)
@@ -136,16 +156,20 @@ class WidgetCenter(private val app: Context, private val disk: Executor) : Widge
         PendingIntent.getBroadcast(app, 0, Intent(app, TodayStatusWidgetReceiver::class.java).setAction(ACTION_MIDNIGHT),
                                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
-    /** On `disk`, in the order the snapshots were published. */
+    /** On `disk`, in the order the snapshots were published. Synced before
+     *  the rename, as the state file is: a power cut must not leave an empty
+     *  file under the old name's place. */
     private fun write(bytes: ByteArray) {
         try {
-            val target = file.toPath()
-            val temp = File(app.noBackupFilesDir, "${WidgetSnapshot.FILE_NAME}.tmp").toPath()
-            Files.write(temp, bytes)
-            Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
+            val temp = File(app.noBackupFilesDir, "${WidgetSnapshot.FILE_NAME}.tmp")
+            FileOutputStream(temp).use { out ->
+                out.write(bytes)
+                out.fd.sync()
+            }
+            Files.move(temp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
         } catch (e: IOException) {
             // The feed already has it: only a process started later reads the
-            // file, and it would draw the previous day's snapshot.
+            // file, and it would draw the previous snapshot.
             Log.w(TAG, "widget snapshot not written", e)
         }
     }
@@ -158,7 +182,7 @@ class WidgetCenter(private val app: Context, private val disk: Executor) : Widge
     }
 
     /** The picker's preview is the person's own day, as iOS's gallery shows
-     *  it — set once per process because the system allows about two a
+     *  it — set once per process because the system allows about two an
      *  hour; a refused one leaves the previous preview standing. */
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private suspend fun setPreview() {

@@ -11,6 +11,8 @@ package com.dredfit
 import android.app.LocaleManager
 import android.content.Intent
 import android.os.LocaleList
+import androidx.lifecycle.Lifecycle
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
@@ -180,10 +182,22 @@ class WidgetHostTest {
         val widget = host.place(WidgetHost.SMALL)
         host.awaitText(widget, "Workout 1")
         val before = ZoneId.systemDefault().id
-        val far = if (before == "Pacific/Kiritimati") "Pacific/Pago_Pago" else "Pacific/Kiritimati"
+        // One of the two ends of the clock is always on another date: the
+        // snapshot written on the old wall then names the wrong today.
+        val far = listOf("Pacific/Kiritimati", "Pacific/Pago_Pago").first {
+            java.time.LocalDate.now(ZoneId.of(it)) != java.time.LocalDate.now(ZoneId.of(before))
+        }
         try {
             WidgetHost.shell("cmd alarm set-timezone $far")
             awaitMidnightAlarm(TodayProvider.nextMidnight(Instant.now(), ZoneId.of(far)).toEpochMilli())
+            // And the snapshot is the store's again, on the new wall: today's
+            // workout carries its number on the date it is THERE, not on the
+            // date the old zone had (`refreshWidgetSnapshot` in the receiver).
+            val there = java.time.LocalDate.now(ZoneId.of(far))
+            val end = System.currentTimeMillis() + 15_000
+            fun numbered() = app.widgets.feed.value.snapshot?.days?.firstOrNull { it.date == there }?.sessionNumber
+            while (numbered() != 1 && System.currentTimeMillis() < end) Thread.sleep(200)
+            assertEquals("today's number on the new wall", 1, numbered())
         } finally {
             WidgetHost.shell("cmd alarm set-timezone $before")
         }
@@ -249,6 +263,34 @@ class WidgetHostTest {
         awaitFile(file)
         assertEquals(WidgetSnapshot.DayStatus.done,
                      WidgetSnapshot.decode(file.readText())?.days?.first { it.date == java.time.LocalDate.now() }?.status)
+    }
+
+    /** Leaving the app is iOS's `.background`: the widget is handed the day
+     *  the app showed, even with no write since — the case of a midnight
+     *  passed with the app open, which moves the day without a write. */
+    @Test
+    fun leavingTheAppHandsTheWidgetTheStoresDay() {
+        val store = cleanStore()
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            instrumentation.waitForIdleSync()
+            Thread.sleep(1_000)   // Today drawn, its plan written down
+            val tomorrow = java.time.LocalDate.now().plusDays(1)
+            fun tomorrowsStatus() = app.widgets.feed.value.snapshot?.days?.firstOrNull { it.date == tomorrow }?.status
+            // A change the widget is not told about, standing in for a day
+            // that moved under an open app.
+            instrumentation.runOnMainSync {
+                store.act {
+                    update(refreshWidget = false) {
+                        it.copy(settings = it.settings.copy(restWeekdays = setOf(swiftWeekday(tomorrow.dayOfWeek))))
+                    }
+                }
+            }
+            assertEquals(WidgetSnapshot.DayStatus.workout, tomorrowsStatus())
+            scenario.moveToState(Lifecycle.State.CREATED)
+            val end = System.currentTimeMillis() + 10_000
+            while (tomorrowsStatus() != WidgetSnapshot.DayStatus.rest && System.currentTimeMillis() < end) Thread.sleep(100)
+            assertEquals("the widget leaves with the store's day", WidgetSnapshot.DayStatus.rest, tomorrowsStatus())
+        }
     }
 
     // MARK: - The tap

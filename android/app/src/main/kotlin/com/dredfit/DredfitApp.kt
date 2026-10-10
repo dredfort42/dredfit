@@ -17,6 +17,7 @@
 package com.dredfit
 
 import android.app.Application
+import android.app.UiModeManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.LocaleList
@@ -74,6 +75,14 @@ class DredfitApp : Application() {
     override fun onCreate() {
         super.onCreate()
         drawnFor = drawnFor(resources.configuration)
+        // Android 14's contrast is no configuration change (RootScreen
+        // listens the same way): a raised level redraws the widget in the
+        // palette's second column while the process lives; a dead one draws
+        // it at the next draw.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            getSystemService(UiModeManager::class.java)
+                ?.addContrastChangeListener(mainExecutor) { widgets.refresh() }
+        }
     }
 
     /**

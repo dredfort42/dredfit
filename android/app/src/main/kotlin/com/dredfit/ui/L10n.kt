@@ -82,10 +82,14 @@ fun Resources.tr(words: Words, widget: Boolean = false): String {
     val args = words.args.map { if (it is Words) tr(it, widget) else it }
     if (words.isNarrowList) return NarrowList.join(args.map { it.toString() }, configuration.locales[0])
     val key = words.key ?: return Words(null, words.format, args).english
-    val plural = (if (widget) WidgetStrings.plural(key) else null) ?: pluralId(key)
-    plural?.let { return getQuantityString(it, pluralCount(args) ?: 0, *args.toTypedArray()) }
-    val string = (if (widget) WidgetStrings.string(key) else null) ?: stringId(key)
-    string?.let { return getString(it, *args.toTypedArray()) }
+    // The widget's catalog whole before any other: a key that is a plain
+    // string there and a plural in the app's is the widget's string.
+    if (widget) {
+        WidgetStrings.plural(key)?.let { return getQuantityString(it, pluralCount(args) ?: 0, *args.toTypedArray()) }
+        WidgetStrings.string(key)?.let { return getString(it, *args.toTypedArray()) }
+    }
+    pluralId(key)?.let { return getQuantityString(it, pluralCount(args) ?: 0, *args.toTypedArray()) }
+    stringId(key)?.let { return getString(it, *args.toTypedArray()) }
     return Words(null, words.format, args).english
 }
 
