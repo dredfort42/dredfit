@@ -189,6 +189,42 @@ class WidgetHostTest {
         }
     }
 
+    /** A zone an hour or more away on the SAME date leaves the snapshot as it
+     *  was — nothing is published — and midnight must move all the same. */
+    @Test
+    fun aNewZoneOnTheSameDateStillMovesTheMidnight() {
+        cleanStore()
+        val widget = host.place(WidgetHost.SMALL)
+        host.awaitText(widget, "Workout 1")
+        val before = ZoneId.systemDefault()
+        val now = Instant.now()
+        val near = listOf("Europe/Paris", "Atlantic/Azores", "Europe/Moscow", "America/Sao_Paulo", "Asia/Dubai",
+                          "America/New_York", "Asia/Kolkata", "Europe/London")
+            .map(ZoneId::of)
+            .firstOrNull { z -> now.atZone(z).toLocalDate() == now.atZone(before).toLocalDate() &&
+                z.rules.getOffset(now) != before.rules.getOffset(now) }
+        org.junit.Assume.assumeTrue("no zone shares today's date an hour away right now", near != null)
+        try {
+            WidgetHost.shell("cmd alarm set-timezone ${checkNotNull(near).id}")
+            awaitMidnightAlarm(TodayProvider.nextMidnight(Instant.now(), near).toEpochMilli())
+        } finally {
+            WidgetHost.shell("cmd alarm set-timezone ${before.id}")
+        }
+    }
+
+    /** A redraw that finds no widget left takes the midnight down too — the
+     *  backstop for a removal whose broadcast never came. */
+    @Test
+    fun aRedrawWithNoWidgetLeftUnbooksTheMidnight() {
+        val store = cleanStore()
+        app.widgets.bookMidnight()
+        assertTrue("the fixture must book one", midnightAlarm() != null)
+        instrumentation.runOnMainSync { store.act { completeWorkout(session = nextSession, result = FeedbackResult.plan) } }
+        val end = System.currentTimeMillis() + 15_000
+        while (midnightAlarm() != null && System.currentTimeMillis() < end) Thread.sleep(300)
+        assertNull("no widget, no midnight", midnightAlarm())
+    }
+
     // MARK: - The file, and what is not written twice
 
     /** A process that starts for the widget alone reads the file; a snapshot
