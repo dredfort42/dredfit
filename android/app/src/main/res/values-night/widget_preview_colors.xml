@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The dark column of `Palette` (Theme.kt) for the picker preview — the
+     launcher picks it by the system's mode, as it does the widget's own
+     colours. WidgetPreviewTest holds the two together. -->
+<resources>
+    <color name="widget_preview_bg">#FF090A0C</color>
+    <color name="widget_preview_ink">#FFF2F2F4</color>
+    <color name="widget_preview_ink2">#FF98999E</color>
+    <color name="widget_preview_accent">#FFE8590C</color>
+</resources>

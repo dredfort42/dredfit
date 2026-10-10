@@ -44,9 +44,15 @@ app/src/
 │   │   review/      PlayReviewPrompt — Play In-App Review, the one third-party
 │   │                SDK (android/README.md); when to ask is plain Kotlin
 │   │                (`askForReviewIfEarned`, ui/workout/WorkoutFlowView.kt)
-│   │   widgets/     Glance: TodayStatusWidget, TodayProvider, WidgetSnapshot
-│   │                (the two-week snapshot is rewritten after every persisted
-│   │                change; the widget never computes rest days itself)
+│   │   widgets/     the home-screen widget (android/README.md says why each
+│   │                choice): WidgetShared (the snapshot and its file),
+│   │                WidgetBridge (the store builds it after every persisted
+│   │                change — plain Kotlin; the widget never computes rest
+│   │                days itself), TodayProvider (the entry for the day on the
+│   │                wall, the next midnight), TodayStatusWidget (the three
+│   │                sizes in Glance, the receiver), WidgetCenter (the feed a
+│   │                live session collects, the file, the redraw, the midnight
+│   │                alarm)
 │   │   l10n/        CoreStrings, AppStrings, WidgetStrings, AndroidStrings — GENERATED key →
 │   │                resource-id lookups, so code calls `tr("English key")`
 │   │   ui/          theme/ (tokens, dredfitFont, the 44 dp target), RootScreen,
@@ -62,6 +68,9 @@ app/src/
 │                    (Google Play, the phone's sound mode);
                     resource name = <catalog>_<slug of the key, 40>_<sha1[:8]>
 │       drawable/, mipmap-*/
+│       layout/      the widget's autosizing lines (widget_text_*) and the
+│                    picker preview (widget_preview); xml/today_status_widget
+│                    is the provider
 ├── test/kotlin/com/dredfit/         the counterpart of ios/DredfitTests
 └── androidTest/kotlin/com/dredfit/  the counterpart of ios/DredfitUITests
     AccessibilityId.kt   the same names as `enum AX` on iOS — testTag equals

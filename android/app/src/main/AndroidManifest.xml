@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- No INTERNET permission, and none is ever asked for: the app makes no
      network calls and carries no analytics (README.md). -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- The haptic half of every countdown signal (signals/WorkoutSignals.kt):
          in silent mode it is the whole channel. A normal permission, granted
@@ -30,6 +31,13 @@
          permission, granted at install. No exact-alarm permission: the
          reminder is an inexact alarm allowed in Doze (android/README.md). -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- WorkManager (under Glance's widget sessions) declares this for work
+         that waits on a network. Glance's work never does — its only
+         constraint is "charging" — and the app makes no network call, so the
+         permission would only list a capability the app never uses. -->
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE"
+        tools:node="remove" />
 
     <application
         android:name=".DredfitApp"
@@ -69,6 +77,37 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+        <!-- The home-screen widget (widgets/TodayStatusWidget.kt), iOS's
+             DredfitWidgets. Exported: the launcher and AppWidgetService send
+             its updates. LOCALE_CHANGED redraws it in a new system language
+             (Glance's receiver handles it); the midnight alarm reaches it by
+             its explicit component, with no filter. -->
+        <receiver
+            android:name=".widgets.TodayStatusWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widgets_today_s_status_3f920d82">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/today_status_widget" />
+        </receiver>
+        <!-- WorkManager (under Glance's widget sessions) starts on demand —
+             DredfitApp is its Configuration.Provider — rather than opening its
+             database in every process at startup, for the many who never
+             place the widget. -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
         <!-- Hands the share card to the share sheet as content://, read-only
              and only for the duration of the share (FLAG_GRANT_READ_URI);
              and the reminder's sound to its notification channel. -->

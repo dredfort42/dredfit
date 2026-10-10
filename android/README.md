@@ -375,3 +375,163 @@ workout in flight where it is.
 Nothing to declare for the reminder. It adds no exact-alarm permission. The
 only new permission, `RECEIVE_BOOT_COMPLETED`, is a normal one, and
 `POST_NOTIFICATIONS` was already declared for the ongoing notification.
+
+## The home-screen widget
+
+iOS's `DredfitWidgets` is ported to Glance (`app/…/widgets/`). The rules are
+iOS's: the STORE writes a two-week snapshot after every persisted change, and
+the widget only reads it. The widget never computes a rest day.
+
+### Sizes
+
+iOS ships three home-screen families and three lock-screen accessories.
+
+| iOS | Android |
+| --- | --- |
+| small: kicker, the day's status | 2×2 and up (`TodayFamily.SMALL`, 110×110 dp) |
+| medium: kicker, total steps, status, the week strip | 4 columns and ≥ 140 dp tall (`MEDIUM`, 250×140) — the default, 4×2 |
+| large: kicker, status, the next plan line, the plan list, the week line | 4×4 and up (`LARGE`, 250×340) |
+| accessoryCircular, Rectangular, Inline | none |
+
+- **One widget, not three.** The Android picker offers one entry per
+  provider. The widget resizes, and the three layouts are drawn up front
+  (`SizeMode.Responsive`). The launcher picks a layout by the size the person
+  gives the widget, so a resize needs no app process. The default is the
+  medium: at the size a widget is most often given, it shows the most of
+  what iOS shows.
+- **Breakpoints.** They follow what each layout needs. The large's six plan
+  rows, headline and week line take about 312 dp at the default font size;
+  the threshold leaves room for a larger one. Text is in sp, so it follows
+  the person's font size, where iOS's home-screen sizes are fixed points: at
+  the largest font sizes the last row can be cut.
+- **No lock-screen twin.** Android has no accessory families. Android 16's
+  lock-screen widgets are the same home-screen widget in a hub the system
+  shows while charging or docked
+  ([FAQ](https://android-developers.googleblog.com/2025/03/widgets-on-lock-screen-faq.html)).
+  A widget is eligible there unless it opts out with `not_keyguard`. This one
+  does not opt out and draws nothing twice. A tap there asks for the unlock
+  first, because MainActivity is not shown when locked. The accessories'
+  own words have no surface here, so they are not ported: the length range
+  line (`subline`), the spoken range, the glyph and the inline line.
+- **What Glance cannot draw.** Circles and rings are tinted shape drawables.
+  The lines iOS shrinks before it truncates are TextViews of our own with
+  uniform autosize (`FittedLine`, `res/layout/widget_text_*.xml`): the
+  headline, a plan row's name (whose HEAD goes, I-12) and the week line. In
+  ru, "Тренировка 3" fits a 2×2 only shrunk.
+
+### The snapshot
+
+`WidgetBridge.kt` builds it from the store, in plain Kotlin: fourteen days
+from the Monday of the write week. Each day carries:
+
+- its status (workout, done, rest, unmarked);
+- today's session number;
+- from today on, for a day that is not a workout, the next training DATE as
+  seen from that day.
+
+The plan rows carry a name and the parts of a dose. The words are not baked
+in: iOS writes "tomorrow" and "3×12 sec per side" in the app's language at
+write time. Here the widget says them in the language it is drawn in, and
+the store stays free of a locale. The rest days are still the store's.
+
+**When it is written.**
+
+- At launch, and on the journal's second read.
+- After every persisted change except a workout's own snapshots
+  (`update(refreshWidget = false)`), which are some 35 a session and change
+  nothing the widget shows.
+- When the app goes to the background (iOS's `.background`).
+- On the broadcasts that move a day: a zone or clock change, a boot, an app
+  update (the reminder's `ReminderRescheduleReceiver`).
+- Never from a frozen journal.
+
+**Where.** In `noBackupFilesDir`: the file is derived from the state file, and
+a restored phone must not show a day that is not its own. It is synced
+before the rename, as the state file is.
+
+`WidgetCenter.publish` drops a snapshot equal to the last one: most writes (a
+plan shown, a setting) change nothing the widget shows. A fresh process's
+first snapshot is compared with the file, so a cold start redraws nothing
+that is already on the home screen.
+
+**No widget service.** TV, Automotive and some ARC builds lack
+`android.software.app_widgets`, and `AppWidgetManager.getInstance` returns
+null there. Nothing is written or drawn, as iOS degrades on a nil App Group
+URL.
+
+### Midnight
+
+WidgetKit switches to the next day's entry on its own; Android has nothing
+like it. So the snapshot is a timeline (`TodayProvider.entries`), the widget
+draws the entry of the day on the wall, and a redraw is booked at the next
+local midnight.
+
+- **The alarm.** `setWindow(RTC, …)`: inexact and non-wakeup, with the
+  10-minute window Android 12+ grants at least. It wakes nothing. A phone
+  asleep at midnight redraws when it next wakes, which is the moment the
+  widget can be seen again.
+- **When it is booked.** On every draw the system asks for: a placement, a
+  boot, an update, the app's own redraw, a new system language (the
+  receiver's `onUpdate`). It is unbooked when the last widget goes.
+- **A zone or clock change** re-books it on the new wall, through the
+  reminder's receiver.
+- **Two weeks without the app.** The snapshot runs out and the widget signs
+  itself ("Dredfit"), as iOS's `.empty` does.
+
+Weighed and left:
+
+- `updatePeriodMillis`: at least 30 minutes, it wakes the phone, and it
+  ignores midnight.
+- `ACTION_DATE_CHANGED`: a manifest receiver never hears it, because it is
+  not on the list of implicit broadcasts that are exempt.
+- `set()`: an inexact alarm booked at noon may come at eight the next morning
+  (its window is 75 % of the wait).
+- Exact alarms: they need a permission for something no one sees.
+
+### A session outlives its update
+
+Glance keeps a widget's session about 45 s after its first frame and does not
+run `provideGlance` again on an update. A write inside that window — the
+launch's snapshot, then the decay's — would leave the widget on the first
+one. So the session COLLECTS the feed (`WidgetCenter.feed`): the newest
+snapshot, the day on the wall and a redraw count. Any change redraws a live
+session, and a broadcast redraws the rest.
+
+### Theme, language, tap, preview
+
+- **Theme.** The palette's light and dark columns (`ui/theme`), as day/night
+  pairs. From Android 12 the launcher picks by the SYSTEM's mode, never by the
+  in-app Appearance. The Settings caption "Widgets and the Lock Screen keep
+  following the system." is therefore shown, as on iOS. Increased contrast
+  (Android 14+) takes the second column; it is read at each draw, and a
+  change redraws the widget while the process lives (it is not a
+  configuration change, so DredfitApp listens for it). On Android
+  10–11 Glance resolves day/night itself when it draws: a live process
+  redraws on the change (`DredfitApp.onConfigurationChanged`); a dead one
+  shows the new mode at the next draw.
+- **Language.** The widget's own catalog first, as iOS's extension reads its
+  own: "steps" in ru is «ступеней» on the widget and «ступени» in the app.
+  A new system language redraws it (LOCALE_CHANGED, Glance's receiver). So
+  does a per-app language changed while the process lives, which no
+  broadcast announces (`onConfigurationChanged`).
+- **Tap.** Opens Today (`MainActivity.ACTION_OPEN_TODAY`, the reminder's
+  door). A workout in flight stays on top. iOS sets no `widgetURL`, so its
+  tap opens the app wherever it was.
+- **Picker preview.**
+  - Android 15+: the generated preview is the person's own day, set once
+    per process (the system allows about two an hour).
+  - Android 12–14: `previewLayout`, a static small on a workout day.
+  - Android 10–11: the app icon.
+
+### Battery and permissions
+
+- **No wakeups.** No periodic update, and the midnight alarm is non-wakeup.
+- **A redraw only when the snapshot changes,** plus one at midnight. Each
+  redraw is one short WorkManager job (Glance's session).
+- **WorkManager starts on demand.** Glance runs its sessions on WorkManager
+  2.7.1. Its startup initializer would open its database in every process,
+  including for the many who never place the widget. The manifest removes
+  the initializer, and DredfitApp is its `Configuration.Provider`.
+- **Permissions.** None added. WorkManager declares `ACCESS_NETWORK_STATE`
+  for work that waits on a network. Glance's work never does, so the
+  manifest removes it.

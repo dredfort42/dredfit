@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A movement's name in the large widget's plan list: 13.5 sp, shrinking to
+     0.7 of it, and only then losing its HEAD — iOS's I-12: sibling
+     variations differ at the END of the name ("…on a step", "…with pause"),
+     which an end ellipsis would hide and draw two rows as one. -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:autoSizeMaxTextSize="13.5sp"
+    android:autoSizeMinTextSize="9.45sp"
+    android:autoSizeTextType="uniform"
+    android:ellipsize="start"
+    android:maxLines="1"
+    android:textSize="13.5sp" />

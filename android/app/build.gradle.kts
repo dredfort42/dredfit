@@ -79,6 +79,13 @@ dependencies {
     // (09.10.2026, android/README.md); it adds no permission. Nothing else
     // from Play Core or Play services is declared here.
     implementation(libs.play.review)
+    // The home-screen widget (widgets/), iOS's DredfitWidgets: Glance draws
+    // RemoteViews from composables. AndroidX on Google Maven, no network.
+    implementation(libs.androidx.glance.appwidget)
+    // Glance's sessions run on WorkManager. Named here because DredfitApp is
+    // its Configuration.Provider: started on demand (the first widget draw),
+    // not by androidx.startup in every process (AndroidManifest.xml).
+    implementation(libs.androidx.work.runtime)
 
     // The JUnit 5 flavour by name: AGP does not pick kotlin-test's variant
     // from the test framework the way the plain JVM plugin does.
@@ -100,6 +107,11 @@ dependencies {
     // Stubs the system pickers (export/import) and the share sheet, so a
     // test can see the intent go out without a picker it cannot drive.
     androidTestImplementation(libs.androidx.test.espresso.intents)
+    // The widget's composables per state (`runGlanceAppWidgetUnitTest`), on
+    // the device: its environment calls android.os.Bundle and Log, which the
+    // JVM unit tests' stub android.jar throws on, and the words need the
+    // real resources to be read in en and ru.
+    androidTestImplementation(libs.androidx.glance.appwidget.testing)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
@@ -123,6 +135,9 @@ tasks.withType<Test>().configureEach {
     ).withPropertyName("scannedSources").withPathSensitivity(PathSensitivity.RELATIVE)
     // ReminderTriggerTest reads the manifest's receivers in place.
     inputs.file("src/main/AndroidManifest.xml").withPropertyName("manifest").withPathSensitivity(PathSensitivity.RELATIVE)
+    // WidgetPreviewTest reads the picker preview's colours in place.
+    inputs.files("src/main/res/values/widget_preview_colors.xml", "src/main/res/values-night/widget_preview_colors.xml")
+        .withPropertyName("widgetPreviewColors").withPathSensitivity(PathSensitivity.RELATIVE)
     testLogging {
         events("failed")
         exceptionFormat = TestExceptionFormat.FULL

@@ -38,6 +38,7 @@ import com.dredfit.ui.Observed
 import com.dredfit.ui.RootScreen
 import com.dredfit.ui.reanchor
 import com.dredfit.ui.theme.Palette
+import com.dredfit.widgets.refreshWidgetSnapshot
 import java.io.IOException
 
 class MainActivity : ComponentActivity() {
@@ -143,11 +144,21 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         unregisterReceiver(timeChanged)
+        // iOS's `.background`: the widget leaves with what the app showed.
+        store?.act { refreshWidgetSnapshot() }
         super.onStop()
     }
 
     companion object {
-        /** A tapped reminder (reminders/SystemNotificationScheduler.kt). */
+        /** A tapped reminder (reminders/SystemNotificationScheduler.kt) or
+         *  home-screen widget (widgets/TodayStatusWidget.kt). */
         const val ACTION_OPEN_TODAY = "com.dredfit.OPEN_TODAY"
+
+        /** Today, from outside the app: an activity already up gets it in
+         *  `onNewIntent`, closes Settings and selects the tab, and leaves a
+         *  workout in flight where it is — it covers everything. */
+        fun openToday(context: Context): Intent = Intent(context, MainActivity::class.java)
+            .setAction(ACTION_OPEN_TODAY)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
     }
 }

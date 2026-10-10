@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The small widget's headline: 20 sp heavy, shrinking to 0.7 of it before
+     an ellipsis — iOS's `.minimumScaleFactor(0.7)`, which Glance's Text has
+     no way to say ("Тренировка 3" fits a 2×2 only shrunk). A TextView of our
+     own inside the widget (widgets/TodayStatusWidget.kt, `FittedLine`); the
+     launcher sizes it, at any size the person gives the widget. -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:autoSizeMaxTextSize="20sp"
+    android:autoSizeMinTextSize="14sp"
+    android:autoSizeTextType="uniform"
+    android:ellipsize="end"
+    android:maxLines="1"
+    android:textSize="20sp"
+    android:textStyle="bold" />

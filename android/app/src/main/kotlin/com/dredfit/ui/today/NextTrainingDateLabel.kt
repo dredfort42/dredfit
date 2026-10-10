@@ -9,13 +9,14 @@ package com.dredfit.ui.today
 
 import androidx.compose.runtime.Composable
 import com.dredfit.store.AppStore
+import com.dredfit.store.localDay
 import com.dredfit.store.nextTrainingDate
-import com.dredfit.store.sameDay
 import com.dredfit.store.swiftWeekday
 import com.dredfit.ui.currentLocale
 import com.dredfit.ui.tr
 import com.dredfit.workout.Words
 import java.time.Instant
+import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -23,11 +24,16 @@ object NextTrainingDateLabel {
 
     /** Spoken from `from`, not from today: the same date is "tomorrow" one
      *  day before it and a weekday two days before it. */
-    fun words(store: AppStore, from: Instant, locale: Locale): Words {
-        val d = store.nextTrainingDate(from)
-        if (store.sameDay(d, from)) return Words.of("today")
-        if (store.sameDay(d, from.atZone(store.zone).plusDays(1).toInstant())) return Words.of("tomorrow")
-        val day = d.atZone(store.zone).dayOfWeek
+    fun words(store: AppStore, from: Instant, locale: Locale): Words =
+        words(next = localDay(store.nextTrainingDate(from), store.zone), from = localDay(from, store.zone), locale = locale)
+
+    /** The words alone, for a day the store has already found — the widget
+     *  snapshot carries the date, and the widget says it in the language it
+     *  is drawn in. */
+    fun words(next: LocalDate, from: LocalDate, locale: Locale): Words {
+        if (next == from) return Words.of("today")
+        if (next == from.plusDays(1)) return Words.of("tomorrow")
+        val day = next.dayOfWeek
         val weekday = day.getDisplayName(TextStyle.FULL_STANDALONE, locale)
         return when (locale.language) {
             // The formatter only gives the nominative; this needs the accusative.

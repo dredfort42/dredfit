@@ -17,6 +17,10 @@
 package com.dredfit
 
 import android.app.Application
+import android.app.UiModeManager
+import android.content.res.Configuration
+import android.os.Build
+import android.os.LocaleList
 import com.dredfit.ongoing.OngoingNotification
 import com.dredfit.reminders.SystemNotificationScheduler
 import com.dredfit.signals.DeviceSignals
@@ -24,11 +28,17 @@ import com.dredfit.store.AppStore
 import com.dredfit.ui.FlowHolder
 import com.dredfit.ui.Observed
 import com.dredfit.ui.workout.ReviewPrompt
+import com.dredfit.widgets.WidgetCenter
+import androidx.work.Configuration as WorkConfiguration
 import java.nio.file.Path
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class DredfitApp : Application() {
+class DredfitApp : Application(), WorkConfiguration.Provider {
+
+    /** WorkManager, on demand (AndroidManifest.xml removes its startup
+     *  initializer): only a widget's draw needs it. */
+    override fun getWorkManagerConfiguration(): WorkConfiguration = WorkConfiguration.Builder().build()
 
     /** Every read and write of the state file, in order. */
     private val disk: ExecutorService = Executors.newSingleThreadExecutor { Thread(it, "dredfit-disk") }
@@ -55,6 +65,45 @@ class DredfitApp : Application() {
      *  disk thread that builds the store or a receiver on the main one. */
     val reminders by lazy { SystemNotificationScheduler(this) }
 
+    /** The home-screen widget's feed, file and redraws — one per process, as
+     *  every widget session and the store must see the same feed. Its file
+     *  writes share the store's disk thread. */
+    val widgets by lazy { WidgetCenter(this, disk) }
+
+    /** What the widget was last drawn for: the language, and the night mode
+     *  where Glance resolves it itself. */
+    private var drawnFor: Pair<LocaleList, Int>? = null
+
+    private fun drawnFor(config: Configuration): Pair<LocaleList, Int> = config.locales to
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) 0 else config.uiMode and Configuration.UI_MODE_NIGHT_MASK
+
+    override fun onCreate() {
+        super.onCreate()
+        drawnFor = drawnFor(resources.configuration)
+        // Android 14's contrast is no configuration change (RootScreen
+        // listens the same way): a raised level redraws the widget in the
+        // palette's second column while the process lives; a dead one draws
+        // it at the next draw.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            getSystemService(UiModeManager::class.java)
+                ?.addContrastChangeListener(mainExecutor) { widgets.refresh() }
+        }
+    }
+
+    /**
+     * A per-app language changed in the system's settings reaches a live
+     * process here and no broadcast says it, so the widget is redrawn in the
+     * new language — and on Android 10–11, where Glance resolves the day/night
+     * colours when it draws (12+ hands both to the launcher), in the new mode.
+     */
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val now = drawnFor(newConfig)
+        if (now == drawnFor) return
+        drawnFor = now
+        widgets.refresh()
+    }
+
     /** The UI suite's stand-in for Play In-App Review, so a walk sees the
      *  ask the milestone's Done makes instead of sending it to Play. Set
      *  only by androidTest (ReviewAskWalkTest) before the activity opens;
@@ -70,7 +119,8 @@ class DredfitApp : Application() {
         if (loading) return
         loading = true
         disk.execute {
-            val loaded = AppStore(statePath, disk = disk, main = mainExecutor, notifications = reminders)
+            val loaded = AppStore(statePath, disk = disk, main = mainExecutor, notifications = reminders,
+                                  widgets = widgets)
             mainExecutor.execute {
                 val observed = Observed(loaded)
                 // The one subscription: every change the store makes — a
