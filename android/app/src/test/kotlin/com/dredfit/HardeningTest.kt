@@ -4,9 +4,10 @@
 //  where iOS awaits `reminderAuthTask`), plus seven Android-only ones: the
 //  import's other two outcomes, the refusal cleared by a granted ask, the
 //  rebuilds the activation, a rest-day toggle, a time change and a second
-//  read make by themselves, and a settled workout rebuilding from now. `morningWorkoutRemovesTodaysReminder` and
-//  `eveningWorkoutKeepsWindowIntact` run on a pinned clock (the Swift ones
-//  read the real one, and pass vacuously after 20:00).
+//  read make by themselves, and a settled workout rebuilding from now. `morningWorkoutRemovesThatDaysReminder` and
+//  `eveningWorkoutKeepsWindowIntact` run on a pinned clock; the Swift store
+//  has no clock seam, so the Swift twins date the morning workout tomorrow
+//  and rebuild the evening one at its own hour instead.
 //  `testStaleDateArithmetic` is not ported: a notification has no stale
 //  state to dim into — the ongoing notification drops a countdown whose end
 //  has passed instead (OngoingNotificationTest), and goes at the resume
@@ -199,12 +200,12 @@ class HardeningTest : AppStoreTestCase() {
         assertTrue(spy.scheduled.all { local(it.fireAt).hour == 8 && local(it.fireAt).minute == 15 })
     }
 
-    /** The clock is pinned to the morning, where the Swift test reads the
-     *  real one: after 20:00 today's slot is already past, the assertion holds
+    /** The clock is pinned to the morning. On the real clock, after 20:00
+     *  today's slot is already past, the assertion holds
      *  with no rule behind it, and dropping the done-day filter — or the
      *  rebuild after a completion — survived the mutation run (09.10.2026). */
     @Test
-    fun morningWorkoutRemovesTodaysReminder() {
+    fun morningWorkoutRemovesThatDaysReminder() {
         val spy = NotificationSpy()
         val store = makeStore(clock = Clock.fixed(moment(hour = 7), ZoneId.systemDefault()), notifications = spy)
         // Every day trains — no rest-day interference. Read off the current
