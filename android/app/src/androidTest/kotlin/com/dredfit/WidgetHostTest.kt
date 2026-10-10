@@ -217,6 +217,10 @@ class WidgetHostTest {
     @Test
     fun aRedrawWithNoWidgetLeftUnbooksTheMidnight() {
         val store = cleanStore()
+        // The launch's own write and redraw (on the disk thread) land first:
+        // its redraw, finding no widget, would take down the alarm booked
+        // below before the change under test is made.
+        awaitLaunchWrite()
         app.widgets.bookMidnight()
         assertTrue("the fixture must book one", midnightAlarm() != null)
         instrumentation.runOnMainSync { store.act { completeWorkout(session = nextSession, result = FeedbackResult.plan) } }
@@ -234,12 +238,7 @@ class WidgetHostTest {
         val file = File(app.noBackupFilesDir, WidgetSnapshot.FILE_NAME)
         val store = cleanStore()
         val published = checkNotNull(app.widgets.feed.value.snapshot)
-        // Read until it is this launch's: the file outlives a test, and a
-        // previous one may have left it (equal, or not yet replaced).
-        fun fileSaysIt() = file.exists() && WidgetSnapshot.decode(file.readText()) == published
-        val end = System.currentTimeMillis() + 10_000
-        while (!fileSaysIt() && System.currentTimeMillis() < end) Thread.sleep(100)
-        assertTrue("the file holds the launch's snapshot", fileSaysIt())
+        awaitLaunchWrite()
 
         assertTrue(file.delete())
         app.widgets.publish(published)
@@ -290,6 +289,20 @@ class WidgetHostTest {
         val end = System.currentTimeMillis() + 15_000
         while (midnightAlarm() != expected && System.currentTimeMillis() < end) Thread.sleep(300)
         assertEquals("the widget's midnight", expected, midnightAlarm())
+    }
+
+    /** Until the file holds the snapshot the launch published — read until it
+     *  is this launch's: the file outlives a test, and a previous one may
+     *  have left it (equal, or not yet replaced) — and the redraw that
+     *  follows the write in the same disk task has run. */
+    private fun awaitLaunchWrite() {
+        val file = File(app.noBackupFilesDir, WidgetSnapshot.FILE_NAME)
+        val published = checkNotNull(app.widgets.feed.value.snapshot)
+        fun fileSaysIt() = file.exists() && WidgetSnapshot.decode(file.readText()) == published
+        val end = System.currentTimeMillis() + 10_000
+        while (!fileSaysIt() && System.currentTimeMillis() < end) Thread.sleep(100)
+        assertTrue("the file holds the launch's snapshot", fileSaysIt())
+        Thread.sleep(500)
     }
 
     private fun awaitFile(file: File) {
