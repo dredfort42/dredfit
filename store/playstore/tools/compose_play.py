@@ -117,6 +117,9 @@ def clean_status_bar(raw):
             merged[-1] = (merged[-1][0], run[1])
         else:
             merged.append(run)
+    # A run at the very edge is not ink but the scrim's corner around a sheet
+    # (How it works): taken for the clock, it once had the clock blanked.
+    merged = [run for run in merged if run[0] >= 40]
     for x0, x1 in merged[1:]:
         ImageDraw.Draw(raw).rectangle([x0 - 4, 30, x1 + 4, 110], fill=bg)
     return raw
