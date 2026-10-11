@@ -46,6 +46,7 @@ import com.dredfit.core.applySilentDecay
 import com.dredfit.core.easierVariation
 import com.dredfit.core.generateSession
 import com.dredfit.core.roundedAwayFromZero
+import com.dredfit.health.WorkoutHealthWriting
 import com.dredfit.journal.WorkoutRecord
 import com.dredfit.journal.WorkoutSnapshot
 import com.dredfit.reminders.NotificationScheduling
@@ -54,6 +55,11 @@ import com.dredfit.workout.MilestoneDetector
 import com.dredfit.workout.SetFacts
 import com.dredfit.widgets.WidgetPublishing
 import com.dredfit.widgets.refreshWidgetSnapshot
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.nio.file.Path
 import java.time.Clock
@@ -80,7 +86,27 @@ class AppStore(
      *  (widgets/WidgetBridge.kt) — the app's Glance widget, a recorder or
      *  nothing in a test. */
     val widgets: WidgetPublishing = WidgetPublishing.none,
+    /** Health Connect (health/HealthConnectWriter.kt) in the app, a spy or
+     *  nothing in a test. */
+    val health: WorkoutHealthWriting = WorkoutHealthWriting.none,
 ) {
+    /** iOS's `Task { … }` for the Health calls: they run on `main`, where
+     *  the store lives, and outlive the screen that started them. Inline in
+     *  a JVM test, so a call that does not suspend has finished when it
+     *  returns — iOS's tests await the same thing. */
+    internal val healthScope = CoroutineScope(SupervisorJob() + main.asCoroutineDispatcher())
+
+    /** Guards concurrent Health backfills. */
+    var backfillInFlight = false
+
+    /** Held so tests can await the fire-and-forget export instead of sleeping. */
+    var healthExportJob: Job? = null
+        private set
+
+    /** The activation's permission re-check and weight read — cancelled, not
+     *  just replaced, by the next activation (AppStoreActivation.kt). */
+    var bodyMassJob: Job? = null
+
     /** Its ZONE is the trainee's — iOS's `Calendar.current` — and every
      *  calendar question (rest weekdays, training days, the ISO week) is asked
      *  in it. Read on every call, so a zone changed while the app lives is the
@@ -109,6 +135,22 @@ class AppStore(
      *  device's. Set by `setReminderEnabled`, cleared by the switch. */
     var reminderRefused: Boolean = false
         internal set
+
+    /** "Add past workouts to Health Connect?" is waiting for its answer. iOS
+     *  keeps it as the view's state, safe under a modal sheet; here the screen
+     *  can be rebuilt (a theme or language change) or closed (a tapped
+     *  reminder) while Health Connect's screen is up, and a question lost
+     *  there would let the next workout write the whole history unasked. Not
+     *  persisted: it is the moment's. Set by `turnHealthOn`, cleared by the
+     *  answer. */
+    var healthBackfillOffered: Boolean = false
+        private set
+
+    fun offerHealthBackfill(on: Boolean) {
+        if (healthBackfillOffered == on) return
+        healthBackfillOffered = on
+        changed()
+    }
 
     fun workoutFlowAppeared() { workoutIsOnScreen = true }
     fun workoutFlowDisappeared() { workoutIsOnScreen = false }
@@ -328,8 +370,11 @@ class AppStore(
         // from a past `now`, today's slot, already gone, would pass the
         // `fire > now` guard and sit where it can never fire.
         rescheduleReminders()
-        // The Health export follows a finished workout on iOS; it arrives
-        // here with health/.
+        if (settings.healthEnabled) {
+            // Same contiguous path as the manual backfill: an older failed
+            // export retries first, so a success cannot leapfrog a hole.
+            healthExportJob = healthScope.launch { backfillHealth() }
+        }
         return MilestoneDetector.detect(before = before, after = engineState, session = session, skipped = skipped)
     }
 
@@ -482,9 +527,11 @@ class AppStore(
             raised = redo.record.raisedSteps ?: emptyMap(),
             date = redo.record.date)
         // Health already holds this workout and nothing about it changed:
-        // carrying the mark over stops a second copy being written.
+        // carrying the marks over stops a second copy being written — Health
+        // Connect's, and Apple Health's, passed through for the iPhone.
         records.lastOrNull()?.let { last ->
-            records = records.dropLast(1) + last.copy(healthExported = redo.record.healthExported)
+            records = records.dropLast(1) + last.copy(healthExported = redo.record.healthExported,
+                                                      healthConnectExported = redo.record.healthConnectExported)
         }
         persist()
         return milestones

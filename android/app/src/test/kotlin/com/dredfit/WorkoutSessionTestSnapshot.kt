@@ -3,10 +3,7 @@
 //  a backgrounded phone and a process death, and the two guided blocks with
 //  their pause.
 //
-//  Every Swift test is ported. Dropped inside one helper: the second half of
-//  `assertNoCoolDownBilled` prices the record through
-//  `EnergyEstimate.segments` (the Health export), which arrives with health/
-//  in phase 3; the record's own `cooldownSec == 0` is asserted as on iOS.
+//  Every Swift test is ported, every assertion with it.
 //
 
 package com.dredfit
@@ -17,6 +14,7 @@ import com.dredfit.core.Pattern
 import com.dredfit.journal.WorkoutRecord
 import com.dredfit.store.settleAbandonedWorkout
 import com.dredfit.workout.BlockPause
+import com.dredfit.workout.EnergyEstimate
 import com.dredfit.workout.GetReady
 import com.dredfit.workout.GuidedStage
 import com.dredfit.workout.WorkoutSession.Phase
@@ -575,10 +573,12 @@ class WorkoutSessionTestSnapshot : WorkoutSessionTestCase() {
         assertNull(assertNotNull(relaunched.records.lastOrNull()).cooldownSec)
     }
 
-    /** The record. iOS also prices it through `EnergyEstimate.segments` — the
-     *  Health export's energy and the history's plan clock — which is not
-     *  ported yet (health/, phase 3). */
+    /** The record, and the plan it is priced by — the Health export's energy
+     *  and the history's plan clock both read `EnergyEstimate.segments`. */
     private fun assertNoCoolDownBilled(record: WorkoutRecord) {
         assertEquals(0, record.cooldownSec)
+        val plan = assertNotNull(EnergyEstimate.segments(assertNotNull(record.exercises), record.skipped ?: emptySet(),
+                                                         record.warmupSec, record.cooldownSec))
+        assertEquals(0.0, plan.cooldownSec, "the planned minutes are not billed")
     }
 }

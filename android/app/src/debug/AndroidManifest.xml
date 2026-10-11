@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DEBUG BUILDS ONLY. The connected suite runs inside the app's process, so
+     what it may do in Health Connect is what the app declares. These three
+     let HealthConnectTest read back the calories the export wrote, and write
+     a weigh-in and a resting rate as a scale or a watch would. The app never
+     asks for them (HealthConnectWriter.permissions), and the release
+     manifest does not carry them (HealthPermissionsTest reads src/main). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.health.WRITE_WEIGHT" />
+    <uses-permission android:name="android.permission.health.WRITE_BASAL_METABOLIC_RATE" />
+</manifest>

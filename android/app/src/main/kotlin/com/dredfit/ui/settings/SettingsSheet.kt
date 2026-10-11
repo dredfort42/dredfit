@@ -1,11 +1,8 @@
 //
-//  The settings sheet the gear opens: how it works, the week, the
-//  equipment, sounds, the theme, backup and the version. Port of
-//  ios/Dredfit/Views/Settings/SettingsSheet.swift, with the grammar every
-//  group draws with (kicker, caption, row).
-//
-//  Not here, and not stubbed: Apple Health's group (Health Connect arrives
-//  with phase 3) and the reminder (reminders/, phase 3) — see android/CLAUDE.md.
+//  The settings sheet the gear opens: how it works, the week and the
+//  reminder, the equipment, sounds, the theme, Health Connect, backup and
+//  the version. Port of ios/Dredfit/Views/Settings/SettingsSheet.swift, with
+//  the grammar every group draws with (kicker, caption, row).
 //
 
 package com.dredfit.ui.settings
@@ -67,6 +64,7 @@ fun SettingsSheet(observedStore: Observed<AppStore>, onDismiss: () -> Unit) {
                 EquipmentSection(observedStore)
                 SoundsSection(observedStore)
                 AppearanceSection(observedStore)
+                HealthSection(observedStore)
                 BackupSection(observedStore)
                 AboutSection()
             }

@@ -25,7 +25,14 @@ app/src/
 │   │                `WorkoutActivityDriving`
 │   │   journal/     Journal, V2EngineState (the backup itself is
 │   │                store/AppStoreBackup.kt, after AppStore+Backup.swift)
-│   │   health/      Health Connect — reads and writes, like HealthStore + EnergyEstimate
+│   │   health/      Health Connect (android/README.md "Health Connect"):
+│   │                HealthStore (the seam `WorkoutHealthWriting`, plain
+│   │                Kotlin), HealthExporter (what a record becomes, plain
+│   │                Kotlin), HealthConnectWriter (the Health Connect half —
+│   │                records, permissions, availability), HealthPrivacyActivity
+│   │                (the permission screen's privacy-policy link); the store's
+│   │                half is store/AppStoreHealth.kt, the calorie model
+│   │                workout/EnergyEstimate.kt
 │   │   reminders/   the training reminder: ReminderScheduler (iOS's 28-day
 │   │                window, plain Kotlin), NotificationScheduling (the seam)
 │   │                and SystemNotificationScheduler (inexact alarms allowed
@@ -66,12 +73,15 @@ app/src/
 │                    one file per source catalog so a key's provenance is
 │                    visible from the file name; the fourth catalog,
 │                    app/Localizable.xcstrings, holds what only Android says
-│                    (Google Play, the phone's sound mode);
+│                    (Google Play, the phone's sound mode, Health Connect);
                     resource name = <catalog>_<slug of the key, 40>_<sha1[:8]>
 │       drawable/, mipmap-*/
 │       drawable-nodpi/  the widget picker's preview image (Android 10–14)
 │       layout/      the widget's autosizing lines (widget_text_*);
 │                    xml/today_status_widget is the provider
+├── debug/AndroidManifest.xml        debug builds only: the Health Connect
+│                                    permissions the connected suite needs to
+│                                    read back and to write as a scale would
 ├── test/kotlin/com/dredfit/         the counterpart of ios/DredfitTests
 └── androidTest/kotlin/com/dredfit/  the counterpart of ios/DredfitUITests
     AccessibilityId.kt   the same names as `enum AX` on iOS — testTag equals

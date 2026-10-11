@@ -23,6 +23,11 @@ glance = "1.2.0"
 # The one Glance 1.2.0 asks for, named because DredfitApp provides its
 # configuration (WorkManager starts on demand, not with every process).
 work = "2.7.1"
+# Google Maven's latest stable (maven-metadata.xml, 11.10.2026; 1.2.0 is alpha).
+health-connect = "1.1.0"
+# The one the graph already resolves to (activity-compose, connect-client),
+# named because the store's Health calls use it directly.
+coroutines = "1.9.0"
 
 [libraries]
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
@@ -45,6 +50,8 @@ androidx-fragment = { module = "androidx.fragment:fragment", version.ref = "andr
 androidx-glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
 androidx-glance-appwidget-testing = { module = "androidx.glance:glance-appwidget-testing", version.ref = "glance" }
 androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "work" }
+androidx-health-connect = { module = "androidx.health.connect:connect-client", version.ref = "health-connect" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

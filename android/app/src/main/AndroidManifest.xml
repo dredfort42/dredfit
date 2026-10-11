@@ -38,6 +38,24 @@
     <uses-permission
         android:name="android.permission.ACCESS_NETWORK_STATE"
         tools:node="remove" />
+    <!-- Health Connect (health/HealthConnectWriter.kt), iOS's HealthKit:
+         the workout and its active calories written, the weight, the resting
+         energy and other apps' workouts read for the calorie estimate.
+         Exactly HealthConnectWriter.permissions (HealthPermissionsTest);
+         each can be refused on its own, and only the workout write decides
+         the switch. On-device IPC — still no INTERNET. -->
+    <uses-permission android:name="android.permission.health.WRITE_EXERCISE" />
+    <uses-permission android:name="android.permission.health.WRITE_ACTIVE_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.health.READ_WEIGHT" />
+    <uses-permission android:name="android.permission.health.READ_BASAL_METABOLIC_RATE" />
+    <uses-permission android:name="android.permission.health.READ_EXERCISE" />
+
+    <!-- Android 11–13 hide other packages: without this the Health Connect
+         app reads as not installed, and the Settings group offers to
+         install what is already there. -->
+    <queries>
+        <package android:name="com.google.android.apps.healthdata" />
+    </queries>
 
     <application
         android:name=".DredfitApp"
@@ -77,6 +95,31 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+        <!-- Health Connect's "privacy policy" link on its permission screen
+             (health/HealthPrivacyActivity.kt): opens the policy and finishes
+             before it is drawn. The intent filter is Android 10–13's (the
+             Health Connect app sends it); the alias is Android 14+'s, where
+             only the system may start it. -->
+        <activity
+            android:name=".health.HealthPrivacyActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity>
+        <activity-alias
+            android:name="ViewPermissionUsageActivity"
+            android:exported="true"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE"
+            android:targetActivity=".health.HealthPrivacyActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+            </intent-filter>
+        </activity-alias>
         <!-- The widget's tap: brings the app's task forward as it was left
              and finishes before it is drawn (widgets/OpenAppActivity.kt says
              why it is not MainActivity's own intent). In no task of the

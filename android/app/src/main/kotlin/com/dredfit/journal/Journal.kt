@@ -93,11 +93,21 @@ data class WorkoutRecord(
     val durationSec: Int? = null,
     val warmupSec: Int? = null,
     val cooldownSec: Int? = null,
-    /** Only `true` is ever written; nil means "not exported yet". */
+    /** APPLE HEALTH's mark, written by iOS: only `true` is ever written, nil
+     *  means "not exported yet". Android reads it for nothing and passes it
+     *  through untouched, so a backup that goes back to an iPhone still says
+     *  what Apple Health holds (owner decision, 11.10.2026). */
     val healthExported: Boolean? = null,
     val interrupted: Pattern? = null,
     val raisedSteps: Map<Pattern, Int>? = null,
     val raisedLanded: Map<Pattern, Int>? = null,
+    /** HEALTH CONNECT's mark, Android's own: the workout was written there,
+     *  or declined ("Only new ones"). Only `true` is ever written. A key iOS
+     *  does not know: Swift reads past it and leaves it out when it writes
+     *  the file again, so a backup that went through an iPhone comes back
+     *  without it — and its workouts are offered again, which costs at most
+     *  a rewrite under the same `clientRecordId`. */
+    val healthConnectExported: Boolean? = null,
 ) {
     /** sessionNumber alone is NOT unique: a reset restarts the counter while
      *  the journal survives, so identity needs the date too. In-process only
@@ -142,6 +152,7 @@ data class WorkoutRecord(
         interrupted?.let { out["interrupted"] = JsonPrimitive(it.rawValue) }
         raisedSteps?.let { out["raisedSteps"] = SwiftJson.encodePatternMap(it) }
         raisedLanded?.let { out["raisedLanded"] = SwiftJson.encodePatternMap(it) }
+        healthConnectExported?.let { out["healthConnectExported"] = JsonPrimitive(it) }
         return JsonObject(out)
     }
 
@@ -193,7 +204,10 @@ data class WorkoutRecord(
                 interrupted = SwiftJson.optional(c, "interrupted", SwiftJson::pattern),
                 // The range the engine itself accepts (`raiseStepsMax`).
                 raisedSteps = intMap("raisedSteps")?.mapValues { clamp(it.value, 0, raiseMax) },
-                raisedLanded = intMap("raisedLanded")?.mapValues { clamp(it.value, 0, raiseMax) })
+                raisedLanded = intMap("raisedLanded")?.mapValues { clamp(it.value, 0, raiseMax) },
+                // Lenient: Swift does not know the key, so no value of it can
+                // make Swift drop the record — nor may it here.
+                healthConnectExported = SwiftJson.lenient(c, "healthConnectExported", SwiftJson::bool))
         }
     }
 }

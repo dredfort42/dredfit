@@ -89,6 +89,14 @@ dependencies {
     // its Configuration.Provider: started on demand (the first widget draw),
     // not by androidx.startup in every process (AndroidManifest.xml).
     implementation(libs.androidx.work.runtime)
+    // Health Connect (health/), iOS's HealthKit: on-device IPC to the
+    // platform service (Android 14+) or the Health Connect app (10–13). It
+    // brings Guava and its own protobuf runtime, and adds an exported
+    // `HealthDataSdkService` the provider binds to — no permission, no network.
+    implementation(libs.androidx.health.connect)
+    // The store's Health calls are `suspend` (AppStoreHealth.kt) — used
+    // directly, so declared rather than borrowed from Compose's graph.
+    implementation(libs.kotlinx.coroutines.core)
 
     // The JUnit 5 flavour by name: AGP does not pick kotlin-test's variant
     // from the test framework the way the plain JVM plugin does.
@@ -136,8 +144,9 @@ tasks.withType<Test>().configureEach {
         fileTree(rootProject.file("../ios/DredfitWidgets")) { include("**/*.swift") },
         fileTree("src/main/kotlin") { include("**/*.kt") },
     ).withPropertyName("scannedSources").withPathSensitivity(PathSensitivity.RELATIVE)
-    // ReminderTriggerTest reads the manifest's receivers in place.
-    inputs.file("src/main/AndroidManifest.xml").withPropertyName("manifest").withPathSensitivity(PathSensitivity.RELATIVE)
+    // ReminderTriggerTest and HealthPermissionsTest read the manifests in place.
+    inputs.files("src/main/AndroidManifest.xml", "src/debug/AndroidManifest.xml").withPropertyName("manifests")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
     testLogging {
         events("failed")
         exceptionFormat = TestExceptionFormat.FULL
