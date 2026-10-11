@@ -1,4 +1,5 @@
-"""The Play frames: which screen fills each slot, and its caption per locale.
+"""The Play frames: which screen fills each slot, and its caption per locale —
+and the feature graphic's line.
 
 Pure data, stdlib only: `compose_play.py` draws from it and
 `check_listing.py` holds it to the listing's rules (translation rules,
@@ -33,6 +34,18 @@ SLOTS = [
     ("07-widget", None),
     ("08-howitworks", "howitworks"),
 ]
+
+# The feature graphic's one line under the word-mark: the App Store subtitle
+# each locale already ships (store/appstore/release_texts_2.5.0.md §6).
+FEATURE_TAGLINE = {
+    "en-US": "Home training that adapts",
+    "ru-RU": "План подстраивается под тебя",
+    "es-ES": "El plan se adapta a ti",
+    "pt-BR": "O plano se adapta a você",
+    "de-DE": "Der Plan passt sich dir an",
+    "fr-FR": "Le plan s’adapte à toi",
+    "it-IT": "Il piano si adatta a te",
+}
 
 # (headline lines, subtitle). All but 07-widget are the shipped iOS captions
 # (store/appstore/tools/compose.py), each re-read against the Android screen

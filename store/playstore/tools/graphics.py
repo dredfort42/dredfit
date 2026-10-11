@@ -22,6 +22,10 @@ import os
 
 from PIL import Image, ImageDraw, ImageFont
 
+# The line under the word-mark lives with the frame captions, where
+# check_listing.py holds it to the same rules.
+from captions import FEATURE_TAGLINE as TAGLINE
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, os.pardir, "graphics")
 
@@ -34,16 +38,6 @@ HELVETICA = "/System/Library/Fonts/Helvetica.ttc"
 BG_TOP, BG_BOT = (238, 236, 231), (226, 223, 216)   # the frames' warm grey, one step deeper
 SUB_C = (110, 112, 117)
 
-# The App Store subtitle per locale (store/appstore/release_texts_2.5.0.md §6).
-TAGLINE = {
-    "en-US": "Home training that adapts",
-    "ru-RU": "План подстраивается под тебя",
-    "es-ES": "El plan se adapta a ti",
-    "pt-BR": "O plano se adapta a você",
-    "de-DE": "Der Plan passt sich dir an",
-    "fr-FR": "Le plan s’adapte à toi",
-    "it-IT": "Il piano si adatta a te",
-}
 
 
 def mark(size, background):

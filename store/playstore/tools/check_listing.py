@@ -13,7 +13,8 @@ is in it.
 What it checks, all without judgement:
 
 * **Play's limits** — title 30, short description 80, full description 4000,
-  what's new 500 — and that every locale carries all four fields;
+  what's new 500, a line break counted as two — and that every locale carries
+  all four fields;
 * **the translation rules**, imported rather than restated: every rule of
   `scripts/check_release_texts.py` (the App Store package's — the Russian `е`,
   mixed scripts, French spacing and apostrophes, the German dash), plus the
@@ -21,15 +22,19 @@ What it checks, all without judgement:
   (informal address in five languages, units, double spaces, the German
   "Training");
 * **another platform's words** — Apple, iPhone, iOS, App Store, HealthKit,
-  Live Activity, Dynamic Island, iCloud and their localized forms. Every listing
-  claim must be true on Android, and these name things the Android app does
-  not have. The iOS texts this listing was adapted from carried six of them;
+  Live Activity, Dynamic Island, iCloud, and Apple Health under its local names
+  (Salud, Saúde, Santé, «Здоровье»…) wherever they are not the start of Health
+  Connect's own. Every listing claim must be true on Android, and these name
+  things the Android app does not have; every iOS text this listing was
+  adapted from carried several of them;
 * **Play's metadata policy** where a script can read it: no ranking, price or
-  promotional words and no calls to action in the title and the short
-  description, no emoji, no ALL-CAPS words, no repeated punctuation or line
-  break in the short description;
+  promotional words ("no ads" included) and no calls to action in the title
+  and the short description, no emoji, no words in capitals, no repeated
+  punctuation or line break in the title and the short description;
+* **two apostrophe styles** in one text, the trace of a paste;
 * **a locale left in English**: a field identical to its en-US twin;
-* **the frame captions** in `captions.py`, through the same rules — on iOS
+* **the frame captions and the feature graphic's line** in `captions.py`,
+  through the same rules — on iOS
   "captions are checked by NOTHING", and an English phrase reached the German
   storefront that way.
 
@@ -68,6 +73,13 @@ LOCALES = {"en-US": "en", "ru-RU": "ru", "es-ES": "es", "pt-BR": "pt-BR",
 LIMITS = {"title": 30, "short_description": 80, "full_description": 4000, "whats_new": 500}
 
 
+def play_length(text):
+    """Characters as Play may count them: a line break as two. A browser form
+    submits a textarea's breaks as CRLF, and how the console counts them was
+    not observed — so the count that cannot be wrong is the larger one."""
+    return len(text) + text.count("\n")
+
+
 def _load(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
@@ -81,9 +93,12 @@ catalog = _load("check_translation_rules", ROOT / "scripts" / "check_translation
 # The package's rules win where both scripts define one id: the README of
 # store/playstore promises the package's rules "unchanged".
 _release_ids = {r["id"] for r in release.RULES}
-SHARED_RULES = list(release.RULES) + [r for r in catalog.RULES if r["id"] not in _release_ids]
-
 ALL = list(LOCALES.values())
+# The catalogs' double-space rule leaves English out (English is the catalogs'
+# source, read elsewhere); a listing's English is shipped text like the rest.
+_EVERY_LOCALE = {"double-space"}
+SHARED_RULES = list(release.RULES) + [dict(r, locales=ALL) if r["id"] in _EVERY_LOCALE else r
+                                      for r in catalog.RULES if r["id"] not in _release_ids]
 
 # Words of another platform. Case-sensitive on purpose: "ios" inside a word
 # is Spanish or Portuguese, "iOS" is Apple's.
@@ -91,7 +106,11 @@ OTHER_PLATFORM = re.compile(
     r"\bApple\b|\biPhone\b|\biPad\b|\biOS\b|\bApp Store\b|\bHealthKit\b|\biCloud\b"
     r"|\bApp Privacy\b|\bDynamic Island\b|\bLive Activit(?:y|ies)\b|\bLive-Aktivität\w*"
     r"|\b[Aa]ctividad(?:es)? en vivo\b|\b[Aa]tividades? ao [Vv]ivo\b|\b[Aa]ctivités? en direct\b"
-    r"|\b[Aa]ttività [Ll]ive\b|«Здоровье»|\bSiri\b")
+    r"|\b[Aa]ttività [Ll]ive\b|\bSiri\b"
+    # Apple Health under its local names — each one only where it is not the
+    # start of Health Connect's own local name, which the listing does use.
+    r"|\bHealth\b(?! Connect)|\bSalud\b(?! conectada)|(?<!Conexão )\bSaúde\b"
+    r"|\bSanté\b(?! Connect)|\bSalute\b|«?Здоровье»?(?! и спорт)")
 
 # Play's metadata policy: store performance, rank, price or promotion, Play
 # programs, and calls to action — in the fields that sit beside the icon.
@@ -102,22 +121,34 @@ PROMO = re.compile(
     r"|gratis|grátis|gratuit\w*|kostenlos|mejor(?:es)?|melhor(?:es)?|meilleur(?:e|s|es)?|miglior[ei]?|beste[nrs]?"
     r"|nuev[oa]s?|nov[oa]s?|neu\w*|nouve(?:au|lle)s?|nuov[oa]|descuento|desconto|rabatt\w*"
     r"|réduction|sconto|oferta|angebot\w*|offerta|promo\w*"
+    r"|ad-free|без рекламы|sin anuncios|sem anúncios|werbefrei|ohne werbung|sans pub\w*|senza pubblicità"
     # "descarga" alone is the glossary's es/pt-BR "deload", not a call to action.
     r"|descárga\w+|descarga ya|baixe já|baixe agora|lade\w* jetzt|télécharge\w*|scarica\w*)\b",
     re.I)
 
-# Pictographs, dingbats, arrows and the emoji presentation selector — written
-# as code points, because the characters themselves vanish in review.
-EMOJI = re.compile("[%s-%s%s-%s%s-%s%s]" % tuple(map(chr, (0x1F000, 0x1FAFF, 0x2600, 0x27BF,
-                                                          0x2B00, 0x2BFF, 0xFE0F))))
+# Pictographs, dingbats, arrows, the clocks and watches of Misc Technical,
+# ‼ and ⁉, and the emoji presentation selector — written as code points,
+# because the characters themselves vanish in review.
+EMOJI = re.compile("[%s]" % "".join(
+    "%s-%s" % (chr(a), chr(b)) for a, b in ((0x1F000, 0x1FAFF), (0x2600, 0x27BF), (0x2B00, 0x2BFF),
+                                            (0x2190, 0x21FF), (0x2300, 0x23FF), (0x203C, 0x203C),
+                                            (0x2049, 0x2049), (0xFE0F, 0xFE0F))))
 
-# A word of four letters or more written in capitals. Acronyms that are spelled
-# that way in any language are the allowed list.
+# A word of three letters or more written in capitals — three, because the
+# emphasis this listing dropped was "in ONE set" / "en UNA serie". Acronyms
+# that are spelled that way in any language are the allowed list.
 ACRONYMS = {"JSON"}
 
 
 def _caps(text):
-    return [w for w in re.findall(r"[^\W\d_]{4,}", text) if w.isupper() and w not in ACRONYMS]
+    return [w for w in re.findall(r"[^\W\d_]{3,}", text) if w.isupper() and w not in ACRONYMS]
+
+
+def _mixed_apostrophes(text):
+    """Both the straight and the typographic apostrophe in one text: fr and it
+    have their own rule for the straight one; elsewhere either style is fine,
+    two styles side by side are a paste from another source."""
+    return ["' and ’"] if "'" in text and "’" in text else []
 
 
 PLAY_RULES = [
@@ -136,7 +167,11 @@ PLAY_RULES = [
     dict(id="all-caps", locales=ALL, fields=None,
          why="Play forbids ALL CAPS beyond a brand; a heading in capitals reads as shouting",
          find=_caps,
-         bad="WHERE IT STARTS", good="Where it starts, in JSON"),
+         bad="+1 rep in ONE set", good="Where it starts, in JSON"),
+    dict(id="mixed-apostrophes", locales=ALL, fields=None,
+         why="two apostrophe styles in one text",
+         find=_mixed_apostrophes,
+         bad="That's your phone’s backup", good="That's your phone's backup"),
     dict(id="short-format", locales=ALL, fields={"title", "short_description"},
          why="Play's title and short description: no line breaks, no repeated punctuation",
          find=lambda t: [m.group(0) for m in re.finditer(r"\n|([!?.])\1+", t)],
@@ -147,7 +182,7 @@ RULES_BY_ID = {r["id"]: r for r in RULES}
 
 
 def over_limit(field, text):
-    return len(text) > LIMITS[field]
+    return play_length(text) > LIMITS[field]
 
 
 def self_test():
@@ -165,6 +200,8 @@ def self_test():
             return "rule %s flagged its own good sample %r" % (rule["id"], rule["good"])
     if not over_limit("short_description", "x" * 81) or over_limit("short_description", "x" * 80):
         return "the length rule does not stop at exactly 80 characters"
+    if not over_limit("short_description", "x" * 79 + "\n") or over_limit("short_description", "x" * 78 + "\n"):
+        return "the length rule does not count a line break as two characters"
     # Coverage, the English twin and the allow list are claims about a whole
     # listing, so they are proved on synthetic ones rather than on a string.
     whole = {loc: {f: "%s %s" % (loc, f) for f in LIMITS} for loc in LOCALES}
@@ -178,6 +215,10 @@ def self_test():
     twin["de-DE"]["title"] = twin["en-US"]["title"]
     if not any(p[2] == "same-as-en" for p in check_listing(twin, {}, [])):
         return "the English-twin rule did not flag a field left in English"
+    edge = {loc: dict(fields) for loc, fields in whole.items()}
+    edge["es-ES"]["whats_new"] += " "
+    if not any(p[2] == "edge-space" for p in check_listing(edge, {}, [])):
+        return "the edge-space rule did not flag a trailing space"
     ios = {loc: dict(fields) for loc, fields in whole.items()}
     ios["ru-RU"]["full_description"] = "Импорт с iPhone"
     if not any(p[2] == "other-platform" for p in check_listing(ios, {}, [])):
@@ -225,7 +266,8 @@ def check_listing(listing, config, captions):
                 problems.append((loc, field, "coverage", "missing or empty"))
                 continue
             if over_limit(field, text):
-                problems.append((loc, field, "field-limit", "%d characters, limit %d" % (len(text), limit)))
+                problems.append((loc, field, "field-limit", "%d characters with line breaks counted twice, "
+                                 "limit %d" % (play_length(text), limit)))
             if text != text.strip():
                 problems.append((loc, field, "edge-space", "leading or trailing whitespace"))
             if loc != "en-US" and text == listing.get("en-US", {}).get(field):
@@ -250,6 +292,10 @@ def load_captions():
         for loc, (headline, subtitle) in by_locale.items():
             for text in list(headline) + [subtitle]:
                 lines.append((loc, slot, text))
+    if set(captions.FEATURE_TAGLINE) != set(LOCALES):
+        lines.append((None, "feature-graphic", "the tagline does not cover every locale"))
+    for loc, text in captions.FEATURE_TAGLINE.items():
+        lines.append((loc, "feature-graphic", text))
     return lines
 
 
