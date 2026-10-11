@@ -29,11 +29,11 @@ class HealthExportTestBlocks : AppStoreTestCase() {
     fun ourOwnWorkoutsAreNotForeign() {
         val start = date(2026, 7, 14)
         val origins = listOf(
-            WorkoutOrigin("com.dredfit.dredfit", start, start.plusSeconds(1800)),
+            WorkoutOrigin("app.dredfit", start, start.plusSeconds(1800)),
             WorkoutOrigin("com.google.android.apps.fitness", start, start.plusSeconds(1800)),
             WorkoutOrigin(null, start, start.plusSeconds(600)),
         )
-        val foreign = WorkoutHealthWriting.foreignIntervals(origins, excluding = "com.dredfit.dredfit")
+        val foreign = WorkoutHealthWriting.foreignIntervals(origins, excluding = "app.dredfit")
         assertEquals(listOf(1800.0, 600.0), foreign.map { it.durationSec }, "only our own package is filtered out")
     }
 
@@ -42,7 +42,7 @@ class HealthExportTestBlocks : AppStoreTestCase() {
     fun aBackwardsForeignSampleDoesNotTrap() {
         val start = date(2026, 7, 14)
         val foreign = WorkoutHealthWriting.foreignIntervals(
-            listOf(WorkoutOrigin("other", start, start.minusSeconds(60))), excluding = "com.dredfit.dredfit")
+            listOf(WorkoutOrigin("other", start, start.minusSeconds(60))), excluding = "app.dredfit")
         assertEquals(0.0, foreign.firstOrNull()?.durationSec)
     }
 

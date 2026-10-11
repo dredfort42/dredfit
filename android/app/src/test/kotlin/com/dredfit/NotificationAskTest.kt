@@ -66,7 +66,7 @@ class NotificationAskTest {
 
     @Test
     fun bothDoorsShareOneMark() {
-        val dir = File("/data/user/0/com.dredfit.dredfit/no_backup")
+        val dir = File("/data/user/0/app.dredfit/no_backup")
         assertEquals(File(dir, "notifications-asked"), NotificationAsk.mark(dir),
                      "the name the workout's door wrote before the reminder shared it")
     }

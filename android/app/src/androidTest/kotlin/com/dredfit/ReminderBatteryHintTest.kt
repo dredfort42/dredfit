@@ -7,7 +7,7 @@
 //  `BatteryHint.manufacturerForTests`. The exemption is the REAL one: `cmd
 //  deviceidle whitelist +pkg` puts the app on the list the person's
 //  "Unrestricted" puts it on (`dumpsys deviceidle whitelist` showed
-//  `User,com.dredfit.dredfit` on the Galaxy A16), and PowerManager reads it
+//  `User,com.dredfit.dredfit` on the Galaxy A16, under the old package name), and PowerManager reads it
 //  as it would on the phone.
 //
 

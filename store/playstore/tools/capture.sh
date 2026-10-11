@@ -12,8 +12,8 @@ set -eu
 : "${RAW_DIR:?RAW_DIR=<folder the raws are pulled into>}"
 export ANDROID_SERIAL
 ADB="${ANDROID_HOME:-$HOME/Library/Android/sdk}/platform-tools/adb"
-RUNNER=com.dredfit.dredfit.test/androidx.test.runner.AndroidJUnitRunner
-SCREENS=/sdcard/Android/data/com.dredfit.dredfit/files/screens
+RUNNER=app.dredfit.test/androidx.test.runner.AndroidJUnitRunner
+SCREENS=/sdcard/Android/data/app.dredfit/files/screens
 LOCALES="${LOCALES:-en ru es pt-BR de fr it}"
 
 case "$ANDROID_SERIAL" in
@@ -43,14 +43,14 @@ run() {
 for loc in $LOCALES; do
   echo "== $loc"
   # The walk keeps the per-app language it is started in (keepLanguage).
-  "$ADB" shell cmd locale set-app-locales com.dredfit.dredfit --locales "$loc"
+  "$ADB" shell cmd locale set-app-locales app.dredfit --locales "$loc"
   run -e class com.dredfit.ScreenshotWalk#captureTheWalk -e screens "$loc-light" -e appearance light
   run -e class com.dredfit.ScreenshotWalk#captureTheScreens -e screens "$loc-light" -e appearance light
 done
 echo "== widget"
 run -e class com.dredfit.WidgetScreenshots#captureTheWidget -e screens widget \
     -e langs "$(echo "$LOCALES" | tr ' ' ',')"
-"$ADB" shell cmd locale set-app-locales com.dredfit.dredfit --locales en
+"$ADB" shell cmd locale set-app-locales app.dredfit --locales en
 "$ADB" shell am broadcast -a com.android.systemui.demo -e command exit > /dev/null
 mkdir -p "$RAW_DIR"
 "$ADB" pull "$SCREENS" "$RAW_DIR/"
