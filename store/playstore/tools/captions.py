@@ -110,8 +110,8 @@ CAPTIONS = {
     },
     # New for Play: the home-screen widget — one widget whose layout follows
     # its size (TodayStatusWidget.kt): the day, then the week, then the plan.
-    # Worded for any day: WidgetScreenshots rests on Wednesdays and Sundays,
-    # so the frame can show "Rest day" as well as "Workout N".
+    # Worded for any day, though the frame is a training day: WidgetScreenshots'
+    # workout seed never rests today, so it shows "Workout N" and the plan.
     "07-widget": {
         "en-US": (["On your home screen"], "The day, your week and the plan at a glance."),
         "ru-RU": (["На главном экране"], "День, неделя и план — все на виду."),

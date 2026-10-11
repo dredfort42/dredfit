@@ -58,14 +58,17 @@ class WidgetScreenshots {
 
     /** This week as a person three workouts in: Monday and yesterday done,
      *  the rest missed, Wednesday and Sunday resting — every mark the strip
-     *  draws. `day` decides today. */
+     *  draws. `day` decides today: neither resting day is today unless `day`
+     *  says rest (a Sunday run drew "Rest day" for the workout frames, and
+     *  the Play listing's widget frame went out that way). */
     private fun seed(day: Day) {
         val zone = ZoneId.systemDefault()
         val today = LocalDate.now(zone)
         val monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val rest = buildSet {
-            add(swiftWeekday(DayOfWeek.SUNDAY))
-            if (today.dayOfWeek != DayOfWeek.WEDNESDAY) add(swiftWeekday(DayOfWeek.WEDNESDAY))
+            for (resting in listOf(DayOfWeek.WEDNESDAY, DayOfWeek.SUNDAY)) {
+                if (today.dayOfWeek != resting) add(swiftWeekday(resting))
+            }
             if (day == Day.rest) add(swiftWeekday(today.dayOfWeek))
         }
         app.resetForTests({ instrumentation.runOnMainSync(it) }) { path ->
