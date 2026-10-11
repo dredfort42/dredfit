@@ -53,15 +53,22 @@ fun AppStore.importBackup(bytes: ByteArray) {
     if (decoded.engineStateReset || decoded.settingsUnreadable || decoded.droppedRecordCount != 0) {
         throw BackupError.IncompleteBackup()
     }
-    // The Health mark tracks an external side effect and must never move
-    // backwards on import — for THIS journal only: an unrelated one knows
-    // nothing about this device's Health store (#103). Same lineage always
-    // shares record ids: the journal is append-only and a backup is its snapshot.
+    // Apple Health's mark (an iPhone's, passed through here) tracks an
+    // external side effect and must never move backwards on import — for
+    // THIS journal only: an unrelated one knows nothing about that phone's
+    // Health store (#103). Same lineage always shares record ids: the
+    // journal is append-only and a backup is its snapshot.
     val priorHealthMark = settings.healthExportedThrough
     val currentIDs = records.map { it.id }.toSet()
     val sameLineage = decoded.records.any { it.id in currentIDs }
-    // Flags are facts about THIS device's Health store.
+    // Flags are facts about a device's Health store: what this journal
+    // already holds stays held through an older backup of itself — Apple
+    // Health's flags for the iPhone, Health Connect's for this phone. A
+    // backup's own Health Connect flags are an Android phone's and are
+    // believed, as iOS believes its own; its Apple Health flags say nothing
+    // about Health Connect.
     val exportedHere = records.filter { it.healthExported == true }.map { it.id }.toSet()
+    val connectedHere = records.filter { it.healthConnectExported == true }.map { it.id }.toSet()
     update {
         var settings = decoded.settings ?: AppSettings()
         // The THIRD door into this decode: a backup taken before v3 migrates
@@ -84,7 +91,8 @@ fun AppStore.importBackup(bytes: ByteArray) {
         // After the mark: a flag set here first would turn that migration
         // into a no-op for a mark-only backup.
         restored.copy(records = restored.records.map { r ->
-            if (r.id in exportedHere) r.copy(healthExported = true) else r
+            r.copy(healthExported = if (r.id in exportedHere) true else r.healthExported,
+                   healthConnectExported = if (r.id in connectedHere) true else r.healthConnectExported)
         })
     }
     // The switch is a device-local fact, like the reminder's permission

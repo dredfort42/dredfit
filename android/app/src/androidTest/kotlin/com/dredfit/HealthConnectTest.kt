@@ -36,7 +36,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dredfit.core.FeedbackResult
 import com.dredfit.health.HealthConnectWriter
 import com.dredfit.health.HealthPrivacyActivity
+import com.dredfit.store.AppStore
+import com.dredfit.store.exportBackup
 import com.dredfit.store.healthBackfillCount
+import com.dredfit.store.importBackup
 import com.dredfit.store.nextSession
 import com.dredfit.store.setBodyMass
 import com.dredfit.store.startHealthBackfill
@@ -51,6 +54,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.nio.file.Files
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -103,7 +107,7 @@ class HealthConnectTest : HealthTestCase() {
         assertTrue("a bodyweight session's calories: ${energy.energy}", energy.energy.inKilocalories in 30.0..400.0)
 
         // The flag lost, the record exported again.
-        onStore { update { st -> st.copy(records = st.records.map { it.copy(healthExported = null) }) } }
+        onStore { update { st -> st.copy(records = st.records.map { it.copy(healthConnectExported = null) }) } }
         onStore { startHealthBackfill() }
         awaitExported()
         assertEquals("a second save replaced the session", 1, own(ExerciseSessionRecord::class).size)
@@ -208,6 +212,43 @@ class HealthConnectTest : HealthTestCase() {
         assertEquals("yesterday's workout went out", 1, own(ExerciseSessionRecord::class).size)
         await("body-mass-row")
         await("watch-records-toggle")
+    }
+
+    /** An iPhone's backup: its workouts carry Apple Health's flags, which say
+     *  nothing about Health Connect (owner decision, 11.10.2026) — turning the
+     *  switch on offers them, "Add all" writes them, and the iPhone's flags
+     *  stay as they came. */
+    @Test
+    fun anIPhonesWorkoutsAreOfferedToHealthConnect() {
+        launch(Seed.Clean, fast = false)
+        val scratch = Files.createTempFile(app.cacheDir.toPath(), "iphone", ".json")
+        val backup = AppStore(scratch).run {
+            update { it.copy(settings = it.settings.copy(onboardingCompleted = true, restWeekdays = emptySet())) }
+            val now = Instant.now()
+            completeWorkout(session = nextSession, result = FeedbackResult.plan, durationSec = 30 * 60,
+                            date = now.minusSeconds(2 * 86_400))
+            completeWorkout(session = nextSession, result = FeedbackResult.plan, durationSec = 30 * 60,
+                            date = now.minusSeconds(86_400))
+            // As an iPhone writes them: both in Apple Health, its mark at 2.
+            update { st ->
+                st.copy(records = st.records.map { it.copy(healthExported = true) },
+                        settings = st.settings.copy(healthExportedThrough = 2))
+            }
+            exportBackup()
+        }
+        Files.deleteIfExists(scratch)
+        onStore { importBackup(backup) }
+        assertEquals(2, readStore { healthBackfillCount })
+
+        tap(AX.settings)
+        tapOnce("health-toggle")
+        await("health-backfill-all", timeoutMs = 15_000)
+        compose.onNodeWithTag("health-backfill-all").assertTextContains("Add all 2 workouts")
+        tapOnce("health-backfill-all")
+        awaitExported()
+        assertEquals("both written to Health Connect", 2, own(ExerciseSessionRecord::class).size)
+        assertTrue("Apple Health's flags stay the iPhone's", readStore { records.all { it.healthExported == true } })
+        assertEquals(2, readStore { settings.healthExportedThrough })
     }
 
     /** The offer outlives a rebuilt screen (a theme or language change takes

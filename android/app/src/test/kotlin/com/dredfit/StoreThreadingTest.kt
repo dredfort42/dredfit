@@ -182,12 +182,12 @@ class StoreThreadingTest : AppStoreTestCase() {
         store.completeWorkout(session = store.nextSession, result = FeedbackResult.plan, durationSec = 30 * 60)
         main.runAll()
         assertEquals(1, spy.saved.size, "the premise: the workout went out")
-        assertEquals(true, store.records.last().healthExported)
+        assertEquals(true, store.records.last().healthConnectExported)
 
         store.changeLastRating(FeedbackResult.more)
         main.runAll()
         assertEquals(FeedbackResult.more, store.records.last().result)
-        assertEquals(true, store.records.last().healthExported, "the flag travels with the record")
+        assertEquals(true, store.records.last().healthConnectExported, "the flag travels with the record")
         assertEquals(1, spy.saved.size, "no second write of the same workout")
     }
 }

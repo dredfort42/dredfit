@@ -714,10 +714,24 @@ the standard resting rate, no other app's workout to check against.
   rebuilt or closed while Health Connect's screen was up must still ask, or
   the next workout would write the whole history unasked. The back gesture
   answers "Only new ones", the choice that writes nothing.
-- **Export flags travel with a backup**, as on iOS (`importBackup` believes
-  an unrelated journal's own flags). An iPhone's backup therefore arrives
-  with its workouts marked as already in Apple Health, and they are never
-  offered to Health Connect (an owner question).
+- **Two marks, one per store** (owner decision, 11.10.2026). A record's
+  `healthExported` is APPLE Health's, written by an iPhone; Android reads it
+  for nothing and passes it — and `healthExportedThrough` — through
+  untouched, so a backup that goes back to an iPhone still says what Apple
+  Health holds. Android's own mark is the record's optional
+  `healthConnectExported` (written or declined here). An iPhone's backup
+  therefore arrives with every workout unwritten for Health Connect and
+  offered like any other. A field on the record, not a file of ids in
+  `noBackupFilesDir`, because the mark must travel with the journal it
+  describes: Android's own restore brings it back, so "Only new ones" stays
+  answered on the next phone and nothing is offered twice, and an Android
+  backup's marks are believed as iOS believes its own. Through an iPhone
+  the key is lost — Swift reads past a key it does not know and leaves it
+  out when it writes the file again (swift-backup-probe `roundtrip`,
+  11.10.2026) — so another phone offers those workouts again and writes
+  them under the same `clientRecordId`s: a replace, not a copy. The phone
+  that wrote them keeps its marks through the import (same journal, same
+  ids).
 - **The privacy-policy link** on Health Connect's permission screen opens
   `HealthPrivacyActivity` — the `ACTION_SHOW_PERMISSIONS_RATIONALE` filter
   (Android 10–13) and the `VIEW_PERMISSION_USAGE` alias (Android 14+). It

@@ -52,7 +52,7 @@ class HealthExportTestEnergy : AppStoreTestCase() {
 
         assertEquals(1, spy.saved.size, "the workout still reaches Health Connect")
         assertNull(spy.saved[0].kcal, "no weight may produce no calories")
-        assertEquals(0, store.records.count { it.healthExported != true }, "and the record is done, not stuck")
+        assertEquals(0, store.records.count { it.healthConnectExported != true }, "and the record is done, not stuck")
     }
 
     @Test

@@ -527,9 +527,11 @@ class AppStore(
             raised = redo.record.raisedSteps ?: emptyMap(),
             date = redo.record.date)
         // Health already holds this workout and nothing about it changed:
-        // carrying the mark over stops a second copy being written.
+        // carrying the marks over stops a second copy being written — Health
+        // Connect's, and Apple Health's, passed through for the iPhone.
         records.lastOrNull()?.let { last ->
-            records = records.dropLast(1) + last.copy(healthExported = redo.record.healthExported)
+            records = records.dropLast(1) + last.copy(healthExported = redo.record.healthExported,
+                                                      healthConnectExported = redo.record.healthConnectExported)
         }
         persist()
         return milestones

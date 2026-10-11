@@ -7,6 +7,13 @@
 //  Port of ios/Dredfit/AppStore+Health.swift; the Swift `async` functions are
 //  `suspend` ones here, run on the store's thread (`healthScope`).
 //
+//  THE FLAG IS ANDROID'S OWN: `healthConnectExported`. `healthExported` and
+//  `healthExportedThrough` are Apple Health's, written by an iPhone; an
+//  iPhone's backup arrives with them, and they say nothing about Health
+//  Connect — its workouts are offered here like any other not yet written
+//  (owner decision, 11.10.2026). This file never reads or moves them, so a
+//  backup that goes back to an iPhone still says what Apple Health holds.
+//
 
 package com.dredfit.store
 
@@ -112,7 +119,9 @@ fun AppStore.setWatchRecordsWorkouts(on: Boolean) {
     update { it.copy(settings = it.settings.copy(watchRecordsWorkouts = on)) }
 }
 
-val AppStore.healthBackfillCount: Int get() = records.count { it.healthExported != true }
+/** Workouts not yet written to Health Connect from this journal (nor
+ *  declined) — an iPhone's Apple Health flags count for nothing here. */
+val AppStore.healthBackfillCount: Int get() = records.count { it.healthConnectExported != true }
 
 /**
  * Journal order, one flag at a time, only on a confirmed save. Stops at the
@@ -130,23 +139,23 @@ suspend fun AppStore.backfillHealth() {
         refreshBodyMassFromHealth()
         val exporter = healthExporter
         val context = exporter.energyContext(settings.bodyMassKg, settings.watchRecordsWorkouts, now = clock.instant()) {
-            records.filter { it.healthExported != true }
+            records.filter { it.healthConnectExported != true }
         }
         while (settings.healthEnabled) {
-            val record = records.firstOrNull { it.healthExported != true } ?: break
+            val record = records.firstOrNull { it.healthConnectExported != true } ?: break
             if (!exporter.export(record, context)) break   // the tail stays pending
             // The await may have replaced the whole journal (importBackup):
             // flag by identity AMONG THE UNEXPORTED, never by a pre-await
             // index — and never by id alone, or two records sharing an id
             // would send every flag to the first and loop forever.
-            val i = records.indexOfFirst { it.id == record.id && it.healthExported != true }
+            val i = records.indexOfFirst { it.id == record.id && it.healthConnectExported != true }
             if (i < 0) continue
-            // The flags reach nothing the widget shows.
+            // The flags reach nothing the widget shows. Apple Health's
+            // high-water mark is not moved: it is an iPhone's.
             update(refreshWidget = false) { state ->
-                state.copy(
-                    records = state.records.mapIndexed { j, r -> if (j == i) r.copy(healthExported = true) else r },
-                    settings = state.settings.copy(
-                        healthExportedThrough = maxOf(state.settings.healthExportedThrough, record.sessionNumber)))
+                state.copy(records = state.records.mapIndexed { j, r ->
+                    if (j == i) r.copy(healthConnectExported = true) else r
+                })
             }
         }
     } finally {
@@ -165,8 +174,6 @@ fun AppStore.startHealthBackfill() {
 fun AppStore.skipHealthBackfill() {
     update { state ->
         state.copy(
-            records = state.records.map { it.copy(healthExported = true) },
-            settings = state.settings.copy(
-                healthExportedThrough = maxOf(state.settings.healthExportedThrough, state.records.lastOrNull()?.sessionNumber ?: 0)))
+            records = state.records.map { it.copy(healthConnectExported = true) })
     }
 }
