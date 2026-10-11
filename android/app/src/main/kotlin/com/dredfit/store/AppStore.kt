@@ -136,6 +136,22 @@ class AppStore(
     var reminderRefused: Boolean = false
         internal set
 
+    /** "Add past workouts to Health Connect?" is waiting for its answer. iOS
+     *  keeps it as the view's state, safe under a modal sheet; here the screen
+     *  can be rebuilt (a theme or language change) or closed (a tapped
+     *  reminder) while Health Connect's screen is up, and a question lost
+     *  there would let the next workout write the whole history unasked. Not
+     *  persisted: it is the moment's. Set by `turnHealthOn`, cleared by the
+     *  answer. */
+    var healthBackfillOffered: Boolean = false
+        private set
+
+    fun offerHealthBackfill(on: Boolean) {
+        if (healthBackfillOffered == on) return
+        healthBackfillOffered = on
+        changed()
+    }
+
     fun workoutFlowAppeared() { workoutIsOnScreen = true }
     fun workoutFlowDisappeared() { workoutIsOnScreen = false }
 

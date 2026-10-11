@@ -3,7 +3,9 @@
 //  one flag per confirmed save, journal order, stopping at the first failure,
 //  never a duplicate — and the switch that follows the permission. Every
 //  Swift test is ported; the extensions are HealthExportTestEnergy and
-//  HealthExportTestBlocks. The backup is bytes on this side.
+//  HealthExportTestBlocks. The backup is bytes on this side. Two Android
+//  tests at the end: a grant Health Connect cannot answer for, and the
+//  backfill question held by the store.
 //
 
 package com.dredfit
@@ -23,6 +25,7 @@ import com.dredfit.store.healthBackfillCount
 import com.dredfit.store.importBackup
 import com.dredfit.store.nextSession
 import com.dredfit.store.skipHealthBackfill
+import com.dredfit.store.turnHealthOn
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -404,5 +407,50 @@ class HealthExportTest : AppStoreTestCase() {
 
         assertEquals(2, spy.saved.size, "one export per record, and then it stops")
         assertEquals(0, store.healthBackfillCount, "both records end up flagged")
+    }
+
+    // MARK: - Android only
+
+    /** On Android 10–13 the grants are read over IPC from another app; a
+     *  Health Connect that cannot answer once has not taken anything back,
+     *  and the switch stays on. A definite "no" still turns it off. */
+    @Test
+    fun aGrantHealthConnectCannotAnswerForLeavesTheSwitchOn() = runHealth {
+        val spy = HealthSpy()
+        val store = makeStore(health = spy)
+        store.enableHealth()
+        spy.shareGranted = null
+        store.activate()
+        assertTrue(store.settings.healthEnabled, "no answer is not a refusal")
+        spy.shareGranted = false
+        store.activate()
+        assertFalse(store.settings.healthEnabled)
+    }
+
+    /** The question after the switch went on lives in the store, so a screen
+     *  rebuilt while Health Connect's screen was up still asks it — and only
+     *  when there is a past to add and the write was granted. */
+    @Test
+    fun turningHealthOnOffersThePastOnceAndOnlyWhenThereIsOne() = runHealth {
+        val spy = HealthSpy()
+        val empty = makeStore(path = tempDir.resolve("empty.json"), health = spy)
+        empty.turnHealthOn {}
+        assertFalse(empty.healthBackfillOffered, "nothing to add")
+
+        val refused = HealthSpy().also { it.grant = false }
+        val withHistory = makeStore(path = tempDir.resolve("refused.json"), health = refused)
+        withHistory.completeWorkout(session = withHistory.nextSession, result = FeedbackResult.plan, date = date(2026, 7, 14))
+        withHistory.turnHealthOn {}
+        assertFalse(withHistory.healthBackfillOffered, "refused: nothing is offered")
+
+        val store = makeStore(health = spy)
+        store.completeWorkout(session = store.nextSession, result = FeedbackResult.plan, date = date(2026, 7, 14))
+        var answered: Boolean? = null
+        store.turnHealthOn { answered = it }
+        assertEquals(true, answered)
+        assertTrue(store.healthBackfillOffered)
+        assertTrue(spy.saved.isEmpty(), "offered, not written")
+        store.offerHealthBackfill(false)
+        assertFalse(store.healthBackfillOffered)
     }
 }

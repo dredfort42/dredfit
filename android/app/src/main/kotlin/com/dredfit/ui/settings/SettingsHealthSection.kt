@@ -87,7 +87,6 @@ fun HealthSection(observedStore: Observed<AppStore>) {
     val health = (context.applicationContext as DredfitApp).health
     val status = healthConnectStatus(health)
     if (status == HealthConnectClient.SDK_UNAVAILABLE) return
-    var backfillPromptShown by remember { mutableStateOf(false) }
     var bodyMassPromptShown by remember { mutableStateOf(false) }
     // Optimistic value while the permission screen is up: without it the
     // switch visibly bounces off before Health Connect's screen appears.
@@ -97,9 +96,12 @@ fun HealthSection(observedStore: Observed<AppStore>) {
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         SettingsKicker(tr("Health Connect"), "settings-health")
         if (status == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
+            // Read with the status, not on every recomposition: a package
+            // lookup is a binder call.
+            val installed = remember(status) { health.providerInstalled() }
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 SettingsRow({ TrayArrowGlyph(Theme.colors.ink, up = false, size = 16.dp) },
-                            tr(if (health.providerInstalled()) "Update Health Connect" else "Install Health Connect"),
+                            tr(if (installed) "Update Health Connect" else "Install Health Connect"),
                             tag = "health-install") { HealthConnectWriter.openInstallPage(context) }
                 SettingsCaption(tr("Workouts appear in Health Connect. Nothing leaves your device."))
             }
@@ -113,11 +115,8 @@ fun HealthSection(observedStore: Observed<AppStore>) {
                     } else {
                         healthSwitch = true
                         // A denial leaves the switch off; on success, past
-                        // history is offered once.
-                        store.turnHealthOn { granted ->
-                            healthSwitch = null   // reality (granted or denied) takes over
-                            if (granted && observedStore.value.healthBackfillCount > 0) backfillPromptShown = true
-                        }
+                        // history is offered once (`healthBackfillOffered`).
+                        store.turnHealthOn { healthSwitch = null }   // reality takes over
                     }
                 }
                 SettingsCaption(tr("Workouts appear in Health Connect. Nothing leaves your device."))
@@ -134,7 +133,9 @@ fun HealthSection(observedStore: Observed<AppStore>) {
         }
     }
 
-    if (backfillPromptShown) {
+    // The store's, not the screen's: a screen rebuilt or closed while Health
+    // Connect's screen was up finds the question still waiting.
+    if (store.healthBackfillOffered) {
         val count = store.healthBackfillCount
         DredfitAlert(
             title = tr("Add past workouts to Health Connect?"),
@@ -150,7 +151,7 @@ fun HealthSection(observedStore: Observed<AppStore>) {
                     observedStore.act { skipHealthBackfill() }
                 },
             ),
-            onClose = { backfillPromptShown = false },
+            onClose = { observedStore.act { offerHealthBackfill(false) } },
         )
     }
     if (bodyMassPromptShown) {

@@ -27,8 +27,9 @@ class HealthSpy : WorkoutHealthWriting {
     var available = true
     var grant = true
     /** The workout write as the phone reports it now — taken back in Health
-     *  Connect when false. Separate from `grant`, which answers the screen. */
-    var shareGranted = true
+     *  Connect when false, unknown (Health Connect could not answer) when
+     *  null. Separate from `grant`, which answers the screen. */
+    var shareGranted: Boolean? = true
     var allFail = false
     var failFromCall: Int? = null
     var gate: CompletableDeferred<Unit>? = null
@@ -58,7 +59,7 @@ class HealthSpy : WorkoutHealthWriting {
 
     override suspend fun requestAuthorization(): Boolean = grant
 
-    override suspend fun workoutShareGranted(): Boolean = shareGranted
+    override suspend fun workoutShareGranted(): Boolean? = shareGranted
 
     override suspend fun latestBodyMass(): BodyMassReading? {
         massQueries += 1

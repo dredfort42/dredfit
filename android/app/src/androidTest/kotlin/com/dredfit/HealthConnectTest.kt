@@ -115,7 +115,13 @@ class HealthConnectTest : HealthTestCase() {
     @Test
     fun aWeightLoggedInHealthConnectReachesSettings() {
         val at = Instant.now().minusSeconds(60)
-        runBlocking { client.insertRecords(listOf(WeightRecord(at, ZoneOffset.UTC, Mass.kilograms(72.5), Metadata.manualEntry()))) }
+        runBlocking {
+            // Two weigh-ins: the newer one is the weight, the one an hour
+            // older (written last) is not.
+            client.insertRecords(listOf(WeightRecord(at, ZoneOffset.UTC, Mass.kilograms(72.5), Metadata.manualEntry())))
+            client.insertRecords(listOf(WeightRecord(at.minusSeconds(3600), ZoneOffset.UTC, Mass.kilograms(80.0),
+                                                     Metadata.manualEntry())))
+        }
         launch(Seed.Clean, fast = false)
         turnOn()
         relaunchFromDisk()   // a return to the app reads the weight
@@ -204,6 +210,26 @@ class HealthConnectTest : HealthTestCase() {
         await("watch-records-toggle")
     }
 
+    /** The offer outlives a rebuilt screen (a theme or language change takes
+     *  Settings down with the activity), and the back gesture answers it
+     *  "Only new ones": nothing of the past is written, ever. */
+    @Test
+    fun theOfferOutlivesARebuiltScreenAndBackAnswersOnlyNewOnes() {
+        launch(Seed.Session2, fast = false)
+        tap(AX.settings)
+        tapOnce("health-toggle")
+        await("health-backfill-all", timeoutMs = 15_000)
+        recreate()
+        tap(AX.settings)
+        await("health-backfill-new")
+        shell("input keyevent KEYCODE_BACK")
+        assertTrue("the back gesture answered", awaitTrue(10_000) { !readStore { healthBackfillOffered } })
+        assertEquals("the past is declared handled", 0, readStore { healthBackfillCount })
+        assertTrue(readStore { settings.healthEnabled })
+        assertTrue("nothing written", own(ExerciseSessionRecord::class).isEmpty())
+        assertFalse(exists("health-backfill-new"))
+    }
+
     /** Android 10–13 without Health Connect: the group offers to install it
      *  from Google Play (Google's documented link), and nothing else. Without
      *  Health Connect at all (a work profile), there is no group. */
@@ -224,6 +250,16 @@ class HealthConnectTest : HealthTestCase() {
         } finally {
             Intents.release()
         }
+
+        // Installed meanwhile (the stand-in lifted): the next return to the
+        // screen reads the status again and offers the switch.
+        HealthConnectWriter.statusForTests = null
+        shell("am start -W -a android.settings.SETTINGS")
+        awaitStage(androidx.test.runner.lifecycle.Stage.STOPPED)
+        shell("input keyevent KEYCODE_BACK")
+        awaitStage(androidx.test.runner.lifecycle.Stage.RESUMED)
+        await("health-toggle")
+        assertFalse(exists("health-install"))
 
         HealthConnectWriter.statusForTests = HealthConnectClient.SDK_UNAVAILABLE
         relaunchFromDisk()

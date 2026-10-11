@@ -33,9 +33,14 @@ suspend fun AppStore.enableHealth(): Boolean {
 
 /** The switch's ON as a job of the store's, as iOS's `Task` is: a Settings
  *  sheet closed while Health Connect's screen is up must not lose the
- *  grant. `then` hears the answer on the store's thread. */
+ *  grant, nor the question that follows it — past history is offered once
+ *  (`healthBackfillOffered`). `then` hears the answer on the store's thread. */
 fun AppStore.turnHealthOn(then: (granted: Boolean) -> Unit) {
-    healthScope.launch { then(enableHealth()) }
+    healthScope.launch {
+        val granted = enableHealth()
+        if (granted && healthBackfillCount > 0) offerHealthBackfill(true)
+        then(granted)
+    }
 }
 
 /** Keeps the flags: re-enabling later must not duplicate workouts already
@@ -54,7 +59,10 @@ fun AppStore.disableHealth() {
  */
 suspend fun AppStore.reconcileHealthAuthorization() {
     if (!settings.healthEnabled) return
-    if (health.isAvailable && health.workoutShareGranted()) return
+    // Only a definite "not granted" turns it off: on Android 10–13 the answer
+    // is IPC to another app, and a Health Connect that cannot answer this
+    // once (an update under way, a dead binder) has not taken anything back.
+    if (health.isAvailable && health.workoutShareGranted() != false) return
     // Read again after the await: the switch may have gone down meanwhile.
     if (settings.healthEnabled) disableHealth()
 }

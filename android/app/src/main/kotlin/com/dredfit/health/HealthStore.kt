@@ -50,10 +50,12 @@ interface WorkoutHealthWriting {
      *  on its own. May wait on a system screen. */
     suspend fun requestAuthorization(): Boolean
 
-    /** The same answer, read now and without asking. A suspend call here
-     *  where HealthKit's is a property: on Android 10–13 the grants live in
-     *  the Health Connect app and are read over IPC. */
-    suspend fun workoutShareGranted(): Boolean
+    /** The same answer, read now and without asking; null when Health
+     *  Connect cannot say right now. A suspend call here where HealthKit's is
+     *  a property: on Android 10–13 the grants live in the Health Connect app
+     *  and are read over IPC, which can fail without anything being taken
+     *  back. */
+    suspend fun workoutShareGranted(): Boolean?
 
     /** The newest weight with the moment it was taken, or null when there is
      *  none and when the read was refused. */
@@ -84,7 +86,7 @@ interface WorkoutHealthWriting {
         val none: WorkoutHealthWriting = object : WorkoutHealthWriting {
             override val isAvailable = false
             override suspend fun requestAuthorization() = false
-            override suspend fun workoutShareGranted() = false
+            override suspend fun workoutShareGranted(): Boolean? = false
             override suspend fun latestBodyMass(): BodyMassReading? = null
             override suspend fun profile() = BodyProfile.unknown
             override suspend fun restingKcal(start: Instant, end: Instant): Double? = null

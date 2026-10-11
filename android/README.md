@@ -621,7 +621,7 @@ statement, and a calorie is left out rather than guessed.
 ### What is written and read
 
 | iOS (HealthKit) | Android (Health Connect) | Permission |
-|---|---|---|
+| --- | --- | --- |
 | `HKWorkout`, `.functionalStrengthTraining`, device `.local()` | `ExerciseSessionRecord`, `EXERCISE_TYPE_CALISTHENICS`, recording method "actively recorded", device phone + make + model | `WRITE_EXERCISE` |
 | `activeEnergyBurned` sample over the workout | `ActiveCaloriesBurnedRecord` over the same interval (no `TotalCaloriesBurnedRecord`: iOS writes active energy only) | `WRITE_ACTIVE_CALORIES_BURNED` |
 | `HKMetadataKeyExternalUUID` = journal id | `clientRecordId` = journal id, on both records | — |
@@ -688,7 +688,8 @@ the standard resting rate, no other app's workout to check against.
 
 - **Android 14+** has Health Connect in the system. A work profile or a device
   without the service is `SDK_UNAVAILABLE`: the Settings group is not shown at
-  all, as Google's guidance for that status asks.
+  all, as Google's guidance for that status asks. (The library checks for a
+  work profile only from 14; on 10–13 a work profile reads as "install".)
 - **Android 10–13** need the Health Connect app. Without it (or with one too
   old) the status is `SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED`: the group
   shows "Install Health Connect" / "Update Health Connect", which opens its
@@ -705,8 +706,18 @@ the standard resting rate, no other app's workout to check against.
 - **Re-checked, never asked**: on every return to the app (iOS's activation)
   and after an import — so also after Android's own restore onto a new phone,
   whose first launch is such a return. A write taken back in Health Connect
-  turns the switch off. Revoking a Health Connect permission kills the app's
-  process on API 37, so the next launch is where that is seen.
+  turns the switch off; a Health Connect that cannot answer (IPC to another
+  app on 10–13) leaves it on. Revoking a Health Connect permission kills the
+  app's process on API 37, so the next launch is where that is seen.
+- **The past is offered once**, after a grant, as on iOS — and the question
+  is held by the store (`healthBackfillOffered`), not the screen: a Settings
+  rebuilt or closed while Health Connect's screen was up must still ask, or
+  the next workout would write the whole history unasked. The back gesture
+  answers "Only new ones", the choice that writes nothing.
+- **Export flags travel with a backup**, as on iOS (`importBackup` believes
+  an unrelated journal's own flags). An iPhone's backup therefore arrives
+  with its workouts marked as already in Apple Health, and they are never
+  offered to Health Connect (an owner question).
 - **The privacy-policy link** on Health Connect's permission screen opens
   `HealthPrivacyActivity` — the `ACTION_SHOW_PERMISSIONS_RATIONALE` filter
   (Android 10–13) and the `VIEW_PERMISSION_USAGE` alias (Android 14+). It
@@ -715,7 +726,17 @@ the standard resting rate, no other app's workout to check against.
   it, and a copy of a legal text in the app would drift. Without the alias,
   API 37 never shows the permission screen at all (HealthDeniedTest red).
 
-### Play Console
+### What the library brings
+
+`androidx.health.connect:connect-client` 1.1.0 (Google Maven's newest stable
+on 11.10.2026) brings Guava, its own protobuf runtime and
+`kotlinx-coroutines-android`, and merges one component into the manifest: the
+exported `HealthDataSdkService`, which the Health Connect app on Android
+10–13 binds to (it accepts only that caller). It adds no permission; the
+merged release manifest has no INTERNET and exactly the five Health Connect
+permissions plus the `<queries>` entry.
+
+### Play Console for Health Connect
 
 - **Health Connect declaration** (Policy > App content > Health apps / Health
   Connect): `WRITE_EXERCISE` and `WRITE_ACTIVE_CALORIES_BURNED` — finished

@@ -70,8 +70,9 @@ class HealthConnectWriter(context: Context) : WorkoutHealthWriting {
 
     /** `SDK_AVAILABLE`, `SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED` (Android
      *  10–13 without a current Health Connect app) or `SDK_UNAVAILABLE` (a
-     *  work profile, a device without the service). Cheap: a package or
-     *  system-service lookup, no IPC. */
+     *  work profile or a device without the service on Android 14+; the
+     *  library checks the profile only there). Light, not free: a
+     *  system-service lookup on 14+, two package-manager calls on 10–13. */
     fun status(): Int = statusForTests ?: HealthConnectClient.getSdkStatus(app)
 
     override val isAvailable: Boolean get() = status() == HealthConnectClient.SDK_AVAILABLE
@@ -92,16 +93,26 @@ class HealthConnectWriter(context: Context) : WorkoutHealthWriting {
 
     override suspend fun requestAuthorization(): Boolean {
         if (!isAvailable) return false
-        val launch = ask ?: return workoutShareGranted()
+        val launch = ask ?: return workoutShareGranted() == true
         val closed = CompletableDeferred<Unit>()
         waiting += closed
         // One screen at a time; a second request waits for the same one.
-        if (waiting.size == 1) launch(permissions)
+        if (waiting.size == 1) {
+            try {
+                launch(permissions)
+            } catch (noScreen: ActivityNotFoundException) {
+                // Health Connect reads as available and still has no screen
+                // to take the question: answered as the phone stands, never a
+                // crash, never a request left waiting.
+                Log.w(LOG, "Health Connect's permission screen did not open", noScreen)
+                answered()
+            }
+        }
         closed.await()
         // Only the workout write decides the switch, read from Health Connect
         // rather than from the screen's result: a feature that degrades is
         // not a feature that failed.
-        return workoutShareGranted()
+        return workoutShareGranted() == true
     }
 
     /** The screen closed — answered, or gone with its activity. */
@@ -111,8 +122,7 @@ class HealthConnectWriter(context: Context) : WorkoutHealthWriting {
         all.forEach { it.complete(Unit) }
     }
 
-    override suspend fun workoutShareGranted(): Boolean =
-        granted()?.contains(WRITE_EXERCISE) ?: false
+    override suspend fun workoutShareGranted(): Boolean? = granted()?.contains(WRITE_EXERCISE)
 
     /** What this app may do now; null when Health Connect cannot say. */
     private suspend fun granted(): Set<String>? {
