@@ -57,10 +57,15 @@
         <package android:name="com.google.android.apps.healthdata" />
     </queries>
 
+    <!-- roundIcon is the same adaptive icon: where a device asks for the
+         round one, the launcher masks it like any other
+         (mipmap-anydpi/ic_launcher.xml). -->
     <application
         android:name=".DredfitApp"
         android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
         android:label="Dredfit"
+        android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.NoActionBar">
         <activity

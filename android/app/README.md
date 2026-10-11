@@ -75,7 +75,10 @@ app/src/
 │                    app/Localizable.xcstrings, holds what only Android says
 │                    (Google Play, the phone's sound mode, Health Connect);
                     resource name = <catalog>_<slug of the key, 40>_<sha1[:8]>
-│       drawable/, mipmap-*/
+│       drawable/, mipmap-anydpi/
+│                    the adaptive launcher icon (ic_launcher*, the iOS art
+│                    of store/appstore/icons; no PNGs at minSdk 29), the
+│                    status-bar icons, the widget's marks
 │       drawable-nodpi/  the widget picker's preview image (Android 10–14)
 │       layout/      the widget's autosizing lines (widget_text_*);
 │                    xml/today_status_widget is the provider
