@@ -145,12 +145,12 @@ code counts as it does, how the key is handled and why R8 is on:
    +1 for every bundle uploaded to Play, whatever the track.
    `dredfit.versionName` moves only with the product version, to iOS's
    `MARKETING_VERSION`.
-2. **Update `CHANGELOG.md`.** A version both platforms ship together has one
-   `## x.y.z` section, Android included. A version iOS has already shipped
-   gets its own `## x.y.z (Android)` section above that one — the shipped
-   section and the GitHub Release made from it stay as they were — and an
-   Android-only fix adds its lines there.
-   `python3 scripts/changelog_section.py "x.y.z (Android)"` prints it.
+2. **Update `CHANGELOG.md`.** Android's notes are always their own
+   `## x.y.z (Android)` section, above iOS's `## x.y.z` — iOS's may have
+   shipped long before, with a GitHub Release made from it as it stood — and
+   an Android-only fix adds its lines there. `check_version.py --android`
+   fails without it; `python3 scripts/changelog_section.py "x.y.z (Android)"`
+   prints it.
 3. **Run the connected suite** on an emulator — never on a phone; CI does not
    run it:
 
@@ -164,11 +164,12 @@ code counts as it does, how the key is handled and why R8 is on:
    steps 6 and 7 above, x.y.z being the product version. The bundle is built
    from `main` so that its tag names a commit that stays: a squash merge
    discards a PR branch's own commits.
-5. **Build the bundle** from a clean checkout of `main`:
+5. **Build the bundle** from `main` as origin has it (the script fetches and
+   refuses anything else, a dirty `android/` or a traced run):
    `android/tools/build-release.sh`. macOS asks whether `security` may read
    the `dredfit-release-keystore` item; the script prints the bundle's path,
    the version, the commit, the tag to give it and the upload certificate's
-   SHA-256.
+   SHA-256. Stopped midway, it leaves no bundle behind.
 6. **Google Play Console.**
    - **The first upload sets up Play App Signing, and that choice cannot be
      undone**: which key signs what Play delivers — one Google generates, or

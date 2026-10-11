@@ -819,33 +819,51 @@ android/tools/build-release.sh
 
 The script, run by the owner on his Mac:
 
-1. refuses to run traced (`bash -x` would print the password) and with
+1. refuses to run traced (`bash -x` would print the password), with
    uncommitted changes under `android/` — the tag must name what was built —
-   and runs `check_version.py --android`;
-2. checks the alias without the password (a PKCS12 store lists its aliases;
+   and on anything but `origin/main` after a fetch: a squash merge discards
+   a branch's own commits, and the tag must name one that stays;
+2. runs `check_version.py --android` (the fetch brought every tag it
+   compares the code with);
+3. checks the alias without the password (a PKCS12 store lists its aliases;
    `keytool -list -v -keystore ~/keys/dredfit-release.jks </dev/null` shows
    them), then asks the Keychain for the password — macOS shows its own
    prompt;
-3. builds `:app:bundleRelease` with the password in the environment of that
+4. builds `:app:bundleRelease` with the password in the environment of that
    one build: never echoed, never in a file, never on a command line `ps`
    shows. No Gradle daemon (it would keep the variable for hours), no
    configuration cache (it would store the signing config under
    `android/.gradle`), the Kotlin compiler in-process (its daemon outlives
-   the build);
-4. checks the bundle: `jarsigner -verify` (a bundle is JAR-signed; `apksigner`
+   the build). Stopped (Ctrl-C, a TERM), it stops the Gradle client and
+   deletes the bundle, as it does on any failure before the check below:
+   nothing signed and unchecked is left to upload;
+5. checks the bundle: `jarsigner -verify` (a bundle is JAR-signed; `apksigner`
    reads APKs only), and the certificate in the bundle against the key's;
-5. prints the bundle's path, the version, the commit and the tag to give it,
+6. prints the bundle's path, the version, the commit and the tag to give it,
    and the upload certificate's SHA-256, to compare with Play Console.
 
 `DREDFIT_UPLOAD_KEYSTORE` and `DREDFIT_UPLOAD_KEY_ALIAS` override the path and
 the alias. Without them `app/build.gradle.kts` defines no signing config, and
 the release build is unsigned — CI's, and every other machine's.
 
+**One trace of the password does reach the disk.** AGP feeds the store
+password to its signing tasks as an input in the form of an unsalted SHA-256
+(`SigningConfigDataProvider.storePasswordHash`, Guava's
+`hashUnencodedChars`), and Gradle's up-to-date check keeps that input in
+`android/.gradle/<gradle version>/executionHistory/executionHistory.bin`
+(found there for the throwaway key, 11.10.2026). It is left there: the
+upload key's password is random and kept only in the Keychain, and a SHA-256
+of such a string cannot be walked back; deleting the history after every
+release would only make the next build start cold. Were the password ever a
+guessable one, delete that directory after the build.
+
 Proved with a throwaway key and a stand-in for `security` (11.10.2026): the
 bundle verified and carried the throwaway certificate; while the build ran,
 only the Gradle client, its single-use daemon and aapt2 held the variable,
-and nothing did after it; neither `android/.gradle` nor `app/build` contained
-the password.
+and nothing did after it — nor after a TERM mid-build, which left no bundle;
+the password itself was in neither `android/.gradle` nor `app/build`. A
+traced run, a dirty tree, a branch that is not `origin/main`, a wrong alias,
+a Keychain that refuses and a wrong password each stop before Gradle starts.
 
 ### Shrinking (R8)
 
