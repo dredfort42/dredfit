@@ -482,7 +482,9 @@ class HealthExportTestEnergy : AppStoreTestCase() {
     fun anUnchangedReadingWritesNothingAfterAReload() = runHealth {
         val spy = HealthSpy()
         spy.bodyMassKg = 72.5
-        spy.bodyMassDate = Instant.parse("2026-10-01T09:07:39.123456789Z")
+        // A nanosecond a Swift Date rounds DOWN: read back, the stored date
+        // is older than the reading, which would then win again and again.
+        spy.bodyMassDate = Instant.parse("2026-10-01T09:07:39.500000001Z")
         val store = makeStore(health = spy)
         store.enableHealth()
 

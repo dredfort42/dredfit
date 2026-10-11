@@ -15,7 +15,9 @@ import com.dredfit.health.WorkoutHealthWriting
 import com.dredfit.workout.BodyProfile
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.time.Instant
 
 /** One saved workout as the spy recorded it. */
@@ -60,7 +62,10 @@ class HealthSpy : WorkoutHealthWriting {
 
     override suspend fun latestBodyMass(): BodyMassReading? {
         massQueries += 1
-        massGate?.await()
+        // A read that runs to its answer though its caller was cancelled, as
+        // HealthKit's does: the store's own check after it is what keeps a
+        // superseded reading out, not the luck of a cancellable await.
+        withContext(NonCancellable) { massGate?.await() }
         return bodyMassKg?.let { BodyMassReading(it, bodyMassDate ?: Instant.now()) }
     }
 
