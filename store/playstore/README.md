@@ -26,6 +26,15 @@ unchanged: the Russian `е`, the French non-breaking spaces, the German dash.
 `check_listing.py` adds the informal address from
 `scripts/check_translation_rules.py`.
 
+## Store settings outside the texts
+
+Play Console asks for these once, beside the listing, and nothing here is
+pasted from a file:
+
+- **Website:** `https://dredfit.com`
+- **Contact email:** `<OWNER: the address Play shows publicly>` — left for the
+  owner on purpose; no address is invented here.
+
 ## The texts
 
 The listing was adapted from the shipped App Store texts of 2.5.0, and every
