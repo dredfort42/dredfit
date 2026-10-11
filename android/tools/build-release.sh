@@ -106,9 +106,9 @@ Commit:      $commit
 Signature:   jarsigner -verify: jar verified.
 Upload key:  SHA-256 $aab_sha
 
-Next:
-  1. Play Console > Test and release > App integrity: the upload key
-     certificate's SHA-256 must be the one above.
-  2. Testing > Internal testing > Create new release: upload the bundle.
+Next (.github/WORKFLOWS.md, "Android release"):
+  1. Play Console, App integrity: the upload key certificate's SHA-256 must
+     be the one above.
+  2. Play Console, Internal testing: create a release, upload the bundle.
   3. git tag android-v$version $commit && git push origin android-v$version
 EOF
