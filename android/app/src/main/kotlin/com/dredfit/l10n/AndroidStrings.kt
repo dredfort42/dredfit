@@ -19,23 +19,41 @@ internal object AndroidStrings {
     }
 
     private fun stringKeys(): Array<String> = arrayOf(
+        "Add past workouts to Health Connect?",
+        "From Health Connect, %@. A newer weight — typed here or logged there — takes over.",
+        "Health Connect",
+        "Install Health Connect",
         "Open notification settings",
         "Open phone settings",
         "Rate on Google Play",
+        "Save workouts to Health Connect",
+        "Set in the app, %@. A newer weight logged in Health Connect takes over.",
         "So the reminder arrives on its own, without waiting for you to pick up the phone, let Dredfit run without battery restrictions.",
         "The tones play even when the phone is set to silent or vibrate.",
+        "Turn it on if a smartwatch records the same workouts — otherwise the session counts twice — or if you simply want no estimate written.",
+        "Update Health Connect",
         "When the phone is set to silent or vibrate, the tones go quiet — the vibration keeps going.",
         "Workout in progress",
+        "Workouts appear in Health Connect. Nothing leaves your device.",
     )
 
     private fun stringIds(): IntArray = intArrayOf(
+        R.string.android_add_past_workouts_to_health_connect_74a6d72d,
+        R.string.android_from_health_connect_a_newer_weight_typed_73135411,
+        R.string.android_health_connect_be6bca3e,
+        R.string.android_install_health_connect_be2676a1,
         R.string.android_open_notification_settings_9e8653ce,
         R.string.android_open_phone_settings_3e3acb55,
         R.string.android_rate_on_google_play_1b86d374,
+        R.string.android_save_workouts_to_health_connect_1a1478e6,
+        R.string.android_set_in_the_app_a_newer_weight_logged_in__a44c73f6,
         R.string.android_so_the_reminder_arrives_on_its_own_witho_a1fadf57,
         R.string.android_the_tones_play_even_when_the_phone_is_se_2f936e1b,
+        R.string.android_turn_it_on_if_a_smartwatch_records_the_s_dd6c82c5,
+        R.string.android_update_health_connect_beccab30,
         R.string.android_when_the_phone_is_set_to_silent_or_vibra_a20ca2f7,
         R.string.android_workout_in_progress_90335fa4,
+        R.string.android_workouts_appear_in_health_connect_nothin_e2db7288,
     )
 
     private fun pluralKeys(): Array<String> = arrayOf<String>()

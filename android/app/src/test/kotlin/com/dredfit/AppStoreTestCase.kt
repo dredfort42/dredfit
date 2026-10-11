@@ -10,6 +10,7 @@
 package com.dredfit
 
 import com.dredfit.core.Pattern
+import com.dredfit.health.WorkoutHealthWriting
 import com.dredfit.reminders.NotificationScheduling
 import com.dredfit.store.AppStore
 import com.dredfit.widgets.WidgetPublishing
@@ -33,10 +34,13 @@ abstract class AppStoreTestCase {
     /** The state file of this test — iOS's `tempURL`. */
     val tempPath: Path get() = tempDir.resolve("dredfit-test.json")
 
+    /** A Health spy by default, as on iOS: a granting, empty Health Connect
+     *  for the suites that are not about it. */
     fun makeStore(path: Path = tempPath, clock: Clock? = null,
                   notifications: NotificationScheduling = NotificationScheduling.none,
-                  widgets: WidgetPublishing = WidgetPublishing.none): AppStore =
-        AppStore(path, clock, notifications = notifications, widgets = widgets)
+                  widgets: WidgetPublishing = WidgetPublishing.none,
+                  health: WorkoutHealthWriting = HealthSpy()): AppStore =
+        AppStore(path, clock, notifications = notifications, widgets = widgets, health = health)
 
     /** What the store handed the widget, in order — iOS's temp
      *  `widgetSnapshotURL`, read back after each write. */

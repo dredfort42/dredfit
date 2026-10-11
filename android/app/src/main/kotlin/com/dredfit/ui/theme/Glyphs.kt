@@ -239,3 +239,19 @@ fun BellGlyph(color: Color, size: Dp = 16.dp) {
                  cap = StrokeCap.Round)
     }
 }
+
+/** "scalemass" — the body weight's row: a weight with a handle on top. */
+@Composable
+fun ScaleGlyph(color: Color, size: Dp = 15.dp) {
+    Canvas(Modifier.size(size)) {
+        val w = this.size.minDimension
+        val line = w * 0.09f
+        val stroke = Stroke(line, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        drawCircle(color, radius = w * 0.13f, center = Offset(w / 2, w * 0.2f), style = stroke)
+        val body = Path().apply {
+            moveTo(w * 0.24f, w * 0.36f); lineTo(w * 0.76f, w * 0.36f)
+            lineTo(w * 0.94f, w * 0.92f); lineTo(w * 0.06f, w * 0.92f); close()
+        }
+        drawPath(body, color, style = stroke)
+    }
+}

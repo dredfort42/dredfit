@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.health.connect.client.PermissionController
 import androidx.lifecycle.Lifecycle
 import com.dredfit.review.PlayReviewPrompt
 import com.dredfit.store.AppStore
@@ -58,6 +59,14 @@ class MainActivity : ComponentActivity() {
     }
     private val askForNotifications = { notificationQuestion.launch(Manifest.permission.POST_NOTIFICATIONS) }
 
+    /** Health Connect's permission screen, the same way: every activity
+     *  registers it, and the answer is read from Health Connect afterwards
+     *  (`HealthConnectWriter.answered`), not from the screen's result. */
+    private val healthQuestion = registerForActivityResult(PermissionController.createRequestPermissionResultContract()) {
+        app.health.answered()
+    }
+    private val askForHealth = { permissions: Set<String> -> healthQuestion.launch(permissions) }
+
     /** Per activity: Play launches its card over the activity that asks. */
     private val reviewPrompt by lazy { app.reviewPromptForTests ?: PlayReviewPrompt(this) }
 
@@ -73,6 +82,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         app.reminders.ask = askForNotifications
+        app.health.ask = askForHealth
         app.withStore { loaded ->
             store = loaded
             // A cold start: onResume has already run without a store. A
@@ -121,6 +131,10 @@ class MainActivity : ComponentActivity() {
             // Leaving for good with the question unanswered: the store must
             // not wait for a dialog that has no screen any more.
             if (isFinishing) app.reminders.answered()
+        }
+        if (app.health.ask === askForHealth) {
+            app.health.ask = null
+            if (isFinishing) app.health.answered()
         }
         super.onDestroy()
     }

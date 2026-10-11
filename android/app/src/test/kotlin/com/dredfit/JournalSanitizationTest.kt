@@ -3,8 +3,7 @@
 //  input too: the engine heals the state it is handed, but its own snapshots
 //  come back out of the store file and go straight into arithmetic.
 //
-//  Not ported: `testACorruptExerciseSnapshotCannotTrapTheDurationEstimate`
-//  (the Health backfill, which arrives with health/).
+//  Every Swift test is ported.
 //
 
 package com.dredfit
@@ -17,7 +16,9 @@ import com.dredfit.core.Position
 import com.dredfit.journal.RecordedPosition
 import com.dredfit.journal.WorkoutRecord
 import com.dredfit.store.AppStore
+import com.dredfit.store.backfillHealth
 import com.dredfit.store.currentPositions
+import com.dredfit.store.healthBackfillCount
 import com.dredfit.store.gapDays
 import com.dredfit.store.recentGaps
 import com.dredfit.store.shouldOfferComeback
@@ -111,6 +112,33 @@ class JournalSanitizationTest : AppStoreTestCase() {
         assertEquals(trainingDays(Instant.parse("0001-01-01T00:00:00Z"), Instant.now(), past.zone), gap,
                      "a far-past date is held to year 1 on the way in")
         assertTrue(gap in 700_000..EngineConfig.countMax, "and the gap stays inside the technical ceiling")
+    }
+
+    /** A store whose journal carries the given records AND has the Health
+     *  export switched on in the settings the file itself holds. The default
+     *  spy accepts every forward interval — iOS's `AcceptingHealth`. */
+    private fun healthStore(records: String): AppStore = storeFrom("""
+        {"engineState":{"counter":11,"vars":[${pairs { 2 }}],"doses":[${pairs { 10 }}],
+                        "failStreak":[${pairs { 0 }}]},
+         "records":[$records],
+         "settings":{"restWeekdays":[],"soundsEnabled":true,"healthEnabled":true,
+                     "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
+    """)
+
+    @Test
+    fun aCorruptExerciseSnapshotCannotTrapTheDurationEstimate() = runHealth {
+        // The Health export estimates duration from the stored exercises.
+        val s = healthStore("""
+            {"sessionNumber":1,"date":0,"result":"plan","totalLevelAfter":180,
+             "exercises":[{"pattern":"squat","name":"x","tier":1,"unit":"reps",
+                           "load":9223372036854775807,"perSide":true,
+                           "sets":9223372036854775807,"restSetSec":9223372036854775807,
+                           "restExerciseSec":60,"display":"x"}]}
+        """)
+        // Reached through the Health backfill, the only caller of the estimate.
+        s.backfillHealth()
+        assertEquals(1, s.records.size, "the backfill runs the estimate without trapping")
+        assertEquals(0, s.healthBackfillCount, "and the record went out")
     }
 
     // MARK: - The valid domain is untouched

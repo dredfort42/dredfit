@@ -422,7 +422,7 @@ fun SoundsSection(observedStore: Observed<AppStore>) {
 }
 
 @Composable
-private fun SwitchRow(title: String, checked: Boolean, tag: String, titleSize: Float = 16f, onChange: (Boolean) -> Unit) {
+internal fun SwitchRow(title: String, checked: Boolean, tag: String, titleSize: Float = 16f, onChange: (Boolean) -> Unit) {
     val c = Theme.colors
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(title, style = dredfitFont(titleSize, if (titleSize >= 16f) Weight.medium else Weight.regular), color = c.ink,

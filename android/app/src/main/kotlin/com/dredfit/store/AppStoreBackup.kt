@@ -13,6 +13,7 @@
 package com.dredfit.store
 
 import com.dredfit.core.SwiftDecodingException
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -86,8 +87,11 @@ fun AppStore.importBackup(bytes: ByteArray) {
             if (r.id in exportedHere) r.copy(healthExported = true) else r
         })
     }
-    // On iOS the Health switch is re-checked here too — a device-local fact a
-    // backup cannot prove; it joins with health/.
+    // The switch is a device-local fact, like the reminder's permission
+    // below: a backup cannot prove this phone ever granted the workout
+    // write. Not asked here — the restored workouts go through the backfill
+    // choice when the person turns it back on.
+    healthScope.launch { reconcileHealthAuthorization() }
     if (settings.reminderEnabled) {
         // The permission is per device (owner decision, 09.10.2026: the
         // imported flag is kept as it came, and checked now): a backup

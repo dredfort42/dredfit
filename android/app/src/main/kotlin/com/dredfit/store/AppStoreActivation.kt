@@ -1,12 +1,12 @@
 //
 //  What the app coming to the foreground runs, in order. Every step makes
 //  its own change through the store; this file only sequences them.
-//  Port of ios/Dredfit/AppStore+Activation.swift. The iOS sequence also
-//  asks Health for the weight; it joins this list with health/.
+//  Port of ios/Dredfit/AppStore+Activation.swift.
 //
 
 package com.dredfit.store
 
+import kotlinx.coroutines.launch
 import java.time.Instant
 
 /** Re-anchors only when the day actually rolled over, and runs the
@@ -37,4 +37,17 @@ private fun AppStore.activateLoaded(now: Instant) {
     // The window rebuilt on every return, so it never runs dry while the
     // app is in use.
     rescheduleReminders(now)
+    // Off the sequence: a Health Connect call must not hold the plan's
+    // re-anchoring behind it. A workout write taken back since the last
+    // return turns the switch off first — this is also the re-check after
+    // Android's own restore onto a new phone, which needs no device mark:
+    // it runs on every return. Then the weight, the owner's, who may have
+    // weighed themselves since. Cancelled, not just replaced: two returns in
+    // a row leave two reads in flight, and Health Connect decides which
+    // answers first — the older reading must not land last and stick.
+    bodyMassJob?.cancel()
+    bodyMassJob = healthScope.launch {
+        reconcileHealthAuthorization()
+        refreshBodyMassFromHealth()
+    }
 }

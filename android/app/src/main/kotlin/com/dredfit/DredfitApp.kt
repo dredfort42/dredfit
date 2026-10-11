@@ -21,6 +21,7 @@ import android.app.UiModeManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.LocaleList
+import com.dredfit.health.HealthConnectWriter
 import com.dredfit.ongoing.OngoingNotification
 import com.dredfit.reminders.SystemNotificationScheduler
 import com.dredfit.signals.DeviceSignals
@@ -69,6 +70,11 @@ class DredfitApp : Application(), WorkConfiguration.Provider {
      *  every widget session and the store must see the same feed. Its file
      *  writes share the store's disk thread. */
     val widgets by lazy { WidgetCenter(this, disk) }
+
+    /** Health Connect — one per process, so a permission screen opened from
+     *  Settings is answered to the store that asked, whichever activity the
+     *  answer reaches. */
+    val health by lazy { HealthConnectWriter(this) }
 
     /** What the widget was last drawn for: the language, and the night mode
      *  where Glance resolves it itself. */
@@ -120,7 +126,7 @@ class DredfitApp : Application(), WorkConfiguration.Provider {
         loading = true
         disk.execute {
             val loaded = AppStore(statePath, disk = disk, main = mainExecutor, notifications = reminders,
-                                  widgets = widgets)
+                                  widgets = widgets, health = health)
             mainExecutor.execute {
                 val observed = Observed(loaded)
                 // The one subscription: every change the store makes — a
