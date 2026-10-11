@@ -1,6 +1,6 @@
 Abra o app — seu treino está pronto. Essa é a ideia toda.
 
-Dredfit é um treinador adaptativo de peso corporal que funciona como um termostato. Sem questionário, sem escolha de objetivo, sem ajustes. Ele adapta cada treino ao que aconteceu no anterior: responda uma pergunta — difícil, como planejado ou fácil — e o plano se ajusta. Já treina? Informe o que você fez, e isso vira o plano.
+Dredfit é um treinador adaptativo de peso corporal que funciona como um termostato. Sem questionário, sem escolha de objetivo, nada para configurar antes. Ele adapta cada treino ao que aconteceu no anterior: responda uma pergunta — difícil, como planejado ou fácil — e o plano se ajusta. Já treina? Informe o que você fez, e isso vira o plano.
 
 Por onde tudo começa
 • O primeiro dia são três séries de quatro, na variação mais leve de seis movimentos: flexão com os joelhos apoiados, agachamento, ponte de glúteos e por aí. Cerca de 32 minutos com aquecimento e desaquecimento.
@@ -19,7 +19,7 @@ O que tem dentro
 • Aquecimento e desaquecimento guiados e pausáveis, com tempo de preparo antes de cada posição. Descanso 3-2-1 (dá para esticar ou pular), isometria para pranchas e quatro segundos entre o toque e o relógio.
 • Cada exercício se explica sozinho: três passos de técnica, dois erros comuns e uma linha “Na vida”.
 • Durante o treino, uma notificação faz a contagem regressiva do descanso e da isometria; um widget na tela inicial mostra o dia e, maior, sua semana e o plano.
-• Cada movimento tem sua própria escada, mais gráfico e calendário. Marcos tranquilos: sem confete.
+• Cada movimento tem sua própria escada, mais gráfico e calendário.
 
 Você decide quanto tempo leva
 • Antes de começar, o Hoje mostra uma faixa: o treino completo e o mais curto que ele pode ficar. Dentro dele, dá para pular a série atual ou o que resta de um movimento, conforme o exercício permitir, e os minutos restantes caem conforme o uso. O app nunca escolhe os movimentos por você.

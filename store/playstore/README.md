@@ -44,10 +44,25 @@ the Android app has. What replaced them, and the evidence:
 
 Play's metadata policy shaped the rest: section headings are no longer in
 capitals, the emphasis capitals ("in ONE set") are gone, and the title and
-short description carry no price, ranking or call to action. The density
-clause ("no step up is more than half again as hard…") was cut to fit 4000 in
-every locale: its translations had drifted apart, and it was the one claim the
-listing could lose without losing a feature.
+short description carry no price, ranking or call to action. "No settings"
+became "nothing to set up first" — the Android app has a Settings screen, and
+the listing itself says to switch the bar module on.
+
+Length: the checker counts a line break as two characters (a CRLF submission;
+how Play Console counts was not observed), so 4000 means 4000 with 34 breaks
+counted twice. Three claims were cut, the same in every locale, to make room:
+the density clause ("no step up is more than half again as hard…" — its
+translations had drifted apart), "with its own denominator", and "Milestones
+are calm: no confetti". What the de, fr and it texts had added to the English
+on iOS went too ("growth costs a set, not a whole workout", and the French "et
+le relancent"), and the French skip sentence regained the condition the English
+has ("while enough of the exercise still stands"): without it, it promised a
+skip the app refuses.
+
+Not aligned, on purpose: the other differences between the translations and the
+English that the shipped App Store texts already carried — omissions such as
+"and the like" or "leave the exercise", not claims. They are the translators'
+pass, not this listing's.
 
 ## The frames
 

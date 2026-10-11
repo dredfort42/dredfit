@@ -1,6 +1,6 @@
 Open the app — your workout is ready. That's the whole idea.
 
-Dredfit is an adaptive bodyweight trainer that works like a thermostat. No onboarding quiz, no goal picker, no settings. It adjusts every next workout to how the last one went: answer one question afterwards — tough, on plan, or easy — and the plan moves. Already training? Enter what you did, and it becomes the plan.
+Dredfit is an adaptive bodyweight trainer that works like a thermostat. No onboarding quiz, no goal picker, nothing to set up first. It adjusts every next workout to how the last one went: answer one question afterwards — tough, on plan, or easy — and the plan moves. Already training? Enter what you did, and it becomes the plan.
 
 Where it starts
 • Day one is three sets of four, in the gentlest variation of six movements: knee push-ups, squats, a glute bridge and the like. About 32 minutes with the warm-up and cool-down.
@@ -19,7 +19,7 @@ What's inside
 • Guided warm-up and cool-down, both pausable, with time to get ready before every position. Rest timers with a 3-2-1 countdown you can stretch as well as skip, hold timers for planks, and four seconds between any tap and any running clock.
 • Every exercise explains itself: three technique steps, two common mistakes, and an "In life" line.
 • While you train, a notification counts the rest — and a hold — down; a home-screen widget shows the day and, at larger sizes, your week and the plan.
-• Every movement has its own ladder with its own denominator, plus a chart and a calendar. Milestones are calm: no confetti.
+• Every movement has its own ladder, plus a chart and a calendar.
 
 You decide how long it takes
 • Before you start, Today shows a range: the full workout, and the shortest that session can be made. Inside it you can drop a set while enough of the exercise still stands, leave the exercise, or drop all that is left of a longer one; the minutes fall as you go. The app never picks which movements you leave out.
@@ -28,7 +28,7 @@ You decide how long it takes
 • Rest days you choose, a reminder on training days, export and import of your history as plain JSON, and, if you turn it on, workouts saved to Health Connect, with an energy estimate once your body weight is known.
 
 Private by design
-No account. No ads. No analytics. No internet permission. Your training is a small file on your phone: it goes only where you send it, and into your phone’s own backup if that is on.
+No account. No ads. No analytics. No internet permission. Your training is a small file on your phone: it goes only where you send it, and into your phone's own backup if that is on.
 
 Free, with no in-app purchases. Android 10 or newer. In English, German, French, Italian, Spanish, Portuguese (Brazil) and Russian.
 
