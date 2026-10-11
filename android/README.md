@@ -514,14 +514,22 @@ session, and a broadcast redraws the rest.
   A new system language redraws it (LOCALE_CHANGED, Glance's receiver). So
   does a per-app language changed while the process lives, which no
   broadcast announces (`onConfigurationChanged`).
-- **Tap.** Opens Today (`MainActivity.ACTION_OPEN_TODAY`, the reminder's
-  door). A workout in flight stays on top. iOS sets no `widgetURL`, so its
-  tap opens the app wherever it was.
+- **Tap.** Opens the app as it was left, as on iOS, whose widget sets no
+  `widgetURL` (owner decision, 11.10.2026): a workout in flight stays in
+  front, Settings stays open. Glance gives every click intent a unique data
+  URI, and an intent unlike the task's root intent stacks a second
+  MainActivity instead of bringing the task back. So the tap starts
+  `OpenAppActivity`: invisible, in no task of the app's. It moves the app's
+  existing task to the front as it stands, whatever started that task (the
+  launcher, a reminder). With no task, it launches the app as the icon does.
 - **Picker preview.**
   - Android 15+: the generated preview is the person's own day, set once
     per process (the system allows about two an hour).
-  - Android 12–14: `previewLayout`, a static small on a workout day.
-  - Android 10–11: the app icon.
+  - Android 10–14, and 15+ before the app has set one: `previewImage`
+    (`res/drawable-nodpi/widget_preview_image.png`, 919×447, 21 KB). It
+    shows the medium on a neutral week, light, in English (owner decision,
+    11.10.2026). There is no `previewLayout`, because from Android 12 it
+    would win over the image.
 
 ### Battery and permissions
 
