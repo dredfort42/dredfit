@@ -1,6 +1,6 @@
 //
-//  The launcher icon the manifest names. Android only — iOS's comes from the
-//  asset catalog by convention. The app once installed with the system's
+//  The launcher icon the manifest names. Android only — iOS's is named by the
+//  build setting ASSETCATALOG_COMPILER_APPICON_NAME. The app once installed with the system's
 //  default icon because the manifest named none, and no build or test
 //  failed; a name that resolves to nothing fails the build instead.
 //

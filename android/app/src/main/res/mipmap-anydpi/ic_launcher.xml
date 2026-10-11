@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The launcher icon. Adaptive only: every release the app runs on
-     (minSdk 29) draws it in the launcher's own mask, so there are no PNG
+     (minSdk 29) clips it with the device's icon mask, so there are no PNG
      mipmaps and no -v26 folder. The background is final_light.svg's white.
      iOS's dark variant is left out: an adaptive icon has no dark layer, and
      the themed icon is the monochrome one. -->

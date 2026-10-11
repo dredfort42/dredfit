@@ -3,7 +3,7 @@
      iOS's tinted variant, on the foreground's geometry. The launcher keeps
      only the alpha and paints its own colour, so the variant's three greys
      become three alphas — each its grey's luma (#FFFFFF, #B9BABE, #6E7075 →
-     FF, BA, 70), the share iOS's tint gives it. A single alpha would make
+     FF, BA, 70), roughly how bright iOS's tint draws it. A single alpha would make
      done and today the same dot. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
