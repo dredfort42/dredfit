@@ -20,8 +20,10 @@ android {
         // Android 10 — the owner's floor (android/CLAUDE.md).
         minSdk = 29
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        // One place for both (gradle.properties says why each counts as it
+        // does); scripts/check_version.py reads the same two lines.
+        versionCode = providers.gradleProperty("dredfit.versionCode").get().toInt()
+        versionName = providers.gradleProperty("dredfit.versionName").get()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // The frames for comparing with the iOS store shots are taken on
         // request (`adb shell am instrument -e class com.dredfit.ScreenshotWalk
@@ -35,6 +37,43 @@ android {
         // worse than no link. Flip to true once the listing is live
         // (AboutLinksTest pins the default; owner decision 09.10.2026).
         buildConfigField("boolean", "PLAY_LISTING_LIVE", "false")
+    }
+
+    // The Play upload key, handed in by android/tools/build-release.sh through
+    // the environment and nowhere else: the password never sits in a file, a
+    // Gradle property or a command line that `ps` shows. Without it the
+    // release build stays unsigned — CI's, and every machine's but the
+    // owner's.
+    val uploadKeystore = providers.environmentVariable("DREDFIT_UPLOAD_KEYSTORE").orNull
+    if (uploadKeystore != null) {
+        signingConfigs.create("upload") {
+            storeFile = file(uploadKeystore)
+            storePassword = providers.environmentVariable("DREDFIT_UPLOAD_PASSWORD").orNull
+                ?: error("DREDFIT_UPLOAD_KEYSTORE is set, DREDFIT_UPLOAD_PASSWORD is not")
+            keyAlias = providers.environmentVariable("DREDFIT_UPLOAD_KEY_ALIAS").orNull
+                ?: error("DREDFIT_UPLOAD_KEYSTORE is set, DREDFIT_UPLOAD_KEY_ALIAS is not")
+            // A PKCS12 store (keytool's default, and the upload key's type)
+            // has one password for the store and its key.
+            keyPassword = storePassword
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.findByName("upload")
+            // R8: the bundle drops from 12.5 MB to 6.6 MB and Play's download
+            // from 11.8 MB to 2.3 MB (Health Connect brings Guava and
+            // protobuf; measured 11.10.2026, android/README.md), and Compose
+            // runs as Google measures it only optimized. Nothing here reflects on its own classes —
+            // JSON is read through the tree, never by generated serializers,
+            // strings by R ids (l10n/) — and the libraries that do ship their
+            // keep rules; proguard-rules.pro repairs the two that predate R8's
+            // full mode. android/README.md "Releasing" has the smoke that
+            // proved the shrunk build.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
     }
 
     buildFeatures {

@@ -25,7 +25,9 @@ android/
 ├── app/               the Compose app, widgets included — see app/README.md
 └── tools/             swift-backup-probe: the iOS app's own persistence code
                        on the command line, writing the fixtures the
-                       cross-platform tests compare against
+                       cross-platform tests compare against;
+                       build-release.sh: the signed bundle for Google Play
+                       ("Releasing" below)
 ```
 
 Not here, deliberately:
@@ -773,3 +775,139 @@ permissions plus the `<queries>` entry.
   11.10.2026, but GitHub Pages serves main's `docs/`: the text is live only
   once it reaches main. `store/playstore/policy.md` drafts every Console
   answer.
+
+## Releasing
+
+The procedure — branch, Play Console, tag — is in
+[`.github/WORKFLOWS.md`](../.github/WORKFLOWS.md) ("Android release"). This
+section is the build: version, key, shrinking.
+
+### Version
+
+Both numbers live in `android/gradle.properties`, nowhere else;
+`app/build.gradle.kts` reads them and `scripts/check_version.py --android`
+checks them (`build-release.sh` runs it before it asks for the key).
+
+- **`dredfit.versionName`** is the product version, the x.y.z of iOS's
+  `MARKETING_VERSION` in the same tree (owner decision, 11.10.2026): one
+  product, one number in both stores, one CHANGELOG. An Android-only fix
+  keeps it and takes the next versionCode — 2.5.0 build 2. An iOS release
+  only notes an Android version that differs; it never fails on one.
+- **`dredfit.versionCode`** is Google Play's counter, +1 for every bundle
+  uploaded, whatever the track. A plain counter, like iOS's build number but
+  its own (Xcode Cloud counts that one): Play refuses a code it has already
+  seen, so every upload spends one, a replaced internal build included. A
+  code derived from the version (2.5.0 → 20500) has no room for 2.5.0 build
+  2, and caps each part at 99. `check_version.py --android` fails a code that
+  is not above every code a tag already carries.
+- **The tag** is `android-vX.Y.Z+CODE` — `android-v2.5.0+1`: the build as
+  semver build metadata, which is what it is (a `-b1` suffix would read as a
+  pre-release of 2.5.0). The check reads the codes from the tag names, of
+  every version, not only older ones.
+
+### Signing
+
+The upload key is `~/keys/dredfit-release.jks` (PKCS12, alias `dredfit`). Its
+password is in the macOS Keychain only (generic password, service
+`dredfit-release-keystore`). A bundle uploaded to Play goes through Play App
+Signing: Play re-signs what it delivers with the app-signing key chosen at
+the first upload, and this key only proves the uploads are ours.
+
+```sh
+android/tools/build-release.sh
+```
+
+The script, run by the owner on his Mac:
+
+1. refuses to run traced (`bash -x` would print the password), with
+   uncommitted changes under `android/` — the tag must name what was built —
+   and on anything but `origin/main` after a fetch: a squash merge discards
+   a branch's own commits, and the tag must name one that stays;
+2. runs `check_version.py --android` (the fetch brought every tag it
+   compares the code with);
+3. checks the alias without the password (a PKCS12 store lists its aliases;
+   `keytool -list -v -keystore ~/keys/dredfit-release.jks </dev/null` shows
+   them), then asks the Keychain for the password — macOS shows its own
+   prompt;
+4. builds `:app:bundleRelease` with the password in the environment of that
+   one build: never echoed, never in a file, never on a command line `ps`
+   shows. No Gradle daemon (it would keep the variable for hours), no
+   configuration cache (it would store the signing config under
+   `android/.gradle`), the Kotlin compiler in-process (its daemon outlives
+   the build). Stopped (Ctrl-C, a TERM), it stops the Gradle client and
+   deletes the bundle, as it does on any failure before the check below:
+   nothing signed and unchecked is left to upload;
+5. checks the bundle: `jarsigner -verify` (a bundle is JAR-signed; `apksigner`
+   reads APKs only), and the certificate in the bundle against the key's;
+6. prints the bundle's path, the version, the commit and the tag to give it,
+   and the upload certificate's SHA-256, to compare with Play Console.
+
+`DREDFIT_UPLOAD_KEYSTORE` and `DREDFIT_UPLOAD_KEY_ALIAS` override the path and
+the alias. Without them `app/build.gradle.kts` defines no signing config, and
+the release build is unsigned — CI's, and every other machine's.
+
+**One trace of the password does reach the disk.** AGP feeds the store
+password to its signing tasks as an input in the form of an unsalted SHA-256
+(`SigningConfigDataProvider.storePasswordHash`, Guava's
+`hashUnencodedChars`), and Gradle's up-to-date check keeps that input in
+`android/.gradle/<gradle version>/executionHistory/executionHistory.bin`
+(found there for the throwaway key, 11.10.2026). It is left there: the
+upload key's password is random and kept only in the Keychain, and a SHA-256
+of such a string cannot be walked back; deleting the history after every
+release would only make the next build start cold. Were the password ever a
+guessable one, delete that directory after the build.
+
+Proved with a throwaway key and a stand-in for `security` (11.10.2026): the
+bundle verified and carried the throwaway certificate; while the build ran,
+only the Gradle client, its single-use daemon and aapt2 held the variable,
+and nothing did after it — nor after a TERM mid-build, which left no bundle;
+the password itself was in neither `android/.gradle` nor `app/build`. A
+traced run, a dirty tree, a branch that is not `origin/main`, a wrong alias,
+a Keychain that refuses and a wrong password each stop before Gradle starts.
+
+### Shrinking (R8)
+
+The release build is minified and its resources shrunk:
+
+| | bundle | download (bundletool `get-size total`) |
+| --- | --- | --- |
+| without R8 | 12.5 MB | 11.8 MB |
+| with R8 | 6.6 MB, over half of it the mapping (3.7 MB) | 2.25–2.30 MB, any ABI, API 29+ |
+
+- **Why it is safe here.** The app reflects on none of its own classes: JSON
+  is read through the tree, never by generated serializers, and strings by
+  their R ids (`l10n/`). The libraries that reflect ship keep rules — Health
+  Connect's protos, Glance, WorkManager, Room, Play services' basement (the
+  merged list: `app/build/outputs/mapping/release/configuration.txt`).
+- **Two of those rules predate R8's full mode** (AGP's default since 8.0),
+  which no longer keeps a kept class's no-argument constructor.
+  WorkManager 2.7.1 and its Room 2.2.5 create their database and input
+  merger by reflection, so the first shrunk build never drew the widget
+  ("Failed to create an instance of androidx.work.impl.WorkDatabase").
+  `app/proguard-rules.pro` keeps those constructors.
+- **The mapping rides in the bundle**
+  (`BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map`), so
+  Play Console can deobfuscate crash reports without a separate upload.
+- **Baseline profiles.** The libraries' profiles (Compose and others) are
+  merged into the bundle (`BUNDLE-METADATA/com.android.tools.build.profiles`).
+  An app profile of its own would need a Macrobenchmark module and a device
+  run; there is none yet.
+
+**The smoke** (11.10.2026, API 37 emulator): the throwaway-signed bundle,
+installed through bundletool's split APKs as Play installs them,
+non-debuggable, showed "Dredfit 2.5.0 (1)" in Settings and passed:
+onboarding; a whole workout — the warm-up's countdown, then skipped; every
+set; the rests (one run out: its 3-2-1 and go vibrated, the others
+skipped); the cool-down skipped — under the `health` foreground service with
+its notification and wake lock; the rating; the
+state through a force stop; history, Progress, Calendar, the share sheet;
+the reminder asked for, scheduled, and posted on its own channel and sound
+after a clock move; Health Connect asked for, then the workout and its
+calories written; export and import of a six-workout backup; the widget
+placed, drawn and tapped. Logcat showed no error from the app after the fix
+above. Not covered: Play In-App Review (it needs a milestone from the fifth
+workout and an install from Play — internal testing is the first place it
+can be seen); the Health Connect app of Android 10–13, a separate app the
+client binds to, where the system service of 14+ answered here (no shrunk
+build has run below API 37); the per-app language; the ongoing
+notification's tap.

@@ -121,7 +121,10 @@ jobs:
         run: ./gradlew :app:testDebugUnitTest :app:assembleDebug --console=plain
 
       # The release build runs lintVitalRelease, which the debug build skips:
-      # a fatal lint error once went unseen here for three PRs.
-      - name: Release build (unsigned)
+      # a fatal lint error once went unseen here for three PRs. The bundle is
+      # what Google Play receives; it shares R8's output with the APK, so it
+      # adds only its packaging. Both stay unsigned: the upload key never
+      # leaves the owner's Mac (android/tools/build-release.sh).
+      - name: Release build (unsigned APK and bundle)
         working-directory: android
-        run: ./gradlew :app:assembleRelease --console=plain
+        run: ./gradlew :app:assembleRelease :app:bundleRelease --console=plain
