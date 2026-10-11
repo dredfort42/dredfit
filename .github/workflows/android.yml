@@ -119,3 +119,9 @@ jobs:
       - name: Unit tests and debug build
         working-directory: android
         run: ./gradlew :app:testDebugUnitTest :app:assembleDebug --console=plain
+
+      # The release build runs lintVitalRelease, which the debug build skips:
+      # a fatal lint error once went unseen here for three PRs.
+      - name: Release build (unsigned)
+        working-directory: android
+        run: ./gradlew :app:assembleRelease --console=plain
