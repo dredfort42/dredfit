@@ -157,18 +157,24 @@ class HealthConnectWriter(context: Context) : WorkoutHealthWriting {
         }
     }
 
-    override suspend fun foreignWorkoutIntervals(start: Instant, end: Instant): List<TimeSpan> {
+    override suspend fun foreignWorkoutIntervals(start: Instant, end: Instant): List<TimeSpan> =
+        WorkoutHealthWriting.foreignIntervals(sessionsTouching(start, end) ?: return emptyList(), excluding = app.packageName)
+
+    /** Every session, whoever wrote it, that overlaps the window; null when
+     *  the read failed or was refused. HealthKit's predicate finds every
+     *  workout that OVERLAPS the window; Health Connect's time filter matches
+     *  a session by its START only (API 37: a session begun before the window
+     *  and ending inside it is not returned), so a watch session started a
+     *  minute before ours would be missed. Every session that started before
+     *  the end is read, and the overlap is decided here. Internal for
+     *  HealthConnectTest, which can only write sessions of its own. */
+    internal suspend fun sessionsTouching(start: Instant, end: Instant): List<WorkoutOrigin>? {
         if (start >= end) return emptyList()
-        val client = client() ?: return emptyList()
-        val origins = guarded("workouts") {
+        val client = client() ?: return null
+        return guarded("workouts") {
             val found = mutableListOf<WorkoutOrigin>()
             var page: String? = null
             do {
-                // HealthKit's predicate finds every workout that OVERLAPS the
-                // window; Health Connect's time filter matches a session by
-                // its START only, so a watch session begun a minute before
-                // ours would be missed. Every session that started before the
-                // end is read, and the overlap is decided here.
                 val response = client.readRecords(ReadRecordsRequest(ExerciseSessionRecord::class,
                                                                       TimeRangeFilter.before(end), pageToken = page))
                 response.records.filter { it.endTime > start }
@@ -176,8 +182,7 @@ class HealthConnectWriter(context: Context) : WorkoutHealthWriting {
                 page = response.pageToken
             } while (page != null)
             found
-        } ?: return emptyList()
-        return WorkoutHealthWriting.foreignIntervals(origins, excluding = app.packageName)
+        }
     }
 
     // MARK: - The write

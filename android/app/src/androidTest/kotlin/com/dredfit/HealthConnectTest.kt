@@ -166,6 +166,23 @@ class HealthConnectTest : HealthTestCase() {
         }
     }
 
+    /** The sweep finds a session that OVERLAPS the window, as HealthKit's
+     *  predicate does — also one that began before it, which Health
+     *  Connect's own time filter leaves out — and none that ended before. */
+    @Test
+    fun theSweepFindsEverySessionThatOverlapsTheWindow() {
+        launch(Seed.Clean, fast = false)
+        val now = Instant.now()
+        runBlocking {
+            assertTrue(app.health.saveWorkout(now.minusSeconds(40 * 60), now.minusSeconds(10 * 60), null, "began-before"))
+            assertTrue(app.health.saveWorkout(now.minusSeconds(90 * 60), now.minusSeconds(60 * 60), null, "ended-before"))
+            val touching = checkNotNull(app.health.sessionsTouching(now.minusSeconds(20 * 60), now))
+            assertEquals("the session that began before the window, alone",
+                         listOf(now.minusSeconds(40 * 60).toEpochMilli()), touching.map { it.start.toEpochMilli() })
+            assertEquals(app.packageName, touching.single().packageName)
+        }
+    }
+
     /** The switch on a phone that allows everything: Health Connect has
      *  nothing left to ask, the switch stays on, and the history is offered
      *  once — "Add all" writes it. */
