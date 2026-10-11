@@ -1,5 +1,62 @@
 # Changelog
 
+## 2.5.0 (Android)
+
+**Dredfit comes to Android**, first to Google Play's internal testing. It is
+the same product as iOS 2.5.0, and its version says so: the plan engine is a
+Kotlin port of reference **3.8.0**, held to the same golden trace as the
+Swift port (49 scenarios, 413 steps, bit for bit), so the same history gives
+the same next workout on either phone. Today, the workout with its warm-up
+and cool-down, the rating, Progress, Calendar, history, Settings and the
+onboarding work as on the iPhone, in the same seven languages. What does not
+change: no account, no network permission, no analytics; the entry plan and
+its estimate are the iOS ones. Android 10 and later, phones.
+
+### What Android does its own way
+
+- **A workout keeps its signals off screen** (#313). A notification shows
+  what the iPhone's Live Activity shows, and the 3-2-1 still sounds and
+  vibrates with the phone locked or another app in front. Time away from the
+  screen is still counted as away, as on iOS. From Android 13 the app asks
+  once for the notification permission, when the first workout starts;
+  refused, the workout runs the same.
+- **The training reminder** (#314, #317) follows the iOS rule — training
+  days only, never after you have trained — and asks for the notification
+  permission when it is turned on. It never comes early, but it can come up
+  to an hour after the set time: the alarm needs no permission, and Android
+  delivers such an alarm when it suits the battery. On Samsung phones, which
+  hold reminders back
+  until the screen wakes, Settings explains how to let Dredfit run without
+  battery restrictions.
+- **One home-screen widget** (#316) that resizes between the three iOS
+  layouts: the day's status, the week, the plan. Lock-screen accessories
+  have no Android counterpart; the widget can also sit in Android 16's
+  lock-screen hub.
+- **Health Connect** (#319) takes Apple Health's place: finished workouts
+  are written as calisthenics sessions with their estimated active calories,
+  and the weight, the resting energy and other apps' workouts are read for
+  the estimate, as on iOS. Height, date of birth and sex are not read:
+  Health Connect has no record for the last two.
+- **Backups cross platforms** (#308). A backup exported on an iPhone imports
+  on Android and the other way round; export goes through the system's "save
+  to" picker.
+- **Google Play's in-app review** (#312) asks for a rating by the iOS rule:
+  after a milestone, from the fifth workout, never after "hard". It is the
+  one third-party SDK in the app, and it adds no permission.
+
+### Housekeeping
+
+- **Built for Google Play.** The version is one product version with iOS and
+  a Play version code of its own, both read from `android/gradle.properties`
+  and checked by `scripts/check_version.py`. The release is shrunk with R8 —
+  a 2.3 MB download instead of 11.8 MB — and signed on the owner's Mac by
+  `android/tools/build-release.sh`, with the key's password read from the
+  Keychain and never written down. CI builds the release unsigned (#318).
+- **The iOS tests came along** (#307, #309–#311): the Kotlin suites port the
+  Swift ones, each Swift test left behind is named with its reason, and
+  Android has its own for what only Android does. Gaps found on the way got
+  tests on both platforms (#307, #309, #315).
+
 ## 2.5.0
 
 This release is about numbers that say what will happen and record what did.
