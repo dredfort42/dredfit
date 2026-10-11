@@ -20,8 +20,10 @@ android {
         // Android 10 — the owner's floor (android/CLAUDE.md).
         minSdk = 29
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        // One place for both (gradle.properties says why each counts as it
+        // does); scripts/check_version.py reads the same two lines.
+        versionCode = providers.gradleProperty("dredfit.versionCode").get().toInt()
+        versionName = providers.gradleProperty("dredfit.versionName").get()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // The frames for comparing with the iOS store shots are taken on
         // request (`adb shell am instrument -e class com.dredfit.ScreenshotWalk

@@ -56,9 +56,10 @@ branch with CI's **Run workflow**.
 ### 3. Cut a `release/x.y.z` or `hotfix/x.y.z` branch
 **Release Checks** verifies the marketing version matches the branch name, build
 numbers agree across all targets and exceed the build at the highest older
-`v*` tag, and `CHANGELOG.md` has a `## x.y.z` section. Without tags (a shallow
-clone) the build-number comparison is skipped with a notice, so the job checks
-out full history.
+`v*` tag, Android's version name is the same x.y.z and its version code
+exceeds the one at the highest older `android-v*` tag, and `CHANGELOG.md` has
+a `## x.y.z` section. Without tags (a shallow clone) the build-number
+comparisons are skipped with a notice, so the job checks out full history.
 CI (with the advisory Europe/Berlin and Release build jobs) + Lint +
 Localization also run.
 
@@ -151,7 +152,7 @@ Europe/Berlin jobs) are deliberately **not** required, so a third-party action o
 |---|---|
 | `check_localization.py` | Fails if any shipping language (de, es, fr, it, pt-BR, ru) is missing a translation. Run with no args to check all tracked `*.xcstrings`. |
 | `check_translation_rules.py` | Fails if a shipped translation breaks a rule the completeness check cannot see: ru `ё` and formal `вы`, fr `U+00A0`/`U+202F`/apostrophe and `vous`, it apostrophe and `Lei`, de `—`/`Min.`/`Workout`/`Sie`, es `usted`, weight units, double spaces, placeholder parity. Proves every rule can still fail before it reports success; `--list` prints the rules. Exceptions with their reasons live in `scripts/translation_rules_config.json`. |
-| `check_version.py <release/x.y.z \| x.y.z>` | Verifies marketing version, build-number agreement, a build number above the highest older `v*` tag (a notice, not a failure, when the tags are missing), and a changelog section. |
+| `check_version.py <release/x.y.z \| x.y.z>` | Verifies marketing version, build-number agreement, a build number above the highest older `v*` tag (a notice, not a failure, when the tags are missing), Android's `dredfit.versionName` equal to the same version and its `dredfit.versionCode` a positive integer above the highest older `android-v*` tag's, and a changelog section. |
 | `check_engine_gates.py` | Runs every engine gate the `TESTPLAN.md` table names and fails on any that did not print its clean line. `--contract` parses the table without running anything — that is what CI does, since `reference/` is gitignored and never on a runner. |
 | `changelog_section.py <version>` | Prints the `CHANGELOG.md` section for a version (used for release notes). |
 | `setup_branch_protection.sh` | Applies branch protection (above). |
