@@ -18,8 +18,11 @@ import androidx.compose.ui.test.performClick
 
 class WorkoutDriver(private val test: DredfitUITest) {
 
-    /** The screens a walk passes through, as the screenshot run names them. */
-    enum class Screen { Today, Set, Rest, Hold, Summary, Rating, Done }
+    /** The screens a walk passes through, as the screenshot run names them.
+     *  `HoldIntro` is the hold's "Start exercise" screen, the one that says in
+     *  words that the exercise runs on its own — the Play listing's hands-free
+     *  frame, as `handsfree_` is on iOS. */
+    enum class Screen { Today, Set, Rest, HoldIntro, Hold, Summary, Rating, Done }
 
     /** Taps `tag` if it is there right now, and waits for it to go. A tap
      *  that lands inside a fresh screen's settle window does nothing — which
@@ -88,7 +91,10 @@ class WorkoutDriver(private val test: DredfitUITest) {
                 }
                 // ONE tap per hold exercise: the sets after the first start on
                 // their rest's own go.
-                test.exists(AX.holdStartExercise) -> tapIfThere(AX.holdStartExercise)
+                test.exists(AX.holdStartExercise) -> {
+                    saw(Screen.HoldIntro)
+                    tapIfThere(AX.holdStartExercise)
+                }
                 test.exists(AX.holdStart) -> tapIfThere(AX.holdStart)
                 test.exists(AX.holdStop) -> {
                     saw(Screen.Hold)

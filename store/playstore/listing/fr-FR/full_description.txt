@@ -1,0 +1,35 @@
+Ouvre l’app, ta séance est prête. Voilà toute l’idée.
+
+Dredfit est un entraîneur adaptatif au poids du corps, comme un thermostat. Pas de questionnaire, pas de choix d’objectif, rien à régler avant. Après chaque séance, une question — difficile, comme prévu, facile — et le plan bouge. Tu t’entraînes déjà ? Indique ce que tu as fait, ce chiffre devient le plan.
+
+Par où tout commence
+• Jour un : trois séries de quatre, dans la variante la plus douce de six mouvements — pompes sur les genoux, squats, pont fessier et ainsi de suite. Environ 32 minutes avec échauffement et retour au calme ; environ 24 en réduisant les séries jusqu’au plancher.
+• C’est le point d’entrée annoncé, pas un trou à remonter : si c’est à ta portée aujourd’hui, le reste vient de tes réponses — et le plan peut redescendre à deux séries de quatre, jamais plus bas. Sinon, ce n’est pas le bon outil pour l’instant — mieux vaut le savoir ici qu’après l’installation.
+
+Pourquoi ça marche
+• Rien n’est prévu que tu n’aies pas déjà fait. Ta position, ce sont deux faits : la variante, et la dose — répétitions dans une série, ou secondes en maintien. Un cran, c’est +1 répétition (ou +5 secondes) dans une série.
+• Une variante plus dure ne t’est jamais offerte — tu l’essaies. En haut de la plage, la dernière série devient un essai : une série de la variante suivante. Réussis-le, la prochaine séance démarre là. Sinon, rien ne bouge : l’essai raté ne coûte rien.
+• Un tirage à chaque séance garde tes épaules en équilibre.
+• Trois échecs d’affilée reculent ce mouvement de trois crans — une respiration, pas une punition.
+• Pas de séquence à préserver, pas de culpabilité, pas de « tu nous manques ». Jamais.
+
+Ce qu’elle contient
+• 59 exercices sur 10 mouvements. Chaise, table, mur, serviette et marche couvrent 52 d’entre eux.
+• Barre de traction en option : active-la, une séance sur deux insère un tirage vertical — sept variantes, les seules avec matériel.
+• Échauffement et retour au calme guidés, pausables, temps de préparation avant chaque position. Repos avec décompte 3-2-1, à prolonger ou passer, et minuteurs de maintien.
+• Chaque exercice s’explique : trois étapes de technique, deux erreurs fréquentes, une ligne « Au quotidien ».
+• Pendant la séance, une notification décompte le repos et le maintien ; un widget sur l’écran d’accueil affiche la journée et, agrandi, ta semaine et le plan.
+• Chaque mouvement a sa propre échelle, plus un graphique et un calendrier.
+
+Tu décides de la durée
+• Avant de commencer, Aujourd’hui affiche une fourchette : la séance complète, et la plus courte possible. Pendant la séance, tu peux passer une série si l’exercice le permet, l’exercice entier ou le reste d’un exercice long, et les minutes restantes diminuent aussitôt. L’app ne choisit jamais quels mouvements tu laisses de côté.
+• Une séance interrompue se reprend, même app fermée entre-temps. Plus le temps ? « Terminer maintenant » garde ce que tu as fait et l’enregistre honnêtement.
+• Après une coupure, le plan te retrouve plus bas — d’autant plus bas que la pause est longue — et rattrape vite, car il suit tes chiffres.
+• Jours de repos à ton choix, rappel les jours d’entraînement, historique en JSON exporté et importé, et, si tu l’actives, séances enregistrées dans Santé Connect (Health Connect), avec une estimation de l’énergie dès que ton poids est connu.
+
+Privé par conception
+Pas de compte. Pas de pub. Pas d’analytique. Pas d’accès à Internet. Tes entraînements tiennent dans un petit fichier sur ton téléphone : il ne va que là où tu l’envoies, et dans la sauvegarde du téléphone si elle est activée.
+
+Gratuit, sans achats intégrés. Android 10 ou plus récent. En anglais, allemand, français, italien, espagnol, portugais (Brésil) et russe.
+
+En cas de problème articulaire, cardiaque ou de tension, parle à un médecin avant de t’entraîner. Une douleur vive pendant un exercice veut toujours dire stop.

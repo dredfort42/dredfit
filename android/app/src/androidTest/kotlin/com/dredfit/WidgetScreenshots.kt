@@ -7,7 +7,8 @@
 //    adb shell am instrument -w -e class com.dredfit.WidgetScreenshots \
 //      -e screens widget com.dredfit.dredfit.test/androidx.test.runner.AndroidJUnitRunner
 //
-//  It sets the per-app language itself (en, then ru), and the mode per
+//  It sets the per-app language itself (en, then ru — or the list given as
+//  `-e langs en,ru,es,pt-BR,de,fr,it`), and the mode per
 //  widget (the launcher's — the system's — not the app's Appearance). The
 //  PNGs land in the app's external files dir, `screens/`:
 //  `<prefix>-<lang>-<light|dark>-<small|medium|large>.png`, plus the rest and
@@ -57,14 +58,17 @@ class WidgetScreenshots {
 
     /** This week as a person three workouts in: Monday and yesterday done,
      *  the rest missed, Wednesday and Sunday resting — every mark the strip
-     *  draws. `day` decides today. */
+     *  draws. `day` decides today: neither resting day is today unless `day`
+     *  says rest (a Sunday run drew "Rest day" for the workout frames, and
+     *  the Play listing's widget frame went out that way). */
     private fun seed(day: Day) {
         val zone = ZoneId.systemDefault()
         val today = LocalDate.now(zone)
         val monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val rest = buildSet {
-            add(swiftWeekday(DayOfWeek.SUNDAY))
-            if (today.dayOfWeek != DayOfWeek.WEDNESDAY) add(swiftWeekday(DayOfWeek.WEDNESDAY))
+            for (resting in listOf(DayOfWeek.WEDNESDAY, DayOfWeek.SUNDAY)) {
+                if (today.dayOfWeek != resting) add(swiftWeekday(resting))
+            }
             if (day == Day.rest) add(swiftWeekday(today.dayOfWeek))
         }
         app.resetForTests({ instrumentation.runOnMainSync(it) }) { path ->
@@ -88,18 +92,24 @@ class WidgetScreenshots {
         val locales = app.getSystemService(LocaleManager::class.java)
         instrumentation.runOnMainSync { locales.applicationLocales = LocaleList.forLanguageTags(tag) }
         // The app's resources follow on the next configuration pass.
+        // A language, not the tag: `pt-BR` arrives as language "pt".
+        val language = java.util.Locale.forLanguageTag(tag).language
         val end = System.currentTimeMillis() + 10_000
-        while (app.resources.configuration.locales[0].language != tag && System.currentTimeMillis() < end) Thread.sleep(100)
-        check(app.resources.configuration.locales[0].language == tag) { "the app never took $tag" }
+        while (app.resources.configuration.locales[0].language != language && System.currentTimeMillis() < end) Thread.sleep(100)
+        check(app.resources.configuration.locales[0].language == language) { "the app never took $tag" }
     }
 
     @Test
     fun captureTheWidget() {
-        val prefix = InstrumentationRegistry.getArguments().getString("screens")
+        val args = InstrumentationRegistry.getArguments()
+        val prefix = args.getString("screens")
         assumeTrue("screenshots only on request (-e screens <prefix>)", prefix != null)
         val dir = File(app.getExternalFilesDir(null), "screens").apply { mkdirs() }
+        // `-e langs en,de,…` for the store's seven; en and ru are the
+        // comparison with iOS this run was written for.
+        val langs = args.getString("langs")?.split(",") ?: listOf("en", "ru")
         try {
-            for (lang in listOf("en", "ru")) {
+            for (lang in langs) {
                 language(lang)
                 seed(Day.workout)
                 for (night in listOf(false, true)) shootSizes(dir, "$prefix-$lang-${if (night) "dark" else "light"}", night)
