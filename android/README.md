@@ -66,10 +66,13 @@ Not here, deliberately:
   it as user-entered rating and review, used to post the review. Nothing
   else from Play Core or Play services is to be added on the strength of
   this exception.
-- **Health Connect reads and writes what HealthKit does on iOS**: it writes the
-  workout and its energy, and reads weight, height, date of birth, sex,
-  resting energy and workouts for the energy estimate (owner decision,
-  09.10.2026; it lands with phase 3d).
+- **Health Connect reads and writes what HealthKit does on iOS** (owner
+  decision, 09.10.2026): it writes the workout and its active energy, and
+  reads weight, resting energy and workouts for the energy estimate. Height,
+  date of birth and sex are not read: Health Connect has no record for the
+  last two, and without an age the height cannot change the estimate. The
+  `connect-client` library is Google's AndroidX; it brings Guava and a
+  protobuf runtime, and no permission, no network ("Health Connect" below).
 - **User-facing text follows `instructions/GLOSSARY.md`** in all seven
   languages; `res/values*/strings_*.xml` are generated from the String
   Catalogs by `scripts/export_android_strings.py`, one file per source
@@ -161,7 +164,7 @@ two ways to meet the prerequisite:
 
 Every runtime permission on that list would ask for data the app never reads.
 
-**Health Connect (phase 3d) will not replace it.** Checked on that page on
+**Health Connect does not replace it.** Checked on that page on
 09.10.2026:
 
 - The only Health Connect permissions it lists are READ permissions:
@@ -169,9 +172,9 @@ Every runtime permission on that list would ask for data the app never reads.
   plus `READ_HEALTH_DATA_IN_BACKGROUND` in the background note.
 - No WRITE permission is listed; `WRITE_EXERCISE` appears nowhere on the
   page.
-- The types the app will read from Health Connect (weight, height, date of
-  birth, sex, resting energy, workouts) are not on that list either. So its
-  permissions will not qualify, and `HIGH_SAMPLING_RATE_SENSORS` stays the
+- The types the app reads from Health Connect (weight, resting energy,
+  workouts — see "Health Connect" below) are not on that list either. So its
+  permissions do not qualify, and `HIGH_SAMPLING_RATE_SENSORS` stays the
   prerequisite.
 
 Play Console: from target 34, every type in use is declared under **Policy >
@@ -603,3 +606,127 @@ session, and a broadcast redraws the rest.
 - **Permissions.** None added. WorkManager declares `ACCESS_NETWORK_STATE`
   for work that waits on a network. Glance's work never does, so the
   manifest removes it.
+
+## Health Connect
+
+iOS's Apple Health integration (`HealthStore.swift`, `HealthExporter.swift`,
+`EnergyEstimate.swift`, `AppStore+Health.swift`, the Settings group) is ported
+to Health Connect (`app/…/health/`, `store/AppStoreHealth.kt`,
+`workout/EnergyEstimate.kt`, `ui/settings/SettingsHealthSection.kt`). The rules
+are iOS's: the switch follows the workout permission, a record is flagged
+exported only after Health Connect confirms the save, the backfill runs in
+journal order and stops at the first failure, the weight follows the later
+statement, and a calorie is left out rather than guessed.
+
+### What is written and read
+
+| iOS (HealthKit) | Android (Health Connect) | Permission |
+|---|---|---|
+| `HKWorkout`, `.functionalStrengthTraining`, device `.local()` | `ExerciseSessionRecord`, `EXERCISE_TYPE_CALISTHENICS`, recording method "actively recorded", device phone + make + model | `WRITE_EXERCISE` |
+| `activeEnergyBurned` sample over the workout | `ActiveCaloriesBurnedRecord` over the same interval (no `TotalCaloriesBurnedRecord`: iOS writes active energy only) | `WRITE_ACTIVE_CALORIES_BURNED` |
+| `HKMetadataKeyExternalUUID` = journal id | `clientRecordId` = journal id, on both records | — |
+| `HKMetadataKeyAlgorithmVersion` = model revision | the calories' `clientRecordVersion` = model revision (the session's is 0) | — |
+| read `bodyMass` (newest sample) | read `WeightRecord` (newest by time) | `READ_WEIGHT` |
+| read `basalEnergyBurned` (sum over the interval) | `BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL` over the interval — only when a rate was recorded at or before its end | `READ_BASAL_METABOLIC_RATE` |
+| read workouts of other apps (bundle id ≠ ours) | `ExerciseSessionRecord`s whose `dataOrigin` package ≠ ours | `READ_EXERCISE` |
+| read `height`, `dateOfBirth`, `biologicalSex` | not read | — |
+
+**Why calisthenics.** HealthKit has no calisthenics type; Apple's
+`functionalStrengthTraining` is the one it defines for free weights and body
+weight. Health Connect has both, and its own table of exercise names
+(`ExerciseSessionRecord.EXERCISE_TYPE_STRING_TO_INT_MAP`, connect-client
+1.1.0) files squat, lunge, plank, crunch and burpee under `CALISTHENICS` and
+keeps `STRENGTH_TRAINING` for barbells, dumbbells and machines.
+
+**Height, date of birth, sex.** Health Connect has no date-of-birth and no sex
+record. iOS treats a missing one as absent and adds no field for it: the
+resting ladder's middle rung (Mifflin–St Jeor) needs the height AND the age,
+and an absent sex takes the mean of the two equations. Without an age that
+rung can never be reached, so the height could not change a single number —
+and asking for a permission whose data cannot change a number is what Play's
+Health Connect declaration exists to refuse. The ladder on Android is
+therefore: a recorded resting rate, else one standard MET
+(`aPartialProfileDoesNotReachTheFormula` is every Android phone).
+
+**Resting energy that nobody recorded.** With no `BasalMetabolicRateRecord`
+anywhere, Health Connect's `BASAL_CALORIES_TOTAL` still answers — 1534.5
+kcal/day with no weight either, a figure worked out from the newest weight
+otherwise (API 37) — and names no app in either case, with or without a real
+rate. A figure nobody recorded is not this person's resting energy: the app
+reads the total only when a rate was recorded at or before the interval's end
+(`restingEnergyIsReadOnlyWhereARateWasRecorded`).
+
+**One record per workout.** iOS looks its own workout up by its external id
+before saving. Health Connect does it in the write: a record with the same
+`clientRecordId` replaces the one there when its `clientRecordVersion` is the
+same or higher, and is ignored when lower (probed on API 37). So the export
+re-saves a record whose flag was lost and never adds a copy. The session and
+its calories go in ONE `insertRecords` call — one transaction — and the
+calories ride only when their write is granted, or the session would fail with
+them.
+
+**Other apps' workouts.** HealthKit's predicate finds every workout that
+overlaps a window; Health Connect's time filter matches a session by its START
+(API 37: a session begun before the window and ending inside it is not
+returned). The sweep reads sessions that began up to a day before the export's
+window and decides the overlap itself; our own are filtered out by package, or
+the first export would switch its own calories off forever.
+
+**Reads Health Connect limits.** Without `READ_HEALTH_DATA_HISTORY` an app
+reads other apps' data only from 30 days before it was first granted a
+permission — older records are left out of the answer, without an error
+(probed on API 37; Health Connect's screen says so). Not requested: a weigh-in
+older than that is not adopted (the field stays as it was), and a backfill of
+older workouts cannot see another app's recording of them (calories written,
+as on iOS when the workout read is refused). Google's guide allows reads in
+the foreground; the export starts on screen, from the rating. A read that
+fails (the app left for the background mid-backfill — not probed here) leaves
+that run with what it has, as a refused read does on iOS: the stored weight,
+the standard resting rate, no other app's workout to check against.
+
+### Availability, permission, the policy link
+
+- **Android 14+** has Health Connect in the system. A work profile or a device
+  without the service is `SDK_UNAVAILABLE`: the Settings group is not shown at
+  all, as Google's guidance for that status asks.
+- **Android 10–13** need the Health Connect app. Without it (or with one too
+  old) the status is `SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED`: the group
+  shows "Install Health Connect" / "Update Health Connect", which opens its
+  Google Play page (`market://details?id=com.google.android.apps.healthdata&url=healthconnect%3A%2F%2Fonboarding`,
+  the web page without a Play Store), and the status is read again on every
+  return to Settings. The manifest's `<queries>` lets Android 11–13 see the
+  app at all.
+- **The switch** asks for the five permissions through
+  `PermissionController.createRequestPermissionResultContract()`, registered by
+  MainActivity as the reminder's question is; the answer is read from Health
+  Connect afterwards, and only `WRITE_EXERCISE` decides the switch. Each other
+  type may be refused on its own and costs only its feature, as iOS's per-type
+  answers do (`HealthDeniedTest` step 4: the workout saved, its calories not).
+- **Re-checked, never asked**: on every return to the app (iOS's activation)
+  and after an import — so also after Android's own restore onto a new phone,
+  whose first launch is such a return. A write taken back in Health Connect
+  turns the switch off. Revoking a Health Connect permission kills the app's
+  process on API 37, so the next launch is where that is seen.
+- **The privacy-policy link** on Health Connect's permission screen opens
+  `HealthPrivacyActivity` — the `ACTION_SHOW_PERMISSIONS_RATIONALE` filter
+  (Android 10–13) and the `VIEW_PERMISSION_USAGE` alias (Android 14+). It
+  opens dredfit.com/privacy.html (the site's page in the app's language) in
+  the browser: the app holds no INTERNET permission, so no WebView could load
+  it, and a copy of a legal text in the app would drift. Without the alias,
+  API 37 never shows the permission screen at all (HealthDeniedTest red).
+
+### Play Console
+
+- **Health Connect declaration** (Policy > App content > Health apps / Health
+  Connect): `WRITE_EXERCISE` and `WRITE_ACTIVE_CALORIES_BURNED` — finished
+  workouts and their estimated active calories written to Health Connect;
+  `READ_WEIGHT` — the body weight the calorie estimate is multiplied by;
+  `READ_BASAL_METABOLIC_RATE` — the resting energy subtracted from it;
+  `READ_EXERCISE` — another app's recording of the same session, so its
+  calories are not counted twice.
+- **Data safety**: health and fitness data is read and written on the device
+  only; nothing is transmitted (no INTERNET permission), so nothing is
+  "collected" or "shared" in the form's sense.
+- **Privacy policy**: Google requires the policy the Console lists to be the
+  one the link shows, and to cover Health Connect data. dredfit.com's policy
+  describes Apple Health only today.
