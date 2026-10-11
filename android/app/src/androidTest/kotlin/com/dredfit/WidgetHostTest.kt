@@ -295,8 +295,10 @@ class WidgetHostTest {
 
     // MARK: - The tap
 
+    /** With no task of the app's to bring back, the tap launches the app as
+     *  its icon does (WidgetTapTest has the app left open). */
     @Test
-    fun aTapOpensToday() {
+    fun aTapWithNoAppTaskLaunchesTheApp() {
         cleanStore()
         val widget = host.place(WidgetHost.SMALL)
         host.awaitText(widget, "Workout 1")
@@ -311,8 +313,8 @@ class WidgetHostTest {
             if (opened == null) Thread.sleep(200)
         }
         val activity = checkNotNull(opened) { "the tap opened no MainActivity" }
-        assertEquals(MainActivity.ACTION_OPEN_TODAY, activity.intent.action)
-        instrumentation.runOnMainSync { activity.finish() }
+        assertEquals("the launcher's intent", Intent.ACTION_MAIN, activity.intent.action)
+        instrumentation.runOnMainSync { activity.finishAndRemoveTask() }
     }
 
     // MARK: - Helpers

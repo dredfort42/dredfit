@@ -77,6 +77,17 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+        <!-- The widget's tap: brings the app's task forward as it was left
+             and finishes before it is drawn (widgets/OpenAppActivity.kt says
+             why it is not MainActivity's own intent). In no task of the
+             app's, never in Recents. -->
+        <activity
+            android:name=".widgets.OpenAppActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay" />
         <!-- The home-screen widget (widgets/TodayStatusWidget.kt), iOS's
              DredfitWidgets. Exported: the launcher and AppWidgetService send
              its updates. LOCALE_CHANGED redraws it in a new system language

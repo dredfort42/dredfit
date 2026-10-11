@@ -83,7 +83,6 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.dredfit.DredfitApp
-import com.dredfit.MainActivity
 import com.dredfit.R
 import com.dredfit.ui.theme.Palette
 import com.dredfit.ui.today.NextTrainingDateLabel
@@ -398,7 +397,7 @@ class TodayStatusWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val center = (context.applicationContext as DredfitApp).widgets
         center.prepare()
-        val open = MainActivity.openToday(context)
+        val open = OpenAppActivity.intent(context)
         provideContent {
             // Collected, not read once: a session outlives the update that
             // started it, and a write, a midnight or a new language inside it

@@ -150,8 +150,8 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        /** A tapped reminder (reminders/SystemNotificationScheduler.kt) or
-         *  home-screen widget (widgets/TodayStatusWidget.kt). */
+        /** A tapped reminder (reminders/SystemNotificationScheduler.kt). The
+         *  widget opens the app as it was left instead (OpenAppActivity). */
         const val ACTION_OPEN_TODAY = "com.dredfit.OPEN_TODAY"
 
         /** Today, from outside the app: an activity already up gets it in

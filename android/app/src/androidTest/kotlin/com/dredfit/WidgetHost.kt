@@ -8,6 +8,10 @@
 //  AppWidgetService. No Swift twin: XCUITest cannot place a widget either,
 //  and the iOS suite never renders one.
 //
+//  The host runs in a task of its own (NEW_TASK | MULTIPLE_TASK), as a
+//  launcher does: a widget's tap must bring the APP's task forward, and a
+//  host inside that task would be what comes forward.
+//
 
 package com.dredfit
 
@@ -17,6 +21,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.SizeF
@@ -27,8 +32,9 @@ import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import com.dredfit.widgets.TodayStatusWidgetReceiver
 import org.junit.Assert.assertTrue
 import java.io.BufferedReader
@@ -43,7 +49,7 @@ class WidgetHost : AutoCloseable {
     private val provider = ComponentName(app, TodayStatusWidgetReceiver::class.java)
     private val host = AppWidgetHost(app, HOST_ID)
     private val ids = mutableListOf<Int>()
-    private val scenario: ActivityScenario<ComponentActivity>
+    private val activity: ComponentActivity
     private lateinit var screen: FrameLayout
 
     init {
@@ -54,11 +60,32 @@ class WidgetHost : AutoCloseable {
         // A host left by a run that died before its close.
         host.deleteHost()
         instrumentation.runOnMainSync { host.startListening() }
-        scenario = ActivityScenario.launch(ComponentActivity::class.java)
-        scenario.onActivity { activity ->
+        val before = hosts()
+        app.startActivity(Intent(app, ComponentActivity::class.java)
+                              .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK))
+        val end = System.currentTimeMillis() + 20_000
+        var started: ComponentActivity? = null
+        while (started == null && System.currentTimeMillis() < end) {
+            started = (hosts() - before).firstOrNull()
+            if (started == null) Thread.sleep(100)
+        }
+        activity = checkNotNull(started) { "the host activity never resumed" }
+        instrumentation.runOnMainSync {
             screen = FrameLayout(activity)
             activity.setContentView(screen)
         }
+    }
+
+    /** The resumed hosts — ComponentActivity exactly, not MainActivity, which
+     *  extends it. */
+    private fun hosts(): Set<ComponentActivity> {
+        var found: Set<ComponentActivity> = emptySet()
+        instrumentation.runOnMainSync {
+            found = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+                .filter { it.javaClass == ComponentActivity::class.java }
+                .map { it as ComponentActivity }.toSet()
+        }
+        return found
     }
 
     val info: AppWidgetProviderInfo
@@ -75,7 +102,7 @@ class WidgetHost : AutoCloseable {
             uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or
                 if (night) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
         }
-        scenario.onActivity { activity ->
+        instrumentation.runOnMainSync {
             view = host.createView(activity.createConfigurationContext(config), id, info)
             // Rounded up: a layout a pixel short of the size reads as the
             // next family down.
@@ -88,7 +115,7 @@ class WidgetHost : AutoCloseable {
         instrumentation.waitForIdleSync()
         assertTrue("the shell's grantbind must let the suite bind", manager.bindAppWidgetIdIfAllowed(id, provider))
         // What a launcher tells the provider; an unbound id refuses it.
-        scenario.onActivity { view.updateAppWidgetSize(Bundle(), listOf(SizeF(size.width.value, size.height.value))) }
+        instrumentation.runOnMainSync { view.updateAppWidgetSize(Bundle(), listOf(SizeF(size.width.value, size.height.value))) }
         return view
     }
 
@@ -127,15 +154,17 @@ class WidgetHost : AutoCloseable {
     fun remove(view: AppWidgetHostView) {
         host.deleteAppWidgetId(view.appWidgetId)
         ids -= view.appWidgetId
-        scenario.onActivity { screen.removeView(view) }
+        instrumentation.runOnMainSync { screen.removeView(view) }
     }
 
     override fun close() {
         ids.forEach(host::deleteAppWidgetId)
         ids.clear()
-        instrumentation.runOnMainSync { host.stopListening() }
+        instrumentation.runOnMainSync {
+            host.stopListening()
+            activity.finishAndRemoveTask()
+        }
         host.deleteHost()
-        scenario.close()
     }
 
     companion object {

@@ -32,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.dredfit.core.LoadUnit
 import com.dredfit.ui.tr
+import com.dredfit.widgets.OpenAppActivity
 import com.dredfit.widgets.TodayEntry
 import com.dredfit.widgets.TodayFamily
 import com.dredfit.widgets.TodayProvider
@@ -94,7 +95,7 @@ class TodayStatusWidgetTest {
         setContext(app)
         provideComposable {
             TodayStatusContent(entry, family, WidgetColors(highContrast = false), say = { res.tr(it, widget = true) },
-                               locale = res.configuration.locales[0], open = MainActivity.openToday(app))
+                               locale = res.configuration.locales[0], open = OpenAppActivity.intent(app))
         }
         check()
     }
@@ -205,9 +206,11 @@ class TodayStatusWidgetTest {
 
     // MARK: - The tap
 
-    /** The whole widget opens Today — the reminder's door (MainActivity). */
+    /** The whole widget opens the app as it was left — through
+     *  OpenAppActivity, never Today's door (WidgetTapTest drives it). */
     @Test
-    fun aTapOpensToday() = draw(entry(DayStatus.workout, 3), TodayFamily.small) {
-        onAllNodes(hasStartActivityClickAction(MainActivity.openToday(app))).assertCountEquals(1)
+    fun aTapOpensTheAppAsItWasLeft() = draw(entry(DayStatus.workout, 3), TodayFamily.small) {
+        onAllNodes(hasStartActivityClickAction(OpenAppActivity.intent(app))).assertCountEquals(1)
+        onAllNodes(hasStartActivityClickAction(MainActivity.openToday(app))).assertCountEquals(0)
     }
 }

@@ -9,6 +9,7 @@ package com.dredfit
 
 import android.Manifest
 import android.app.LocaleManager
+import android.content.Intent
 import android.os.Build
 import android.os.LocaleList
 import androidx.compose.ui.test.junit4.ComposeTestRule
@@ -18,6 +19,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import com.dredfit.core.Engine
 import com.dredfit.core.EngineState
 import com.dredfit.core.FeedbackResult
@@ -77,7 +80,11 @@ abstract class DredfitUITest {
      * `--uitest-fast`.
      */
     fun launch(seed: Seed, fast: Boolean, appearance: AppearanceChoice = AppearanceChoice.system,
-               keepLanguage: Boolean = false, notificationsAllowed: Boolean = true) {
+               keepLanguage: Boolean = false, notificationsAllowed: Boolean = true,
+               /** Started as the system would — the launcher's intent, a
+                *  reminder's — at the root of the app's own task, instead of
+                *  through ActivityScenario's bootstrap (WidgetTapTest). */
+               via: Intent? = null) {
         scenario?.close()
         UITestFlags.fast = fast
         // English, as iOS's `UILocale.english` pins it: the suite asserts on
@@ -101,7 +108,23 @@ abstract class DredfitUITest {
         app.resetForTests({ InstrumentationRegistry.getInstrumentation().runOnMainSync(it) }) { path ->
             write(path, seed, appearance)
         }
-        scenario = ActivityScenario.launch(MainActivity::class.java)
+        if (via != null) {
+            startedDirectly = true
+            app.startActivity(via)
+        } else {
+            scenario = ActivityScenario.launch(MainActivity::class.java)
+        }
+    }
+
+    /** A launch `via` an intent leaves no scenario to close: its activities
+     *  are finished by hand after the test. */
+    private var startedDirectly = false
+
+    /** Every MainActivity alive, whatever its stage. */
+    fun mainActivities(): List<MainActivity> {
+        var found = emptyList<MainActivity>()
+        InstrumentationRegistry.getInstrumentation().runOnMainSync { found = mainActivitiesOnMain() }
+        return found
     }
 
     /** The same state again from disk — a process death's view of the file. */
@@ -120,7 +143,18 @@ abstract class DredfitUITest {
     @After
     fun closeAndSlowDown() {
         scenario?.close()
+        if (startedDirectly) {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync {
+                mainActivitiesOnMain().forEach { it.finishAndRemoveTask() }
+            }
+        }
         UITestFlags.fast = false
+    }
+
+    private fun mainActivitiesOnMain(): List<MainActivity> {
+        val monitor = ActivityLifecycleMonitorRegistry.getInstance()
+        return Stage.entries.filter { it != Stage.DESTROYED }
+            .flatMap { monitor.getActivitiesInStage(it).filterIsInstance<MainActivity>() }.distinct()
     }
 
     private fun write(path: Path, seed: Seed, appearance: AppearanceChoice) {
