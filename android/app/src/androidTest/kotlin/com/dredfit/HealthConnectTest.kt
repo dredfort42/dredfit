@@ -168,7 +168,9 @@ class HealthConnectTest : HealthTestCase() {
 
     /** The sweep finds a session that OVERLAPS the window, as HealthKit's
      *  predicate does — also one that began before it, which Health
-     *  Connect's own time filter leaves out — and none that ended before. */
+     *  Connect's own time filter leaves out — and none that ended before.
+     *  It reaches back a day and no further: a session begun earlier is not
+     *  read at all. */
     @Test
     fun theSweepFindsEverySessionThatOverlapsTheWindow() {
         launch(Seed.Clean, fast = false)
@@ -176,6 +178,8 @@ class HealthConnectTest : HealthTestCase() {
         runBlocking {
             assertTrue(app.health.saveWorkout(now.minusSeconds(40 * 60), now.minusSeconds(10 * 60), null, "began-before"))
             assertTrue(app.health.saveWorkout(now.minusSeconds(90 * 60), now.minusSeconds(60 * 60), null, "ended-before"))
+            assertTrue(app.health.saveWorkout(now.minus(HealthConnectWriter.SESSION_LOOKBACK).minusSeconds(3600),
+                                              now.minusSeconds(15 * 60), null, "began-past-the-reach"))
             val touching = checkNotNull(app.health.sessionsTouching(now.minusSeconds(20 * 60), now))
             assertEquals("the session that began before the window, alone",
                          listOf(now.minusSeconds(40 * 60).toEpochMilli()), touching.map { it.start.toEpochMilli() })

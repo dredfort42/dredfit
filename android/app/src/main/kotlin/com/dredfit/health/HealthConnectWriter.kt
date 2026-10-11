@@ -51,6 +51,7 @@ import androidx.health.connect.client.units.Energy
 import com.dredfit.workout.BodyProfile
 import com.dredfit.workout.EnergyEstimate
 import kotlinx.coroutines.CompletableDeferred
+import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
 import kotlin.coroutines.cancellation.CancellationException
@@ -165,9 +166,11 @@ class HealthConnectWriter(context: Context) : WorkoutHealthWriting {
      *  workout that OVERLAPS the window; Health Connect's time filter matches
      *  a session by its START only (API 37: a session begun before the window
      *  and ending inside it is not returned), so a watch session started a
-     *  minute before ours would be missed. Every session that started before
-     *  the end is read, and the overlap is decided here. Internal for
-     *  HealthConnectTest, which can only write sessions of its own. */
+     *  minute before ours would be missed. The read reaches back
+     *  `SESSION_LOOKBACK` before the window and the overlap is decided here —
+     *  the days the export covers and the one before, not the person's whole
+     *  history of workouts. Internal for HealthConnectTest, which can only
+     *  write sessions of its own. */
     internal suspend fun sessionsTouching(start: Instant, end: Instant): List<WorkoutOrigin>? {
         if (start >= end) return emptyList()
         val client = client() ?: return null
@@ -176,7 +179,8 @@ class HealthConnectWriter(context: Context) : WorkoutHealthWriting {
             var page: String? = null
             do {
                 val response = client.readRecords(ReadRecordsRequest(ExerciseSessionRecord::class,
-                                                                      TimeRangeFilter.before(end), pageToken = page))
+                                                                      TimeRangeFilter.between(start.minus(SESSION_LOOKBACK), end),
+                                                                      pageToken = page))
                 response.records.filter { it.endTime > start }
                     .mapTo(found) { WorkoutOrigin(it.metadata.dataOrigin.packageName, it.startTime, it.endTime) }
                 page = response.pageToken
@@ -252,6 +256,13 @@ class HealthConnectWriter(context: Context) : WorkoutHealthWriting {
             HealthPermission.getReadPermission(BasalMetabolicRateRecord::class),
             HealthPermission.getReadPermission(ExerciseSessionRecord::class),
         )
+
+        /** How long before the export's window a session may have begun and
+         *  still be found overlapping it: a day. A session longer than that
+         *  is no second recording of a bodyweight workout, and a longer reach
+         *  would read workouts the export has nothing to do with (Android
+         *  only — HealthKit's predicate needs no reach). */
+        val SESSION_LOOKBACK: Duration = Duration.ofDays(1)
 
         /** The Health Connect app's package on Android 10–13. */
         const val PROVIDER = "com.google.android.apps.healthdata"

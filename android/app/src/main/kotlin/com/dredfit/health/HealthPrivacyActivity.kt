@@ -1,10 +1,12 @@
 //
 //  What Health Connect opens when someone taps the privacy policy link on
-//  its permission screen for Dredfit — required: without an activity for
-//  `androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE` (Android 10–13) and
-//  the `VIEW_PERMISSION_USAGE` alias (Android 14+), Health Connect does not
-//  show the app its permission screen at all (HealthConnectTest pins both).
-//  No Swift twin: HealthKit shows the usage strings of Info.plist instead.
+//  its permission screen for Dredfit — required: Google's guide asks for an
+//  activity for `androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE` (Android
+//  10–13) and a `VIEW_PERMISSION_USAGE` alias (Android 14+) showing the
+//  privacy policy the Play Console lists. Without the alias, Android 14+
+//  never shows the app Health Connect's permission screen at all (API 37:
+//  HealthDeniedTest goes red at its first step). No Swift twin: HealthKit
+//  shows the usage strings of Info.plist instead.
 //
 //  It shows the privacy policy itself — dredfit.com/privacy.html, in the
 //  app's language where the site has one — in the browser, rather than as
