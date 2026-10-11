@@ -52,6 +52,8 @@ import com.dredfit.reminders.NotificationScheduling
 import com.dredfit.workout.Milestone
 import com.dredfit.workout.MilestoneDetector
 import com.dredfit.workout.SetFacts
+import com.dredfit.widgets.WidgetPublishing
+import com.dredfit.widgets.refreshWidgetSnapshot
 import java.io.IOException
 import java.nio.file.Path
 import java.time.Clock
@@ -74,6 +76,10 @@ class AppStore(
     /** The reminders' alarms and the notification permission — the system's
      *  in the app (`SystemNotificationScheduler`), a spy or nothing in a test. */
     val notifications: NotificationScheduling = NotificationScheduling.none,
+    /** Where the two-week widget snapshot goes after every persisted change
+     *  (widgets/WidgetBridge.kt) — the app's Glance widget, a recorder or
+     *  nothing in a test. */
+    val widgets: WidgetPublishing = WidgetPublishing.none,
 ) {
     /** Its ZONE is the trainee's — iOS's `Calendar.current` — and every
      *  calendar question (rest weekdays, training days, the ISO week) is asked
@@ -164,6 +170,7 @@ class AppStore(
                 }
             }
         }
+        refreshWidgetSnapshot()   // the widget mirrors state from launch
     }
 
     /** A second read already on its way to the disk thread. */
@@ -203,6 +210,7 @@ class AppStore(
         }
         journalFrozen = false
         changed()
+        refreshWidgetSnapshot()
         // Left alone while frozen — rebuilt now that the real settings and
         // journal are here.
         rescheduleReminders()
@@ -485,10 +493,12 @@ class AppStore(
     // MARK: - Persistence
 
     /** The way into the persisted state from outside this file: the change
-     *  and its write are one call, so no caller can make one without the other. */
-    fun update(change: (PersistedState) -> PersistedState) {
+     *  and its write are one call, so no caller can make one without the other.
+     *  `refreshWidget = false` only for the changes that provably cannot alter
+     *  what the widget shows. */
+    fun update(refreshWidget: Boolean = true, change: (PersistedState) -> PersistedState) {
         assign(change(persisted))
-        persist()
+        persist(refreshWidget)
     }
 
     private val persisted: PersistedState
@@ -502,7 +512,7 @@ class AppStore(
         pendingWorkout = state.pendingWorkout
     }
 
-    private fun persist() {
+    private fun persist(refreshWidget: Boolean = true) {
         // A journal that could not be read must never be overwritten by the
         // empty state that replaced it. The change stays in memory for this
         // launch and pins the freeze.
@@ -521,6 +531,8 @@ class AppStore(
         // turn: the file is written whole, and only the newest state matters.
         if (queuedWrite.getAndSet(bytes) == null) disk.execute(::writeQueued)
         changed()
+        // Except the changes that provably cannot alter what it shows.
+        if (refreshWidget) refreshWidgetSnapshot()
     }
 
     /** The bytes waiting for the disk thread; null when nothing waits. */

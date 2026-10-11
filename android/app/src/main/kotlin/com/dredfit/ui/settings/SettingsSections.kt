@@ -3,9 +3,6 @@
 //  sounds, the theme and the footer. Port of
 //  ios/Dredfit/Views/Settings/SettingsSections.swift.
 //
-//  Left out (android/CLAUDE.md, Deferred): the Appearance caption about
-//  widgets and the Lock Screen (no widget exists here yet).
-//
 //  The reminder's denied note leads to the app's notification settings
 //  (ACTION_APP_NOTIFICATION_SETTINGS), where iOS's leads to iOS Settings —
 //  hence an Android key for its row.
@@ -396,6 +393,13 @@ fun AppearanceSection(observedStore: Observed<AppStore>) {
                      modifier = Modifier.weight(1f)) { observedStore.act { setAppearance(choice) } }
             }
         }
+        // The one limit worth saying out loud: the widget and what the system
+        // draws on the lock screen (the workout's notification, the reminder)
+        // take the SYSTEM's mode — the launcher picks the widget's colours,
+        // and this choice lives in the app. Better said here than found on the
+        // home screen.
+        SettingsCaption(tr("Widgets and the Lock Screen keep following the system."),
+                        Modifier.testTag("settings-appearance-caption"))
     }
 }
 

@@ -93,12 +93,16 @@ private fun AppStore.settlePendingWorkout(): Boolean {
     return true
 }
 
-/** Called on every phase transition of the flow. */
+/** Called on every phase transition of the flow — some 35 times a session.
+ *  `refreshWidget = false` is not an optimization but the truth: none of the
+ *  widget's states can change while a workout is in progress, and a redraw
+ *  per set would wake the widget's session for identical content. */
 fun AppStore.saveWorkoutSnapshot(snapshot: WorkoutSnapshot) {
-    update { it.copy(pendingWorkout = snapshot) }
+    update(refreshWidget = false) { it.copy(pendingWorkout = snapshot) }
 }
 
+/** Widget untouched for the same reason as `saveWorkoutSnapshot`. */
 fun AppStore.clearWorkoutSnapshot() {
     if (pendingWorkout == null) return
-    update { it.copy(pendingWorkout = null) }
+    update(refreshWidget = false) { it.copy(pendingWorkout = null) }
 }

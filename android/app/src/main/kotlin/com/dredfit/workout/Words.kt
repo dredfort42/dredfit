@@ -71,15 +71,17 @@ data class Words(
 
         /** `SessionExercise.display` with its two words translatable —
          *  `displayOf` in ui/L10n.kt assembles the same shape. */
-        fun display(ex: SessionExercise): Words {
-            val head = ex.loads?.joinToString("-") ?: "${ex.sets}×${ex.load}"
-            return unitTail(head, ex.unit, ex.perSide)
-        }
+        fun display(ex: SessionExercise): Words = display(head(ex), ex.unit, ex.perSide)
+
+        /** "3×12" or "40-35-35": the numbers of `display`, without its words. */
+        fun head(ex: SessionExercise): String = ex.loads?.joinToString("-") ?: "${ex.sets}×${ex.load}"
 
         /** `SessionProbe.display`: one set, so no "N×". */
-        fun display(probe: SessionProbe): Words = unitTail("${probe.load}", probe.unit, probe.perSide)
+        fun display(probe: SessionProbe): Words = display("${probe.load}", probe.unit, probe.perSide)
 
-        private fun unitTail(head: String, unit: LoadUnit, perSide: Boolean): Words {
+        /** `display` from its parts — the widget snapshot keeps the parts, so
+         *  the words are read in the language of the moment it is drawn. */
+        fun display(head: String, unit: LoadUnit, perSide: Boolean): Words {
             val sec = if (unit == LoadUnit.hold) " %@" else ""
             val side = if (perSide) " %@" else ""
             val args = buildList<Any> {

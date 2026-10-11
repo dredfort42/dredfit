@@ -3,8 +3,8 @@
 //  progress as the store keeps it — what survives a relaunch, which snapshot
 //  is still offered back, and what may never take the journal down with it.
 //
-//  Not ported: `testSnapshotWritesDoNotTouchTheWidget` — its subject is the
-//  widget snapshot file (`widgetSnapshotURL`), and widgets arrive in phase 3.
+//  `testSnapshotWritesDoNotTouchTheWidget` counts what the store hands the
+//  widget (`WidgetRecorder`) where iOS watches its App Group file appear.
 //
 //  The state file here is compact JSON (`AppData.encode`), where iOS writes
 //  it pretty-printed: `testASnapshotWithTheCancelledKeyStillResumes` splices
@@ -333,6 +333,24 @@ class WorkoutSnapshotTest : AppStoreTestCase() {
 
         store.importBackup(backup)
         assertNull(store.pendingWorkout)
+    }
+
+    // MARK: - Cost of writing so often
+
+    @Test
+    fun snapshotWritesDoNotTouchTheWidget() {
+        val widget = WidgetRecorder()
+        val store = makeStore(widgets = widget)
+
+        // The launch already published one; watch who publishes next.
+        val atLaunch = widget.published.size
+        store.saveWorkoutSnapshot(makeSnapshot(store))
+        assertEquals(atLaunch, widget.published.size, "a mid-workout snapshot must not redraw the widget")
+        store.clearWorkoutSnapshot()
+        assertEquals(atLaunch, widget.published.size, "dropping a snapshot changes nothing the widget shows")
+
+        store.completeWorkout(session = store.nextSession, result = FeedbackResult.plan)
+        assertEquals(atLaunch + 1, widget.published.size, "completing the workout must still reach the widget")
     }
 
     // MARK: - Robustness

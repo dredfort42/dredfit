@@ -10,8 +10,8 @@
 //  Kotlin:
 //  - `everyPlainLocalizedLiteralIsACatalogKey` scans the Kotlin sources' keyed
 //    calls (`tr("…")`, `Words.of("…")`, `Words.keyed("…", …)`) against the
-//    four catalogs `tr` looks up. There are no Android widget sources yet,
-//    so the widget arm waits for them.
+//    four catalogs `tr` looks up — the widget's sources (widgets/) among
+//    them, against the widget catalog like the rest.
 //  - `everyCatalogKeyIsStillAskedForBySomeSource` asks whether a key has a
 //    caller on EITHER platform: the catalogs are shared, so a key only iOS
 //    asks for is alive, and one neither asks for is six translations nobody

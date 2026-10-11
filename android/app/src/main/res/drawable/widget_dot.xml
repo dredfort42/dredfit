@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The widget's filled circle (widgets/TodayStatusWidget.kt): a workout
+     day's dot, a done day and a rest day in the week strip. White, so the
+     widget tints it with the palette token it stands for — SwiftUI's
+     `Circle().fill(…)`, which Glance cannot draw. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#FFFFFFFF" />
+    <size android:width="14dp" android:height="14dp" />
+</shape>

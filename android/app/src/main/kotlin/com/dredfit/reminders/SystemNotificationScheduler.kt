@@ -208,10 +208,8 @@ class SystemNotificationScheduler(context: Context) : NotificationScheduling {
     /** Today, over whatever the app was showing — but never over a workout
      *  in flight, which covers everything (RootScreen). */
     private fun openToday(): PendingIntent {
-        val intent = Intent(app, MainActivity::class.java)
-            .setAction(MainActivity.ACTION_OPEN_TODAY)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        return PendingIntent.getActivity(app, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getActivity(app, 0, MainActivity.openToday(app),
+                                         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
     /** The posted reminder, for the UI suite. */

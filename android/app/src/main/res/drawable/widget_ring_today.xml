@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Today in the widget's week strip, unless it is done: iOS's
+     `Circle().strokeBorder(Theme.accent, lineWidth: 2)` over the day's own
+     mark. White, tinted by the widget. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#00000000" />
+    <stroke android:width="2dp" android:color="#FFFFFFFF" />
+    <size android:width="14dp" android:height="14dp" />
+</shape>
