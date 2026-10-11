@@ -79,6 +79,9 @@ dependencies {
     // (09.10.2026, android/README.md); it adds no permission. Nothing else
     // from Play Core or Play services is declared here.
     implementation(libs.play.review)
+    // Play review brings fragment 1.1.0 (play-services-basement); the
+    // activity-result launchers need 1.3.0+, or the release lint fails.
+    implementation(libs.androidx.fragment)
     // The home-screen widget (widgets/), iOS's DredfitWidgets: Glance draws
     // RemoteViews from composables. AndroidX on Google Maven, no network.
     implementation(libs.androidx.glance.appwidget)
