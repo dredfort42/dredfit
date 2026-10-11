@@ -785,20 +785,25 @@ section is the build: version, key, shrinking.
 ### Version
 
 Both numbers live in `android/gradle.properties`, nowhere else;
-`app/build.gradle.kts` reads them and `scripts/check_version.py` checks them.
+`app/build.gradle.kts` reads them and `scripts/check_version.py --android`
+checks them (`build-release.sh` runs it before it asks for the key).
 
 - **`dredfit.versionName`** is the product version, the x.y.z of iOS's
-  `MARKETING_VERSION` (owner decision, 11.10.2026): one release, one number in
-  both stores, one CHANGELOG. `check_version.py x.y.z` fails when the two
-  platforms disagree.
+  `MARKETING_VERSION` in the same tree (owner decision, 11.10.2026): one
+  product, one number in both stores, one CHANGELOG. An Android-only fix
+  keeps it and takes the next versionCode — 2.5.0 build 2. An iOS release
+  only notes an Android version that differs; it never fails on one.
 - **`dredfit.versionCode`** is Google Play's counter, +1 for every bundle
   uploaded, whatever the track. A plain counter, like iOS's build number but
   its own (Xcode Cloud counts that one): Play refuses a code it has already
   seen, so every upload spends one, a replaced internal build included. A
-  code derived from the version (2.5.0 → 20500) has no room for a second
-  upload of the same version without a build slot, and caps each part at 99.
-  `check_version.py` fails a code that is not above the one at the highest
-  older `android-v*` tag; Play refuses a used one at upload.
+  code derived from the version (2.5.0 → 20500) has no room for 2.5.0 build
+  2, and caps each part at 99. `check_version.py --android` fails a code that
+  is not above every code a tag already carries.
+- **The tag** is `android-vX.Y.Z+CODE` — `android-v2.5.0+1`: the build as
+  semver build metadata, which is what it is (a `-b1` suffix would read as a
+  pre-release of 2.5.0). The check reads the codes from the tag names, of
+  every version, not only older ones.
 
 ### Signing
 
@@ -814,9 +819,9 @@ android/tools/build-release.sh
 
 The script, run by the owner on his Mac:
 
-1. refuses uncommitted changes under `android/` — the tag must name what was
-   built — and runs `check_version.py` for the version in
-   `gradle.properties`;
+1. refuses to run traced (`bash -x` would print the password) and with
+   uncommitted changes under `android/` — the tag must name what was built —
+   and runs `check_version.py --android`;
 2. checks the alias without the password (a PKCS12 store lists its aliases;
    `keytool -list -v -keystore ~/keys/dredfit-release.jks </dev/null` shows
    them), then asks the Keychain for the password — macOS shows its own
@@ -829,8 +834,8 @@ The script, run by the owner on his Mac:
    the build);
 4. checks the bundle: `jarsigner -verify` (a bundle is JAR-signed; `apksigner`
    reads APKs only), and the certificate in the bundle against the key's;
-5. prints the bundle's path, the version, the commit to tag and the upload
-   certificate's SHA-256, to compare with Play Console.
+5. prints the bundle's path, the version, the commit and the tag to give it,
+   and the upload certificate's SHA-256, to compare with Play Console.
 
 `DREDFIT_UPLOAD_KEYSTORE` and `DREDFIT_UPLOAD_KEY_ALIAS` override the path and
 the alias. Without them `app/build.gradle.kts` defines no signing config, and
@@ -849,7 +854,7 @@ The release build is minified and its resources shrunk:
 | | bundle | download (bundletool `get-size total`) |
 | --- | --- | --- |
 | without R8 | 12.5 MB | 11.8 MB |
-| with R8 | 6.6 MB, of which most is the mapping | 2.25–2.30 MB, any ABI, API 29+ |
+| with R8 | 6.6 MB, over half of it the mapping (3.7 MB) | 2.25–2.30 MB, any ABI, API 29+ |
 
 - **Why it is safe here.** The app reflects on none of its own classes: JSON
   is read through the tree, never by generated serializers, and strings by
@@ -884,4 +889,7 @@ calories written; export and import of a six-workout backup; the widget
 placed, drawn and tapped. Logcat showed no error from the app after the fix
 above. Not covered: Play In-App Review (it needs a milestone from the fifth
 workout and an install from Play — internal testing is the first place it
-can be seen), the per-app language, the ongoing notification's tap.
+can be seen); the Health Connect app of Android 10–13, a separate app the
+client binds to, where the system service of 14+ answered here (no shrunk
+build has run below API 37); the per-app language; the ongoing
+notification's tap.

@@ -22,12 +22,11 @@ its estimate are the iOS ones. Android 10 and later, phones.
   refused, the workout runs the same.
 - **The training reminder** (#314, #317) follows the iOS rule — training
   days only, never after you have trained — and asks for the notification
-  permission when it is turned on. It never comes early, but it can come up
-  to an hour after the set time: the alarm needs no permission, and Android
-  delivers such an alarm when it suits the battery. On Samsung phones, which
-  hold reminders back
-  until the screen wakes, Settings explains how to let Dredfit run without
-  battery restrictions.
+  permission when it is turned on. It never comes early, but it can come
+  late: the alarm needs no permission, and Android delivers such an alarm
+  when it suits the battery — from Android 12 within an hour of the set
+  time. On Samsung phones, which hold reminders back until the screen wakes,
+  Settings explains how to let Dredfit run without battery restrictions.
 - **One home-screen widget** (#316) that resizes between the three iOS
   layouts: the day's status, the week, the plan. Lock-screen accessories
   have no Android counterpart; the widget can also sit in Android 16's
@@ -41,14 +40,16 @@ its estimate are the iOS ones. Android 10 and later, phones.
   on Android and the other way round; export goes through the system's "save
   to" picker.
 - **Google Play's in-app review** (#312) asks for a rating by the iOS rule:
-  after a milestone, from the fifth workout, never after "hard". It is the
-  one third-party SDK in the app, and it adds no permission.
+  after a milestone, from the fifth workout, never after "Tough, did less",
+  and at most once in 60 days. It is the one third-party SDK in the app, and
+  it adds no permission.
 
 ### Housekeeping
 
 - **Built for Google Play.** The version is one product version with iOS and
   a Play version code of its own, both read from `android/gradle.properties`
-  and checked by `scripts/check_version.py`. The release is shrunk with R8 —
+  and checked by `scripts/check_version.py --android`, which now has tests
+  of its own. The release is shrunk with R8 —
   a 2.3 MB download instead of 11.8 MB — and signed on the owner's Mac by
   `android/tools/build-release.sh`, with the key's password read from the
   Keychain and never written down. CI builds the release unsigned (#318).

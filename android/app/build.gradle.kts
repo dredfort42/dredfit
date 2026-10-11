@@ -61,9 +61,10 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.findByName("upload")
-            // R8: the bundle drops from 12.5 MB to 6.4 MB (Health Connect
-            // brings Guava and protobuf), and Compose runs as Google measures
-            // it only optimized. Nothing here reflects on its own classes —
+            // R8: Play's download drops from 11.8 MB to 2.3 MB (Health
+            // Connect brings Guava and protobuf; android/README.md has the
+            // measurement), and Compose runs as Google measures it only
+            // optimized. Nothing here reflects on its own classes —
             // JSON is read through the tree, never by generated serializers,
             // strings by R ids (l10n/) — and the libraries that do ship their
             // keep rules; proguard-rules.pro repairs the two that predate R8's

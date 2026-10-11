@@ -57,10 +57,10 @@ branch with CI's **Run workflow**.
 ### 3. Cut a `release/x.y.z` or `hotfix/x.y.z` branch
 **Release Checks** verifies the marketing version matches the branch name, build
 numbers agree across all targets and exceed the build at the highest older
-`v*` tag, Android's version name is the same x.y.z and its version code
-exceeds the one at the highest older `android-v*` tag, and `CHANGELOG.md` has
-a `## x.y.z` section. Without tags (a shallow clone) the build-number
-comparisons are skipped with a notice, so the job checks out full history.
+`v*` tag, and `CHANGELOG.md` has a `## x.y.z` section. Without tags (a shallow
+clone) the build-number comparison is skipped with a notice, so the job checks
+out full history. Android's version is only noted when it differs: an iOS
+release never waits on a Play build ("Android release" below).
 CI (with the advisory Europe/Berlin and Release build jobs) + Lint +
 Localization also run.
 
@@ -82,6 +82,10 @@ The App Store build itself is produced and uploaded manually from Xcode (Archive
 
 1. **Bump the version.** Set `MARKETING_VERSION` (x.y.z) and bump
    `CURRENT_PROJECT_VERSION` (build) in the Xcode project — all targets.
+   `MARKETING_VERSION` is the product version of both platforms: the next
+   Android build takes it as its `dredfit.versionName` ("Android release"
+   below). Android's file is not part of an iOS release, and its check only
+   notes a difference.
 2. **Update `CHANGELOG.md`** with a `## x.y.z` section. These lines become the
    GitHub Release notes verbatim.
 3. **Run the engine gates** — `python3 scripts/check_engine_gates.py`. Five
@@ -126,24 +130,27 @@ python3 scripts/check_version.py release/1.8.0
 ## Android release
 
 The Android app carries the iOS app's product version (owner decision,
-11.10.2026): `dredfit.versionName` in `android/gradle.properties` equals
-`MARKETING_VERSION`, and `check_version.py` holds the two together. Google
-Play gets an App Bundle built and signed on the owner's Mac by
-`android/tools/build-release.sh`; the Android workflow builds the same
-release unsigned on every change and gates nothing. Why the version code
-counts as it does, how the key is handled and why R8 is on:
+11.10.2026): `dredfit.versionName` in `android/gradle.properties` is the
+tree's `MARKETING_VERSION`, and `dredfit.versionCode` is Play's own counter.
+An Android-only fix ships the same versionName with the next code — 2.5.0
+build 2. `python3 scripts/check_version.py --android` holds both, and
+`android/tools/build-release.sh` runs it before it asks for the key; an iOS
+release only notes a difference. Google Play gets an App Bundle built and
+signed on the owner's Mac by that script; the Android workflow builds the
+same release unsigned on every change and gates nothing. Why the version
+code counts as it does, how the key is handled and why R8 is on:
 [`android/README.md`](../android/README.md), "Releasing".
 
 1. **Bump the version** in `android/gradle.properties`: `dredfit.versionCode`
-   +1 for every bundle uploaded to Play, whatever the track;
-   `dredfit.versionName` to x.y.z when the product version moves, with iOS's
+   +1 for every bundle uploaded to Play, whatever the track.
+   `dredfit.versionName` moves only with the product version, to iOS's
    `MARKETING_VERSION`.
 2. **Update `CHANGELOG.md`.** A version both platforms ship together has one
    `## x.y.z` section, Android included. A version iOS has already shipped
-   gets its own `## x.y.z (Android)` section above that one: the shipped
-   section and the GitHub Release made from it stay as they were, and
-   `python3 scripts/changelog_section.py "x.y.z (Android)"` prints the new
-   one.
+   gets its own `## x.y.z (Android)` section above that one — the shipped
+   section and the GitHub Release made from it stay as they were — and an
+   Android-only fix adds its lines there.
+   `python3 scripts/changelog_section.py "x.y.z (Android)"` prints it.
 3. **Run the connected suite** on an emulator — never on a phone; CI does not
    run it:
 
@@ -153,43 +160,57 @@ counts as it does, how the key is handled and why R8 is on:
    cd android && ANDROID_SERIAL=emulator-5554 ./gradlew :app:connectedDebugAndroidTest
    ```
 
-4. **Release branch, `main`, back-merge** — steps 6 and 7 above. Release
-   Checks covers Android's version too. The bundle is built from `main` so
-   that its tag names a commit that stays: a squash merge discards a PR
-   branch's own commits.
+4. **Reach `main`** through the `release/x.y.z` or `hotfix/x.y.z` branch of
+   steps 6 and 7 above, x.y.z being the product version. The bundle is built
+   from `main` so that its tag names a commit that stays: a squash merge
+   discards a PR branch's own commits.
 5. **Build the bundle** from a clean checkout of `main`:
    `android/tools/build-release.sh`. macOS asks whether `security` may read
    the `dredfit-release-keystore` item; the script prints the bundle's path,
-   the version, the commit to tag and the upload certificate's SHA-256.
-6. **Google Play Console.** On the first upload, Play App Signing is set up
-   (the app-signing key Play delivers with); afterwards, App integrity must
-   show the SHA-256 the script printed as the upload key certificate. Then
-   Internal testing → create a release, upload
-   `android/app/build/outputs/bundle/release/app-release.aab`, add the
-   release notes (≤ 500 characters per language), roll out to the testers.
-   The declarations Play asks for — the `health` foreground service, Health
-   Connect, Data safety — are listed in `android/README.md` under "Play
-   Console".
-7. **Tag `android-vX.Y.Z`** on the commit the script printed, and push the
-   tag:
+   the version, the commit, the tag to give it and the upload certificate's
+   SHA-256.
+6. **Google Play Console.**
+   - **The first upload sets up Play App Signing, and that choice cannot be
+     undone**: which key signs what Play delivers — one Google generates, or
+     one uploaded to it — is fixed for the app from then on. **Open question
+     for the owner, before choosing:** the SHA-256 of
+     `~/keys/dredfit-release.jks` was registered for Android developer
+     verification on 05.10.2026. Check in Play Console what that
+     registration expects of the app-signing key; it is not decided here.
+   - Afterwards App integrity must show the SHA-256 the script printed as the
+     upload key certificate.
+   - Internal testing → create a release, upload
+     `android/app/build/outputs/bundle/release/app-release.aab`, add the
+     release notes (≤ 500 characters per language), roll out to the testers.
+   - The declarations Play asks for — the `health` foreground service,
+     Health Connect, Data safety — are listed in `android/README.md` under
+     "Play Console".
+7. **Tag `android-vX.Y.Z+CODE`** on the commit the script printed, and push
+   the tag — one tag per uploaded bundle:
 
    ```sh
-   git tag android-v2.5.0 <commit> && git push origin android-v2.5.0
+   git tag android-v2.5.0+1 <commit> && git push origin android-v2.5.0+1
    ```
 
-   Not `vX.Y.Z`: `v2.5.0` already names the iOS release on `main`, a tag
-   names one commit, and moving a published tag rewrites a shipped release.
-   The prefix is outside both `v*` patterns: `release.yml` makes no GitHub
-   Release for it (and does not overwrite iOS's), and `check_version.py`
-   compares iOS build numbers with `v*` tags only. One tag per version: a
-   fix after a tagged upload is the next patch version, on both platforms.
-   A GitHub Release for the Android section, if wanted, is made by hand:
+   - **The form.** The code rides as semver build metadata (`+1`), which is
+     what it is: the same version, another build. `git check-ref-format`
+     accepts it; a `-b1` suffix would read as a pre-release of 2.5.0.
+     `check_version.py --android` reads the codes from these names, of
+     every version.
+   - **Not `vX.Y.Z`.** `v2.5.0` already names the iOS release on `main`, a
+     tag names one commit, and moving a published tag rewrites a shipped
+     release. The `android-v` prefix is outside both `v*` patterns:
+     `release.yml` makes no GitHub Release for it (and does not overwrite
+     iOS's), and `check_version.py` compares iOS build numbers with `v*`
+     tags only.
+   - **A GitHub Release** for the Android section, if wanted, is made by
+     hand:
 
-   ```sh
-   python3 scripts/changelog_section.py "2.5.0 (Android)" > notes.md
-   gh release create android-v2.5.0 --verify-tag --latest=false \
-     --title "Android 2.5.0" --notes-file notes.md
-   ```
+     ```sh
+     python3 scripts/changelog_section.py "2.5.0 (Android)" > notes.md
+     gh release create android-v2.5.0+1 --verify-tag --latest=false \
+       --title "Android 2.5.0 (1)" --notes-file notes.md
+     ```
 
 ## Branch protection
 
@@ -221,7 +242,7 @@ Europe/Berlin jobs) are deliberately **not** required, so a third-party action o
 |---|---|
 | `check_localization.py` | Fails if any shipping language (de, es, fr, it, pt-BR, ru) is missing a translation. Run with no args to check all tracked `*.xcstrings`. |
 | `check_translation_rules.py` | Fails if a shipped translation breaks a rule the completeness check cannot see: ru `ё` and formal `вы`, fr `U+00A0`/`U+202F`/apostrophe and `vous`, it apostrophe and `Lei`, de `—`/`Min.`/`Workout`/`Sie`, es `usted`, weight units, double spaces, placeholder parity. Proves every rule can still fail before it reports success; `--list` prints the rules. Exceptions with their reasons live in `scripts/translation_rules_config.json`. |
-| `check_version.py <release/x.y.z \| x.y.z>` | Verifies marketing version, build-number agreement, a build number above the highest older `v*` tag (a notice, not a failure, when the tags are missing), Android's `dredfit.versionName` equal to the same version and its `dredfit.versionCode` a positive integer above the highest older `android-v*` tag's, and a changelog section. |
+| `check_version.py <release/x.y.z \| x.y.z>` | Verifies marketing version, build-number agreement, a build number above the highest older `v*` tag (a notice, not a failure, when the tags are missing), and a changelog section; notes an Android version that differs. `--android` instead gates an Android build: `dredfit.versionName` equals `MARKETING_VERSION`, and `dredfit.versionCode` is a positive integer above every code an `android-vX.Y.Z+CODE` tag carries. Tests: `test_check_version.py` (CI's gate-contract job). |
 | `check_engine_gates.py` | Runs every engine gate the `TESTPLAN.md` table names and fails on any that did not print its clean line. `--contract` parses the table without running anything — that is what CI does, since `reference/` is gitignored and never on a runner. |
 | `changelog_section.py <version>` | Prints the `CHANGELOG.md` section for a version (used for release notes). |
 | `setup_branch_protection.sh` | Applies branch protection (above). |

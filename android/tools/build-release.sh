@@ -20,6 +20,12 @@
 #   JAVA_HOME, ANDROID_HOME   default to Android Studio's JBR and SDK
 #
 set -euo pipefail
+# Tracing (`bash -x`, SHELLOPTS=xtrace) would print the password the moment
+# the Keychain hands it over: refuse to run traced.
+case $- in
+    *x*) echo "build-release: refusing to run traced (bash -x): it would print the password" >&2
+         exit 1 ;;
+esac
 
 android_dir="$(cd "$(dirname "$0")/.." && pwd)"
 root="$(cd "$android_dir/.." && pwd)"
@@ -46,10 +52,10 @@ commit="$(git -C "$root" rev-parse HEAD)"
 
 version="$(sed -n 's/^dredfit\.versionName=//p' "$android_dir/gradle.properties")"
 code="$(sed -n 's/^dredfit\.versionCode=//p' "$android_dir/gradle.properties")"
-# The same gate the release branch runs: versionName equals iOS's version, the
-# code is a positive integer above the last android-v* tag's, and the
-# CHANGELOG has the version's section.
-python3 "$root/scripts/check_version.py" "$version"
+# The Android gate: versionName is the tree's product version (iOS's
+# MARKETING_VERSION), and the code is above every code a tag has used.
+python3 "$root/scripts/check_version.py" --android
+tag="android-v$version+$code"
 
 # A PKCS12 store lists its aliases without the password (the certificates
 # stay encrypted): a wrong alias stops here, before the Keychain is asked.
@@ -78,7 +84,9 @@ key_sha="$(printf '%s\n' "$key_list" | sed -n 's/^[[:space:]]*SHA256: //p')"
 # its environment for hours after the build, and the configuration cache
 # would write the signing config — password included — under android/.gradle.
 # The Kotlin compiler runs in-process for the same reason: its daemon outlives
-# the build.
+# the build. AGP still records an unsalted SHA-256 of the password in
+# android/.gradle/<gradle version>/executionHistory (its up-to-date check);
+# android/README.md, "Signing", says why that is left there.
 cd "$android_dir"
 ./gradlew --no-daemon --no-configuration-cache \
     -Pkotlin.compiler.execution.strategy=in-process \
@@ -94,7 +102,9 @@ case "$verify" in
     *"jar verified."*) ;;
     *) fail "the bundle is not signed: $verify" ;;
 esac
-aab_sha="$("$keytool" -printcert -jarfile "$aab" | sed -n 's/^[[:space:]]*SHA256: //p')"
+aab_sha="$("$keytool" -printcert -jarfile "$aab" | sed -n 's/^[[:space:]]*SHA256: //p')" \
+    || fail "keytool could not read the bundle's certificate"
+[ -n "$aab_sha" ] || fail "keytool printed no SHA-256 for the bundle's certificate"
 [ "$aab_sha" = "$key_sha" ] || fail "the bundle's certificate ($aab_sha) is not the key's ($key_sha)"
 
 cat <<EOF
@@ -110,5 +120,5 @@ Next (.github/WORKFLOWS.md, "Android release"):
   1. Play Console, App integrity: the upload key certificate's SHA-256 must
      be the one above.
   2. Play Console, Internal testing: create a release, upload the bundle.
-  3. git tag android-v$version $commit && git push origin android-v$version
+  3. git tag $tag $commit && git push origin $tag
 EOF
