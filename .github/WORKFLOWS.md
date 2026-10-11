@@ -14,6 +14,7 @@ step-by-step release procedure. All workflows live in
 | ↳ **App unit tests in Europe/Berlin** — `TEST_RUNNER_TZ` | `ci.yml` (`app-tests-timezone`) | push to CI's branches + manual, not PRs | ❌ advisory† | ~5–15 min |
 | **Lint** — SwiftLint (container pinned to `0.65.1`) | `lint.yml` | push/PR, as CI (no manual) | ✅ **required** | ~30 s |
 | **Localization** — String Catalog completeness | `localization.yml` | same | ✅ **required** | ~10 s |
+| **Android** — Kotlin engine vs `golden.json`, app unit tests, debug build, unsigned release APK and bundle | `android.yml` | push/PR as CI, when `android/`, the fixture or a String Catalog changed + manual | ❌ not required | ~5 min |
 | **UI Tests** | `ui-tests.yml` | nightly, only if the app or its UI tests changed + manual | ❌ non-gating | ~75–100 min |
 | **CodeQL** — Swift security scan | `codeql.yml` | push to `main`/`develop` + weekly | ❌ advisory | ~15 min |
 | **PR Title** — Conventional Commits | `pr-title.yml` | PR | ❌ advisory | ~5 s |
@@ -121,6 +122,74 @@ Sanity-check the version/changelog before you push:
 ```sh
 python3 scripts/check_version.py release/1.8.0
 ```
+
+## Android release
+
+The Android app carries the iOS app's product version (owner decision,
+11.10.2026): `dredfit.versionName` in `android/gradle.properties` equals
+`MARKETING_VERSION`, and `check_version.py` holds the two together. Google
+Play gets an App Bundle built and signed on the owner's Mac by
+`android/tools/build-release.sh`; the Android workflow builds the same
+release unsigned on every change and gates nothing. Why the version code
+counts as it does, how the key is handled and why R8 is on:
+[`android/README.md`](../android/README.md), "Releasing".
+
+1. **Bump the version** in `android/gradle.properties`: `dredfit.versionCode`
+   +1 for every bundle uploaded to Play, whatever the track;
+   `dredfit.versionName` to x.y.z when the product version moves, with iOS's
+   `MARKETING_VERSION`.
+2. **Update `CHANGELOG.md`.** A version both platforms ship together has one
+   `## x.y.z` section, Android included. A version iOS has already shipped
+   gets its own `## x.y.z (Android)` section above that one: the shipped
+   section and the GitHub Release made from it stay as they were, and
+   `python3 scripts/changelog_section.py "x.y.z (Android)"` prints the new
+   one.
+3. **Run the connected suite** on an emulator — never on a phone; CI does not
+   run it:
+
+   ```sh
+   export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+   export ANDROID_HOME=~/Library/Android/sdk
+   cd android && ANDROID_SERIAL=emulator-5554 ./gradlew :app:connectedDebugAndroidTest
+   ```
+
+4. **Release branch, `main`, back-merge** — steps 6 and 7 above. Release
+   Checks covers Android's version too. The bundle is built from `main` so
+   that its tag names a commit that stays: a squash merge discards a PR
+   branch's own commits.
+5. **Build the bundle** from a clean checkout of `main`:
+   `android/tools/build-release.sh`. macOS asks whether `security` may read
+   the `dredfit-release-keystore` item; the script prints the bundle's path,
+   the version, the commit to tag and the upload certificate's SHA-256.
+6. **Google Play Console.** On the first upload, Play App Signing is set up
+   (the app-signing key Play delivers with); afterwards, App integrity must
+   show the SHA-256 the script printed as the upload key certificate. Then
+   Internal testing → create a release, upload
+   `android/app/build/outputs/bundle/release/app-release.aab`, add the
+   release notes (≤ 500 characters per language), roll out to the testers.
+   The declarations Play asks for — the `health` foreground service, Health
+   Connect, Data safety — are listed in `android/README.md` under "Play
+   Console".
+7. **Tag `android-vX.Y.Z`** on the commit the script printed, and push the
+   tag:
+
+   ```sh
+   git tag android-v2.5.0 <commit> && git push origin android-v2.5.0
+   ```
+
+   Not `vX.Y.Z`: `v2.5.0` already names the iOS release on `main`, a tag
+   names one commit, and moving a published tag rewrites a shipped release.
+   The prefix is outside both `v*` patterns: `release.yml` makes no GitHub
+   Release for it (and does not overwrite iOS's), and `check_version.py`
+   compares iOS build numbers with `v*` tags only. One tag per version: a
+   fix after a tagged upload is the next patch version, on both platforms.
+   A GitHub Release for the Android section, if wanted, is made by hand:
+
+   ```sh
+   python3 scripts/changelog_section.py "2.5.0 (Android)" > notes.md
+   gh release create android-v2.5.0 --verify-tag --latest=false \
+     --title "Android 2.5.0" --notes-file notes.md
+   ```
 
 ## Branch protection
 
