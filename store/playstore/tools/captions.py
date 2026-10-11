@@ -97,14 +97,16 @@ CAPTIONS = {
     },
     # New for Play: the home-screen widget — one widget whose layout follows
     # its size (TodayStatusWidget.kt): the day, then the week, then the plan.
+    # Worded for any day: WidgetScreenshots rests on Wednesdays and Sundays,
+    # so the frame can show "Rest day" as well as "Workout N".
     "07-widget": {
-        "en-US": (["On your home screen"], "Today’s workout, your week and the plan at a glance."),
-        "ru-RU": (["На главном экране"], "Тренировка дня, неделя и план — все на виду."),
-        "es-ES": (["En tu pantalla", "de inicio"], "El entrenamiento del día, tu semana y el plan, de un vistazo."),
-        "pt-BR": (["Na tela inicial"], "O treino do dia, sua semana e o plano num relance."),
-        "de-DE": (["Auf dem", "Startbildschirm"], "Das Training des Tages, deine Woche und der Plan – auf einen Blick."),
-        "fr-FR": (["Sur l’écran d’accueil"], "La séance du jour, ta semaine et le plan d’un coup d’œil."),
-        "it-IT": (["Nella schermata Home"], "L’allenamento del giorno, la settimana e il piano a colpo d’occhio."),
+        "en-US": (["On your home screen"], "The day, your week and the plan at a glance."),
+        "ru-RU": (["На главном экране"], "День, неделя и план — все на виду."),
+        "es-ES": (["En tu pantalla", "de inicio"], "El día, tu semana y el plan, de un vistazo."),
+        "pt-BR": (["Na tela inicial"], "O dia, sua semana e o plano num relance."),
+        "de-DE": (["Auf dem", "Startbildschirm"], "Der Tag, deine Woche und der Plan – auf einen Blick."),
+        "fr-FR": (["Sur l’écran d’accueil"], "La journée, ta semaine et le plan d’un coup d’œil."),
+        "it-IT": (["Nella schermata Home"], "La giornata, la settimana e il piano a colpo d’occhio."),
     },
     # The number IS the section count of HowItWorksView.kt (twelve, as on iOS).
     "08-howitworks": {
