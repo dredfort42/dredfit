@@ -763,8 +763,10 @@ permissions plus the `<queries>` entry.
   `READ_EXERCISE` — another app's recording of the same session, so its
   calories are not counted twice.
 - **Data safety**: health and fitness data is read and written on the device
-  only; nothing is transmitted (no INTERNET permission), so nothing is
-  "collected" or "shared" in the form's sense.
+  only; the app transmits nothing (no INTERNET permission), so nothing is
+  "collected" or "shared" in the form's sense. Android's own Auto Backup of
+  the state file is the system's upload, a judgment call written out in
+  `store/playstore/policy.md`.
 - **Privacy policy**: Google requires the policy the Console lists to be the
   one the link shows, and to cover Health Connect data. dredfit.com's policy
   has a Health Connect section (`privacy.html#health-connect`) from

@@ -16,9 +16,10 @@ to either shows which answer it moves.
   main, по ссылке из Play Console и с экрана разрешений Health Connect
   открывается старая политика, где об Android нет ни слова.
 - **Data safety.** Рекомендация: «данные не собираются и не передаются».
-  Все, что приложение читает и пишет, остается на телефоне (разрешения
-  INTERNET нет). Два места, где решение за владельцем: карточка отзыва Google
-  Play и автоматическое резервное копирование Android (ниже, раздел 2).
+  Само приложение ничего не передает (разрешения INTERNET нет). Два места,
+  где решение за владельцем: карточка отзыва Google Play и автоматическое
+  резервное копирование Android, которое увозит файл состояния в аккаунт
+  Google (ниже, раздел 2).
 - **Health Connect.** Пять разрешений, для каждого готов текст обоснования
   (раздел 3). Экран обоснования — HealthPrivacyActivity: он открывает
   политику в браузере, а не показывает ее внутри приложения. Это риск на
@@ -26,7 +27,7 @@ to either shows which answer it moves.
 - **Foreground service `health`.** Описание, последствия отсрочки и
   прерывания и сценарий видео — раздел 4. Видео Google требует для каждого
   типа службы.
-- **Остальное.** Рейтинг IARC — самый низкий (раздел 6). Целевая аудитория —
+- **Остальное.** Рейтинг IARC ожидается самый низкий (раздел 6). Целевая аудитория —
   предлагается 18+ (решение владельца). Рекламы нет, входа нет, рекламный
   идентификатор не используется.
 
@@ -109,11 +110,11 @@ Per data type, for the record:
 
 | Data type (Play's list) | What the app does | Collected? | Shared? |
 | --- | --- | --- | --- |
-| Health and fitness › Fitness info | finished workouts and their estimated active calories written to Health Connect, on the device; other apps' exercise sessions read from Health Connect, on the device | No — processed on the device only | No |
-| Health and fitness › Health info | weight and basal metabolic rate read from Health Connect, on the device; the weight kept in the app's own file | No — processed on the device only | No |
-| App activity › Other actions | the training history, kept in the app's own file | No — never leaves the app except as below | No |
+| Health and fitness › Fitness info | the training history, kept in the app's own file; finished workouts and their estimated active calories written to Health Connect, on the device; other apps' exercise sessions read from Health Connect, on the device | No — the app transmits none of it (the ways it leaves the app are below) | No |
+| Health and fitness › Health info | weight and basal metabolic rate read from Health Connect, on the device; the weight kept in the app's own file | No — as above | No |
+| Files and docs | a backup file the user picks is written (export) or read (import) on the device | No — on the device only | No |
 | App info and performance | the app has no crash reporter and no analytics | No | No |
-| Everything else (location, personal info, financial, messages, photos, audio, files, calendar, contacts, web browsing, device IDs) | none of it is accessed | No | No |
+| Everything else (location, personal info, financial, messages, photos, audio, calendar, contacts, web browsing, app activity, device IDs) | none of it is accessed | No | No |
 
 The ways data leaves the app are all user-initiated or the system's own, and
 none of them reaches the developer:
@@ -144,13 +145,14 @@ Two judgment calls for the owner:
    test track Google shares the review privately with the developer — the
    privacy policy says so.
 2. **Android Auto Backup.** With backup on, the system's backup service
-   uploads the state file to the user's own Google account, end-to-end
-   encrypted with the screen lock on Android 9+ ("The backup data can't be
-   read by the user or other apps on the device"). The developer cannot
-   read it. The Data safety help does not address Auto Backup either way
-   (searched 11.10.2026). **Recommended: not declared** — the upload is the
-   operating system's, to the user's account, as iCloud backup is on iOS
-   (which App Privacy does not count either). The privacy policy describes
+   uploads the state file (history, settings, body weight) to the user's
+   own Google account — end-to-end encrypted on Android 9+ when the phone
+   has a screen lock; the app sets no rule that would skip the backup
+   without one ("The backup data can't be read by the user or other apps on
+   the device"). The developer cannot read it. The Data safety help does not
+   address Auto Backup either way (searched 11.10.2026). **Recommended: not
+   declared** — the upload is the operating system's, to the user's account,
+   as iCloud backup is on iOS, where the app ships as "Data Not Collected". The privacy policy describes
    it in full ("Where your data lives"). If the owner prefers not to rely on
    that reading, the alternative is not a declaration but `allowBackup`
    false, which the owner already decided against (09.10.2026).
@@ -179,8 +181,8 @@ workout they finish is written to Health Connect as one exercise session
 history, and the phone it was recorded on. That is the feature the switch
 names: the user's workouts appear in Health Connect and in the other fitness
 apps they connect to it. Writing a workout again with the same identifier
-replaces it, so nothing is duplicated. Nothing leaves the device: the app has
-no internet permission.
+replaces it, so nothing is duplicated. Dredfit itself transmits nothing: it
+has no internet permission.
 
 **Active calories burned — write (`WRITE_ACTIVE_CALORIES_BURNED`).**
 With each written workout, Dredfit writes the active calories of the same
@@ -196,7 +198,9 @@ Settings.
 The calorie estimate is proportional to body weight. Dredfit reads the
 newest weight in Health Connect and shows it as the body weight in Settings,
 where the user can also type one. Without a weight, no calories are written.
-The weight and its date are kept in the app's local data only.
+The weight and its date are kept in the app's own data on the phone — and so
+in a backup the user exports and in Android's backup of the app to the
+user's Google account; the developer never receives it.
 
 **Basal metabolic rate — read (`READ_BASAL_METABOLIC_RATE`).**
 Active calories are the energy of the workout minus what the body burns at
@@ -240,8 +244,9 @@ cannot show the page in a WebView.
   ("Who is responsible"), each data type and the feature it serves ("Health
   Connect (Android)"), every use and sharing ("Third parties"), how to
   withdraw access and delete data ("Health Connect (Android)", "Retention and
-  your rights"), and security ("Where your data lives": nothing is
-  transmitted; app-private storage; the backup's end-to-end encryption).
+  your rights"), and security ("Where your data lives": the app transmits
+  nothing; app-private storage; the Android backup's end-to-end encryption
+  when the phone has a screen lock).
 
 ## 4. Foreground service — type `health`
 
@@ -254,21 +259,22 @@ apps such as exercise trackers; pick the use case the Console offers for it.
 Dredfit guides a bodyweight workout: timed rests between sets, timed holds
 (planks), a guided warm-up and cool-down. While a workout the user started is
 in progress, the app shows an ongoing notification — the current exercise or
-what the rest leads into, the set, and the countdown — and plays a 3-2-1
-countdown tone with a vibration at the end of every rest and hold, so the
-user, exercising on the floor away from the phone, knows when the next set
-starts. The foreground service of type `health` carries that notification for
-exactly the life of the workout: it starts when the user starts the workout
-and stops at the rating, at "Finish now", or when the workout is closed. The
-service type requires a prerequisite permission; the app declares
+what the rest leads into, the set, and the countdown — and counts the last
+seconds of every rest and hold out with a 3-2-1 of tones and vibrations, so
+the user, exercising on the floor away from the phone, knows when the next
+set starts. The foreground service of type `health` carries that
+notification while the workout is in progress and no longer: it starts when
+the user starts the workout and stops when the workout ends (the rating,
+"Finish now", closing it), or after three hours with nothing saved. Off
+screen, a countdown that reaches zero waits there until the user comes back.
+The service type requires a prerequisite permission; the app declares
 `HIGH_SAMPLING_RATE_SENSORS` for that reason only and reads no sensor.
 
 **Impact if the task is deferred (does not start immediately).**
 The workout's first rest or hold would run without its notification, and on
 Android 14 and later the app is frozen seconds after it leaves the screen, so
-the countdown tone that ends the rest would not sound: the user would miss
-the start of the next set. The service has to start when the user taps
-Start.
+the 3-2-1 that counts the rest out would not sound: the user would miss the
+start of the next set. The service has to start when the user taps Start.
 
 **Impact if the task is interrupted (paused or restarted).**
 The countdown tones, the vibration and the lock-screen countdown stop
@@ -280,16 +286,19 @@ is no longer told when a rest or a hold ends.
 the system screen recorder with device audio, so the tones are heard; upload
 unlisted and paste the link):
 
-1. Open Dredfit. Today shows the plan; tap **Start**.
+1. Open Dredfit and go through the first-launch screens. Today shows the
+   plan; tap **Start**.
 2. The system asks for notification permission (Android 13+): tap **Allow**.
-3. The warm-up begins. Pull down the shade: the ongoing Dredfit notification
-   shows the exercise and the countdown.
-4. Press Home (or open another app) during a countdown and wait for it to
-   end: the tone sounds with Dredfit off screen, and the notification moves
-   on to the next stage.
+3. Skip the warm-up on its first screen (during the warm-up the notification
+   only says WARM-UP). Do the first set and tap **Done**: a rest begins. Pull
+   down the shade: the ongoing Dredfit notification shows "Next up", the
+   exercise and the countdown.
+4. Press Home (or open another app) during the rest: the 3-2-1 sounds with
+   Dredfit off screen; at zero the notification drops its countdown and
+   waits.
 5. Tap the notification: the workout comes back where it is.
-6. Use the exit button and **Finish now**, then rate the workout: the
-   notification disappears with the workout.
+6. Tap the exit button, answer "Leave the workout?" with **Finish now**: the
+   notification disappears, and the rating opens.
 
 The lock screen cannot be captured by the screen recorder; if Google asks
 for it, film it with a second phone.
