@@ -4,7 +4,7 @@
 # the upload key, checks the signature, and prints what to compare with Play
 # Console. The owner runs it on his Mac; nothing else holds the key.
 #
-#   android/tools/build-release.sh
+#   android/tools/build-release.sh      # on main, as origin has it
 #
 # The keystore's password lives ONLY in the macOS Keychain (generic password,
 # service "dredfit-release-keystore"). The script asks the Keychain for it —
@@ -48,12 +48,26 @@ if [ -n "$(git -C "$root" status --porcelain -- android)" ]; then
     git -C "$root" status --short -- android >&2
     fail "android/ has uncommitted changes; build from a clean checkout of the commit to tag"
 fi
-commit="$(git -C "$root" rev-parse HEAD)"
 
-version="$(sed -n 's/^dredfit\.versionName=//p' "$android_dir/gradle.properties")"
-code="$(sed -n 's/^dredfit\.versionCode=//p' "$android_dir/gradle.properties")"
+# Only what main holds ships: the tag must name a commit that stays, and a
+# squash merge discards a branch's own commits. The fetch also brings every
+# tag, which the version check below compares the code with.
+git -C "$root" fetch --quiet --tags origin main \
+    || fail "cannot fetch origin's main and tags"
+commit="$(git -C "$root" rev-parse HEAD)"
+[ "$commit" = "$(git -C "$root" rev-parse origin/main)" ] \
+    || fail "HEAD ($commit) is not origin/main; check out main and pull first"
+
+# Read as Gradle reads a property: key, then "=", ":" or blanks.
+property() {
+    sed -nE "s/^[[:space:]]*dredfit\.$1([[:space:]]*[=:][[:space:]]*|[[:space:]]+)//p" \
+        "$android_dir/gradle.properties"
+}
+version="$(property versionName)"
+code="$(property versionCode)"
 # The Android gate: versionName is the tree's product version (iOS's
-# MARKETING_VERSION), and the code is above every code a tag has used.
+# MARKETING_VERSION), the code is above every code a tag has used, and the
+# CHANGELOG has the version's Android section.
 python3 "$root/scripts/check_version.py" --android
 tag="android-v$version+$code"
 
@@ -87,13 +101,36 @@ key_sha="$(printf '%s\n' "$key_list" | sed -n 's/^[[:space:]]*SHA256: //p')"
 # the build. AGP still records an unsalted SHA-256 of the password in
 # android/.gradle/<gradle version>/executionHistory (its up-to-date check);
 # android/README.md, "Signing", says why that is left there.
+#
+# Gradle runs in the background so that an interrupt reaches the trap at
+# once (bash runs a trap only after its foreground command ends): the trap
+# stops the Gradle client, and a bundle that was signed but never verified
+# is deleted, so nothing unchecked is left to upload.
+aab="$android_dir/app/build/outputs/bundle/release/app-release.aab"
+gradle="" verified=0
+finish() {
+    if [ -n "$gradle" ]; then
+        kill "$gradle" 2>/dev/null || true
+        wait "$gradle" 2>/dev/null || true
+    fi
+    [ "$verified" = 1 ] || rm -f "$aab"
+}
+trap finish EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+rm -f "$aab"
 cd "$android_dir"
 ./gradlew --no-daemon --no-configuration-cache \
     -Pkotlin.compiler.execution.strategy=in-process \
-    --console=plain :app:bundleRelease
+    --console=plain :app:bundleRelease &
+gradle=$!
+if ! wait "$gradle"; then
+    gradle=""
+    fail "the Gradle build failed"
+fi
+gradle=""
 unset DREDFIT_UPLOAD_PASSWORD
 
-aab="$android_dir/app/build/outputs/bundle/release/app-release.aab"
 [ -f "$aab" ] || fail "no bundle at $aab"
 
 # An App Bundle is a JAR-signed zip: apksigner reads APKs only.
@@ -106,13 +143,15 @@ aab_sha="$("$keytool" -printcert -jarfile "$aab" | sed -n 's/^[[:space:]]*SHA256
     || fail "keytool could not read the bundle's certificate"
 [ -n "$aab_sha" ] || fail "keytool printed no SHA-256 for the bundle's certificate"
 [ "$aab_sha" = "$key_sha" ] || fail "the bundle's certificate ($aab_sha) is not the key's ($key_sha)"
+verified=1
 
 cat <<EOF
 
 Bundle:      $aab
 Size:        $(stat -f%z "$aab") bytes
 Version:     $version (versionCode $code)
-Commit:      $commit
+Commit:      $commit (origin/main)
+Tag:         $tag
 Signature:   jarsigner -verify: jar verified.
 Upload key:  SHA-256 $aab_sha
 

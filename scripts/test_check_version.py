@@ -69,7 +69,7 @@ class Repo:
                               timeout=60).stdout
 
     def commit(self, ios: str, build: int, android: str, code: str,
-               changelog=("2.5.0",)):
+               changelog=("2.5.0 (Android)", "2.5.0"), separator="="):
         project = self.root / "ios" / "Dredfit.xcodeproj" / "project.pbxproj"
         project.parent.mkdir(parents=True, exist_ok=True)
         # Two targets, as the real project has more than one.
@@ -80,8 +80,9 @@ class Repo:
         properties = self.root / "android" / "gradle.properties"
         properties.parent.mkdir(exist_ok=True)
         properties.write_text(
-            f"android.useAndroidX=true\ndredfit.versionName={android}\n"
-            f"dredfit.versionCode={code}\n", encoding="utf-8")
+            f"android.useAndroidX=true\n"
+            f"dredfit.versionName{separator}{android}\n"
+            f"dredfit.versionCode{separator}{code}\n", encoding="utf-8")
         (self.root / "CHANGELOG.md").write_text(
             "# Changelog\n" + "".join(f"\n## {v}\n\n- notes\n"
                                       for v in changelog),
@@ -182,6 +183,23 @@ class CheckVersionTest(unittest.TestCase):
                 code, out = self.repo.check("--android")
                 self.assertEqual(code, 1, out)
                 self.assertIn("expected one positive integer", out)
+
+    def test_an_android_build_needs_its_own_changelog_section(self):
+        # iOS's "## 2.5.0" shipped with v2.5.0; it says nothing of Android.
+        self.repo.commit("2.5.0", 26, "2.5.0", "2", ("2.5.0",))
+        code, out = self.repo.check("--android")
+        self.assertEqual(code, 1)
+        self.assertIn("FAIL: CHANGELOG.md has no '## 2.5.0 (Android)' section",
+                      out)
+
+    def test_gradles_spaced_property_forms_read(self):
+        for separator in (" = ", ": ", " "):
+            with self.subTest(separator=separator):
+                self.repo.commit("2.5.0", 26, "2.5.0", "2",
+                                 separator=separator)
+                code, out = self.repo.check("--android")
+                self.assertEqual(code, 0, out)
+                self.assertIn("Android versionCode: ['2']", out)
 
     def test_the_tagged_build_rechecks_clean(self):
         code, out = self.repo.check("--android")

@@ -26,7 +26,8 @@ not wait on a Play build. `--android` is the gate for that build instead
     android-vX.Y.Z+CODE tag already carries, whatever its version: Play
     refuses a code it has seen, and an Android-only fix ships the same
     versionName with the next code. Tags on the checked-out commit itself are
-    left out, so the tagged build re-checks clean.
+    left out, so the tagged build re-checks clean,
+  * CHANGELOG.md has a "## <versionName> (Android)" section.
 
 It catches the classic "forgot to bump one target" and "forgot the changelog
 entry" mistakes before a tag turns them into a shipped build. Stdlib only.
@@ -44,8 +45,15 @@ ANDROID_PROPERTIES = ROOT / "android" / "gradle.properties"
 
 MARKETING_RE = re.compile(r"MARKETING_VERSION = ([^;]+);")
 BUILD_RE = re.compile(r"CURRENT_PROJECT_VERSION = ([^;]+);")
-ANDROID_NAME_RE = re.compile(r"^dredfit\.versionName=(.*)$", re.MULTILINE)
-ANDROID_CODE_RE = re.compile(r"^dredfit\.versionCode=(.*)$", re.MULTILINE)
+# As java.util.Properties — Gradle's reader — splits a line: the key, then
+# "=", ":" or blanks with blanks around them. The value keeps its trailing
+# blanks, as Gradle's does (and "6 ".toInt() fails the build there too).
+ANDROID_NAME_RE = re.compile(
+    r"^[ \t\f]*dredfit\.versionName(?:[ \t\f]*[=:][ \t\f]*|[ \t\f]+)(.*)$",
+    re.MULTILINE)
+ANDROID_CODE_RE = re.compile(
+    r"^[ \t\f]*dredfit\.versionCode(?:[ \t\f]*[=:][ \t\f]*|[ \t\f]+)(.*)$",
+    re.MULTILINE)
 # android-v2.5.0+1: the build rides as semver build metadata, which is what it
 # is — the same version, another build. A "-b1" suffix would read as a
 # pre-release, sorting before 2.5.0.
@@ -153,6 +161,14 @@ def check_android() -> int:
     elif names != marketing:
         errors.append(f"dredfit.versionName is {names or '(none)'}, expected "
                       f"'{marketing[0]}' (iOS's MARKETING_VERSION)")
+    else:
+        # Android's notes are its own section: iOS's "## x.y.z" may have
+        # shipped long before, and a GitHub Release was made from it as it
+        # stood. The heading is the one changelog_section.py can print.
+        heading = f"{names[0]} (Android)"
+        section = section_for(heading, CHANGELOG.read_text(encoding="utf-8"))
+        if not section or not section.strip():
+            errors.append(f"CHANGELOG.md has no '## {heading}' section")
     highest = None
     if len(codes) != 1 or not re.fullmatch(r"[1-9][0-9]*", codes[0]):
         errors.append(f"dredfit.versionCode is {codes or '(none)'}, expected "
