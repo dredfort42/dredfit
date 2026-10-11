@@ -1,0 +1,1 @@
+A primeira versão do Dredfit para Android. Uma pergunta depois de cada treino, e o plano se ajusta. Vem com um widget para a tela inicial, um lembrete nos dias de treino, uma notificação com a contagem regressiva do descanso e das isometrias, e o app Conexão Saúde (Health Connect), se você ativar. Um histórico exportado do Dredfit em outro celular pode ser importado aqui.

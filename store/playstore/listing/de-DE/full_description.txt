@@ -1,0 +1,35 @@
+Öffne die App – dein Training steht bereit. Das ist die ganze Idee.
+
+Dredfit ist ein adaptiver Trainer mit dem eigenen Körpergewicht, wie ein Thermostat. Kein Fragebogen, keine Zielauswahl, keine Einstellungen. Er reagiert auf jedes Training: danach eine Frage – schwer, nach Plan, leicht – und der Plan bewegt sich. Trainierst du schon? Trag ein, was du geschafft hast – die Zahl wird zum Plan.
+
+Wo es beginnt
+• Tag eins: drei Sätze mit vier Wiederholungen in der leichtesten Variante von sechs Bewegungen – Liegestütze auf den Knien, Kniebeugen, Beckenheben. Etwa 32 Minuten mit Auf- und Abwärmen.
+• Das ist der Einstieg, nicht das Minimum: Bei „schwer“ sinkt der Plan – bis hinunter zu zwei Sätzen mit vier, eine Einheit von etwa 24 Minuten. Tag eins verlangt genau drei Sätze mit vier. Schaffst du das ungefähr, kommt der Rest aus deinen Antworten; sonst ist das jetzt das falsche Werkzeug – besser hier gelesen als danach.
+
+Warum es funktioniert
+• Geplant wird nie, was du nicht gezeigt hast. Deine Position: Variante und Dosis – Wiederholungen oder Sekunden im Halten. Eine Stufe ist +1 Wiederholung (oder +5 Sekunden) in einem Satz: Wachstum kostet einen Satz, kein ganzes Training.
+• Eine schwerere Variante gibt es nur durch Probieren. Am oberen Ende des Bereichs wird der letzte Satz zur Probe: ein Satz der nächsten Variante. Gelingt sie, startet dort das nächste Training. Sonst bewegt sich nichts – eine misslungene Probe kostet nichts.
+• Ziehen ist in jedem Training dabei – für ausgeglichene Schultern.
+• Dreimal in Folge unter dem Plan setzt die Bewegung drei Stufen zurück – Verschnaufpause, keine Strafe.
+• Keine Streaks, keine Schuldmechanik, kein „wir vermissen dich“. Nie.
+
+Was drinsteckt
+• 59 Übungen in 10 Bewegungsmustern. Stuhl, Tisch, Wand, Handtuch und Treppenstufe decken 52 davon ab.
+• Optionales Klimmzugstangen-Modul: jedes zweite Training bringt dann vertikales Ziehen – vom Hängen an der Stange bis zu vollen Klimmzügen.
+• Geführtes Auf- und Abwärmen, pausierbar, mit Vorbereitungszeit je Position. Pausen-Timer mit 3-2-1-Countdown, Halten-Timer für die Plank, vier Sekunden zwischen Start und laufender Uhr.
+• Jede Übung erklärt sich: drei Technik-Schritte, zwei typische Fehler und die Zeile „Im Alltag“.
+• Beim Training zählt eine Benachrichtigung die Pause – und ein Halten – herunter; ein Widget auf dem Startbildschirm zeigt den Tag und, größer gezogen, deine Woche und den Plan.
+• Jede Bewegung hat ihre eigene Leiter, dazu ein Diagramm über alle Trainings und einen Kalender. Meilensteine sind ruhig: kein Konfetti.
+
+Die Länge entscheidest du
+• Vor dem Start zeigt „Heute“ eine Spanne: volles Training und kürzeste mögliche Version. Darin lässt sich, wo die Übung es zulässt, ein Satz überspringen oder der Rest einer Übung, und die verbleibenden Minuten sinken mit jeder Wahl. Die App wählt nie selbst, welche Bewegungen du auslässt.
+• Ein unterbrochenes Training lässt sich fortsetzen, auch wenn die App zwischendurch geschlossen wurde. Keine Zeit mehr? „Jetzt beenden“ speichert ehrlich, was du geschafft hast.
+• Nach einer Trainingspause holt dich der Plan tiefer ab – umso tiefer, je länger du weg warst – und er holt schnell auf, weil er dir folgt.
+• Ruhetage wählst du selbst, eine Erinnerung je Trainingstag, Ex- und Import des Verlaufs als reines JSON, und wenn du willst, landen Trainings in Health Connect – mit geschätzten Kalorien, sobald dein Gewicht bekannt ist.
+
+Privatsphäre von Anfang an
+Kein Konto. Keine Werbung. Keine Analyse. Keine Internetberechtigung. Dein Training ist eine kleine Datei auf dem Handy: Sie geht nur dorthin, wohin du sie schickst, und in die Sicherung des Handys, falls die aktiv ist.
+
+Kostenlos, ohne In-App-Käufe. Ab Android 10. Auf Englisch, Deutsch, Französisch, Italienisch, Spanisch, brasilianischem Portugiesisch und Russisch.
+
+Bei Problemen mit Gelenken, Herz oder Blutdruck sprich vorher mit einer Ärztin oder einem Arzt. Akuter Schmerz beim Training heißt immer: aufhören.

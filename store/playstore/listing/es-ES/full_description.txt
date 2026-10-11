@@ -1,0 +1,35 @@
+Abre la app: tu entrenamiento ya está listo. Esa es toda la idea.
+
+Dredfit es un entrenador adaptativo de peso corporal, como un termostato. Sin cuestionario, sin elegir objetivo, sin ajustes. Ajusta cada entrenamiento según el anterior: respondes una pregunta al terminar —difícil, según el plan o fácil— y el plan se mueve. ¿Ya entrenas? Escribe lo que hiciste y eso se vuelve el plan.
+
+Dónde empieza
+• El primer día son tres series de cuatro, en la variación más suave de seis movimientos: flexiones de rodillas, sentadillas, puente de glúteos. Unos 32 minutos con calentamiento y enfriamiento.
+• Ese es el punto de entrada, no el mínimo posible: responde «difícil» y el plan baja, hasta dos series de cuatro, una sesión de unos 24 minutos. El primer día pide justo tres series de cuatro. Si está a tu alcance hoy, el resto sale de tus respuestas; si no, esta no es la herramienta por ahora —mejor decirlo aquí que tras instalarla.
+
+Por qué funciona
+• Nunca se planea lo que no hayas hecho. Tu posición son dos datos: variación y dosis —repeticiones en una serie, o segundos en una isometría. Un paso es +1 repetición (o +5 segundos) en una serie.
+• Una variación más difícil no se regala: se prueba. Al llegar al techo del rango, la última serie se vuelve una prueba: una serie de la siguiente variación. Si la superas, la próxima sesión empieza ahí; si no, el plan sigue igual —las series de trabajo no pierden nada.
+• Una tracción por entrenamiento mantiene los hombros equilibrados.
+• Tres sesiones seguidas por debajo del plan retroceden ese movimiento tres pasos: un respiro, no un castigo.
+• Sin rachas, sin mecánicas de culpa, sin «te extrañamos». Nunca.
+
+Qué incluye
+• 59 ejercicios en 10 patrones de movimiento. Silla, mesa, pared, toalla y escalón cubren 52 de ellos.
+• Módulo opcional de barra de dominadas: actívalo y, un entrenamiento de cada dos, la tracción pasa a ser vertical, de la suspensión a las dominadas: las únicas siete variaciones con equipamiento.
+• Calentamiento y enfriamiento guiados, con pausa. Descanso con cuenta regresiva 3-2-1 que alargas u omites, temporizador de isometría para planchas, y cuatro segundos entre el toque y el reloj en marcha.
+• Cada ejercicio se explica solo: tres pasos de técnica, dos errores comunes y una línea «En la vida».
+• Mientras entrenas, una notificación cuenta el descanso —y una isometría—; un widget en la pantalla de inicio muestra el día y, más grande, tu semana y el plan.
+• Cada movimiento tiene su propia escalera, más gráfico por sesiones y calendario. Hitos tranquilos: sin confeti.
+
+Tú decides cuánto dura
+• «Hoy» muestra un rango antes de empezar: el entrenamiento completo y el más corto posible. Dentro puedes quitar una serie mientras al ejercicio le quede margen, omitir el ejercicio entero, o quitar el resto de uno más largo; los minutos bajan según avanzas. La app nunca elige qué movimientos dejas fuera.
+• Un entrenamiento interrumpido se retoma, aunque hayas cerrado la app. ¿Sin tiempo? «Terminar ahora» guarda y registra lo hecho con honestidad.
+• Tras una pausa, el plan ofrece empezar más abajo —cuanto más larga la pausa, más abajo— y te alcanza rápido, porque sigue lo que muestras.
+• Eliges los días de descanso, hay recordatorio en días de entrenamiento, exportas e importas tu historial en JSON, y, si lo activas, los entrenamientos quedan en Salud conectada (Health Connect), con una estimación de energía cuando se conoce tu peso.
+
+Privado por diseño
+Sin cuenta. Sin anuncios. Sin analítica. Sin permiso de internet. Tu entrenamiento es un archivo pequeño en tu teléfono: solo va adonde tú lo envíes, y a la copia de seguridad del propio teléfono si está activada.
+
+Gratis, sin compras dentro de la app. Android 10 o posterior. En inglés, alemán, francés, italiano, español, portugués (Brasil) y ruso.
+
+Si tienes problemas de articulaciones, corazón o presión arterial, habla con un médico antes de entrenar. El dolor agudo durante un ejercicio siempre significa parar.

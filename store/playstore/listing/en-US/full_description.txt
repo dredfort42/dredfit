@@ -1,0 +1,35 @@
+Open the app — your workout is ready. That's the whole idea.
+
+Dredfit is an adaptive bodyweight trainer that works like a thermostat. No onboarding quiz, no goal picker, no settings. It adjusts every next workout to how the last one went: answer one question afterwards — tough, on plan, or easy — and the plan moves. Already training? Enter what you did, and it becomes the plan.
+
+Where it starts
+• Day one is three sets of four, in the gentlest variation of six movements: knee push-ups, squats, a glute bridge and the like. About 32 minutes with the warm-up and cool-down.
+• That is where you start, not the least you can do: answer "tough" and the plan comes down — an easier variation, or a set off, as far as two sets of four, a session of about 24 minutes. What day one asks of you is the three sets of four. If that is roughly within reach, everything else follows from your answers; if it is not, this is the wrong tool for now — better said here than after you install it.
+
+Why it works
+• Nothing is ever planned that you have not already done. Your position is two facts: the variation you are on, and the dose — reps in a set, or seconds in a hold. One step is +1 rep (or +5 seconds) in a single set.
+• A harder variation is not handed to you — you try it. At the top of the rep range the last set becomes a probe: one set of the next variation. Manage it and the next workout starts there. Don't, and the plan simply stays as it is — nothing about the working sets is lost.
+• A pull in every workout keeps your shoulders in balance.
+• Three shortfalls in a row roll that movement back three steps — a breather, not a punishment.
+• No streaks, no guilt mechanics, no "we miss you". Ever.
+
+What’s inside
+• 59 exercises across 10 movement patterns. A chair, a table, a wall, a towel and a step cover 52 of them.
+• Optional pull-up-bar module: switch it on and every other workout swaps in a vertical pull, from bar hangs to full pull-ups — the only seven variations needing equipment.
+• Guided warm-up and cool-down, both pausable, with time to get ready before every position. Rest timers with a 3-2-1 countdown you can stretch as well as skip, hold timers for planks, and four seconds between any tap and any running clock.
+• Every exercise explains itself: three technique steps, two common mistakes, and an "In life" line.
+• While you train, a notification counts the rest — and a hold — down; a home-screen widget shows the day and, at larger sizes, your week and the plan.
+• Every movement has its own ladder with its own denominator, plus a chart and a calendar. Milestones are calm: no confetti.
+
+You decide how long it takes
+• Before you start, Today shows a range: the full workout, and the shortest that session can be made. Inside it you can drop a set while enough of the exercise still stands, leave the exercise, or drop all that is left of a longer one; the minutes fall as you go. The app never picks which movements you leave out.
+• An interrupted workout can be continued, even if the app was closed mid-way. Out of time? "Finish now" records honestly what you did.
+• Coming back after a break, the plan offers to meet you lower — further down the longer you were away — and catches up quickly, because it follows what you show.
+• Rest days you choose, a reminder on training days, export and import of your history as plain JSON, and, if you turn it on, workouts saved to Health Connect, with an energy estimate once your body weight is known.
+
+Private by design
+No account. No ads. No analytics. No internet permission. Your training is a small file on your phone: it goes only where you send it, and into your phone’s own backup if that is on.
+
+Free, with no in-app purchases. Android 10 or newer. In English, German, French, Italian, Spanish, Portuguese (Brazil) and Russian.
+
+If you have problems with your joints, heart or blood pressure, talk to a doctor before training. Sharp pain during an exercise always means stop.

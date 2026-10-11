@@ -1,0 +1,1 @@
+La prima versione di Dredfit per Android. Una domanda dopo ogni allenamento, e il piano si sposta. Ci sono un widget per la schermata Home, un promemoria nei giorni di allenamento, una notifica con il conto alla rovescia di recupero e isometrie, e Health Connect, se lo attivi. Uno storico esportato da Dredfit su un altro telefono si importa qui.
