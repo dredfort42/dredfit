@@ -320,8 +320,10 @@ Checked on the owner's Galaxy A16 (SM-A165F, Android 16) on 10.10.2026:
   at 19:53 with the screen off.
 
 So Settings shows a line under the reminder (owner decision, 10.10.2026):
-"For the reminder to arrive on time, let Dredfit run without battery
-restrictions." A row under it, "Open phone settings", leads to the place to
+"So the reminder arrives on its own, without waiting for you to pick up the
+phone, let Dredfit run without battery restrictions." It promises the
+reminder without the screen, not the minute: the alarm stays inexact (above).
+A row under it, "Open phone settings", leads to the place to
 change it. Both show only when all three hold (`reminders/BatteryHint.kt`):
 
 - the reminder is on;

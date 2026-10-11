@@ -57,7 +57,8 @@ class ReminderBatteryHintTest : ReminderTestCase() {
         tap(AX.settings)
         await(TAG_HINT)
         compose.onNodeWithTag(TAG_HINT)
-            .assertTextEquals("For the reminder to arrive on time, let Dredfit run without battery restrictions.")
+            .assertTextEquals("So the reminder arrives on its own, without waiting for you to pick up the phone, " +
+                              "let Dredfit run without battery restrictions.")
 
         // Recorded, not stubbed: the phone's settings really open, as for the person.
         Intents.init()

@@ -202,7 +202,7 @@ private fun ReminderField(observedStore: Observed<AppStore>) {
         if (BatteryHint.shows(store.settings.reminderEnabled, unrestricted,
                               BatteryHint.manufacturerForTests ?: Build.MANUFACTURER)) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                SettingsCaption(tr("For the reminder to arrive on time, let Dredfit run without battery restrictions."),
+                SettingsCaption(tr("So the reminder arrives on its own, without waiting for you to pick up the phone, let Dredfit run without battery restrictions."),
                                 Modifier.testTag("reminder-battery"))
                 SettingsRow({ GearGlyph(c.ink, 16.dp) }, tr("Open phone settings"), tag = "reminder-battery-settings") {
                     openAppDetails(context)
