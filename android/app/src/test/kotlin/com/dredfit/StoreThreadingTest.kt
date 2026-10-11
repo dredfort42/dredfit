@@ -14,6 +14,7 @@ import com.dredfit.core.FeedbackResult
 import com.dredfit.store.AppData
 import com.dredfit.store.AppStore
 import com.dredfit.store.activate
+import com.dredfit.store.enableHealth
 import com.dredfit.store.nextSession
 import java.nio.file.Files
 import java.util.concurrent.Executor
@@ -165,5 +166,28 @@ class StoreThreadingTest : AppStoreTestCase() {
         assertTrue(store.journalFrozen, "a reload now would replace the person's change")
         assertEquals(6, store.settings.reminderHour)
         assertTrue(store.records.isEmpty())
+    }
+
+    /** The Health export runs on `main` AFTER the call that finished the
+     *  workout, as iOS's `Task` runs after the code that started it — so a
+     *  rating taken back carries the exported flag over to its new record
+     *  before the export it started looks: Health Connect holds the workout
+     *  already, and nothing about it changed. (The inline executor of the
+     *  other suites runs the export inside the call, ahead of the carry.) */
+    @Test
+    fun aRatingTakenBackIsNotWrittenToHealthConnectAgain() = runHealth {
+        val spy = HealthSpy()
+        val store = AppStore(tempPath, null, disk, main, health = spy)
+        store.enableHealth()
+        store.completeWorkout(session = store.nextSession, result = FeedbackResult.plan, durationSec = 30 * 60)
+        main.runAll()
+        assertEquals(1, spy.saved.size, "the premise: the workout went out")
+        assertEquals(true, store.records.last().healthExported)
+
+        store.changeLastRating(FeedbackResult.more)
+        main.runAll()
+        assertEquals(FeedbackResult.more, store.records.last().result)
+        assertEquals(true, store.records.last().healthExported, "the flag travels with the record")
+        assertEquals(1, spy.saved.size, "no second write of the same workout")
     }
 }
