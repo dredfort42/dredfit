@@ -180,7 +180,10 @@ Every runtime permission on that list would ask for data the app never reads.
 Play Console: from target 34, every type in use is declared under **Policy >
 App content > Foreground service permissions**. For `health` that means
 describing the use: the workout's notification while a session is in
-progress. Whether the form also wants a demo video was not checked here.
+progress. The form also asks, per type, for a link to a video of the feature
+being started in the app (Play Console Help, "Understanding foreground service
+and full-screen intent requirements", read 11.10.2026); the answers and what to
+film are drafted in `store/playstore/policy.md`.
 
 ### POST_NOTIFICATIONS (Android 13+)
 
@@ -764,4 +767,7 @@ permissions plus the `<queries>` entry.
   "collected" or "shared" in the form's sense.
 - **Privacy policy**: Google requires the policy the Console lists to be the
   one the link shows, and to cover Health Connect data. dredfit.com's policy
-  describes Apple Health only today.
+  has a Health Connect section (`privacy.html#health-connect`) from
+  11.10.2026, but GitHub Pages serves main's `docs/`: the text is live only
+  once it reaches main. `store/playstore/policy.md` drafts every Console
+  answer.
