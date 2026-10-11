@@ -1,0 +1,662 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Add past workouts to Health Connect?": {
+      "comment": "Android only. The question after the switch is turned on, when the history holds workouts not yet written: all of them, or only new ones. The Android twin of iOS's \"Add past workouts to Health?\". Health Connect name per language: the Health Connect app's own label (de/it Health Connect, es Salud conectada, fr Santé Connect, pt-BR Conexão Saúde, ru Здоровье и спорт).",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frühere Trainings zu Health Connect hinzufügen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Agregar los entrenamientos anteriores a Salud conectada?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter les séances précédentes dans Santé Connect ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungere gli allenamenti passati a Health Connect?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar os treinos anteriores ao app Conexão Saúde?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить прошлые тренировки в «Здоровье и спорт»?"
+          }
+        }
+      }
+    },
+    "From Health Connect, %@. A newer weight — typed here or logged there — takes over.": {
+      "comment": "Android only. Settings > Health Connect, under the body weight: the number came from Health Connect; %@ is the date of that weigh-in. The Android twin of iOS's \"From Health, %@. …\". Health Connect name per language: the Health Connect app's own label (de/it Health Connect, es Salud conectada, fr Santé Connect, pt-BR Conexão Saúde, ru Здоровье и спорт).",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus Health Connect, %@ – eine neuere Zahl, hier oder in Health Connect erfasst, übernimmt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De Salud conectada, %@. Un peso más reciente —escrito aquí o registrado allí— gana."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depuis Santé Connect, %@. Un poids plus récent — saisi ici ou noté là-bas — prend le relais."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da Health Connect, %@ – un peso più recente, digitato qui o registrato lì, prende il sopravvento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vem do app Conexão Saúde, %@. Um peso mais novo — digitado aqui ou registrado lá — assume."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Из сервиса «Здоровье и спорт», %@. Более позднее значение — введенное здесь или записанное там — становится основным."
+          }
+        }
+      }
+    },
+    "Health Connect": {
+      "comment": "Android only. Settings: the name of the group that saves workouts to Health Connect, Google's health data store on the phone. The Android twin of iOS's \"Health\". Health Connect name per language: the Health Connect app's own label (de/it Health Connect, es Salud conectada, fr Santé Connect, pt-BR Conexão Saúde, ru Здоровье и спорт).",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Health Connect"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salud conectada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Santé Connect"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Health Connect"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conexão Saúde"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Здоровье и спорт"
+          }
+        }
+      }
+    },
+    "Install Health Connect": {
+      "comment": "Android only. Settings > Health Connect, on Android 10–13 without the Health Connect app: opens its Google Play page. Health Connect name per language: the Health Connect app's own label (de/it Health Connect, es Salud conectada, fr Santé Connect, pt-BR Conexão Saúde, ru Здоровье и спорт).",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Health Connect installieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instalar Salud conectada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installer Santé Connect"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installa Health Connect"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instalar o app Conexão Saúde"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Установить «Здоровье и спорт»"
+          }
+        }
+      }
+    },
+    "Open notification settings": {
+      "comment": "Android only. Settings > Weekly rhythm, under the note that notifications are off for Dredfit: opens the app's notification settings in the phone's Settings. The Android twin of iOS's \"Open iOS Settings\".",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Benachrichtigungseinstellungen öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir ajustes de notificaciones"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les paramètres de notification"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri impostazioni notifiche"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir configurações de notificação"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть настройки уведомлений"
+          }
+        }
+      }
+    },
+    "Open phone settings": {
+      "comment": "Android only. Settings > Weekly rhythm, the row under the battery note: opens Dredfit's own page in the phone's Settings app (App info), where its Battery row holds \"Unrestricted\". The phone's settings, not Dredfit's own Settings screen this row sits on.",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handy-Einstellungen öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir ajustes del teléfono"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les paramètres du téléphone"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri impostazioni del telefono"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir configurações do celular"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть настройки телефона"
+          }
+        }
+      }
+    },
+    "Rate on Google Play": {
+      "comment": "Android only. Settings > About: opens the app's Google Play page, where a review is written. The Android twin of iOS's \"Rate on the App Store\".",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Google Play bewerten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calificar en Google Play"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noter sur Google Play"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valuta su Google Play"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaliar no Google Play"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оценить в Google Play"
+          }
+        }
+      }
+    },
+    "Save workouts to Health Connect": {
+      "comment": "Android only. Settings > Health Connect: the switch that writes every finished workout to Health Connect. The Android twin of iOS's \"Save workouts to Health\". Health Connect name per language: the Health Connect app's own label (de/it Health Connect, es Salud conectada, fr Santé Connect, pt-BR Conexão Saúde, ru Здоровье и спорт).",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trainings in Health Connect speichern"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar los entrenamientos en Salud conectada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer les séances dans Santé Connect"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salva gli allenamenti in Health Connect"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvar treinos no app Conexão Saúde"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Записывать тренировки в «Здоровье и спорт»"
+          }
+        }
+      }
+    },
+    "Set in the app, %@. A newer weight logged in Health Connect takes over.": {
+      "comment": "Android only. Settings > Health Connect, under the body weight: the number was set in the app (typed, or restored from a backup); %@ is the date. The Android twin of iOS's \"Set in the app, %@. …\". Health Connect name per language: the Health Connect app's own label (de/it Health Connect, es Salud conectada, fr Santé Connect, pt-BR Conexão Saúde, ru Здоровье и спорт).",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In der App gesetzt, %@ – ein neueres Gewicht aus Health Connect übernimmt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puesto en la app, %@. Un peso más reciente registrado en Salud conectada gana."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Défini dans l’app, %@. Un poids plus récent noté dans Santé Connect prend le relais."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impostato nell’app, %@ – un peso più recente registrato in Health Connect prende il sopravvento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Definido no app, %@. Um peso mais novo registrado no app Conexão Saúde assume."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Указано в приложении, %@. Более новое значение из сервиса «Здоровье и спорт» становится основным."
+          }
+        }
+      }
+    },
+    "So the reminder arrives on its own, without waiting for you to pick up the phone, let Dredfit run without battery restrictions.": {
+      "comment": "Android only. Settings > Weekly rhythm, under the reminder while it is on, shown only on Samsung phones that do not yet let Dredfit run without battery restrictions: Samsung freezes the app in the background and holds the reminder back until the person turns the screen on. The fix is the app's battery setting \"Unrestricted\" in the phone's Settings. Use the word the phone's Settings use for the battery.",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Damit die Erinnerung von selbst kommt und nicht wartet, bis du das Handy in die Hand nimmst, lass Dredfit ohne Akku-Einschränkungen laufen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para que el recordatorio llegue solo, sin esperar a que tomes el teléfono, deja que Dredfit funcione sin restricciones de batería."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour que le rappel arrive tout seul, sans attendre que tu prennes ton téléphone, laisse Dredfit fonctionner sans restriction de batterie."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perché il promemoria arrivi da solo, senza aspettare che tu prenda il telefono, lascia funzionare Dredfit senza limitazioni della batteria."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para o lembrete chegar sozinho, sem esperar você pegar o celular, deixe o Dredfit funcionar sem restrições de bateria."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы напоминание приходило само, а не ждало, пока ты возьмешь телефон, сними с Dredfit ограничения по батарее."
+          }
+        }
+      }
+    },
+    "The tones play even when the phone is set to silent or vibrate.": {
+      "comment": "Android only. Settings > Sounds, the caption under \"Play tones in Silent mode\" while it is ON. Android has no ringer switch: the phone's sound mode (ring, vibrate, silent) is what mutes the tones when the switch is off, and both vibrate and silent let them through when it is on. The vibration fires either way.",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Töne spielen auch, wenn das Handy auf lautlos oder Vibration steht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los tonos suenan aunque el teléfono esté en silencio o en vibración."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les sons se font entendre même quand le téléphone est en mode Silencieux ou Vibreur."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I suoni si sentono anche con il telefono in modalità Silenzioso o Vibrazione."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os sons tocam mesmo com o celular no modo Silencioso ou só vibrando."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Звуки играют, даже когда телефон в бесшумном режиме или на вибрации."
+          }
+        }
+      }
+    },
+    "Turn it on if a smartwatch records the same workouts — otherwise the session counts twice — or if you simply want no estimate written.": {
+      "comment": "Android only. Settings > Health Connect, under \"Leave calories out\". The Android twin of iOS's caption, which names an Apple Watch: on Android any smartwatch.",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktiviere es, wenn eine Smartwatch dieselben Trainings aufzeichnet – sonst zählt die Einheit doppelt – oder wenn du einfach keine Schätzung geschrieben haben willst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actívalo si un reloj inteligente registra los mismos entrenamientos — así la sesión no se cuenta dos veces — o si simplemente no quieres que se escriba ninguna estimación."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active-le si une montre connectée enregistre les mêmes séances — sinon la séance compte deux fois — ou si tu préfères qu’aucune estimation ne soit écrite."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attivalo se uno smartwatch registra gli stessi allenamenti – altrimenti la sessione conta due volte – o se semplicemente non vuoi che venga scritta alcuna stima."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ative se um relógio inteligente registra os mesmos treinos — assim o treino não conta duas vezes — ou se você simplesmente não quer que nenhuma estimativa seja gravada."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включи, если те же тренировки записывают смарт-часы — иначе тренировка засчитается дважды — или если оценка калорий тебе просто не нужна."
+          }
+        }
+      }
+    },
+    "Update Health Connect": {
+      "comment": "Android only. Settings > Health Connect, on Android 10–13 with a Health Connect app too old for Dredfit: opens its Google Play page. Health Connect name per language: the Health Connect app's own label (de/it Health Connect, es Salud conectada, fr Santé Connect, pt-BR Conexão Saúde, ru Здоровье и спорт).",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Health Connect aktualisieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualizar Salud conectada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettre à jour Santé Connect"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiorna Health Connect"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atualizar o app Conexão Saúde"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обновить «Здоровье и спорт»"
+          }
+        }
+      }
+    },
+    "When the phone is set to silent or vibrate, the tones go quiet — the vibration keeps going.": {
+      "comment": "Android only. Settings > Sounds, the caption under \"Play tones in Silent mode\" while it is OFF. Android has no ringer switch: the phone's sound mode is what mutes the tones, and vibrate mutes them as silent does. The vibration fires either way.",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steht das Handy auf lautlos oder Vibration, bleiben die Töne stumm – die Vibration läuft weiter."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con el teléfono en silencio o en vibración, los tonos no suenan, pero la vibración sigue."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand le téléphone est en mode Silencieux ou Vibreur, les sons se taisent — la vibration continue."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con il telefono in modalità Silenzioso o Vibrazione i suoni si spengono – la vibrazione continua."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com o celular no modo Silencioso ou só vibrando, os sons ficam mudos — a vibração continua."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Когда телефон в бесшумном режиме или на вибрации, звуки молчат — вибрация продолжает работать."
+          }
+        }
+      }
+    },
+    "Workout in progress": {
+      "comment": "Android only. The name of the notification channel of the ongoing-workout notification (the Android twin of the iOS Live Activity), shown in the system's notification settings.",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laufendes Training"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrenamiento en curso"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Séance en cours"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allenamento in corso"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Treino em andamento"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Текущая тренировка"
+          }
+        }
+      }
+    },
+    "Workouts appear in Health Connect. Nothing leaves your device.": {
+      "comment": "Android only. Settings > Health Connect, under the switch. The Android twin of iOS's \"Workouts appear in the Health app. Nothing leaves your device.\" Health Connect name per language: the Health Connect app's own label (de/it Health Connect, es Salud conectada, fr Santé Connect, pt-BR Conexão Saúde, ru Здоровье и спорт).",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trainings erscheinen in Health Connect. Nichts verlässt dein Gerät."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los entrenamientos aparecen en Salud conectada. Nada sale de tu dispositivo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les séances apparaissent dans Santé Connect. Rien ne quitte ton appareil."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gli allenamenti appaiono in Health Connect. Niente esce dal tuo dispositivo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os treinos aparecem no app Conexão Saúde. Nada sai do seu dispositivo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тренировки появляются в сервисе «Здоровье и спорт». Ничего не покидает устройство."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.1"
+}

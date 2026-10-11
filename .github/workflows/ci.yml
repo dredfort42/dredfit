@@ -62,6 +62,12 @@ jobs:
       - name: Check the gate table still parses
         run: python3 scripts/check_engine_gates.py --contract
 
+      # The release gate's own tests, on the one cheap Python runner CI has:
+      # Release Checks runs check_version.py only on release branches, after
+      # the change that broke it has merged.
+      - name: Test the version check
+        run: python3 scripts/test_check_version.py
+
   app-tests:
     name: Dredfit app unit tests (iOS Simulator, no UI)
     runs-on: macos-latest

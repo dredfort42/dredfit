@@ -1,0 +1,35 @@
+Apri l’app – il tuo allenamento è pronto. Tutta l’idea è questa.
+
+Dredfit è un allenatore adattivo a corpo libero che funziona come un termostato. Niente questionario né obiettivo da scegliere, niente da impostare prima. Adatta ogni allenamento a come è andato l’ultimo: una domanda dopo la sessione – faticoso, come previsto o facile – e il piano si sposta. Ti alleni già? Inserisci quanto hai fatto, e quel numero diventa il piano.
+
+Da dove comincia tutto
+• Il primo giorno sono tre serie da quattro, nella variante più leggera di sei movimenti: flessioni con le ginocchia a terra, squat, ponte glutei. Circa 32 minuti con riscaldamento e defaticamento; circa 24 se salti le serie fino al minimo.
+• Tre serie da quattro sono il punto di partenza, non il fondo: se serve, il motore scende fino a due serie da quattro, mai oltre. Se questo è oggi alla tua portata, il resto viene dalle risposte. Se no, per ora non è lo strumento giusto – meglio saperlo qui che dopo l’installazione.
+
+Perché funziona
+• Non si pianifica mai nulla che tu non abbia già fatto. La posizione è la variante più la dose – ripetizioni in una serie, o secondi in un’isometria. Un gradino è +1 ripetizione (o +5 secondi) in una serie.
+• Una variante più difficile non ti viene regalata: la provi. In cima al range di ripetizioni, l’ultima serie diventa una prova: una serie della variante successiva. Ce la fai, e riparti da lì; altrimenti resta com’era: le serie non perdono nulla.
+• Una tirata a ogni allenamento tiene le spalle in equilibrio.
+• Tre insuccessi di fila fanno tornare il movimento indietro di tre gradini – una pausa, non una punizione.
+• Niente giorni da non spezzare, niente meccaniche di colpa, niente “ci manchi”. Mai.
+
+Cosa c’è dentro
+• 59 esercizi in 10 pattern di movimento. Sedia, tavolo, muro, asciugamano e scalino ne coprono 52.
+• Modulo sbarra opzionale: un allenamento su due inserisce una tirata verticale, dalla sospensione alla trazione – le uniche sette con attrezzatura.
+• Riscaldamento e defaticamento guidati, in pausa quando vuoi, con tempo per prepararti prima di ogni posizione. Timer di recupero 3-2-1 che allunghi o salti, e timer di isometria per i plank.
+• Ogni esercizio si spiega da sé: tre passaggi di tecnica, due errori comuni, una riga “Nel quotidiano”.
+• Durante l’allenamento una notifica fa il conto alla rovescia di recupero e isometrie; un widget nella schermata Home mostra la giornata e, più grande, la settimana e il piano.
+• Ogni movimento ha la sua scala, più un grafico e un calendario.
+
+La durata la decidi tu
+• Prima di iniziare, “Oggi” mostra un intervallo: l’allenamento completo e il più corto possibile. Dentro puoi saltare una serie finché all’esercizio resta margine, uscire dall’esercizio o saltare tutto il resto di uno più lungo; i minuti calano man mano. L’app non sceglie mai i movimenti al posto tuo.
+• Un allenamento interrotto si riprende, anche se hai chiuso l’app a metà. Senza tempo? “Termina ora” conserva quanto fatto e lo registra onestamente.
+• Al ritorno da una pausa, il piano propone di ripartire più in basso, tanto più quanto più lunga è stata la pausa – e recupera in fretta, perché segue quello che mostri.
+• Giorni di riposo a tua scelta, promemoria nei giorni di allenamento, export e import dello storico in JSON, e, se lo attivi, allenamenti salvati in Health Connect, con una stima dell’energia quando il tuo peso è noto.
+
+Privato per progettazione
+Niente account. Niente pubblicità. Niente analisi statistiche. Niente accesso a Internet. I tuoi allenamenti sono un piccolo file sul telefono: va solo dove lo mandi tu, e nel backup del telefono se è attivo.
+
+Gratis, senza acquisti in-app. Android 10 o successivo. In inglese, tedesco, francese, italiano, spagnolo, portoghese (Brasile) e russo.
+
+Se hai problemi alle articolazioni, al cuore o alla pressione, parlane con un medico prima di allenarti. Un dolore acuto durante un esercizio significa sempre fermarsi.

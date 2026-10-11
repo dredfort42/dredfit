@@ -14,24 +14,77 @@ app/src/
 │   │                — the iOS rule "extensions only read, every mutating
 │   │                decision stays in AppStore" becomes a compiler rule here:
 │   │                an extension function cannot touch private state
-│   │   workout/     Warmup, GetReady, Cooldown, BlockPause, SessionAhead,
-│   │                SetFacts, Retrospective, Milestones, LifeBenefit
-│   │   journal/     Journal, V2EngineState, Backup
-│   │   health/      Health Connect — write-only, like HealthStore + EnergyEstimate
-│   │   reminders/   NotificationScheduling, ReminderSound
-│   │   signals/     CountdownSounds, WorkoutSignals — synthesised, no media files
-│   │   widgets/     Glance: TodayStatusWidget, TodayProvider, WidgetSnapshot
-│   │                (the two-week snapshot is rewritten after every persisted
-│   │                change; the widget never computes rest days itself)
+│   │   workout/     the flow without its screens: WorkoutSession and its
+│   │                WorkoutSession<Part>.kt extensions, Countdown, GuidedBlock,
+│   │                Warmup, GetReady, Cooldown, BlockPause, SessionAhead,
+│   │                SetFacts, Retrospective, Milestones, LifeBenefit — plain
+│   │                Kotlin on an injected clock; what it says is `Words`
+│   │                (key + args, resolved by `ui/L10n.kt`), what it plays
+│   │                goes through `WorkoutSignalling` (WorkoutSignals.kt), what
+│   │                the ongoing notification shows through
+│   │                `WorkoutActivityDriving`
+│   │   journal/     Journal, V2EngineState (the backup itself is
+│   │                store/AppStoreBackup.kt, after AppStore+Backup.swift)
+│   │   health/      Health Connect (android/README.md "Health Connect"):
+│   │                HealthStore (the seam `WorkoutHealthWriting`, plain
+│   │                Kotlin), HealthExporter (what a record becomes, plain
+│   │                Kotlin), HealthConnectWriter (the Health Connect half —
+│   │                records, permissions, availability), HealthPrivacyActivity
+│   │                (the permission screen's privacy-policy link); the store's
+│   │                half is store/AppStoreHealth.kt, the calorie model
+│   │                workout/EnergyEstimate.kt
+│   │   reminders/   the training reminder: ReminderScheduler (iOS's 28-day
+│   │                window, plain Kotlin), NotificationScheduling (the seam)
+│   │                and SystemNotificationScheduler (inexact alarms allowed
+│   │                in Doze, the channel, the permission), ReminderSoundFile
+│   │                (the generated WAV, the channel ids), ReminderReceiver
+│   │                (posts; rebuilds on boot / clock / zone / update),
+│   │                BatteryHint (when Settings asks a Samsung for
+│   │                Unrestricted, plain Kotlin) — android/README.md says why each
+│   │   signals/     CountdownSounds and the device half of WorkoutSignals —
+│   │                synthesised, no media files
+│   │   ongoing/     the ongoing-workout notification (the Live Activity's
+│   │                counterpart) and its `health` foreground service; what it
+│   │                shows is workout/RestLiveActivity.kt, the start/update/end
+│   │                order workout/LiveActivityController.kt, the off-screen
+│   │                beat and its wake lock workout/WorkoutBeat.kt
+│   │                (android/README.md says why)
+│   │   review/      PlayReviewPrompt — Play In-App Review, the one third-party
+│   │                SDK (android/README.md); when to ask is plain Kotlin
+│   │                (`askForReviewIfEarned`, ui/workout/WorkoutFlowView.kt)
+│   │   widgets/     the home-screen widget (android/README.md says why each
+│   │                choice): WidgetShared (the snapshot and its file),
+│   │                WidgetBridge (the store builds it after every persisted
+│   │                change — plain Kotlin; the widget never computes rest
+│   │                days itself), TodayProvider (the entry for the day on the
+│   │                wall, the next midnight), TodayStatusWidget (the three
+│   │                sizes in Glance, the receiver), WidgetCenter (the feed a
+│   │                live session collects, the file, the redraw, the midnight
+│   │                alarm), OpenAppActivity (the tap: the app as it was left)
+│   │   l10n/        CoreStrings, AppStrings, WidgetStrings, AndroidStrings — GENERATED key →
+│   │                resource-id lookups, so code calls `tr("English key")`
 │   │   ui/          theme/ (tokens, dredfitFont, the 44 dp target), RootScreen,
 │   │                today/, workout/, progress/, settings/, technique/
 │   └── res/
 │       values/, values-de/, values-es/, values-fr/, values-it/,
 │       values-b+pt+BR/, values-ru/
-│                    strings_core.xml, strings_app.xml, strings_widgets.xml —
-│                    GENERATED from the String Catalogs, one file per source
-│                    catalog so a key's provenance is visible from the file name
-│       drawable/, mipmap-*/
+│                    strings_core.xml, strings_app.xml, strings_widgets.xml,
+│                    strings_android.xml — GENERATED from the String Catalogs,
+│                    one file per source catalog so a key's provenance is
+│                    visible from the file name; the fourth catalog,
+│                    app/Localizable.xcstrings, holds what only Android says
+│                    (Google Play, the phone's sound mode, Health Connect);
+                    resource name = <catalog>_<slug of the key, 40>_<sha1[:8]>
+│       drawable/, mipmap-anydpi/
+│                    the adaptive launcher icon (ic_launcher*, the iOS art
+│                    of store/appstore/icons; no PNGs at minSdk 29), the
+│                    status-bar icons, the widget's marks
+│       drawable-nodpi/  the widget picker's preview image (Android 10–14)
+│       layout/      the widget's autosizing lines (widget_text_*);
+│                    xml/today_status_widget is the provider
+├── debug/AndroidManifest.xml        debug builds only: the Health Connect
+│                                    permissions the connected suite needs to
+│                                    read back and to write as a scale would
 ├── test/kotlin/com/dredfit/         the counterpart of ios/DredfitTests
 └── androidTest/kotlin/com/dredfit/  the counterpart of ios/DredfitUITests
     AccessibilityId.kt   the same names as `enum AX` on iOS — testTag equals

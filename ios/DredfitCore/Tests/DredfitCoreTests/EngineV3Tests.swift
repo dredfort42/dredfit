@@ -457,4 +457,21 @@ final class EngineV3Tests: XCTestCase {
         XCTAssertEqual(next.doses[.squat], 10, "fast adaptation: the fact is the next dose")
         XCTAssertEqual(next.sub[.squat], 1, "…and the raise sits on top of it")
     }
+
+    /// The raise lands after the SKIPPED SET too (on top of the
+    /// rating and the cut). "Plan" leaves 3×8 with one sub-step (9-8-8); the
+    /// skip takes a set, so 2 sets are on screen and one step is the rung:
+    /// 9-9. A raise counted before the cut walks the band of three instead —
+    /// a second sub-step the cut then clamps away, and the "+1" is lost.
+    func testRaiseLandsAfterTheSkippedSet() {
+        let s = state(.squat, variation: 2, dose: 8, Seed(shown: [2: 8]))
+        let session = Engine.generateSession(s)
+        let next = Engine.applyFeedback(state: s, session: session, result: .plan,
+                                        overrides: [:], skipped: [],
+                                        setsSkipped: [.squat: 1], gapDays: 7 / 3,
+                                        probes: [:], raised: [.squat: 1])
+        XCTAssertEqual(next.cut[.squat], 1)
+        XCTAssertEqual(next.doses[.squat], 9, "one step over two sets on screen is the rung")
+        XCTAssertNil(next.sub[.squat])
+    }
 }

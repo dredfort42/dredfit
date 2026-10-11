@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- No INTERNET permission, and none is ever asked for: the app makes no
+     network calls and carries no analytics (README.md). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- The haptic half of every countdown signal (signals/WorkoutSignals.kt):
+         in silent mode it is the whole channel. A normal permission, granted
+         at install. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- The ongoing-workout notification (ongoing/OngoingNotification.kt),
+         Android's Live Activity. Its foreground service is of type `health`
+         (android/README.md says why not specialUse, shortService or
+         mediaPlayback); on Android 14+ that type needs FOREGROUND_SERVICE_HEALTH
+         and one of its listed prerequisites, of which HIGH_SAMPLING_RATE_SENSORS
+         is the one granted at install with no prompt — the app reads no
+         sensor. The first three are granted at install; POST_NOTIFICATIONS
+         (Android 13+) is asked for when a workout starts (RootScreen.kt);
+         denied, the service still runs and the workout with it. The
+         reminder asks for it too, when it is turned on (NotificationAsk.kt). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
+    <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- The CPU kept up while a countdown runs with the screen off, so a 3-2-1
+         lands on its second (workout/WorkoutBeat.kt). -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- The reminder's alarms die with a reboot; this hears the boot so the
+         window is rebuilt (reminders/ReminderReceiver.kt). A normal
+         permission, granted at install. No exact-alarm permission: the
+         reminder is an inexact alarm allowed in Doze (android/README.md). -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- WorkManager (under Glance's widget sessions) declares this for work
+         that waits on a network. Glance's work never does — its only
+         constraint is "charging" — and the app makes no network call, so the
+         permission would only list a capability the app never uses. -->
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE"
+        tools:node="remove" />
+    <!-- Health Connect (health/HealthConnectWriter.kt), iOS's HealthKit:
+         the workout and its active calories written, the weight, the resting
+         energy and other apps' workouts read for the calorie estimate.
+         Exactly HealthConnectWriter.permissions (HealthPermissionsTest);
+         each can be refused on its own, and only the workout write decides
+         the switch. On-device IPC — still no INTERNET. -->
+    <uses-permission android:name="android.permission.health.WRITE_EXERCISE" />
+    <uses-permission android:name="android.permission.health.WRITE_ACTIVE_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.health.READ_WEIGHT" />
+    <uses-permission android:name="android.permission.health.READ_BASAL_METABOLIC_RATE" />
+    <uses-permission android:name="android.permission.health.READ_EXERCISE" />
+
+    <!-- Android 11–13 hide other packages: without this the Health Connect
+         app reads as not installed, and the Settings group offers to
+         install what is already there. -->
+    <queries>
+        <package android:name="com.google.android.apps.healthdata" />
+    </queries>
+
+    <!-- roundIcon is the same adaptive icon: where a device asks for the
+         round one, the launcher masks it like any other
+         (mipmap-anydpi/ic_launcher.xml). -->
+    <application
+        android:name=".DredfitApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="Dredfit"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.NoActionBar">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <service
+            android:name=".ongoing.OngoingWorkoutService"
+            android:exported="false"
+            android:foregroundServiceType="health" />
+        <!-- A reminder's alarm going off: posts it. Only the app's own
+             PendingIntent reaches it. -->
+        <receiver
+            android:name=".reminders.ReminderReceiver"
+            android:exported="false" />
+        <!-- What an alarm loses — all of them on a reboot, the wall time on a
+             clock or zone change — rebuilt from the store. The list is
+             ReminderTriggers.actions (ReminderTriggerTest holds the two
+             together). -->
+        <receiver
+            android:name=".reminders.ReminderRescheduleReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+        <!-- Health Connect's "privacy policy" link on its permission screen
+             (health/HealthPrivacyActivity.kt): opens the policy and finishes
+             before it is drawn. The intent filter is Android 10–13's (the
+             Health Connect app sends it); the alias is Android 14+'s, where
+             only the system may start it. -->
+        <activity
+            android:name=".health.HealthPrivacyActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity>
+        <activity-alias
+            android:name="ViewPermissionUsageActivity"
+            android:exported="true"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE"
+            android:targetActivity=".health.HealthPrivacyActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+            </intent-filter>
+        </activity-alias>
+        <!-- The widget's tap: brings the app's task forward as it was left
+             and finishes before it is drawn (widgets/OpenAppActivity.kt says
+             why it is not MainActivity's own intent). In no task of the
+             app's, never in Recents. -->
+        <activity
+            android:name=".widgets.OpenAppActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay" />
+        <!-- The home-screen widget (widgets/TodayStatusWidget.kt), iOS's
+             DredfitWidgets. Exported: the launcher and AppWidgetService send
+             its updates. LOCALE_CHANGED redraws it in a new system language
+             (Glance's receiver handles it); the midnight alarm reaches it by
+             its explicit component, with no filter. -->
+        <receiver
+            android:name=".widgets.TodayStatusWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widgets_today_s_status_3f920d82">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/today_status_widget" />
+        </receiver>
+        <!-- WorkManager (under Glance's widget sessions) starts on demand —
+             DredfitApp is its Configuration.Provider — rather than opening its
+             database in every process at startup, for the many who never
+             place the widget. -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+        <!-- Hands the share card to the share sheet as content://, read-only
+             and only for the duration of the share (FLAG_GRANT_READ_URI);
+             and the reminder's sound to its notification channel. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.share"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/share_paths" />
+        </provider>
+    </application>
+
+</manifest>

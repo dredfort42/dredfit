@@ -1,0 +1,1 @@
+../../../../../ios/Dredfit/AppSettings.swift

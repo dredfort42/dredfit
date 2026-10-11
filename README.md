@@ -252,7 +252,7 @@ English is the source language; Russian, Spanish, Brazilian Portuguese, German, 
 
 One accent color. System typography. No gamification, no streaks, no guilt: a missed day stays a quiet outline in the calendar, because the engine adapts anyway. The app asks the user exactly one question per day, and it's answerable with one thumb.
 
-No third-party dependencies, no network calls, no analytics of any kind — the App Store privacy label "Data Not Collected" is literally true.
+The iOS app has no third-party dependencies, no network calls, no analytics of any kind — the App Store privacy label "Data Not Collected" is literally true. The Android app makes no network calls either — it holds no `INTERNET` permission — and carries no analytics. It is built on Google's AndroidX and JetBrains' Kotlin libraries (the Health Connect client among them, which brings Guava and a protobuf runtime), and has exactly one third-party SDK beyond them: Play In-App Review (which brings Google Play services' basement and tasks libraries with it), for the store's rating card ([android/README.md](android/README.md) says why). Its Play Console answers — Data safety, Health Connect, the foreground service — are drafted in [store/playstore/policy.md](store/playstore/policy.md).
 
 ## Continuous integration
 

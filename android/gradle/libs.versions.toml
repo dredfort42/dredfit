@@ -1,0 +1,59 @@
+# The one version catalog. Every version below was verified by
+# `./gradlew :core:test :app:testDebugUnitTest :app:assembleDebug` on the
+# Android Studio JBR (OpenJDK 25), compileSdk 37.
+[versions]
+kotlin = "2.4.21"
+kotlinx-serialization = "1.11.0"
+junit = "5.14.4"
+agp = "9.4.1"
+compose-bom = "2026.09.00"
+activity-compose = "1.13.0"
+androidx-test-runner = "1.7.0"
+androidx-test-ext-junit = "1.3.0"
+androidx-test-espresso = "3.7.0"
+androidx-core = "1.18.0"
+# Google Maven's latest (maven-metadata.xml, 09.10.2026).
+play-review = "2.0.2"
+# Google Maven's latest stable (maven-metadata.xml, 11.10.2026). Play review
+# drags fragment 1.1.0 in through play-services-basement; below 1.3.0
+# `registerForActivityResult` is unsafe and lintVitalRelease fails the build.
+androidx-fragment = "1.9.1"
+# Google Maven's latest stable (maven-metadata.xml, 10.10.2026; 1.3.0 is alpha).
+glance = "1.2.0"
+# The one Glance 1.2.0 asks for, named because DredfitApp provides its
+# configuration (WorkManager starts on demand, not with every process).
+work = "2.7.1"
+# Google Maven's latest stable (maven-metadata.xml, 11.10.2026; 1.2.0 is alpha).
+health-connect = "1.1.0"
+# The one the graph already resolves to (activity-compose, connect-client),
+# named because the store's Health calls use it directly.
+coroutines = "1.9.0"
+
+[libraries]
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
+androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-test-ext-junit" }
+androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-test-espresso" }
+androidx-test-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "androidx-test-espresso" }
+androidx-core = { module = "androidx.core:core", version.ref = "androidx-core" }
+play-review = { module = "com.google.android.play:review", version.ref = "play-review" }
+androidx-fragment = { module = "androidx.fragment:fragment", version.ref = "androidx-fragment" }
+androidx-glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
+androidx-glance-appwidget-testing = { module = "androidx.glance:glance-appwidget-testing", version.ref = "glance" }
+androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "work" }
+androidx-health-connect = { module = "androidx.health.connect:connect-client", version.ref = "health-connect" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-application = { id = "com.android.application", version.ref = "agp" }

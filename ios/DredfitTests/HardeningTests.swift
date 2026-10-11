@@ -184,7 +184,13 @@ final class HardeningTests: AppStoreTestCase {
         })
     }
 
-    func testMorningWorkoutRemovesTodaysReminder() async {
+    /// The workout is dated TOMORROW, not today. `completeWorkout` rebuilds the
+    /// window from the real clock and the store has no seam to pin it, so with
+    /// a workout dated today the test read that clock: after 20:00 today's own
+    /// slot is already gone, the assertions held with no rule behind them, and
+    /// dropping the done-day filter went unnoticed. Tomorrow's 20:00 is still
+    /// ahead of the real clock at every hour the suite can run.
+    func testMorningWorkoutRemovesThatDaysReminder() async {
         let spy = NotificationSpy()
         let store = makeStore(notifications: spy)
         // Every day trains — no rest-day interference. Read off the current
@@ -195,15 +201,18 @@ final class HardeningTests: AppStoreTestCase {
         store.setReminderEnabled(true)
         await store.reminderAuthTask?.value
 
-        let morning = moment(hour: 7)
+        let morning = moment(days: 1, hour: 7)
+        XCTAssertFalse(slots(spy, sameDayAs: morning).isEmpty,
+                       "the slot is pending before the workout, so its absence below is the rule's doing")
+        let pending = spy.scheduled.count
         store.completeWorkout(session: store.nextSession, result: .plan, date: morning)
 
         XCTAssertTrue(slots(spy, sameDayAs: morning).isEmpty,
-                      "a workout done before the reminder time must take today's slot down")
-        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: morning)!
-        XCTAssertFalse(slots(spy, sameDayAs: tomorrow).isEmpty,
-                       "tomorrow's reminder must survive today's workout")
-        XCTAssertEqual(spy.scheduled.count, 27)   // 28-day window minus done today
+                      "a workout done before the reminder time must take that day's slot down")
+        let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: morning)!
+        XCTAssertFalse(slots(spy, sameDayAs: nextDay).isEmpty,
+                       "the next day's reminder must survive that day's workout")
+        XCTAssertEqual(spy.scheduled.count, pending - 1, "exactly the done day's slot goes")
     }
 
     /// Trained after the reminder already fired: nothing to cancel, and the
@@ -218,6 +227,11 @@ final class HardeningTests: AppStoreTestCase {
 
         let evening = moment(hour: 21)
         store.completeWorkout(session: store.nextSession, result: .plan, date: evening)
+        // The rebuild inside `completeWorkout` reads the real clock, and before
+        // 09:00 that clock still has today's slot ahead of it — the test would
+        // be about a reminder that has not fired. Rebuild at the evening itself
+        // so the reminder has fired whenever the suite runs.
+        store.rescheduleReminders(now: evening)
 
         XCTAssertTrue(slots(spy, sameDayAs: evening).isEmpty,
                       "no slot may be scheduled into today's past")

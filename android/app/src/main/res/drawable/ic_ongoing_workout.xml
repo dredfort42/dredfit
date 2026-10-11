@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The ongoing notification's status-bar icon: a timer, as the iOS Live
+     Activity's minimal presentation shows one. A status-bar icon is a
+     silhouette — the system tints it, so only the alpha is read. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- The crown. -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M9.5,1.5h5v2h-5z" />
+    <!-- The dial, a ring. -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M12,4.5a8.5,8.5 0,1 1,0 17a8.5,8.5 0,1 1,0 -17zM12,6.5a6.5,6.5 0,1 0,0 13a6.5,6.5 0,1 0,0 -13z" />
+    <!-- The hand, at the top. -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M11,8.5h2v5h-2z" />
+</vector>

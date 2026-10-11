@@ -106,12 +106,12 @@ jobs = [
     (f"{RAW}/today_it.png",      ["Zero configurazioni."], "Apri l’app: l’allenamento è pronto.", f"{OUT}/it/s1.png"),
     # --- 2. rating_ — the differentiator: one question, and the plan moves.
     (f"{RAW}/rating_en.png",     ["It adapts to you"], "One tap after the workout — the next one adapts.", f"{OUT}/en/s2.png"),
-    (f"{RAW}/rating_ru.png",     ["Подстраивается", "под тебя"], "Одно касание после тренировки — следующая изменится.", f"{OUT}/ru/s2.png"),
+    (f"{RAW}/rating_ru.png",     ["Подстраивается", "под тебя"], "Одно касание после тренировки — следующая подстроится.", f"{OUT}/ru/s2.png"),
     (f"{RAW}/rating_es.png",     ["Se adapta a ti"], "Un toque después del entrenamiento: el siguiente se adapta.", f"{OUT}/es/s2.png"),
     (f"{RAW}/rating_pt-br.png",  ["Se adapta a você"], "Um toque depois do treino — o próximo se adapta.", f"{OUT}/pt-br/s2.png"),
     (f"{RAW}/rating_de.png",     ["Es passt sich dir an"], "Ein Fingertipp nach dem Training – das nächste passt sich an.", f"{OUT}/de/s2.png"),
     (f"{RAW}/rating_fr.png",     ["S’adapte à toi"], "Une pression après la séance, la suivante s’ajuste.", f"{OUT}/fr/s2.png"),
-    (f"{RAW}/rating_it.png",     ["Si adatta a te"], "Un tocco dopo l’allenamento — il prossimo cambia.", f"{OUT}/it/s2.png"),
+    (f"{RAW}/rating_it.png",     ["Si adatta a te"], "Un tocco dopo l’allenamento — il prossimo si adatta.", f"{OUT}/it/s2.png"),
     # --- 3. handsfree_ — new in 2.1.0, and the wave's own promise: the hold
     #        intro, said by the screen that says it in words (R23/R28).
     #        Taken on the walk to the rating, not on a route of its own.

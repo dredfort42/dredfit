@@ -1,0 +1,1 @@
+The first version of Dredfit for Android. One question after each workout, and the plan moves. With it come a home-screen widget, a reminder on training days, a notification that counts rests and holds down, and Health Connect if you turn it on. A history exported from Dredfit on another phone imports here.

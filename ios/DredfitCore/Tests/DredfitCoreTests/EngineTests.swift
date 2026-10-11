@@ -300,6 +300,22 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(after.rampWindow, EngineConfig.rampWindowSessions)
     }
 
+    /// A run of returns: comebacks in a row with no session between
+    /// them each deepen the drop by one. At the 14-day minimum the first
+    /// return walks the base two rungs, 12 → 10; the second walks three,
+    /// 10 → 7 — not another two, which would land on 8.
+    func testReturnsInARowDeepenTheDrop() {
+        var state = EngineState.initial
+        state.doses[.squat] = 12
+        state.shown[.squat] = [1: 12]
+        let first = Engine.applyComeback(state: state, gapDays: 14)
+        XCTAssertEqual(first.doses[.squat], 10)
+        XCTAssertEqual(first.returnRun, 1)
+        let second = Engine.applyComeback(state: first, gapDays: 14)
+        XCTAssertEqual(second.doses[.squat], 7, "the second return in a row drops one rung deeper")
+        XCTAssertEqual(second.returnRun, 2)
+    }
+
     // MARK: - Handles
 
     /// "Give me something easier" lands under the JOURNAL of the variation
@@ -443,5 +459,20 @@ final class EngineTests: XCTestCase {
         XCTAssertGreaterThan(a.estimatedTotalMin, 0)
         XCTAssertEqual(a.estimatedTotalMin, b.estimatedTotalMin, accuracy: 2.0,
                        "the probe replaces a set, it does not add a block of work")
+    }
+
+    /// The duration is rounded as the reference's `toFixed(1)`: the nearest
+    /// tenth to the exact double, a tie to the larger number. 2079 s / 60 sits
+    /// just under 34.65 (34.6, where `(x * 10).rounded()` says 34.7); 2115 s
+    /// / 60 is exactly 35.25, a real tie (35.3, where half-to-even says 35.2).
+    func testDurationRoundsLikeTheReference() {
+        func minutes(_ seconds: Int) -> Double {
+            let hold = SessionExercise(pattern: .coreAntiExt, name: "hold", variation: 1,
+                                       unit: .hold, load: seconds, perSide: false, sets: 1,
+                                       restSetSec: 0, restExerciseSec: 0, loads: nil, probe: nil)
+            return Engine.estimatedMin(exercises: [hold], ends: 0)
+        }
+        XCTAssertEqual(minutes(2079), 34.6)
+        XCTAssertEqual(minutes(2115), 35.3)
     }
 }
