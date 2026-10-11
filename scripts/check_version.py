@@ -3,6 +3,7 @@
 
     python3 scripts/check_version.py release/1.7.0   # from a branch/ref name
     python3 scripts/check_version.py 1.7.0           # from a bare version
+    python3 scripts/check_version.py --android       # an Android build
 
 Given the expected marketing version (taken from the release/hotfix branch
 name, or passed directly), this checks that:
@@ -12,11 +13,20 @@ name, or passed directly), this checks that:
   * that build number is greater than the one at the highest older v* tag
     (skipped with a notice when git, the tags or that tag's project are not
     available — a shallow clone, say),
-  * Android's dredfit.versionName (android/gradle.properties) equals that
-    version too — one product version on both platforms — and its
-    dredfit.versionCode is a positive integer above the one at the highest
-    older android-v* tag (skipped with a notice as above),
   * CHANGELOG.md has a "## <version>" section.
+
+Android's version (android/gradle.properties) is only reported there, as a
+notice when its dredfit.versionName is not that version: an iOS release must
+not wait on a Play build. `--android` is the gate for that build instead
+(android/tools/build-release.sh runs it), and checks that:
+
+  * dredfit.versionName equals the tree's MARKETING_VERSION — one product
+    version on both platforms (owner decision, 11.10.2026),
+  * dredfit.versionCode is a positive integer above every code an
+    android-vX.Y.Z+CODE tag already carries, whatever its version: Play
+    refuses a code it has seen, and an Android-only fix ships the same
+    versionName with the next code. Tags on the checked-out commit itself are
+    left out, so the tagged build re-checks clean.
 
 It catches the classic "forgot to bump one target" and "forgot the changelog
 entry" mistakes before a tag turns them into a shipped build. Stdlib only.
@@ -36,6 +46,10 @@ MARKETING_RE = re.compile(r"MARKETING_VERSION = ([^;]+);")
 BUILD_RE = re.compile(r"CURRENT_PROJECT_VERSION = ([^;]+);")
 ANDROID_NAME_RE = re.compile(r"^dredfit\.versionName=(.*)$", re.MULTILINE)
 ANDROID_CODE_RE = re.compile(r"^dredfit\.versionCode=(.*)$", re.MULTILINE)
+# android-v2.5.0+1: the build rides as semver build metadata, which is what it
+# is — the same version, another build. A "-b1" suffix would read as a
+# pre-release, sorting before 2.5.0.
+ANDROID_TAG_RE = re.compile(r"android-v\d+\.\d+\.\d+\+([1-9][0-9]*)")
 
 
 def version_from_arg(arg: str) -> str:
@@ -51,41 +65,34 @@ def git(*args: str) -> str:
     ).stdout
 
 
-def previous_build(expected: str, *, prefix: str = "v",
-                   path: str = "ios/Dredfit.xcodeproj/project.pbxproj",
-                   label: str = "the project",
-                   key: str = "CURRENT_PROJECT_VERSION",
-                   number_re: re.Pattern = BUILD_RE):
+def previous_build(expected: str):
     """(tag, build) at the highest v* tag older than `expected`, or a string
     saying why it cannot be determined.
 
     Older by version, not by date: a release branch re-checked after its own
     tag is pushed must compare against the release before it, not itself.
-
-    The defaults are iOS's; Android passes its own tag prefix (android-v —
-    v2.5.0 was iOS's alone) and the file and key its versionCode lives in.
     """
     want = tuple(int(p) for p in expected.split("."))
     try:
-        tags = git("tag", "--list", f"{prefix}*").split()
+        tags = git("tag", "--list", "v*").split()
     except (OSError, subprocess.CalledProcessError) as exc:
         return f"git tags unavailable ({exc.__class__.__name__})"
     older = []
     for tag in tags:
-        m = re.fullmatch(rf"{re.escape(prefix)}(\d+)\.(\d+)\.(\d+)", tag)
+        m = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", tag)
         if m and tuple(int(g) for g in m.groups()) < want:
             older.append((tuple(int(g) for g in m.groups()), tag))
     if not older:
-        return f"no older {prefix}* tag found (a clone without tags?)"
+        return "no older v* tag found (a clone without tags?)"
     tag = max(older)[1]
     try:
-        text = git("show", f"{tag}:{path}")
+        text = git("show", f"{tag}:ios/Dredfit.xcodeproj/project.pbxproj")
     except (OSError, subprocess.CalledProcessError):
-        return f"cannot read {label} at {tag} (shallow clone?)"
+        return f"cannot read the project at {tag} (shallow clone?)"
     try:
-        build = max(int(b) for b in number_re.findall(text))
+        build = max(int(b) for b in BUILD_RE.findall(text))
     except ValueError:
-        return f"no integer {key} at {tag}"
+        return f"no integer CURRENT_PROJECT_VERSION at {tag}"
     return tag, build
 
 
@@ -105,7 +112,86 @@ def release_body_len(changelog: str, version: str) -> int:
     return 0 if section is None else len(section) + 1  # + the print() newline
 
 
+def android_version():
+    """(versionName values, versionCode values) in android/gradle.properties.
+    Raises OSError when the file cannot be read."""
+    text = ANDROID_PROPERTIES.read_text(encoding="utf-8")
+    return ANDROID_NAME_RE.findall(text), ANDROID_CODE_RE.findall(text)
+
+
+def tagged_codes():
+    """[(code, tag)] for every android-vX.Y.Z+CODE tag not on HEAD, or a
+    string saying why the tags cannot be read."""
+    try:
+        tags = git("tag", "--list", "android-v*").split()
+        here = set(git("tag", "--points-at", "HEAD", "--list",
+                       "android-v*").split())
+    except (OSError, subprocess.CalledProcessError) as exc:
+        return f"git tags unavailable ({exc.__class__.__name__})"
+    found = []
+    for tag in tags:
+        m = ANDROID_TAG_RE.fullmatch(tag)
+        if m and tag not in here:
+            found.append((int(m.group(1)), tag))
+    return found
+
+
+def check_android() -> int:
+    """The gate for an Android build: one product version, a fresh code."""
+    errors, notices = [], []
+    marketing = sorted(set(MARKETING_RE.findall(
+        PBXPROJ.read_text(encoding="utf-8"))))
+    try:
+        names, codes = android_version()
+    except OSError as exc:
+        names, codes = [], []
+        errors.append(f"cannot read android/gradle.properties "
+                      f"({exc.__class__.__name__})")
+    if len(marketing) != 1:
+        errors.append(f"MARKETING_VERSION is {marketing or '(none)'}; the "
+                      f"product version must be one x.y.z")
+    elif names != marketing:
+        errors.append(f"dredfit.versionName is {names or '(none)'}, expected "
+                      f"'{marketing[0]}' (iOS's MARKETING_VERSION)")
+    highest = None
+    if len(codes) != 1 or not re.fullmatch(r"[1-9][0-9]*", codes[0]):
+        errors.append(f"dredfit.versionCode is {codes or '(none)'}, expected "
+                      f"one positive integer")
+    else:
+        tagged = tagged_codes()
+        if isinstance(tagged, str):
+            notices.append(f"versionCode not compared with the tags: {tagged}")
+        elif not tagged:
+            notices.append("no android-vX.Y.Z+CODE tag yet: nothing to "
+                           "compare the versionCode with")
+        else:
+            highest = max(tagged)
+            if int(codes[0]) <= highest[0]:
+                errors.append(
+                    f"dredfit.versionCode is {codes[0]}, but {highest[1]} "
+                    f"already used {highest[0]}; Play refuses a code it has "
+                    f"seen — bump it above {highest[0]}")
+
+    print(f"MARKETING_VERSION: {marketing or '(none)'}")
+    print(f"Android versionName: {names or '(none)'}")
+    print(f"Android versionCode: {codes or '(none)'}")
+    if highest:
+        print(f"Highest tagged versionCode: {highest[0]} ({highest[1]})")
+    print()
+    for n in notices:
+        print(f"NOTICE: {n}")
+    if errors:
+        for e in errors:
+            print(f"FAIL: {e}")
+        return 1
+    print(f"PASS: Android {names[0]} (versionCode {codes[0]}) carries the "
+          f"product version and a code no tag has used.")
+    return 0
+
+
 def main(argv: list) -> int:
+    if len(argv) >= 2 and argv[1] == "--android":
+        return check_android()
     if len(argv) < 2:
         print("usage: check_version.py <release/x.y.z | x.y.z>", file=sys.stderr)
         return 2
@@ -151,45 +237,6 @@ def main(argv: list) -> int:
                     f"CURRENT_PROJECT_VERSION is {current}, but {tag} already "
                     f"shipped build {prev}; bump it above {prev}")
 
-    # One product version on both platforms (owner decision, 11.10.2026):
-    # Google Play shows the x.y.z the App Store shows for the same release.
-    # The versionCode is Play's own counter — it refuses a code it has seen —
-    # so it climbs over Android's own tags, not over the iOS build number.
-    android_names, android_codes = [], []
-    android_previous = None
-    try:
-        properties = ANDROID_PROPERTIES.read_text(encoding="utf-8")
-    except OSError as exc:
-        errors.append(f"cannot read android/gradle.properties "
-                      f"({exc.__class__.__name__})")
-    else:
-        android_names = ANDROID_NAME_RE.findall(properties)
-        android_codes = ANDROID_CODE_RE.findall(properties)
-        if android_names != [expected]:
-            errors.append(
-                f"Android dredfit.versionName is {android_names or '(none)'}, "
-                f"expected '{expected}' like iOS's MARKETING_VERSION")
-        if (len(android_codes) != 1
-                or not re.fullmatch(r"[1-9][0-9]*", android_codes[0])):
-            errors.append(
-                f"Android dredfit.versionCode is {android_codes or '(none)'}, "
-                f"expected one positive integer")
-        else:
-            android_previous = previous_build(
-                expected, prefix="android-v", path="android/gradle.properties",
-                label="android/gradle.properties", key="dredfit.versionCode",
-                number_re=ANDROID_CODE_RE)
-            if isinstance(android_previous, str):
-                notices.append(f"Android versionCode not compared with an "
-                               f"older tag: {android_previous}")
-            else:
-                tag, prev = android_previous
-                if int(android_codes[0]) <= prev:
-                    errors.append(
-                        f"Android dredfit.versionCode is {android_codes[0]}, "
-                        f"but {tag} already shipped {prev}; bump it above "
-                        f"{prev}")
-
     heading = re.compile(rf"^##\s+{re.escape(expected)}\s*$", re.MULTILINE)
     changelog = CHANGELOG.read_text(encoding="utf-8")
     if not heading.search(changelog):
@@ -209,16 +256,25 @@ def main(argv: list) -> int:
                 f"the GitHub Release body caps at {RELEASE_BODY_MAX:,} "
                 f"(over by {size - RELEASE_BODY_MAX:,})")
 
+    # Android is reported here, never failed: an iOS-only release keeps its
+    # verdict while Android still carries the version it last shipped.
+    # `--android` gates the Android build when that one ships.
+    try:
+        android_names, _ = android_version()
+    except OSError as exc:
+        notices.append(f"Android version not read ({exc.__class__.__name__})")
+    else:
+        if android_names != [expected]:
+            notices.append(
+                f"Android dredfit.versionName is {android_names or '(none)'}, "
+                f"not '{expected}' — fine for an iOS-only release; "
+                f"`check_version.py --android` gates an Android build")
+
     print(f"Expected version: {expected}")
     print(f"MARKETING_VERSION: {marketing or '(none)'}")
     print(f"CURRENT_PROJECT_VERSION (build): {builds or '(none)'}")
     if not isinstance(previous, str):
         print(f"Previous release: {previous[0]} (build {previous[1]})")
-    print(f"Android versionName: {android_names or '(none)'}")
-    print(f"Android versionCode: {android_codes or '(none)'}")
-    if isinstance(android_previous, tuple):
-        print(f"Previous Android release: {android_previous[0]} "
-              f"(versionCode {android_previous[1]})")
     print()
     for n in notices:
         print(f"NOTICE: {n}")
