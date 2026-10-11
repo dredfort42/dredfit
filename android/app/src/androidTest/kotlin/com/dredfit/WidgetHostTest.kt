@@ -295,6 +295,17 @@ class WidgetHostTest {
 
     // MARK: - The tap
 
+    /** The picker's preview on Android 10–14 is the image, and nothing on
+     *  12+ takes its place (a `previewLayout` would). */
+    @Test
+    fun thePickersPreviewIsTheImage() {
+        val info = host.info
+        assertEquals(com.dredfit.R.drawable.widget_preview_image, info.previewImage)
+        assertEquals("no previewLayout to win over it", 0, info.previewLayout)
+        val image = checkNotNull(info.loadPreviewImage(app, 0)) { "the image loads" }
+        assertTrue("a wide medium, not a square", image.intrinsicWidth > image.intrinsicHeight * 3 / 2)
+    }
+
     /** With no task of the app's to bring back, the tap launches the app as
      *  its icon does (WidgetTapTest has the app left open). */
     @Test
