@@ -26,10 +26,7 @@ import android.content.pm.PackageManager
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.runner.lifecycle.Stage
 import com.dredfit.ReminderTest.Companion.TAG_DENIED
@@ -141,15 +138,6 @@ class ReminderDeniedTest : ReminderTestCase() {
         assertFalse("a granted ask clears the note", exists(TAG_DENIED))
         assertTrue("the window is drawn", awaitTrue { pendingIds().size == expectedSlots(9, 0) })
         assertTrue(readStore { settings.reminderEnabled })
-    }
-
-    /** One tap, no confirm-by-gone loop: under the system's dialog there is
-     *  no screen to read. */
-    private fun tapOnce(tag: String) {
-        await(tag)
-        val node = compose.onAllNodesWithTag(tag)[0]
-        runCatching { node.performScrollTo() }
-        node.performClick()
     }
 
     /** The permission controller's button, found through the

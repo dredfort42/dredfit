@@ -42,6 +42,47 @@
         }
       }
     },
+    "Open phone settings": {
+      "comment": "Android only. Settings > Weekly rhythm, the row under the battery note: opens Dredfit's own page in the phone's Settings app (App info), where its Battery row holds \"Unrestricted\". The phone's settings, not Dredfit's own Settings screen this row sits on.",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handy-Einstellungen öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir ajustes del teléfono"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les paramètres du téléphone"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri impostazioni del telefono"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir configurações do celular"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть настройки телефона"
+          }
+        }
+      }
+    },
     "Rate on Google Play": {
       "comment": "Android only. Settings > About: opens the app's Google Play page, where a review is written. The Android twin of iOS's \"Rate on the App Store\".",
       "localizations": {
@@ -79,6 +120,47 @@
           "stringUnit": {
             "state": "translated",
             "value": "Оценить в Google Play"
+          }
+        }
+      }
+    },
+    "So the reminder arrives on its own, without waiting for you to pick up the phone, let Dredfit run without battery restrictions.": {
+      "comment": "Android only. Settings > Weekly rhythm, under the reminder while it is on, shown only on Samsung phones that do not yet let Dredfit run without battery restrictions: Samsung freezes the app in the background and holds the reminder back until the person turns the screen on. The fix is the app's battery setting \"Unrestricted\" in the phone's Settings. Use the word the phone's Settings use for the battery.",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Damit die Erinnerung von selbst kommt und nicht wartet, bis du das Handy in die Hand nimmst, lass Dredfit ohne Akku-Einschränkungen laufen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para que el recordatorio llegue solo, sin esperar a que tomes el teléfono, deja que Dredfit funcione sin restricciones de batería."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour que le rappel arrive tout seul, sans attendre que tu prennes ton téléphone, laisse Dredfit fonctionner sans restriction de batterie."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perché il promemoria arrivi da solo, senza aspettare che tu prenda il telefono, lascia funzionare Dredfit senza limitazioni della batteria."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para o lembrete chegar sozinho, sem esperar você pegar o celular, deixe o Dredfit funcionar sem restrições de bateria."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы напоминание приходило само, а не ждало, пока ты возьмешь телефон, сними с Dredfit ограничения по батарее."
           }
         }
       }
