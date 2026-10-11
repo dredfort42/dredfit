@@ -471,7 +471,7 @@ fun AppearanceSection(observedStore: Observed<AppStore>) {
 object AboutLinks {
     /** The RELEASE application id — the listing's, whatever a test or debug
      *  build calls itself. AboutLinksTest holds it to build.gradle.kts. */
-    const val LISTING_ID = "com.dredfit.dredfit"
+    const val LISTING_ID = "app.dredfit"
 
     /** The Play Store app's own page for the app ("Rate"). */
     const val PLAY_STORE_APP = "market://details?id=$LISTING_ID"

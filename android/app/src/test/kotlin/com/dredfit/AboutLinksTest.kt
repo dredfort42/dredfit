@@ -30,8 +30,8 @@ class AboutLinksTest {
     @Test
     fun theLinksNameThisAppsListing() {
         assertEquals(BuildConfig.APPLICATION_ID, AboutLinks.LISTING_ID)
-        assertEquals("market://details?id=com.dredfit.dredfit", AboutLinks.PLAY_STORE_APP)
-        assertEquals("https://play.google.com/store/apps/details?id=com.dredfit.dredfit", AboutLinks.PLAY_LISTING_WEB)
+        assertEquals("market://details?id=app.dredfit", AboutLinks.PLAY_STORE_APP)
+        assertEquals("https://play.google.com/store/apps/details?id=app.dredfit", AboutLinks.PLAY_LISTING_WEB)
     }
 
     /** Both captions are Android's: iOS's ON one names the ringer SWITCH,

@@ -5,7 +5,7 @@
 //  Runs only when asked, like ScreenshotWalk:
 //
 //    adb shell am instrument -w -e class com.dredfit.WidgetScreenshots \
-//      -e screens widget com.dredfit.dredfit.test/androidx.test.runner.AndroidJUnitRunner
+//      -e screens widget app.dredfit.test/androidx.test.runner.AndroidJUnitRunner
 //
 //  It sets the per-app language itself (en, then ru — or the list given as
 //  `-e langs en,ru,es,pt-BR,de,fr,it`), and the mode per

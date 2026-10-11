@@ -103,7 +103,7 @@ class ReminderRestoreTest : AppStoreTestCase() {
     /** The mark lives where a backup never reaches, under a name of its own. */
     @Test
     fun theMarkIsTheDevicesOwn() {
-        val dir = File("/data/user/0/com.dredfit.dredfit/no_backup")
+        val dir = File("/data/user/0/app.dredfit/no_backup")
         assertEquals(File(dir, "state-seen-here"), DeviceMark.file(dir))
         assertNotEquals(com.dredfit.ongoing.NotificationAsk.mark(dir), DeviceMark.file(dir),
                         "not the ask's mark: a restore of a workout-asked phone is still a new device")

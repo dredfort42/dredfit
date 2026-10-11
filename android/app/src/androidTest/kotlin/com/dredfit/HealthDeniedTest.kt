@@ -10,7 +10,7 @@
 //  the process the instrumentation runs in. RUNS ALONE, on a fresh install
 //  (uninstall first — a connected run reinstalls over an app that is there):
 //
-//    adb uninstall com.dredfit.dredfit
+//    adb uninstall app.dredfit
 //    ./gradlew :app:connectedDebugAndroidTest \
 //      -Pandroid.testInstrumentationRunnerArguments.class=com.dredfit.HealthDeniedTest \
 //      -Pandroid.testInstrumentationRunnerArguments.notAnnotation=org.junit.Ignore

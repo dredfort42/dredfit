@@ -2,7 +2,7 @@
 
 The Compose app — the counterpart of `ios/Dredfit`, `ios/DredfitWidgets` and
 `ios/Shared` in one module. Package `com.dredfit`, application id
-`com.dredfit.dredfit` (iOS ships as `com.dredfit.Dredfit`).
+`app.dredfit` (iOS ships as `com.dredfit.Dredfit`).
 
 ```text
 app/src/
