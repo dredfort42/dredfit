@@ -45,7 +45,7 @@ abstract class ReminderTestCase : OngoingTestCase() {
 
     /** The reminder alarms the SYSTEM holds for the app, read off `dumpsys
      *  alarm` — the other side of `pendingIds`: each is an `RTC_WAKEUP #n:
-     *  Alarm{id type 0 … com.dredfit.dredfit}` whose next line is its tag.
+     *  Alarm{id type 0 … app.dredfit}` whose next line is its tag.
      *  The dump lists a pending alarm twice (summary and detail), hence the
      *  distinct ids. */
     protected fun systemAlarms(): Set<String> {

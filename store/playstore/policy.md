@@ -81,7 +81,7 @@ develop cea8648) declares exactly these permissions:
 | `WAKE_LOCK` | normal | the CPU kept up while a countdown runs with the screen off |
 | `RECEIVE_BOOT_COMPLETED` | normal | rebuilds the reminder's alarms after a reboot |
 | `health.WRITE_EXERCISE`, `health.WRITE_ACTIVE_CALORIES_BURNED`, `health.READ_WEIGHT`, `health.READ_BASAL_METABOLIC_RATE`, `health.READ_EXERCISE` | Health Connect | section 3 |
-| `com.dredfit.dredfit.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | app-defined | added by AndroidX core for its own receivers |
+| `app.dredfit.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | app-defined | added by AndroidX core for its own receivers |
 
 Not declared: `INTERNET`, `ACCESS_NETWORK_STATE` (WorkManager's, removed in
 `AndroidManifest.xml`), `AD_ID`, any location, exact-alarm, full-screen-intent,

@@ -317,7 +317,8 @@ Checked on the owner's Galaxy A16 (SM-A165F, Android 16) on 10.10.2026:
 
 - **The app is frozen.** About two minutes after Dredfit leaves the screen,
   Samsung's app freezer (Freecess) freezes it. Logcat:
-  `FreecessController: FZ : com.dredfit.dredfit … reason: LEV`.
+  `FreecessController: FZ : com.dredfit.dredfit … reason: LEV` (the
+  package before it became `app.dredfit`).
 - **The alarm waits for the screen.** The reminder's alarm is then deferred
   ("Deferring alarm … due to freecess"). It is sent only when the screen is
   woken (`UFZ … CancelPolicy`, "Sending alarms blocked by MARsFreecess"). A
@@ -414,7 +415,7 @@ The tone is iOS's `SignalTone.reminder`: the go's motif, slowed and
 softened. It is written once as a 16-bit mono WAV, byte for byte iOS's
 `wavFile`, to `files/sounds/dredfit_reminder_v1.wav`. It is never
 rewritten. The channel plays it through the FileProvider
-(`content://com.dredfit.dredfit.share/sounds/…`), because the system cannot
+(`content://app.dredfit.share/sounds/…`), because the system cannot
 open a file in the app's private storage by path.
 
 A channel's sound is fixed when the channel is created. Recreating a deleted

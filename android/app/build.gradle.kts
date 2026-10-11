@@ -14,9 +14,11 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        // iOS ships as com.dredfit.Dredfit; an application id is lower case
-        // by convention and is never shown to a person.
-        applicationId = "com.dredfit.dredfit"
+        // The package Google Play holds for Dredfit: the developer
+        // verification registered `app.dredfit` (the domain reversed), and
+        // Play refuses a bundle with any other id. Permanent once uploaded.
+        // iOS ships as com.dredfit.Dredfit; the id is never shown to a person.
+        applicationId = "app.dredfit"
         // Android 10 — the owner's floor (android/CLAUDE.md).
         minSdk = 29
         targetSdk = 37

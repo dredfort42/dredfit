@@ -4,7 +4,7 @@
     RAW_DIR=/path/to/screens python3 store/playstore/tools/compose_play.py
 
 The raws are the PNGs `ScreenshotWalk` and `WidgetScreenshots` write on the
-emulator (`/sdcard/Android/data/com.dredfit.dredfit/files/screens/`, pulled
+emulator (`/sdcard/Android/data/app.dredfit/files/screens/`, pulled
 whole): `<lang>-light-<screen>.png` and `widget-<lang>-light-<size>.png`. How
 to take them is in this folder's README.
 
