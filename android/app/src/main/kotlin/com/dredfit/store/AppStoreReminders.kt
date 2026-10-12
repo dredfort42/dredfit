@@ -13,8 +13,8 @@ import java.time.Instant
 val AppStore.reminderScheduler: ReminderScheduler get() = ReminderScheduler(notifications)
 
 /** Rebuilt from scratch on every settings change, activation and
- *  completion — and on Android after a reboot, a clock or zone change and an
- *  update too (reminders/ReminderReceiver.kt), because an alarm is an
+ *  completion — and on Android after a reboot, a clock or zone change, an
+ *  update and the grant of exact alarms too (reminders/ReminderReceiver.kt), because an alarm is an
  *  instant and dies with the boot, where an iOS calendar trigger is a wall
  *  time the system keeps. A day that is a rest day, or already trained, gets
  *  none. */

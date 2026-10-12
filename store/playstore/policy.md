@@ -70,7 +70,8 @@ Read on 11.10.2026. Google moves these pages; re-read before submitting.
 The merged release manifest
 (`./gradlew :app:processReleaseMainManifest`, then
 `app/build/intermediates/merged_manifest/release/processReleaseMainManifest/AndroidManifest.xml`,
-develop cea8648) declares exactly these permissions:
+develop cea8648; the `SCHEDULE_EXACT_ALARM` row re-checked on
+fix/android-screen-and-reminder, 12.10.2026) declares exactly these permissions:
 
 | Permission | Kind | Why |
 | --- | --- | --- |

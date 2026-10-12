@@ -92,7 +92,8 @@
             android:name=".reminders.ReminderReceiver"
             android:exported="false" />
         <!-- What an alarm loses — all of them on a reboot, the wall time on a
-             clock or zone change — rebuilt from the store. The list is
+             clock or zone change — rebuilt from the store; and the window
+             rebuilt exact once "Alarms & reminders" is granted. The list is
              ReminderTriggers.actions (ReminderTriggerTest holds the two
              together). -->
         <receiver

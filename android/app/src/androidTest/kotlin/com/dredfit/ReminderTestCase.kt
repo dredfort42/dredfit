@@ -58,10 +58,13 @@ abstract class ReminderTestCase : OngoingTestCase() {
         }.toSet()
     }
 
-    /** The window the system gives one of them (`window=+1h0m0s0ms`). */
-    protected fun systemAlarmWindow(): String? =
-        Regex("""tag=\*walarm\*:${Regex.escape(SystemNotificationScheduler.ACTION_FIRE)}\n\s+type=RTC_WAKEUP origWhen=\S+ \S+ window=(\S+)""")
-            .find(shell("dumpsys alarm"))?.groupValues?.get(1)
+    /** The window the system gives each of them: `0` for an exact alarm,
+     *  `+1h0m0s0ms` (less close to its time) for an inexact one. */
+    protected fun systemAlarmWindows(): List<String> {
+        settleAlarms()
+        return Regex("""tag=\*walarm\*:${Regex.escape(SystemNotificationScheduler.ACTION_FIRE)}\n\s+type=RTC_WAKEUP origWhen=\S+ \S+ window=(\S+)""")
+            .findAll(shell("dumpsys alarm")).map { it.groupValues[1] }.toList()
+    }
 
     /** Waits for the reminders' worker to run everything queued so far. */
     protected fun settleAlarms() {

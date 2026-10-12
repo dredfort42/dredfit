@@ -312,8 +312,9 @@ private fun ignoringBatteryOptimizations(): Boolean {
     return readOnEveryResume { context.getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(context.packageName) }
 }
 
-/** Whether "Alarms & reminders" is on for Dredfit; false where the phone has
- *  no such switch (ExactAlarm decides what that means). */
+/** Whether the phone lets Dredfit set exact alarms — "Alarms & reminders"
+ *  on, or the app exempt from battery optimisation; false where the phone
+ *  has no such switch (ExactAlarm decides what that means). */
 @Composable
 private fun canScheduleExactAlarms(): Boolean {
     val context = LocalContext.current

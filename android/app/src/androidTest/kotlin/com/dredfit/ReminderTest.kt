@@ -68,8 +68,9 @@ class ReminderTest : ReminderTestCase() {
         assertTrue("every id is a day slot of the window",
                    pendingIds().all { it.startsWith(ReminderScheduler.DAY_PREFIX) })
         assertEquals("and the system holds the same alarms", expected, systemAlarms().size)
-        // Inexact: the system's own window for each (android/README.md).
-        Log.i("ReminderTest", "system window per reminder alarm: ${systemAlarmWindow()}")
+        // `0` for an exact alarm, the system's own window for an inexact one
+        // (android/README.md) — which, depends on the install's permission.
+        Log.i("ReminderTest", "system window per reminder alarm: ${systemAlarmWindows().firstOrNull()}")
 
         tap(TAG_TOGGLE)
         compose.onNodeWithTag(TAG_TOGGLE).assertIsOff()
@@ -135,7 +136,8 @@ class ReminderTest : ReminderTestCase() {
         }
     }
 
-    /** The alarm itself, at its minute: inexact, so the test allows the
+    /** The alarm itself, at its minute: inexact without "Alarms & reminders"
+     *  (ReminderExactAlarmTest may have granted it), so the test allows the
      *  minutes Android may take — never an hour, on an idle emulator. */
     @Test
     fun theAlarmItselfPostsTheReminder() {

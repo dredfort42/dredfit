@@ -39,7 +39,9 @@ app/src/
 │   │                exact where ExactAlarm allows, the channel, the
 │   │                permission), ReminderSoundFile
 │   │                (the generated WAV, the channel ids), ReminderReceiver
-│   │                (posts; rebuilds on boot / clock / zone / update),
+│   │                (posts; rebuilds on boot / clock / zone / update /
+│   │                the exact-alarm grant), ExactAlarm (when the alarm is
+│   │                exact and Settings' hint shows),
 │   │                BatteryHint (when Settings asks a Samsung for
 │   │                Unrestricted, plain Kotlin) — android/README.md says why each
 │   │   signals/     CountdownSounds and the device half of WorkoutSignals —

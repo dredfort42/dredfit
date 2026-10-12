@@ -16,6 +16,7 @@ package com.dredfit
 
 import android.app.AlarmManager
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
@@ -26,13 +27,13 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.runner.lifecycle.Stage
 import com.dredfit.ReminderTest.Companion.TAG_TIME
-import com.dredfit.reminders.SystemNotificationScheduler
 import com.dredfit.store.setReminderEnabled
 import org.hamcrest.Matchers.allOf
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -42,22 +43,15 @@ class ReminderExactAlarmTest : ReminderTestCase() {
     @After
     fun leaveNothingBehind() = clearReminders()
 
-    /** The system's window for every reminder alarm the app holds: `0` for
-     *  an exact one, `+1h0m0s0ms` (or less, close to its time) otherwise. */
-    private fun systemWindows(): List<String> {
-        settleAlarms()
-        return Regex("""tag=\*walarm\*:${Regex.escape(SystemNotificationScheduler.ACTION_FIRE)}\n\s+type=RTC_WAKEUP origWhen=\S+ \S+ window=(\S+)""")
-            .findAll(shell("dumpsys alarm")).map { it.groupValues[1] }.toList()
-    }
-
     @Test
     fun withoutThePermissionTheHintLeadsToItAndTheGrantMakesEveryAlarmExact() {
+        assumeTrue("Android 12+: before it every app's alarm is exact", Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
         val alarms = app.getSystemService(AlarmManager::class.java)
-        assumeFalse("the install already holds Alarms & reminders; only a fresh one can run this",
-                    alarms.canScheduleExactAlarms())
+        assumeFalse("the install may already set exact alarms (the permission, or the battery exemption); " +
+                    "only a fresh, restricted one can run this", alarms.canScheduleExactAlarms())
         launch(Seed.Clean, fast = false)
         onStore { setReminderEnabled(true) }
-        val inexact = systemWindows()
+        val inexact = systemAlarmWindows()
         assertTrue("the window is drawn", inexact.isNotEmpty())
         assertTrue("without the permission no alarm is exact: $inexact", inexact.none { it == "0" })
 
@@ -72,8 +66,8 @@ class ReminderExactAlarmTest : ReminderTestCase() {
         // only the manifest receiver can rebuild the window.
         shell("appops set ${app.packageName} SCHEDULE_EXACT_ALARM allow")
         assertTrue("the grant rebuilt the window with exact alarms",
-                   awaitTrue(timeoutMs = 90_000) { systemWindows().let { it.isNotEmpty() && it.all { w -> w == "0" } } })
-        assertTrue("as many as before", systemWindows().size == inexact.size)
+                   awaitTrue(timeoutMs = 90_000) { systemAlarmWindows().let { it.isNotEmpty() && it.all { w -> w == "0" } } })
+        assertTrue("as many as before", systemAlarmWindows().size == inexact.size)
 
         // Recorded, not stubbed: the permission's page really opens.
         Intents.init()

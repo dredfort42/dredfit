@@ -265,10 +265,14 @@ the rule in `reminders/ExactAlarm.kt`, owner decision 12.10.2026):
 
 - **Exact, where the phone allows it.** `setExactAndAllowWhileIdle()`, on
   the minute. Android 10–11 allow it to every app. Android 12+ allow it while
-  "Alarms & reminders" (`SCHEDULE_EXACT_ALARM`) is on for Dredfit: granted at
-  install on 12–13,
+  "Alarms & reminders" (`SCHEDULE_EXACT_ALARM`) is on for Dredfit — granted
+  at install on 12–13,
   [off for a fresh install](https://developer.android.com/about/versions/14/changes/schedule-exact-alarms)
-  from 14, and revocable on every version.
+  from 14, revocable on every version — or while Dredfit is exempt from
+  battery optimisation: `canScheduleExactAlarms` counts the power-save
+  exemption list too (AlarmManager javadoc, API 37). So a Samsung set to
+  Unrestricted for the battery hint gets exact alarms without the
+  permission (read from the javadoc, not probed on the A16).
 - **Inexact, otherwise.** `setAndAllowWhileIdle()`, which the
   [Schedule alarms](https://developer.android.com/develop/background-work/services/alarms/schedule)
   page names for a "user-specified action that should happen after a specific
@@ -289,9 +293,13 @@ the rule in `reminders/ExactAlarm.kt`, owner decision 12.10.2026):
   `SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED`, and the rebuild receiver
   below draws the window again with exact alarms — no return to the app
   needed (`ReminderExactAlarmTest`). Turned off, the system stops the app and
-  cancels its exact alarms (seen on the API 37 emulator: the process died on
-  the revocation); the next open draws the inexact window. Until that open
-  there is no reminder.
+  cancels its exact alarms (seen on the API 37 emulator, app not exempt: the
+  process died on the revocation); the next open draws the inexact window.
+  Until that open there is no reminder. For an app exempt from battery
+  optimisation the revocation changes nothing (not probed).
+- **Freecess, unchecked.** Whether Samsung's freezer holds an exact alarm
+  back as it holds the inexact one (below) was not checked; the battery
+  hint stays beside this one on a Samsung that is not Unrestricted.
 - **Never on the wrong day.** An alarm that comes late across midnight is
   dropped (`ReminderScheduler.stillItsDay`): "Today's workout is ready" at
   00:20 would speak of a day that may be a rest day. The new day has its

@@ -5,7 +5,8 @@
 //  that fires a receiver, and the receiver posts the notification.
 //
 //  WHICH ALARM. `setExactAndAllowWhileIdle` where the phone allows an exact
-//  alarm (ExactAlarm.kt: Android 10–11, or "Alarms & reminders" on), else
+//  alarm (ExactAlarm.kt: Android 10–11, "Alarms & reminders" on, or the app
+//  exempt from battery optimisation), else
 //  `setAndAllowWhileIdle` — inexact, allowed in Doze, never early, but on
 //  Android 12+ anywhere in the hour after its time, and a Samsung delivered
 //  it at the very end of that hour (ExactAlarm.kt). USE_EXACT_ALARM, which
@@ -15,8 +16,8 @@
 //
 //  An alarm is an INSTANT and dies with the boot; an iOS calendar trigger is
 //  a wall time the system keeps across a reboot and a zone change. So the
-//  window is rebuilt on boot, on a clock or zone change and on an update
-//  (ReminderReceiver.kt) — from the store, the same rebuild as everywhere.
+//  window is rebuilt on boot, on a clock or zone change, on an update and
+//  on the grant of "Alarms & reminders" (ReminderReceiver.kt) — from the store, the same rebuild as everywhere.
 //
 
 package com.dredfit.reminders
