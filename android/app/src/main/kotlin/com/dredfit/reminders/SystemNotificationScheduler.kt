@@ -4,15 +4,12 @@
 //  calendar trigger to UNUserNotificationCenter. Here a reminder is an ALARM
 //  that fires a receiver, and the receiver posts the notification.
 //
-//  WHICH ALARM. `setAndAllowWhileIdle` — inexact, and allowed in Doze. The
-//  Android page "Schedule alarms" names exactly this call for a "user-
-//  specified action that should happen after a specific time (even if system
-//  in idle state)"; it never fires early, and on Android 12+ fires within an
-//  hour of its time (in practice minutes). An exact alarm would need
-//  SCHEDULE_EXACT_ALARM — denied by default from Android 14, revocable,
-//  "only if a user-facing function requires precisely-timed actions" — or
-//  USE_EXACT_ALARM, which Play keeps for alarm-clock and calendar apps. The
-//  iOS reminder promises a training day, not a minute (android/README.md).
+//  WHICH ALARM. `setExactAndAllowWhileIdle` where the phone allows an exact
+//  alarm (ExactAlarm.kt: Android 10–11, or "Alarms & reminders" on), else
+//  `setAndAllowWhileIdle` — inexact, allowed in Doze, never early, but on
+//  Android 12+ anywhere in the hour after its time, and a Samsung delivered
+//  it at the very end of that hour (ExactAlarm.kt). USE_EXACT_ALARM, which
+//  needs no person's yes, is kept by Play for alarm-clock and calendar apps.
 //  WorkManager was weighed and left: its work runs when the system batches
 //  it, by the app's standby bucket, hours late for a rarely opened app.
 //
@@ -133,9 +130,26 @@ class SystemNotificationScheduler(context: Context) : NotificationScheduling {
                 .putExtra(EXTRA_AT, fireAt.toEpochMilli())
             val pending = PendingIntent.getBroadcast(app, 0, intent,
                                                      PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+            if (exactAllowed()) {
+                try {
+                    alarms.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, fireAt.toEpochMilli(), pending)
+                    return@execute
+                } catch (revoked: SecurityException) {
+                    // "Alarms & reminders" went off between the check and the call.
+                    Log.w(LOG, "the exact alarm was refused; the reminder falls back to the inexact one", revoked)
+                }
+            }
             alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, fireAt.toEpochMilli(), pending)
         }
     }
+
+    /** Read per alarm, not once: the person can turn "Alarms & reminders" on
+     *  or off at any time, and a rebuild follows either way — the grant's
+     *  broadcast (ReminderTriggers), or the next open after a revocation,
+     *  which cancels the exact alarms with the app. */
+    fun exactAllowed(): Boolean =
+        ExactAlarm.allowed(Build.VERSION.SDK_INT,
+                           Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && alarms.canScheduleExactAlarms())
 
     /** Runs `then` after every alarm call queued so far — a receiver's
      *  `goAsync` finishes only once its rebuild has reached the system. */

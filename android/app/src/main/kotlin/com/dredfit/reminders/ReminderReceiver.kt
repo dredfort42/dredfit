@@ -35,6 +35,11 @@ object ReminderTriggers {
         // An update that came while the app was closed: the window the new
         // build would draw, without waiting for the next open.
         "android.intent.action.MY_PACKAGE_REPLACED",
+        // "Alarms & reminders" turned on for the app: the window is rebuilt
+        // with exact alarms (ExactAlarm.kt). Turning it off needs no
+        // trigger — the system stops the app and cancels the exact alarms,
+        // and the next open draws the inexact ones.
+        "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED",
     )
 
     fun reschedules(action: String?): Boolean = action in actions

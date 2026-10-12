@@ -42,6 +42,47 @@
         }
       }
     },
+    "Allow alarms and reminders": {
+      "comment": "Android only. Settings > Weekly rhythm, the row under the note about alarms and reminders: opens the phone's \"Alarms & reminders\" permission page for Dredfit, where the person turns it on. A button label, an imperative.",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wecker und Erinnerungen erlauben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir alarmas y recordatorios"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser les alarmes et rappels"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenti sveglie e promemoria"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir alarmes e lembretes"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разрешить будильники и напоминания"
+          }
+        }
+      }
+    },
     "From Health Connect, %@. A newer weight — typed here or logged there — takes over.": {
       "comment": "Android only. Settings > Health Connect, under the body weight: the number came from Health Connect; %@ is the date of that weigh-in. The Android twin of iOS's \"From Health, %@. …\". Health Connect name per language: the Health Connect app's own label (de/it Health Connect, es Salud conectada, fr Santé Connect, pt-BR Conexão Saúde, ru Здоровье и спорт).",
       "localizations": {
@@ -448,6 +489,47 @@
           "stringUnit": {
             "state": "translated",
             "value": "Звуки играют, даже когда телефон в бесшумном режиме или на вибрации."
+          }
+        }
+      }
+    },
+    "To have the reminder arrive on time rather than up to an hour late, allow Dredfit to set alarms and reminders.": {
+      "comment": "Android only. Settings > Weekly rhythm, under the reminder while it is on, shown only when the phone (Android 12 or later) does not let Dredfit set exact alarms: without that permission Android may deliver the reminder up to an hour after its time. The fix is the phone's \"Alarms & reminders\" permission for Dredfit. Use the words the phone's Settings use for that permission (stock Android: \"Alarms & reminders\").",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Damit die Erinnerung pünktlich kommt und nicht bis zu einer Stunde später, erlaube Dredfit, Wecker und Erinnerungen zu stellen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para que el recordatorio llegue a tiempo y no hasta una hora tarde, permite que Dredfit programe alarmas y recordatorios."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour que le rappel arrive à l’heure et non jusqu’à une heure plus tard, autorise Dredfit à programmer des alarmes et des rappels."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perché il promemoria arrivi puntuale e non fino a un’ora dopo, consenti a Dredfit di impostare sveglie e promemoria."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para o lembrete chegar na hora, e não até uma hora depois, permita que o Dredfit defina alarmes e lembretes."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы напоминание приходило вовремя, а не с опозданием до часа, разреши Dredfit ставить будильники и напоминания."
           }
         }
       }

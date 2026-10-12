@@ -9,7 +9,8 @@
 //
 //  Android only: the battery hint under the reminder (reminders/BatteryHint.kt
 //  says why and on which phones), with its row to the app's page in the
-//  phone's settings.
+//  phone's settings; and the "Alarms & reminders" hint (reminders/ExactAlarm.kt),
+//  with its row to that permission's page.
 //
 //  Said differently on Android (owner decisions, 09.10.2026), from the
 //  Android-only catalog android/app/Localizable.xcstrings: both captions of
@@ -22,6 +23,7 @@
 
 package com.dredfit.ui.settings
 
+import android.app.AlarmManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -42,6 +44,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.dredfit.reminders.BatteryHint
+import com.dredfit.reminders.ExactAlarm
 import com.dredfit.store.forgetReminderRefusal
 import com.dredfit.store.setReminderEnabled
 import com.dredfit.store.setReminderTime
@@ -164,8 +167,9 @@ fun RhythmSection(observedStore: Observed<AppStore>) {
  * time row with it, and the note names the state. On iOS the bounce is the
  * only evidence the view gets; here the store keeps it (`reminderRefused`),
  * because an import asks too, from another group of the screen. Like the
- * view's state on iOS, it goes with the screen. Android adds the battery
- * hint, on a phone that holds the reminder back (BatteryHint).
+ * view's state on iOS, it goes with the screen. Android adds two hints: the
+ * minute, where the alarm would be the inexact one (ExactAlarm), and the
+ * battery, on a phone that holds the reminder back (BatteryHint).
  */
 @Composable
 private fun ReminderField(observedStore: Observed<AppStore>) {
@@ -196,6 +200,15 @@ private fun ReminderField(observedStore: Observed<AppStore>) {
                 Text(time, style = dredfitFont(15f, Weight.medium), color = c.ink,
                      modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(c.restFill)
                          .padding(horizontal = 10.dp, vertical = 5.dp))
+            }
+        }
+        if (ExactAlarm.hintShows(store.settings.reminderEnabled, Build.VERSION.SDK_INT, canScheduleExactAlarms())) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                SettingsCaption(tr("To have the reminder arrive on time rather than up to an hour late, allow Dredfit to set alarms and reminders."),
+                                Modifier.testTag("reminder-exact"))
+                SettingsRow({ BellGlyph(c.ink, 16.dp) }, tr("Allow alarms and reminders"), tag = "reminder-exact-settings") {
+                    openExactAlarmSettings(context)
+                }
             }
         }
         val unrestricted = ignoringBatteryOptimizations()
@@ -292,23 +305,52 @@ private fun openNotificationSettings(context: Context) {
     }
 }
 
-/** Whether the phone lets Dredfit run without battery restrictions. Read
- *  again on every resume: the person comes back from the phone's settings,
- *  and the hint goes once it is fixed. */
+/** Whether the phone lets Dredfit run without battery restrictions. */
 @Composable
 private fun ignoringBatteryOptimizations(): Boolean {
     val context = LocalContext.current
+    return readOnEveryResume { context.getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(context.packageName) }
+}
+
+/** Whether "Alarms & reminders" is on for Dredfit; false where the phone has
+ *  no such switch (ExactAlarm decides what that means). */
+@Composable
+private fun canScheduleExactAlarms(): Boolean {
+    val context = LocalContext.current
+    return readOnEveryResume {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && context.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()
+    }
+}
+
+/** A phone setting, read again on every resume: the person comes back from
+ *  the phone's settings, and a hint goes once it is fixed. */
+@Composable
+private fun readOnEveryResume(read: () -> Boolean): Boolean {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val read = { context.getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(context.packageName) }
-    var ignoring by remember { mutableStateOf(read()) }
+    var value by remember { mutableStateOf(read()) }
     DisposableEffect(lifecycle) {
         val watcher = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) ignoring = read()
+            if (event == Lifecycle.Event.ON_RESUME) value = read()
         }
         lifecycle.addObserver(watcher)
         onDispose { lifecycle.removeObserver(watcher) }
     }
-    return ignoring
+    return value
+}
+
+/** "Alarms & reminders" for Dredfit alone (Android 12+, the only phones the
+ *  hint shows on); the app's page where a phone has no such screen. */
+private fun openExactAlarmSettings(context: Context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        try {
+            context.startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                                         Uri.fromParts("package", context.packageName, null)))
+            return
+        } catch (_: ActivityNotFoundException) {
+            // Falls through to the app's page, where the same switch lives.
+        }
+    }
+    openAppDetails(context)
 }
 
 /** The app's own page in the phone's settings: on a Samsung its Battery row

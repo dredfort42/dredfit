@@ -28,9 +28,14 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!-- The reminder's alarms die with a reboot; this hears the boot so the
          window is rebuilt (reminders/ReminderReceiver.kt). A normal
-         permission, granted at install. No exact-alarm permission: the
-         reminder is an inexact alarm allowed in Doze (android/README.md). -->
+         permission, granted at install. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- "Alarms & reminders": the reminder on its minute instead of up to an
+         hour late (reminders/ExactAlarm.kt). Granted at install on Android
+         12-13, asked for in Settings from 14; without it the alarm is the
+         inexact one. Not USE_EXACT_ALARM, which Play keeps for alarm-clock
+         and calendar apps. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <!-- WorkManager (under Glance's widget sessions) declares this for work
          that waits on a network. Glance's work never does — its only
          constraint is "charging" — and the app makes no network call, so the
@@ -98,6 +103,7 @@
                 <action android:name="android.intent.action.TIME_SET" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
             </intent-filter>
         </receiver>
         <!-- Health Connect's "privacy policy" link on its permission screen

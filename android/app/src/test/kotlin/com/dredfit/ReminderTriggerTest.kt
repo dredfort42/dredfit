@@ -41,11 +41,12 @@ class ReminderTriggerTest {
     }
 
     /** The boot, the clock, the zone and an update — each loses something an
-     *  alarm holds. */
+     *  alarm holds — and the grant that makes the alarms exact. */
     @Test
-    fun theTriggersAreTheFourThatMoveAnAlarm() {
+    fun theTriggersAreTheFourThatMoveAnAlarmAndTheExactGrant() {
         for (action in listOf("android.intent.action.BOOT_COMPLETED", "android.intent.action.TIME_SET",
-                              "android.intent.action.TIMEZONE_CHANGED", "android.intent.action.MY_PACKAGE_REPLACED")) {
+                              "android.intent.action.TIMEZONE_CHANGED", "android.intent.action.MY_PACKAGE_REPLACED",
+                              "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED")) {
             assertTrue(ReminderTriggers.reschedules(action), action)
         }
         assertFalse(ReminderTriggers.reschedules(null))
@@ -63,14 +64,20 @@ class ReminderTriggerTest {
         assertTrue(actions(all.getValue(".reminders.ReminderReceiver")).isEmpty(), "reached by its PendingIntent alone")
     }
 
-    /** No exact-alarm permission: the reminder is an inexact alarm allowed
-     *  in Doze (android/README.md says why); USE_EXACT_ALARM is Play-
-     *  restricted and SCHEDULE_EXACT_ALARM denied by default from 14. */
+    private fun permissions(): Set<String> {
+        val factory = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
+        val nodes = factory.newDocumentBuilder().parse(File("src/main/AndroidManifest.xml"))
+            .getElementsByTagName("uses-permission")
+        return (0 until nodes.length).map { (nodes.item(it) as Element).getAttributeNS(android, "name") }.toSet()
+    }
+
+    /** The person's "Alarms & reminders" (ExactAlarm.kt), never
+     *  USE_EXACT_ALARM, which Play keeps for alarm-clock and calendar apps. */
     @Test
-    fun theManifestAsksForNoExactAlarm() {
-        val manifest = File("src/main/AndroidManifest.xml").readText()
-        assertFalse("SCHEDULE_EXACT_ALARM" in manifest)
-        assertFalse("USE_EXACT_ALARM" in manifest)
-        assertTrue("android.permission.RECEIVE_BOOT_COMPLETED" in manifest)
+    fun theManifestAsksForTheExactAlarmThePersonGrants() {
+        val declared = permissions()
+        assertTrue("android.permission.SCHEDULE_EXACT_ALARM" in declared)
+        assertFalse("android.permission.USE_EXACT_ALARM" in declared)
+        assertTrue("android.permission.RECEIVE_BOOT_COMPLETED" in declared)
     }
 }
