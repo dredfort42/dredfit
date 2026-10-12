@@ -80,11 +80,12 @@ develop cea8648) declares exactly these permissions:
 | `POST_NOTIFICATIONS` | runtime, Android 13+ | the ongoing notification and the training reminder |
 | `WAKE_LOCK` | normal | the CPU kept up while a countdown runs with the screen off |
 | `RECEIVE_BOOT_COMPLETED` | normal | rebuilds the reminder's alarms after a reboot |
+| `SCHEDULE_EXACT_ALARM` | special access ("Alarms & reminders"), granted by the person | the training reminder on its set minute instead of up to an hour late |
 | `health.WRITE_EXERCISE`, `health.WRITE_ACTIVE_CALORIES_BURNED`, `health.READ_WEIGHT`, `health.READ_BASAL_METABOLIC_RATE`, `health.READ_EXERCISE` | Health Connect | section 3 |
 | `app.dredfit.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | app-defined | added by AndroidX core for its own receivers |
 
 Not declared: `INTERNET`, `ACCESS_NETWORK_STATE` (WorkManager's, removed in
-`AndroidManifest.xml`), `AD_ID`, any location, exact-alarm, full-screen-intent,
+`AndroidManifest.xml`), `AD_ID`, any location, `USE_EXACT_ALARM`, full-screen-intent,
 media or `QUERY_ALL_PACKAGES` permission. The one `<queries>` entry names a
 single package, `com.google.android.apps.healthdata` (Health Connect on
 Android 10–13).
@@ -312,9 +313,16 @@ for it, film it with a second phone.
   11.10.2026, not confirmed in the Console itself); the foreground-service
   description above says why it is declared. Unverified: whether the Console
   asks about it when the build is uploaded.
-- **`RECEIVE_BOOT_COMPLETED`** — normal, no declaration. The reminder uses
-  inexact `setAndAllowWhileIdle` alarms; no exact-alarm permission is
-  declared, so the exact-alarm declaration does not apply.
+- **`RECEIVE_BOOT_COMPLETED`** — normal, no declaration.
+- **`SCHEDULE_EXACT_ALARM`** — special access the person grants in the
+  phone's "Alarms & reminders" (Android 12–13 grant it at install; from 14
+  a fresh install starts without it). It serves a user-facing function: the
+  training reminder at the time the person set. Without it the reminder
+  still comes, inexact, up to an hour late (`reminders/ExactAlarm.kt`).
+  `USE_EXACT_ALARM`, which Play keeps for alarm-clock and calendar apps, is
+  not declared. Unverified (12.10.2026): whether the Console asks for an
+  exact-alarm declaration when a build with `SCHEDULE_EXACT_ALARM` is
+  uploaded.
 - **`POST_NOTIFICATIONS`** — a runtime permission with no Play declaration.
   Asked once when the first workout starts, and when the reminder is turned
   on.

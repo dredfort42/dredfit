@@ -66,8 +66,8 @@ class ReminderScheduler(val notifications: NotificationScheduling) {
 
         /**
          * Whether a reminder that fires at `now` still fires on its own day.
-         * The alarm is inexact — up to an hour late (SystemNotificationScheduler)
-         * — and iOS's never is: a 23:30 slot posted at 00:20 would say
+         * Without "Alarms & reminders" the alarm is inexact — up to an hour
+         * late (ExactAlarm) — and iOS's never is: a 23:30 slot posted at 00:20 would say
          * "Today's workout is ready" on the next day, a rest day perhaps.
          * Such a reminder is dropped; the new day has its own slot, if any.
          */

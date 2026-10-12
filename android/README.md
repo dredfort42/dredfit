@@ -260,20 +260,38 @@ The rule is iOS's (`ReminderScheduler.swift`), ported line for line to
 
 ### Which alarm
 
-The [Schedule alarms](https://developer.android.com/develop/background-work/services/alarms/schedule)
-page names `setAndAllowWhileIdle()` for exactly this case: a "user-specified
-action that should happen after a specific time (even if system in idle
-state)". It is inexact, and it is allowed in Doze. That is what the app uses
-(`reminders/SystemNotificationScheduler.kt`).
+Two alarms, both allowed in Doze (`reminders/SystemNotificationScheduler.kt`,
+the rule in `reminders/ExactAlarm.kt`, owner decision 12.10.2026):
 
-- **No permission.** No dialog, nothing for Play to review.
-- **Never early.** A reminder never fires before its time.
-- **Not to the minute.** Android 12+ fires such an alarm "within one hour of
-  the supplied trigger time". `dumpsys alarm` shows `window=+1h0m0s0ms` for
-  each reminder. On the idle emulator the real alarm posted 69 s after its
-  minute (`ReminderTest.theAlarmItselfPostsTheReminder`). iOS's calendar
-  trigger fires on the minute, but the iOS app promises a training day, not
-  a minute: the caption says "On training days only".
+- **Exact, where the phone allows it.** `setExactAndAllowWhileIdle()`, on
+  the minute. Android 10–11 allow it to every app. Android 12+ allow it while
+  "Alarms & reminders" (`SCHEDULE_EXACT_ALARM`) is on for Dredfit: granted at
+  install on 12–13,
+  [off for a fresh install](https://developer.android.com/about/versions/14/changes/schedule-exact-alarms)
+  from 14, and revocable on every version.
+- **Inexact, otherwise.** `setAndAllowWhileIdle()`, which the
+  [Schedule alarms](https://developer.android.com/develop/background-work/services/alarms/schedule)
+  page names for a "user-specified action that should happen after a specific
+  time (even if system in idle state)". It never fires early, but Android 12+
+  fires it "within one hour of the supplied trigger time": `dumpsys alarm`
+  shows `window=+1h0m0s0ms`. On the idle emulator it posted 69 s after its
+  minute (`ReminderTest.theAlarmItselfPostsTheReminder`), but on the owner's
+  Galaxy A16 (Android 16), unfrozen and exempt from battery optimisation, a
+  14:00 reminder posted at 15:00:00.4, the very end of its window
+  (12.10.2026). That hour is why the exact alarm exists.
+- **The hint.** While the reminder is on and its alarm would be the inexact
+  one, Settings says under it: "To have the reminder arrive on time rather
+  than up to an hour late, allow Dredfit to set alarms and reminders." The
+  row under it, "Allow alarms and reminders", opens that permission's page
+  for Dredfit (`ACTION_REQUEST_SCHEDULE_EXACT_ALARM`). The hint is read again
+  on every resume, so it goes on the return once the switch is on.
+- **The switch, either way.** Turned on, the system sends
+  `SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED`, and the rebuild receiver
+  below draws the window again with exact alarms — no return to the app
+  needed (`ReminderExactAlarmTest`). Turned off, the system stops the app and
+  cancels its exact alarms (seen on the API 37 emulator: the process died on
+  the revocation); the next open draws the inexact window. Until that open
+  there is no reminder.
 - **Never on the wrong day.** An alarm that comes late across midnight is
   dropped (`ReminderScheduler.stillItsDay`): "Today's workout is ready" at
   00:20 would speak of a day that may be a rest day. The new day has its
@@ -281,13 +299,8 @@ state)". It is inexact, and it is allowed in Doze. That is what the app uses
 
 Weighed and left:
 
-- **Exact alarms.** These need `SCHEDULE_EXACT_ALARM`. The permission is
-  user-granted ("Alarms & reminders"). It is
-  [denied by default](https://developer.android.com/about/versions/14/changes/schedule-exact-alarms)
-  to fresh installs from Android 14, and it is revocable. Or they need
-  `USE_EXACT_ALARM`, which is limited to alarm-clock and calendar apps. The
-  page asks for exact alarms "only if a user-facing function in your app
-  requires precisely-timed actions".
+- **`USE_EXACT_ALARM`.** Exact with no person's yes, but limited to
+  alarm-clock and calendar apps.
 - **`setWindow`.** Its window is at least 10 minutes from Android 12. It is
   not allowed in Doze, so in deep Doze it waits for a maintenance window,
   which can be hours away.
@@ -298,12 +311,13 @@ Weighed and left:
 **What an alarm loses, and how it comes back.** An alarm is an instant and
 dies with a reboot. An iOS calendar trigger is a wall time that the system
 keeps. So `ReminderRescheduleReceiver` rebuilds the window from the store on
-four broadcasts:
+five broadcasts:
 
 - `BOOT_COMPLETED`
 - `TIME_SET`
 - `TIMEZONE_CHANGED` (09:00 moves with the zone, as an iOS trigger does)
 - `MY_PACKAGE_REPLACED`
+- `SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED` (the window turns exact)
 
 The rebuild is idempotent: it removes every id and adds the window again.
 `RECEIVE_BOOT_COMPLETED` is a normal permission, granted at install.
@@ -331,7 +345,8 @@ Checked on the owner's Galaxy A16 (SM-A165F, Android 16) on 10.10.2026:
 So Settings shows a line under the reminder (owner decision, 10.10.2026):
 "So the reminder arrives on its own, without waiting for you to pick up the
 phone, let Dredfit run without battery restrictions." It promises the
-reminder without the screen, not the minute: the alarm stays inexact (above).
+reminder without the screen, not the minute: the minute is the exact
+alarm's (above).
 A row under it, "Open phone settings", leads to the place to
 change it. Both show only when all three hold (`reminders/BatteryHint.kt`):
 
@@ -438,9 +453,11 @@ workout in flight where it is.
 
 ### Play Console
 
-Nothing to declare for the reminder. It adds no exact-alarm permission. The
-only new permission, `RECEIVE_BOOT_COMPLETED`, is a normal one, and
-`POST_NOTIFICATIONS` was already declared for the ongoing notification.
+The reminder adds two permissions. `RECEIVE_BOOT_COMPLETED` is a normal
+one. `SCHEDULE_EXACT_ALARM` is special access the person grants; whether the
+Console asks for a declaration for it was not checked
+(`store/playstore/policy.md`). `POST_NOTIFICATIONS` was already declared for
+the ongoing notification.
 
 The battery hint adds nothing either: it reads the exemption and opens a
 settings page, and `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` is not declared.

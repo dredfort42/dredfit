@@ -35,8 +35,9 @@ app/src/
 │   │                workout/EnergyEstimate.kt
 │   │   reminders/   the training reminder: ReminderScheduler (iOS's 28-day
 │   │                window, plain Kotlin), NotificationScheduling (the seam)
-│   │                and SystemNotificationScheduler (inexact alarms allowed
-│   │                in Doze, the channel, the permission), ReminderSoundFile
+│   │                and SystemNotificationScheduler (alarms allowed in Doze,
+│   │                exact where ExactAlarm allows, the channel, the
+│   │                permission), ReminderSoundFile
 │   │                (the generated WAV, the channel ids), ReminderReceiver
 │   │                (posts; rebuilds on boot / clock / zone / update),
 │   │                BatteryHint (when Settings asks a Samsung for
