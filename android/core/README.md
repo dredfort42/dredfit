@@ -14,7 +14,7 @@ core/
     ├── main/kotlin/com/dredfit/core/
     │   Breaks.kt          the only file that sees a date
     │   Descent.kt, Dose.kt, Engine.kt, Feedback.kt, Handles.kt, Session.kt,
-    │   SubStep.kt, WarmupTechnique.kt, MigrationV2.kt
+    │   SubStep.kt, MigrationV2.kt
     │   EngineState.kt     decodeLenient, the sanitizer, and a serializer that
     │                      reads the iOS shape (unkeyed [Pattern: Int])
     │   Library.kt, LibraryLegs.kt, LibraryPull.kt, LibraryPush.kt

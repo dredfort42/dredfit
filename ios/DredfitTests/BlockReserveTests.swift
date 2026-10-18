@@ -4,11 +4,11 @@
 //  preference.
 //
 //  `warmupMin + cooldownMin` is the whole budget the engine sets aside for the
-//  two blocks. The worst pair leaves 80 s of it over (520 of 600), and every
+//  two blocks. The worst pair leaves 100 s of it over (500 of 600), and every
 //  second added to the transition costs twelve — six transitions per block —
-//  so past 14 s the reserve breaks, which is a change to the engine.
+//  so past 16 s the reserve breaks, which is a change to the engine.
 //
-//  SHORTENING it is the direction that does not break. The worst pair is 520 s
+//  SHORTENING it is the direction that does not break. The worst pair is 500 s
 //  against 600, so the reserve is not the smallest whole minute that fits —
 //  nine would hold it. The owner keeps ten rather than spend an engine change
 //  and a minute off every announced duration to reclaim slack nobody is short
@@ -23,11 +23,13 @@
 //  ever moves, this fails here instead of on somebody's stopwatch.
 //
 //  And it enumerates the axis the APP has: both composers take a `hiding:`
-//  set, and `Warmup.moves(sessionNumber:)` / `Cooldown.positions(performed:)`
-//  — the forms without it — are for the tests alone. A move set aside widens
-//  the rotation's window, and the widened window draws a fourth split move, so
-//  a reserve measured without the hiding axis is measured on compositions the
-//  app does not draw.
+//  set, and `Warmup.moves(sessionNumber:opening:)` /
+//  `Cooldown.positions(performed:)` — the forms without it — are for the tests
+//  alone. The standing warm-up costs the same whatever is set aside (every
+//  slot is a transition and thirty seconds), but that is exactly the kind of
+//  claim the sweep exists to keep true: under the floor pool a set-aside move
+//  widened the rotation onto a fourth switch pause, and only the hiding axis
+//  saw it.
 //
 //  The last section reads the same composition rule the other way: where a
 //  block that is RUNNING picks up when the athlete changes the composition
@@ -44,13 +46,21 @@ final class BlockReserveTests: XCTestCase {
 
     // MARK: - What one slot costs
 
-    /// One warm-up move: its transition plus the slot. A split move is two
-    /// halves with the switch pause between them, which is what
-    /// `slotSeconds` answers — asked of the production function rather than
-    /// restated here, for the reason GetReadyTests gives about its cool-down
-    /// twin: two spellings of one formula agree only until one is edited.
+    /// One warm-up move: every stage the block's own machine walks it through,
+    /// transition included. Walked rather than written as "transition plus
+    /// thirty", so a circle that got its switch pause back — one line in
+    /// `GuidedBlock.step` — costs four more seconds here and the reserve
+    /// asserts below go red, instead of staying green on a formula that no
+    /// longer describes the block. GetReadyTests keeps the hand-written
+    /// statement on purpose; two derivations that agree are the point.
     private func cost(_ move: WarmupMove) -> Int {
-        GetReady.stageSeconds(needsSetup: move.needsSetup) + Warmup.slotSeconds(of: move)
+        var step: (index: Int, stage: GuidedStage)? = (0, .getReady)
+        var seconds = 0
+        while let current = step {
+            seconds += GuidedBlock.warmup.stageSeconds(current.stage, of: move)
+            step = GuidedBlock.step(after: current, positions: [move])
+        }
+        return seconds
     }
 
     /// One cool-down position: its transition plus the hold. A per-side hold is
@@ -64,14 +74,26 @@ final class BlockReserveTests: XCTestCase {
 
     // MARK: - The pools, and what can be set aside
 
-    /// The nine ids of the warm-up pool, read off the compositions rather than
-    /// typed here: `Warmup.pool` is private, and a hand-written copy would stop
-    /// covering the pool the day a move is added to it.
+    /// One opening per distinct lead-in, and none. The composition reads the
+    /// opening only through `Warmup.leadIn(for:)`, so this is every opening
+    /// there is — derived from the mapping rather than typed, so a pattern
+    /// that gains a lead-in of its own joins the sweep by itself.
+    private var openings: [Pattern?] {
+        var seen: Set<String> = []
+        return [nil] + Pattern.allCases.filter { seen.insert(Warmup.leadIn(for: $0)).inserted }
+    }
+
+    /// The fourteen ids of the warm-up pool, read off the compositions rather
+    /// than typed here: `Warmup.pool` is private, and a hand-written copy would
+    /// stop covering the pool the day a move is added to it.
     private var warmupPoolIDs: [String] {
         var ids: [String] = []
-        for session in 1...Warmup.compositionCount {
-            for move in Warmup.moves(sessionNumber: session) where !ids.contains(move.id) {
-                ids.append(move.id)
+        for session in 1...Warmup.rotationPeriod {
+            for opening in openings {
+                for move in Warmup.moves(sessionNumber: session, opening: opening)
+                where !ids.contains(move.id) {
+                    ids.append(move.id)
+                }
             }
         }
         return ids
@@ -92,7 +114,7 @@ final class BlockReserveTests: XCTestCase {
     }
 
     /// Every set the athlete can actually put in `hiddenBlockMoveIDs`. The cap
-    /// is the app's, not a number chosen here — 130 subsets of nine.
+    /// is the app's, not a number chosen here — 470 subsets of fourteen.
     private func hiddenSets(of ids: [String]) -> [Set<String>] {
         (0...AppStore.maxHiddenBlockMoves).flatMap { subsets(of: ids, sized: $0) }
     }
@@ -111,24 +133,41 @@ final class BlockReserveTests: XCTestCase {
 
     // MARK: - The warm-up
 
-    private func warmupSec(session: Int, hiding hidden: Set<String>) -> Int {
-        Warmup.moves(sessionNumber: session, hiding: hidden).map(cost).reduce(0, +)
+    private func warmupSec(session: Int, opening: Pattern?, hiding hidden: Set<String>) -> Int {
+        Warmup.moves(sessionNumber: session, opening: opening, hiding: hidden)
+            .map(cost).reduce(0, +)
     }
 
-    /// The dearest warm-up a session can draw with `hidden` set aside. The block
-    /// composes six moves out of nine, so "what the warm-up costs" is a claim
-    /// about EVERY composition — and they do not all cost the same: four moves
-    /// of the pool have a halfway boundary, the rotation's window draws some of
-    /// them on top of the permanent arm circles, and each pays a switch pause.
+    /// The dearest warm-up a session can draw with `hidden` set aside: every
+    /// session of the rotation against every opening. "What the warm-up
+    /// costs" is a claim about EVERY composition, even now that each one is
+    /// six equal slots — that equality is what this keeps true.
     private func worstWarmupSec(hiding hidden: Set<String>) -> Int {
-        (1...Warmup.compositionCount).map { warmupSec(session: $0, hiding: hidden) }.max() ?? 0
+        (1...Warmup.rotationPeriod).flatMap { session in
+            openings.map { warmupSec(session: session, opening: $0, hiding: hidden) }
+        }.max() ?? 0
     }
 
-    /// …over every set the athlete can set aside: 130 subsets against six
-    /// sessions. Small, and it is the whole shipped space — this is the number
-    /// the reserve has to hold.
+    /// …over every set the athlete can set aside: the whole shipped space, and
+    /// the number the reserve has to hold.
     private func worstWarmupSec() -> Int {
         hiddenSets(of: warmupPoolIDs).map { worstWarmupSec(hiding: $0) }.max() ?? 0
+    }
+
+    /// Every composition the app can draw — each set the athlete can set
+    /// aside, against every session of the rotation and every opening — with
+    /// a name that says which, for the failure message.
+    private func forEveryComposition(_ check: (_ moves: [WarmupMove], _ hidden: Set<String>,
+                                               _ named: String) -> Void) {
+        for hidden in hiddenSets(of: warmupPoolIDs) {
+            for session in 1...Warmup.rotationPeriod {
+                for opening in openings {
+                    let moves = Warmup.moves(sessionNumber: session, opening: opening, hiding: hidden)
+                    check(moves, hidden, "session \(session), opening \(opening?.rawValue ?? "none"), "
+                          + "set aside \(hidden.sorted())")
+                }
+            }
+        }
     }
 
     // MARK: - The cool-down
@@ -203,7 +242,7 @@ final class BlockReserveTests: XCTestCase {
     func testTheReserveHoldsTheBlocksWithOneSpareMinuteAtMost() {
         let reserve = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
         let worst = worstWarmupSec() + worstCooldownSec()
-        XCTAssertEqual(worst, 520, "the worst pair the app can compose is 248 + 272")
+        XCTAssertEqual(worst, 500, "the worst pair the app can compose is 228 + 272")
         XCTAssertGreaterThanOrEqual(reserve - worst, 0,
                                     "the blocks overrun what the engine reserves")
         XCTAssertLessThan(reserve - worst, 120,
@@ -221,20 +260,16 @@ final class BlockReserveTests: XCTestCase {
     /// applied, so a promise checked without it is a promise checked on another
     /// block.
     func testTheWarmupOfferNeverPromisesLessThanTheBlockTakes() {
-        for hidden in hiddenSets(of: warmupPoolIDs) {
-            for session in 1...Warmup.compositionCount {
-                let moves = Warmup.moves(sessionNumber: session, hiding: hidden)
-                let announced = Warmup.introMinutes(moves)
-                let actual = moves.map(cost).reduce(0, +)
-                let named = "session \(session), set aside \(hidden.sorted())"
-                XCTAssertGreaterThanOrEqual(
-                    announced * 60, actual,
-                    "\(named): the offer promises \(announced) min "
-                    + "for a block that takes \(actual) s")
-                // And not absurdly more: rounding up one minute, never two.
-                XCTAssertLessThan(announced * 60, actual + 60,
-                                  "\(named): the offer overstates the block by a minute")
-            }
+        forEveryComposition { moves, _, named in
+            let announced = Warmup.introMinutes(moves)
+            let actual = moves.map(cost).reduce(0, +)
+            XCTAssertGreaterThanOrEqual(
+                announced * 60, actual,
+                "\(named): the offer promises \(announced) min "
+                + "for a block that takes \(actual) s")
+            // And not absurdly more: rounding up one minute, never two.
+            XCTAssertLessThan(announced * 60, actual + 60,
+                              "\(named): the offer overstates the block by a minute")
         }
     }
 
@@ -245,48 +280,23 @@ final class BlockReserveTests: XCTestCase {
     }
 
     func testEachBlockCostsWhatTheSpecSays() {
-        // EVERY composition, not just one, and written as arithmetic over the
-        // composition rather than as a table of six numbers, because a table
-        // says nothing about WHY they differ.
+        // EVERY composition, and written as arithmetic over the composition
+        // rather than as a literal total, because a total hides the transition
+        // length inside it, and changing the transition would break asserts
+        // that are only ever about the composition. The slot cost belongs to
+        // `GetReady`, and the test asks it.
         //
-        // DERIVED from the transition constants, not from the spec's totals
-        // restated: a total typed as a literal hides the transition length
-        // inside it, and changing the transition would break asserts that are
-        // only ever about the composition. The slot cost belongs to `GetReady`,
-        // and the test asks it.
-        for session in 1...Warmup.compositionCount {
-            let split = Warmup.moves(sessionNumber: session).filter(\.isSplit).count
-            XCTAssertEqual(warmupSec(session: session, hiding: []),
-                           slotsSec + GetReady.setupSupplementSec
-                               + split * Cooldown.sideSwitchPauseSec,
-                           "composition \(session) draws \(split) split moves")
-            XCTAssertGreaterThanOrEqual(split, 2,
-                                        "arm circles are permanent and cat-cow is not split, "
-                                        + "so every composition pays at least the circles")
+        // Six equal slots, whatever is set aside and whatever the session opens
+        // on: no move pays the trip to the floor, and no circle pays a pause.
+        forEveryComposition { moves, _, named in
+            XCTAssertEqual(moves.filter(\.needsSetup).count, 0,
+                           "\(named): a standing block pays no supplement")
+            XCTAssertEqual(moves.map(cost).reduce(0, +), slotsSec, named)
         }
-        // Once a move can be set aside the total splits in two: the six slots
-        // with their transitions, and the trip down to the floor only when the
-        // composition HAS a floor move — three of the nine are on the floor,
-        // and hiding all three is inside the cap.
-        for hidden in hiddenSets(of: warmupPoolIDs) {
-            for session in 1...Warmup.compositionCount {
-                let moves = Warmup.moves(sessionNumber: session, hiding: hidden)
-                let split = moves.filter(\.isSplit).count
-                let setup = moves.filter(\.needsSetup).count
-                let named = "session \(session), set aside \(hidden.sorted())"
-                XCTAssertEqual(setup, moves.contains(where: \.onFloor) ? 1 : 0,
-                               "\(named): only the FIRST floor move pays the supplement")
-                XCTAssertEqual(warmupSec(session: session, hiding: hidden),
-                               slotsSec + setup * GetReady.setupSupplementSec
-                                   + split * Cooldown.sideSwitchPauseSec,
-                               "\(named): \(split) split moves, \(setup) trip to the floor")
-            }
-        }
-        XCTAssertEqual(worstWarmupSec(hiding: []), 244,
-                       "with nothing set aside the dearest warm-up is 244 s")
-        XCTAssertEqual(worstWarmupSec(), 248,
-                       "the dearest warm-up the APP can compose is 248 s — a set-aside move "
-                       + "widens the rotation's window onto a fourth split move")
+        XCTAssertEqual(worstWarmupSec(hiding: []), 228,
+                       "with nothing set aside the warm-up is 228 s")
+        XCTAssertEqual(worstWarmupSec(), 228,
+                       "and with anything set aside, the same 228 s")
         XCTAssertEqual(worstCooldownSec(), 272, "the worst cool-down the app can compose is 272 s")
         // The dearest six of the pool is the BOUND the reserve is measured
         // against, and a real session reaches it exactly — which is what makes
@@ -298,46 +308,88 @@ final class BlockReserveTests: XCTestCase {
                                  + "is measured against")
     }
 
-    /// Four of the nine, and a composition with nothing set aside holds at most
-    /// three. Named by id: "how many split" is a fact about WHICH movements
-    /// they are.
-    func testTheSplitMovesAreTheFourThePoolNames() {
-        var seen: Set<String> = []
-        var worstInOneComposition = 0
-        for session in 1...Warmup.compositionCount {
-            let split = Warmup.moves(sessionNumber: session).filter(\.isSplit)
-            seen.formUnion(split.map(\.id))
-            worstInOneComposition = max(worstInOneComposition, split.count)
-        }
-        XCTAssertEqual(seen, ["single-leg-rdl", "bird-dog", "arm-circles", "hip-circles"])
-        XCTAssertEqual(worstInOneComposition, 3,
-                       "the permanent circles plus the window of three, and three pauses")
-        // A set-aside move widens that window, and a widened window draws all
-        // FOUR. This is where the dearest warm-up the app can compose comes
-        // from, and it is the whole reason the reserve is measured on the
-        // hiding axis.
-        let widest = hiddenSets(of: warmupPoolIDs).flatMap { hidden in
-            (1...Warmup.compositionCount).map {
-                Warmup.moves(sessionNumber: $0, hiding: hidden).filter(\.isSplit).count
+    /// The period the sweeps walk, pinned: a loop bound nothing pins is a loop
+    /// that can quietly stop covering the compositions it claims to — any
+    /// value of four or more kept every other assertion here green. Twenty is
+    /// the least common multiple of the groups (1, 2, 5 and 4), and the
+    /// rotation really does come round after it, for every opening.
+    func testTheRotationComesRoundAfterTwentySessions() {
+        XCTAssertEqual(Warmup.rotationPeriod, 20)
+        for session in 1...Warmup.rotationPeriod {
+            for opening in openings {
+                XCTAssertEqual(
+                    Warmup.moves(sessionNumber: session, opening: opening).map(\.id),
+                    Warmup.moves(sessionNumber: session + Warmup.rotationPeriod,
+                                 opening: opening).map(\.id),
+                    "session \(session), opening \(opening?.rawValue ?? "none")")
             }
-        }.max()
-        XCTAssertEqual(widest, 4, "with a move set aside a composition draws every split move")
+        }
+        let distinct = Set((1...Warmup.rotationPeriod).map {
+            Warmup.moves(sessionNumber: $0, opening: nil).map(\.id)
+        })
+        XCTAssertEqual(distinct.count, Warmup.rotationPeriod,
+                       "no shorter period: every session of the twenty composes its own block")
     }
 
-    /// Nine in the pool, six on screen, and every rotating move gets its turn
-    /// — a movement that never appears is a movement that is not in the app.
+    /// Fourteen in the pool, six on screen, and every move gets its turn — a
+    /// movement that never appears is a movement that is not in the app. The
+    /// two lead-in-only moves appear only through the opening that calls for
+    /// them, which is why the sweep walks the openings too.
     func testEveryMoveInThePoolIsReachable() {
         var seen: Set<String> = []
-        for session in 1...Warmup.compositionCount {
-            let moves = Warmup.moves(sessionNumber: session)
-            XCTAssertEqual(moves.count, Warmup.moveCount, "session \(session)")
-            XCTAssertEqual(Set(moves.map(\.id)).count, moves.count,
-                           "session \(session): no move twice")
-            seen.formUnion(moves.map(\.id))
+        for session in 1...Warmup.rotationPeriod {
+            for opening in openings {
+                let moves = Warmup.moves(sessionNumber: session, opening: opening)
+                XCTAssertEqual(moves.count, Warmup.moveCount, "session \(session)")
+                XCTAssertEqual(Set(moves.map(\.id)).count, moves.count,
+                               "session \(session): no move twice")
+                seen.formUnion(moves.map(\.id))
+            }
         }
-        XCTAssertEqual(seen.count, 9, "all nine moves of the pool are reachable")
-        XCTAssertTrue(seen.isSuperset(of: ["y-t-w", "bird-dog", "single-leg-rdl"]),
-                      "the three movements the ladders leave to the warm-up are in the block")
+        XCTAssertEqual(seen.count, 14, "all fourteen moves of the pool are reachable")
+    }
+
+    /// The block's one specific part: the last move prepares the first
+    /// exercise. Every pattern lands on a move of the pool, the four that open
+    /// a session today on the move their own work calls for, and a lead-in set
+    /// aside gives its slot back to the rotation rather than shortening the
+    /// block.
+    func testTheLastMoveLeadsIntoTheFirstExercise() {
+        let pool = Set(warmupPoolIDs)
+        for pattern in Pattern.allCases {
+            XCTAssertTrue(pool.contains(Warmup.leadIn(for: pattern)), "\(pattern): no such move")
+            for session in 1...Warmup.rotationPeriod {
+                XCTAssertEqual(Warmup.moves(sessionNumber: session, opening: pattern).last?.id,
+                               Warmup.leadIn(for: pattern), "session \(session), \(pattern)")
+            }
+        }
+        XCTAssertEqual(Warmup.leadIn(for: .squat), "half-squats")
+        XCTAssertEqual(Warmup.leadIn(for: .hinge), "hip-hinges")
+        XCTAssertEqual(Warmup.leadIn(for: .pushH), "arm-swings")
+        XCTAssertEqual(Warmup.leadIn(for: .pull), "reach-and-pull")
+        let without = Warmup.moves(sessionNumber: 1, opening: .squat, hiding: ["half-squats"])
+        XCTAssertEqual(without.count, Warmup.moveCount)
+        XCTAssertFalse(without.map(\.id).contains("half-squats"))
+    }
+
+    /// The reason the slots draw from GROUPS: every composition raises the
+    /// pulse, moves the shoulders and moves the trunk, unless the athlete has
+    /// set aside every move a group has. A single window over one list kept
+    /// that only while the list's order was intact, and a set-aside move broke
+    /// the order.
+    func testEveryGroupIsDrawnUnlessAllOfItIsSetAside() {
+        let groups: [(name: String, ids: Set<String>)] = [
+            ("raise", ["marching", "side-steps", "heels-to-glutes"]),
+            ("upper", ["arm-circles", "arm-swings", "reach-and-pull", "wrist-circles",
+                       "overhead-reaches"]),
+            ("trunk", ["torso-rotations", "side-bends", "hip-circles", "standing-cat-cow"]),
+        ]
+        forEveryComposition { moves, hidden, named in
+            let ids = Set(moves.map(\.id))
+            for group in groups where !group.ids.isSubset(of: hidden) {
+                XCTAssertFalse(ids.isDisjoint(with: group.ids), "\(named): no \(group.name) move")
+            }
+        }
     }
 
     /// Six on screen whatever is set aside — the `Warmup.honoured` guarantee.
@@ -345,25 +397,24 @@ final class BlockReserveTests: XCTestCase {
     /// block of none indexes out of bounds on its first screen, which is why
     /// this is asserted rather than left to the composer's arithmetic.
     func testTheWarmupIsSixMovesWhateverIsSetAside() {
-        let pool = warmupPoolIDs
-        for hidden in hiddenSets(of: pool) {
-            for session in 1...Warmup.compositionCount {
-                let moves = Warmup.moves(sessionNumber: session, hiding: hidden)
-                let named = "session \(session), set aside \(hidden.sorted())"
-                XCTAssertEqual(moves.count, Warmup.moveCount, named)
-                XCTAssertEqual(Set(moves.map(\.id)).count, moves.count, "\(named): no move twice")
-                XCTAssertTrue(moves.allSatisfy { !hidden.contains($0.id) },
-                              "\(named): a set-aside move came back")
-            }
+        forEveryComposition { moves, hidden, named in
+            XCTAssertEqual(moves.count, Warmup.moveCount, named)
+            XCTAssertEqual(Set(moves.map(\.id)).count, moves.count, "\(named): no move twice")
+            XCTAssertTrue(moves.allSatisfy { !hidden.contains($0.id) },
+                          "\(named): a set-aside move came back")
         }
         // More than the block can afford: a state file from another build, an
         // imported backup or a future cap. `honoured` is where that is survived,
         // so it is asserted and not assumed — and what it must never do is
         // shorten the block.
-        for session in 1...Warmup.compositionCount {
-            XCTAssertEqual(Warmup.moves(sessionNumber: session, hiding: Set(pool)).count,
-                           Warmup.moveCount,
-                           "session \(session) with the whole pool set aside")
+        let pool = Set(warmupPoolIDs)
+        for session in 1...Warmup.rotationPeriod {
+            for opening in openings {
+                XCTAssertEqual(Warmup.moves(sessionNumber: session, opening: opening,
+                                            hiding: pool).count,
+                               Warmup.moveCount,
+                               "session \(session) with the whole pool set aside")
+            }
         }
     }
 
@@ -400,25 +451,27 @@ final class BlockReserveTests: XCTestCase {
     // back, and `WorkoutSession.rebaseLanding` is the rule both blocks use.
     // The two scenarios below are the ones a clamp of the ordinal gets wrong.
 
-    /// Session 4 runs [marching, arm circles, single-leg RDL, cat-cow, bird dog,
-    /// Y-T-W]. Setting bird dog aside on slot 5 does not delete a slot: the
-    /// rotation re-derives, torso rotations arrives at slot 3 and cat-cow slides
-    /// to 5. Clamping the ordinal would therefore close the sheet onto a
-    /// transition for cat-cow — a move finished a minute earlier — and torso
-    /// rotations, which nobody had seen, would never run.
+    /// Session 4, opening on a squat, runs [marching, heels to glutes, wrist
+    /// circles, overhead reaches, standing cat-cow, half squats]. Setting
+    /// overhead reaches aside on slot 3 does not delete a slot: the shoulders'
+    /// rotation passes its turn on to arm circles, which the pool lists FIRST,
+    /// so arm circles arrive at slot 2 and wrist circles slide to 3. Clamping
+    /// the ordinal would therefore close the sheet onto a transition for wrist
+    /// circles — a move finished a minute earlier.
     func testHidingTheMoveOnScreenNeverReopensOneAlreadyDone() throws {
-        let before = Warmup.moves(sessionNumber: 4).map(\.id)
-        XCTAssertEqual(before, ["marching", "arm-circles", "single-leg-rdl",
-                                "cat-cow", "bird-dog", "y-t-w"],
+        let before = Warmup.moves(sessionNumber: 4, opening: .squat).map(\.id)
+        XCTAssertEqual(before, ["marching", "heels-to-glutes", "wrist-circles",
+                                "overhead-reaches", "standing-cat-cow", "half-squats"],
                        "the composition this was measured on")
-        let after = Warmup.moves(sessionNumber: 4, hiding: ["bird-dog"]).map(\.id)
-        // The passed set is the prefix of the list that WAS running: slots 0…3,
-        // the athlete standing on slot 4.
-        let passed = Set(before.prefix(4))
-        XCTAssertTrue(passed.contains(after[4]),
+        let after = Warmup.moves(sessionNumber: 4, opening: .squat,
+                                 hiding: ["overhead-reaches"]).map(\.id)
+        // The passed set is the prefix of the list that WAS running: slots 0…2,
+        // the athlete standing on slot 3.
+        let passed = Set(before.prefix(3))
+        XCTAssertTrue(passed.contains(after[3]),
                       "the ordinal the clamp kept names a move already done")
         let landing = try XCTUnwrap(WorkoutSession.rebaseLanding(in: after, after: passed))
-        XCTAssertEqual(after[landing], "y-t-w")
+        XCTAssertEqual(after[landing], "standing-cat-cow")
         XCTAssertFalse(passed.contains(after[landing]), "the block reopened a finished move")
     }
 
@@ -478,10 +531,11 @@ final class BlockReserveTests: XCTestCase {
     /// moves.
     func testTheSideSwitchPauseIsOnTrialAtFour() {
         XCTAssertEqual(Cooldown.sideSwitchPauseSec, 4)
-        // And the warm-up reads that same constant rather than owning a second
-        // one: it is the same gesture in both blocks, and two
-        // constants for it would part company the first time either moved.
-        XCTAssertEqual(Warmup.switchPauseSeconds, Cooldown.sideSwitchPauseSec)
+        // The warm-up owns no pause of its own: its circles reverse on the
+        // move, and a second constant for a gesture it does not make would
+        // only wait for someone to wire it back in.
+        XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.switchPause, of: Warmup.moves(
+            sessionNumber: 1, opening: .squat)[0]), Cooldown.sideSwitchPauseSec)
         XCTAssertEqual(Warmup.halfSeconds, Warmup.moveSeconds / 2)
         XCTAssertEqual(Warmup.halfSeconds, Cooldown.sideSeconds,
                        "both blocks split a 30 s slot the same way")

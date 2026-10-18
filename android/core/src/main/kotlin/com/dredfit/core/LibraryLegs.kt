@@ -6,8 +6,7 @@ package com.dredfit.core
 //  the ladders themselves are one table each.
 //
 //  The single-leg Romanian deadlift is not on the hinge ladder: it is about
-//  balance, not dose, and would be a gap in the ladder. Its technique lives
-//  in `WarmupTechnique`.
+//  balance, not dose, and would be a gap in the ladder.
 //
 
 // A technique line is ONE literal, because the literal IS the catalog key:

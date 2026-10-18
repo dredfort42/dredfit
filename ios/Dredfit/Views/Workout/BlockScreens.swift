@@ -224,10 +224,10 @@ extension GuidedBlock {
 /// here, so a new stage is a compile error here rather than a screen that
 /// quietly says nothing.
 ///
-/// The words come from what is switched, and only the words do: sides and
-/// directions run the same 15 + 4 + 15. Telling someone to switch SIDES on a
-/// circle they are about to reverse would mislead as surely as saying
-/// nothing at the switch.
+/// The words come from what is switched: sides run 15 + 4 + 15 and show the
+/// switch through the pause, directions run 15 + 15 and go straight to the
+/// second half's line. Telling someone to switch SIDES on a circle they are
+/// about to reverse would mislead as surely as saying nothing at the switch.
 private struct SplitStageLine: View {
     private enum Phase { case beforeTheSwitch, switching, secondHalf }
     private let phase: Phase
@@ -303,10 +303,10 @@ struct SplitStageWords {
 
     var everyHalf: String {
         switch halves {
-        // A `cooldown.` key read by the warm-up too: the key is older than the
-        // warm-up's switch, the STRING is the same 15 s per side in both
-        // blocks, and renaming it would cost six translations and the whole
-        // screenshot set to say exactly what it says now.
+        // A `cooldown.` key, named for the block that owns every per-side
+        // position since the warm-up stood up: renaming it would cost six
+        // translations and the whole screenshot set to say exactly what it
+        // says now.
         case .sides:      return String(localized: "cooldown.perSide",
                                         defaultValue: "15 s per side")
         case .directions: return String(localized: "warmup.perDirection",

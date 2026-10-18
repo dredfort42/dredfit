@@ -254,8 +254,8 @@ enum Cooldown {
     /// The block's own rule with nothing set aside. The app never calls it, and
     /// the reserve gate calls it only where the claim IS about the block before
     /// anything was set aside; the shipped rule is the `hiding:` one (see
-    /// `Warmup.moves(sessionNumber:)` for what a gate walking the convenience
-    /// overload stops seeing).
+    /// `Warmup.moves(sessionNumber:opening:)` for what a gate walking the
+    /// convenience overload stops seeing).
     static func positions(performed: [Pattern]) -> [CooldownPosition] {
         positions(performed: performed, hiding: [])
     }

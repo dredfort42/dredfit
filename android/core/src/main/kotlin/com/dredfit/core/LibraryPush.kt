@@ -4,7 +4,7 @@ package com.dredfit.core
 //  The two push ladders and the two core ladders.
 //
 //  Bird-dog is not on the rotation ladder: a hold there is about
-//  coordination, not volume. Its technique lives in `WarmupTechnique`.
+//  coordination, not volume.
 //
 
 // A technique line is ONE literal, because the literal IS the catalog key:

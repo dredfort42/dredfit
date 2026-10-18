@@ -15,7 +15,6 @@
     <string name="core_bend_the_elbows_lowering_the_top_of_the__c414a30c">Dobla los codos bajando la coronilla hacia el suelo, entre las manos.</string>
     <string name="core_bend_the_elbows_slowly_lowering_the_top__7baea5ef">Dobla los codos despacio, bajando la coronilla hacia el suelo.</string>
     <string name="core_bending_the_elbows_that_is_a_pull_up_not_ec447ebc">Doblar los codos: eso ya es una dominada, no trabajo escapular.</string>
-    <string name="core_bird_dog_hold_f4fa71d8">Bird dog (isometría)</string>
     <string name="core_body_folding_forward_shoulders_hips_and__667d5d29">El cuerpo se pliega hacia adelante: hombros, cadera y piernas en un mismo plano.</string>
     <string name="core_body_in_one_line_from_head_to_heels_elbo_92b8844f">El cuerpo en una línea de la cabeza a los talones, los codos a unos 45° del torso.</string>
     <string name="core_body_straight_from_shoulders_to_heels_pu_78fd2009">Cuerpo recto de los hombros a los talones; lleva el pecho al borde juntando las escápulas.</string>
@@ -46,7 +45,6 @@
     <string name="core_elbows_flared_out_to_90_this_overloads_t_122cf2fd">Codos abiertos a 90°: eso sobrecarga los hombros.</string>
     <string name="core_elbows_flared_to_90_keep_them_closer_to__4946863a">Codos abiertos a 90°: mantenlos más cerca del torso.</string>
     <string name="core_elbows_too_far_too_soon_increase_the_lev_f988c767">Codos demasiado lejos demasiado pronto: alarga la palanca poco a poco.</string>
-    <string name="core_extend_the_opposite_arm_and_leg_into_one_55e31dc4">Extiende el brazo y la pierna contrarios hasta alinearlos con el torso.</string>
     <string name="core_extend_the_top_leg_forward_and_put_that__1087a36b">Estira la pierna de arriba hacia adelante y apoya ese pie en el suelo: la base es más estrecha y el torso trabaja más.</string>
     <string name="core_fast_bouncing_move_slowly_with_a_pause_a_4a11fcad">Rebotes rápidos: muévete despacio y con pausa arriba.</string>
     <string name="core_feet_elevated_inverted_row_8ddc4441">Remo invertido con pies elevados</string>
@@ -110,14 +108,12 @@
     <string name="core_hold_the_torso_like_a_plank_and_pull_the_9204be32">Mantén el torso como en una plancha y lleva el pecho al borde juntando las escápulas.</string>
     <string name="core_hold_without_letting_the_hips_drop_free__157808b6">Aguanta sin dejar caer la cadera; la mano libre en la cintura o hacia arriba.</string>
     <string name="core_hold_without_letting_the_hips_drop_free__3d97cdba">Aguanta sin dejar caer la cadera; la mano libre en la cintura.</string>
-    <string name="core_hold_without_wobbling_pelvis_and_shoulde_b8b96ad5">Aguanta sin balancearte; pelvis y hombros se mantienen nivelados.</string>
     <string name="core_holding_your_breath_keep_breathing_shall_9555c401">Aguantar la respiración: respira suave y de forma regular.</string>
     <string name="core_hollow_hold_73454408">Hollow hold</string>
     <string name="core_horizontal_push_3bba3827">Empuje horizontal</string>
     <string name="core_incline_push_up_323815d4">Flexión inclinada</string>
     <string name="core_inverted_row_table_5e9c2f8d">Remo invertido (mesa)</string>
     <string name="core_jerking_and_kicking_with_the_legs_only_t_0bd40cd2">Tirones y patadas con las piernas: solo trabajan la espalda y los brazos.</string>
-    <string name="core_jerking_the_torso_up_only_the_arms_and_s_ee5e19f2">Subir el torso de un tirón: solo se levantan los brazos y las escápulas.</string>
     <string name="core_jerky_pulls_slide_out_and_back_slowly_wi_eb7b5c91">Tirones bruscos: desliza hacia fuera y hacia dentro despacio, con control.</string>
     <string name="core_jump_lunge_91ab2bf9">Zancada con salto</string>
     <string name="core_keep_a_steady_rhythm_use_the_arms_for_ba_d05881b5">Mantén un ritmo constante; ayúdate con los brazos para equilibrarte.</string>
@@ -140,7 +136,6 @@
     <string name="core_lean_back_on_straight_arms_the_body_abou_8755cbf1">Inclínate atrás con los brazos estirados; el cuerpo a unos 80° respecto al suelo.</string>
     <string name="core_leaning_far_forward_keep_the_chest_up_an_58812527">Inclinarte demasiado al frente: pecho arriba y abdomen firme.</string>
     <string name="core_leg_drifting_forward_keep_it_in_line_wit_82ca3259">La pierna se va hacia adelante: mantenla alineada con el torso.</string>
-    <string name="core_lie_face_down_forehead_near_the_floor_ar_9596f0a5">Acuéstate boca abajo, con la frente cerca del suelo y los brazos extendidos formando una Y.</string>
     <string name="core_lie_on_your_back_feet_close_to_the_glute_96188dbb">Acuéstate boca arriba, con los pies cerca de los glúteos al ancho de las caderas y los brazos a los lados.</string>
     <string name="core_lie_on_your_back_heels_on_a_towel_on_a_s_d33145cb">Acuéstate boca arriba, con los talones sobre una toalla en suelo liso y la cadera elevada.</string>
     <string name="core_lie_on_your_back_one_foot_near_the_glute_5e2a6180">Acuéstate boca arriba, con un pie cerca de los glúteos y la otra pierna extendida.</string>
@@ -156,11 +151,9 @@
     <string name="core_lift_the_hips_with_one_leg_to_a_straight_bb6aa1e3">Sube la cadera con una sola pierna hasta formar una línea recta, manteniendo la pelvis nivelada.</string>
     <string name="core_lift_the_hips_with_the_working_leg_pushi_d67976dc">Sube la cadera con la pierna que trabaja, empujando suave con el talón de la otra: cuanto más fácil sea, menos empujas.</string>
     <string name="core_lift_the_shoulder_blades_and_straight_le_35a6ea92">Despega del suelo las escápulas y las piernas estiradas 15–20 cm.</string>
-    <string name="core_lift_the_straight_arms_hold_for_2_second_0214d49b">Sube los brazos estirados, mantenlos 2 segundos juntando las escápulas y baja.</string>
     <string name="core_loading_the_rear_leg_it_is_only_there_fo_a95adc2c">Cargar la pierna de atrás: solo está ahí para el equilibrio.</string>
     <string name="core_long_lever_plank_a10ec9e5">Plancha con palanca larga</string>
     <string name="core_losing_balance_fix_your_eyes_on_a_point__5f5a0f7a">Pérdida de equilibrio: fija la mirada en un punto al frente.</string>
-    <string name="core_lower_back_arching_as_the_leg_lifts_the__4882102b">Arqueo lumbar al subir la pierna: la pierna no pasa la línea del torso.</string>
     <string name="core_lower_back_arching_don_t_let_the_hips_sa_f8f487a9">Arqueo en la zona lumbar: no dejes que la cadera se hunda.</string>
     <string name="core_lower_back_lifting_off_the_floor_raise_t_fbc8a3da">La zona lumbar se despega del suelo: sube más las piernas o dobla las rodillas.</string>
     <string name="core_lower_back_sagging_that_strains_the_spin_76463ec6">La zona lumbar se hunde: eso sobrecarga la columna; mejor parar antes.</string>
@@ -191,13 +184,11 @@
     <string name="core_negative_pull_up_both_feet_assisting_5bc1e4a3">Dominada negativa con ambos pies apoyados</string>
     <string name="core_negative_pull_up_one_foot_assisting_7bd4d2a8">Dominada negativa con un pie apoyado</string>
     <string name="core_negative_single_leg_sliding_curl_65c32cf2">Curl femoral deslizante negativo a una pierna</string>
-    <string name="core_on_all_fours_hands_under_the_shoulders_k_4ea178b9">A cuatro patas: manos bajo los hombros, rodillas bajo la cadera.</string>
     <string name="core_one_straight_line_from_head_to_heels_glu_b74b24b5">Una línea recta de la cabeza a los talones; glúteos y abdomen firmes.</string>
     <string name="core_partial_pull_up_ca407c88">Dominada parcial</string>
     <string name="core_pause_a_second_at_the_top_lower_slowly_330442fb">Un segundo de pausa arriba y baja despacio.</string>
     <string name="core_pause_a_second_at_the_top_lower_under_co_fb2a5f55">Un segundo de pausa arriba; baja con control.</string>
     <string name="core_paused_lunge_05abecd8">Zancada con pausa</string>
-    <string name="core_pelvis_rotating_open_keep_the_hips_squar_2ab8ce24">La pelvis se abre: mantén las caderas paralelas al suelo.</string>
     <string name="core_pelvis_tilting_sideways_keep_both_hip_bo_8660e68d">La pelvis se inclina hacia un lado: los dos huesos de la cadera miran al techo.</string>
     <string name="core_per_side_1d272205">por lado</string>
     <string name="core_pike_push_up_3a091b65">Flexión pike</string>
@@ -234,12 +225,10 @@
     <string name="core_reaching_with_the_chin_instead_of_the_ch_dc2f1ece">Llegar con la barbilla en lugar del pecho: guía el movimiento con el pecho.</string>
     <string name="core_rear_foot_on_a_chair_or_couch_behind_you_43a7376a">El pie de atrás sobre una silla o un sofá; el de adelante, un paso al frente.</string>
     <string name="core_relaxed_shoulders_at_the_bottom_keep_the_61fc3ddd">Hombros relajados abajo: mantén las escápulas activas hasta el final.</string>
-    <string name="core_repeat_in_a_t_position_and_a_w_position__08379b0d">Repite en posición de T y de W: las tres juntas son una repetición.</string>
     <string name="core_reverse_lunge_dfce7918">Zancada inversa</string>
     <string name="core_rise_as_high_as_possible_pause_a_second__8bf8594a">Sube todo lo que puedas, pausa de un segundo y baja en 3 segundos.</string>
     <string name="core_rise_as_high_as_you_can_onto_the_balls_o_7f9ea97e">Sube todo lo que puedas sobre las puntas de los pies y haz una pausa de un segundo arriba.</string>
     <string name="core_rise_onto_the_ball_of_the_foot_as_high_a_1435f832">Sube sobre la punta del pie todo lo que puedas y haz una pausa de un segundo.</string>
-    <string name="core_rounding_the_back_keep_the_shoulder_blad_13adaad0">Espalda redondeada: mantén las escápulas firmes e inclínate desde la cadera.</string>
     <string name="core_rushing_the_reps_control_both_directions_b43afa87">Ir demasiado rápido: controla el movimiento en los dos sentidos.</string>
     <string name="core_sagging_hips_hold_the_body_like_a_plank_6b04bd71">La cadera se hunde: sostén el cuerpo como en una plancha.</string>
     <string name="core_sagging_hips_or_a_raised_butt_the_core_s_5b8a98cc">Cadera hundida o glúteos elevados: el abdomen deja de trabajar.</string>
@@ -253,7 +242,6 @@
     <string name="core_shoulders_at_the_ears_pull_the_shoulder__72228fdb">Hombros pegados a las orejas: lleva las escápulas hacia abajo; la suspensión tiene que ser activa.</string>
     <string name="core_shoulders_at_the_ears_push_the_floor_awa_0fbcfb4c">Hombros pegados a las orejas: empuja el suelo y alarga el cuello.</string>
     <string name="core_shoulders_creeping_back_to_the_ears_keep_2aba2392">Los hombros vuelven a las orejas: mantenlos bajos toda la isometría.</string>
-    <string name="core_shoulders_creeping_toward_the_ears_pull__bb37731b">Los hombros se van hacia las orejas: lleva las escápulas abajo y atrás.</string>
     <string name="core_shoulders_drifting_past_the_hands_keep_t_4db53eae">Los hombros se van por delante de las manos: mantenlos justo sobre las muñecas.</string>
     <string name="core_shrimp_squat_8ba0e895">Sentadilla shrimp</string>
     <string name="core_side_plank_d2c22f20">Plancha lateral</string>
@@ -264,7 +252,6 @@
     <string name="core_single_leg_calf_raise_on_a_step_aa94d6f1">Elevación de talón a una pierna en un escalón</string>
     <string name="core_single_leg_calf_raise_with_pause_1308a1da">Elevación de talón a una pierna con pausa</string>
     <string name="core_single_leg_glute_bridge_2d090c15">Puente de glúteos a una pierna</string>
-    <string name="core_single_leg_romanian_deadlift_09198452">Peso muerto rumano a una pierna</string>
     <string name="core_single_leg_sliding_leg_curl_f582e987">Curl femoral deslizante a una pierna</string>
     <string name="core_single_leg_squat_to_a_chair_df605898">Sentadilla a una pierna hasta la silla</string>
     <string name="core_sit_back_and_down_for_2_seconds_knees_tr_a101ff79">Baja llevando la cadera atrás durante ~2 segundos; las rodillas siguen la línea de los pies, la espalda recta.</string>
@@ -280,12 +267,10 @@
     <string name="core_squeeze_the_glutes_for_a_second_at_the_t_81dca493">Aprieta los glúteos un segundo arriba y baja despacio sin tocar el suelo.</string>
     <string name="core_stance_too_short_the_front_knee_travels__aceba6d7">Paso demasiado corto: la rodilla de delante se va muy por delante de la punta del pie.</string>
     <string name="core_stand_a_step_away_from_a_wall_palms_on_i_1211d02a">Ponte a un paso de la pared, con las palmas en ella algo más abiertas que los hombros, a la altura del pecho.</string>
-    <string name="core_stand_back_up_by_squeezing_the_glute_of__5c2a620b">Vuelve a subir apretando el glúteo de la pierna de apoyo.</string>
     <string name="core_stand_on_one_leg_and_lean_on_a_wall_or_a_2d5d50f2">De pie sobre una pierna, apóyate con una mano en la pared o la mesa para que te quite parte del peso.</string>
     <string name="core_stand_on_one_leg_bend_the_other_back_and_252b1a01">De pie sobre una pierna, dobla la otra hacia atrás y sujétate el pie con una mano.</string>
     <string name="core_stand_on_one_leg_hand_on_a_wall_for_bala_a32cb2cc">De pie sobre una pierna, con una mano en la pared para equilibrarte.</string>
     <string name="core_stand_on_one_leg_the_other_extended_forw_84e595df">De pie sobre una pierna, la otra extendida al frente y los brazos delante para equilibrarte.</string>
-    <string name="core_stand_on_one_leg_with_a_soft_knee_hinge__ab095e0f">De pie sobre una pierna con la rodilla algo flexionada, inclínate al frente desde la cadera con la espalda recta.</string>
     <string name="core_stand_on_one_leg_with_the_ball_of_the_fo_c8deff24">De pie sobre una pierna, con la punta del pie en el borde de un escalón.</string>
     <string name="core_stand_on_one_leg_with_your_back_to_a_cha_7f85a36e">De pie sobre una pierna de espaldas a una silla, la otra pierna estirada al frente y los brazos delante.</string>
     <string name="core_stand_up_through_the_front_heel_and_repe_47507bfd">Levántate empujando con el talón delantero y repite: la pausa va en cada repetición.</string>
@@ -308,14 +293,12 @@
     <string name="core_take_a_wide_hand_position_the_body_stays_c840aab9">Coloca las manos bien separadas; el cuerpo sigue siendo una línea recta.</string>
     <string name="core_the_body_forms_a_star_straight_line_plus_d17224ae">El cuerpo forma una estrella: la línea recta más las extremidades levantadas.</string>
     <string name="core_the_farther_the_elbows_the_harder_breath_cb54f431">Cuanto más lejos los codos, más difícil: respira de forma regular y aguanta.</string>
-    <string name="core_the_free_leg_extends_back_torso_and_leg__e0031aed">La pierna libre se va hacia atrás; torso y pierna forman una línea, las manos bajan hacia el suelo.</string>
     <string name="core_the_front_shin_stays_near_vertical_weigh_e10da688">La espinilla de delante se mantiene casi vertical; el peso, en el talón de delante.</string>
     <string name="core_the_higher_the_support_the_harder_it_get_5d860761">Cuanto más alto el apoyo, más difícil: empieza con poca altura.</string>
     <string name="core_the_support_is_not_solid_check_the_frame_d618b85d">El apoyo no es firme: comprueba el marco y el agarre antes de la primera repetición.</string>
     <string name="core_the_support_wobbles_or_slides_check_it_b_9064176c">El apoyo baila o resbala: compruébalo antes de la primera repetición.</string>
     <string name="core_thighs_parallel_to_the_floor_at_the_bott_002374ae">Abajo, los muslos quedan paralelos al suelo; sube soltando el aire.</string>
     <string name="core_too_short_a_step_back_the_front_knee_get_c123b0fc">Paso atrás demasiado corto: se sobrecarga la rodilla de delante.</string>
-    <string name="core_torso_rotating_imagine_a_glass_of_water__bca859f3">El torso rota: imagina un vaso de agua apoyado en tu zona lumbar.</string>
     <string name="core_torso_tipping_forward_keep_the_chest_up_16441c48">El torso se va hacia adelante: mantén el pecho arriba.</string>
     <string name="core_torso_tipping_forward_shoulders_and_hips_0f221401">El torso se va hacia adelante: hombros y cadera en un mismo plano.</string>
     <string name="core_torso_turning_keep_the_hips_and_shoulder_7146ca56">El torso gira: la cadera y los hombros miran al suelo.</string>
@@ -329,5 +312,4 @@
     <string name="core_weight_shifting_to_the_rear_leg_it_only__91fdf590">El peso se pasa a la pierna trasera: solo sirve para el equilibrio.</string>
     <string name="core_weight_split_evenly_then_it_is_just_a_pu_20495cd4">El peso repartido por igual: entonces es una flexión normal.</string>
     <string name="core_without_bending_the_elbows_pull_the_shou_df541bfc">Sin doblar los codos, lleva las escápulas abajo y atrás: el cuerpo sube un par de centímetros.</string>
-    <string name="core_y_t_w_raises_5bd629ab">Elevaciones Y-T-W</string>
 </resources>

@@ -23,6 +23,7 @@ import com.dredfit.workout.WarmupHalves
 import com.dredfit.workout.WarmupMove
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -30,33 +31,25 @@ import kotlin.test.assertTrue
 
 class GetReadyTest {
 
-    /** The block composes six moves out of nine, so a stage machine cannot be
-     *  asked about "the moves" — it has to be asked about a COMPOSITION.
-     *  Session one's, throughout; the reserve tests in BlockReserveTest walk
-     *  all of them. */
-    private val warmupMoves: List<WarmupMove> = Warmup.moves(sessionNumber = 1)
+    /** The block composes six moves out of fourteen, so a stage machine cannot
+     *  be asked about "the moves" — it has to be asked about a COMPOSITION.
+     *  Session one's, which opens on a squat, throughout; the reserve tests in
+     *  BlockReserveTest walk all of them. */
+    private val warmupMoves: List<WarmupMove> = Warmup.moves(sessionNumber = 1, opening = Pattern.squat)
 
-    /** The index of the one move that pays the transition supplement — the
-     *  trip down to the floor. */
-    private val floorIndex: Int get() = warmupMoves.indexOfFirst { it.needsSetup }.takeIf { it >= 0 } ?: 0
-
-    /** The dearest composition: the one the rotation fills with the most split
-     *  moves — three of the four the pool has. Found, not named by session
-     *  number: the rotation decides who appears, and a hard-coded 2 goes stale
-     *  the first time the pool changes. */
-    private val dearestComposition: List<WarmupMove>
-        get() = (1..Warmup.compositionCount)
-            .map { Warmup.moves(sessionNumber = it) }
-            .maxByOrNull { moves -> moves.count { it.isSplit } } ?: emptyList()
+    /** Every composition with nothing set aside: each session of the rotation
+     *  against every opening the lead-in reads, and none. */
+    private val everyComposition: List<List<WarmupMove>>
+        get() = (1..Warmup.rotationPeriod).flatMap { session ->
+            (listOf<Pattern?>(null) + Pattern.allCases).map { Warmup.moves(sessionNumber = session, opening = it) }
+        }
 
     /** What one warm-up move costs uninterrupted: the transition, then the
-     *  slot — two halves and the switch pause when the move has a boundary.
+     *  thirty seconds — a reversed circle's two halves ARE the slot.
      *  Hand-rolled on purpose, unlike the cool-down twin below: an
      *  independent statement of the warm-up arithmetic. */
-    private fun cost(move: WarmupMove): Int {
-        val slot = if (move.isSplit) Warmup.halfSeconds * 2 + Cooldown.sideSwitchPauseSec else Warmup.moveSeconds
-        return GetReady.seconds + (if (move.needsSetup) GetReady.setupSupplementSec else 0) + slot
-    }
+    @Suppress("UNUSED_PARAMETER")
+    private fun cost(move: WarmupMove): Int = GetReady.seconds + Warmup.moveSeconds
 
     // MARK: - The transition itself
 
@@ -73,7 +66,7 @@ class GetReadyTest {
                         "the transition and the switch pause must stay two lengths")
         assertEquals(GetReady.seconds, GetReady.stageSeconds(needsSetup = false))
         assertEquals(GetReady.seconds,
-                     GuidedBlock.warmup.stageSeconds(GuidedStage.getReady, Warmup.moves(sessionNumber = 1)[0]),
+                     GuidedBlock.warmup.stageSeconds(GuidedStage.getReady, warmupMoves[0]),
                      "marching starts where the user already stands")
     }
 
@@ -93,16 +86,13 @@ class GetReadyTest {
     @Test
     fun onlyTheStandingPositionsKeepTheBaseTransition() {
         // The flag travels with the data, so this is the list issue #83
-        // pinned: in the warm-up only cat-cow leaves standing; in the
+        // pinned: the warm-up never leaves standing — it went down to the
+        // floor in every session until the standing pool — and in the
         // cool-down only forward fold, the lat stretch and the wrists stay
         // upright with no wall to walk to.
-        // The warm-up composes six of nine, and three of the nine are on the
-        // floor — so "who pays the supplement" is a property of the
-        // COMPOSITION, not of a move. Exactly one per session, always the trip
-        // down to the floor, in every composition there is.
-        for (session in 1..Warmup.compositionCount) {
-            val moves = Warmup.moves(sessionNumber = session)
-            assertEquals(listOf("cat-cow"), moves.filter { it.needsSetup }.map { it.id }, "session $session")
+        for (moves in everyComposition) {
+            assertEquals(emptyList(), moves.filter { it.needsSetup }.map { it.id },
+                         "${moves.map { it.id }}: a warm-up transition paid the supplement")
         }
         val allNine = Cooldown.positions(performed = listOf(Pattern.squat, Pattern.pull, Pattern.pushH)) +
             Cooldown.positions(performed = listOf(Pattern.coreAntiExt, Pattern.calf, Pattern.lunge))
@@ -141,7 +131,7 @@ class GetReadyTest {
      * the two blocks. The worst case with nothing set aside is exact: the
      * dearest warm-up plus the fixed three positions plus the costliest three
      * the mapping can draw. BlockReserveTest adds the set-aside axis, where
-     * the warm-up reaches 248 s.
+     * the warm-up stays at 228 s — every slot costs the same.
      *
      * The FIT is not exact: a reserve is whole minutes, so it carries slack.
      * What is guarded is that the slack stays under two minutes — more, and
@@ -149,7 +139,7 @@ class GetReadyTest {
      */
     @Test
     fun bothBlocksFitInsideTheReservedWarmupAndCooldownMinutes() {
-        val warmup = dearestComposition.sumOf { cost(it) }
+        val warmup = everyComposition.maxOf { moves -> moves.sumOf { cost(it) } }
 
         // One pattern per pool position; index 2 of a one-pattern composition
         // is the position that pattern maps to.
@@ -162,7 +152,7 @@ class GetReadyTest {
 
         // Lengthening the transition is what makes the reserve an engine
         // constraint; shortening it only ever leaves slack.
-        assertEquals(244, warmup)
+        assertEquals(228, warmup)
         assertEquals(272, fixed + worstMapped)
         assertTrue(warmup + fixed + worstMapped <= reserved, "the worst case overruns the reserved minutes")
         // Ten minutes is not the smallest whole minute that fits, and the
@@ -238,100 +228,72 @@ class GetReadyTest {
     @Test
     fun warmupOvershootLandsOnAWholeMoveBoundary() {
         // A full move-plus-transition of absence advances by exactly one move
-        // and lands at the top of the next transition, not mid-anything. The
-        // cycle is the move's OWN: a split move's slot carries the switch
-        // pause, a whole one runs straight through.
+        // and lands at the top of the next transition, not mid-anything. A
+        // reversed circle runs the same thirty seconds as a whole move: its
+        // halves have nothing between them.
         val cycle = GuidedBlock.warmup.stageSeconds(GuidedStage.getReady, warmupMoves[1]) +
-            Warmup.slotSeconds(warmupMoves[1])
+            Warmup.moveSeconds
         val landing = GuidedBlock.warmup.advance(from = Step(0, GuidedStage.whole), overshoot = cycle, positions = warmupMoves)
         assertEquals(2, landing?.index)
         assertEquals(GuidedStage.getReady, landing?.stage)
         assertEquals(GetReady.seconds, landing?.remaining)
     }
 
-    @Test
-    fun theSupplementedTransitionStretchesTheWayOntoTheFloor() {
-        // The one warm-up supplement (issue #83): the transition that takes
-        // the person down to the floor, and advance() absorbs it at its LONGER
-        // length — the overshoot below is that whole transition plus 2 s of
-        // the move itself, written from the constants so the supplement is
-        // what the test is actually about.
-        //
-        // The block has three floor moves in its pool and still exactly ONE
-        // supplement: it is the trip DOWN that is paid for, not each position
-        // on the floor.
-        val onto = floorIndex
-        assertTrue(onto > 0, "the floor is never the first move")
-        val supplemented = GetReady.seconds + GetReady.setupSupplementSec
-        assertEquals(supplemented, GuidedBlock.warmup.stageSeconds(GuidedStage.getReady, warmupMoves[onto]))
-        val landing = GuidedBlock.warmup.advance(from = Step(onto - 1, GuidedStage.whole), overshoot = supplemented + 2,
-                                                 positions = warmupMoves)
-        assertEquals(onto, landing?.index)
-        assertEquals(GuidedStage.whole, landing?.stage)
-        assertEquals(Warmup.moveSeconds - 2, landing?.remaining)
-    }
-
     // MARK: - The warm-up's two halves
 
+    /** A circle walks its two halves with NOTHING between them: the switch
+     *  pause is for a side switch, which re-sets the body, and a circle
+     *  reverses on the move. Both halves stay on the same move — an index
+     *  that walked would show the next move's name over the wrong countdown. */
     @Test
-    fun aSplitWarmupMoveWalksTheTwoHalvesAroundThePause() {
-        val moves = dearestComposition
-        val index = moves.indexOfFirst { it.isSplit }
-        assertTrue(index >= 0, "the dearest composition must draw a split move")
+    fun aReversedMoveWalksItsTwoHalvesWithNoPause() {
+        val moves = warmupMoves
+        val index = moves.indexOfFirst { it.reverses }
+        assertTrue(index >= 0, "session one must draw a circle")
         assertEquals(GuidedStage.firstHalf, GuidedBlock.step(after = Step(index, GuidedStage.getReady), positions = moves)?.stage)
-        assertEquals(GuidedStage.switchPause, GuidedBlock.step(after = Step(index, GuidedStage.firstHalf), positions = moves)?.stage)
-        assertEquals(GuidedStage.secondHalf, GuidedBlock.step(after = Step(index, GuidedStage.switchPause), positions = moves)?.stage)
-        // All three stay on the same move: the switch is inside one position,
-        // not travel to another, and an index that walked would show the next
-        // move's name over the wrong countdown.
-        for (stage in listOf(GuidedStage.getReady, GuidedStage.firstHalf, GuidedStage.switchPause)) {
-            assertEquals(index, GuidedBlock.step(after = Step(index, stage), positions = moves)?.index,
-                         "$stage must not walk off the move it belongs to")
-        }
+        val second = GuidedBlock.step(after = Step(index, GuidedStage.firstHalf), positions = moves)
+        assertEquals(GuidedStage.secondHalf, second?.stage, "a circle reverses on the move: no switch pause")
+        assertEquals(index, second?.index, "the second half belongs to the same move")
         val next = GuidedBlock.step(after = Step(index, GuidedStage.secondHalf), positions = moves)
-        assertEquals(index + 1, next?.index, "the far side hands over to the next move")
+        assertEquals(index + 1, next?.index, "the far half hands over to the next move")
         assertEquals(GuidedStage.getReady, next?.stage)
     }
 
     @Test
     fun aMoveWithNoBoundaryNeverSeesAHalf() {
-        val moves = dearestComposition
-        val index = moves.indexOfFirst { !it.isSplit }
+        val moves = warmupMoves
+        val index = moves.indexOfFirst { !it.reverses }
         assertTrue(index >= 0)
         assertEquals(GuidedStage.whole, GuidedBlock.step(after = Step(index, GuidedStage.getReady), positions = moves)?.stage,
                      "a move with no halfway boundary runs the whole slot in one stage")
     }
 
     /** The distinction the block turns on: a move splits because its own steps
-     *  name a moment, not because the movement looks two-sided. Torso rotations
-     *  and cat-cow alternate CONTINUOUSLY — every rep, every breath — so there
-     *  is no single moment to announce, and marching swings both legs by
-     *  definition. Named by id, because "how many split" says nothing about
-     *  which. */
+     *  name a moment, not because the movement looks two-sided. Side steps,
+     *  torso rotations, side bends and overhead reaches change side every rep,
+     *  so there is no single moment to announce. Named by id, because "how
+     *  many split" says nothing about which — and no move splits by SIDE: the
+     *  warm-up asks nothing of one leg or one arm at a time. */
     @Test
-    fun onlyTheMovesWhoseStepsNameAMomentAreSplit() {
-        val sides = mutableSetOf<String>()
-        val directions = mutableSetOf<String>()
+    fun onlyTheCirclesAreSplitAndNoneBySide() {
+        val reversing = mutableSetOf<String>()
         val whole = mutableSetOf<String>()
-        for (session in 1..Warmup.compositionCount) {
-            for (move in Warmup.moves(sessionNumber = session)) {
-                when (move.halves) {
-                    WarmupHalves.sides -> sides += move.id
-                    WarmupHalves.directions -> directions += move.id
-                    null -> whole += move.id
-                }
-            }
+        for (move in everyComposition.flatten()) {
+            assertNotEquals(WarmupHalves.sides, move.halves, "${move.id} splits by side")
+            if (move.reverses) reversing += move.id else whole += move.id
         }
-        assertEquals(setOf("single-leg-rdl", "bird-dog"), sides)
-        assertEquals(setOf("arm-circles", "hip-circles"), directions)
-        assertEquals(setOf("marching", "torso-rotations", "half-squats", "cat-cow", "y-t-w"), whole)
+        assertEquals(setOf("arm-circles", "wrist-circles", "hip-circles"), reversing)
+        assertEquals(setOf("marching", "side-steps", "heels-to-glutes", "arm-swings",
+                           "reach-and-pull", "overhead-reaches", "torso-rotations",
+                           "side-bends", "standing-cat-cow", "hip-hinges", "half-squats"), whole)
     }
 
-    /** Sides and directions differ in the WORDS and in nothing else. A test
-     *  can ask, because the words are a type rather than a `Text` (SwiftUI
-     *  `Text` is not reliably equatable — the flake that rule came from). */
+    /** Sides and directions differ in the WORDS and in whether the clock stops.
+     *  A test can ask about the words because they are a type rather than a
+     *  `Text` (SwiftUI `Text` is not reliably equatable — the flake that rule
+     *  came from). */
     @Test
-    fun theWordsFollowWhatIsSwitchedAndTheSecondsDoNot() {
+    fun theWordsFollowWhatIsSwitchedAndOnlyASideSwitchPauses() {
         val sides = SplitStageWords(halves = WarmupHalves.sides)
         val directions = SplitStageWords(halves = WarmupHalves.directions)
         assertNotEquals(sides.switching.english, directions.switching.english,
@@ -340,54 +302,45 @@ class GetReadyTest {
         assertNotEquals(sides.everyHalf.english, directions.everyHalf.english)
         assertEquals("Switch sides", sides.switching.english)
         assertEquals("Switch direction", directions.switching.english)
-        val moves = dearestComposition
-        val bySide = assertNotNull(moves.firstOrNull { it.halves == WarmupHalves.sides })
-        val byDirection = assertNotNull(moves.firstOrNull { it.halves == WarmupHalves.directions })
-        assertEquals(Warmup.slotSeconds(bySide), Warmup.slotSeconds(byDirection),
-                     "the two kinds cost the same: two halves and one switch pause")
+        assertTrue(WarmupHalves.sides.pausesAtTheSwitch, "turning over re-sets the body")
+        assertFalse(WarmupHalves.directions.pausesAtTheSwitch, "a circle reverses on the move")
     }
 
     @Test
-    fun theTwoHalvesSplitTheSlotAndThePauseRidesOnTop() {
-        val move = assertNotNull(dearestComposition.firstOrNull { it.isSplit })
+    fun theTwoHalvesOfACircleAreTheSlot() {
+        val move = assertNotNull(warmupMoves.firstOrNull { it.reverses })
         assertEquals(Warmup.halfSeconds, GuidedBlock.warmup.stageSeconds(GuidedStage.firstHalf, move))
         assertEquals(Warmup.halfSeconds, GuidedBlock.warmup.stageSeconds(GuidedStage.secondHalf, move))
-        assertEquals(Cooldown.sideSwitchPauseSec, GuidedBlock.warmup.stageSeconds(GuidedStage.switchPause, move))
-        assertEquals(Warmup.moveSeconds + Cooldown.sideSwitchPauseSec, Warmup.slotSeconds(move),
-                     "the two halves ARE the slot; only the pause is added to it")
-        val whole = assertNotNull(dearestComposition.firstOrNull { !it.isSplit })
-        assertEquals(Warmup.moveSeconds, Warmup.slotSeconds(whole))
+        assertEquals(Warmup.moveSeconds, Warmup.halfSeconds * 2,
+                     "the two halves ARE the slot, and nothing rides on top of it")
     }
 
     @Test
     fun theWarmupEndsAfterTheFarHalfOfASplitLastMove() {
-        // A composition can end on a split move, and then `whole` is a stage
-        // that never runs: the block has to end on `secondHalf` instead.
-        val moves = assertNotNull((1..Warmup.compositionCount)
-                                      .map { Warmup.moves(sessionNumber = it) }
-                                      .firstOrNull { it.lastOrNull()?.isSplit == true },
-                                  "some composition must end on a split move")
+        // A composition can end on a circle — a session with no exercise to
+        // lead into, whose trunk slot drew hip circles — and then `whole` is a
+        // stage that never runs: the block has to end on `secondHalf` instead.
+        val moves = assertNotNull(everyComposition.firstOrNull { it.lastOrNull()?.reverses == true },
+                                  "some composition must end on a circle")
         assertNull(GuidedBlock.step(after = Step(moves.size - 1, GuidedStage.secondHalf), positions = moves),
                    "the far half of the last move hands the flow to the work")
     }
 
     @Test
     fun theWarmupSwitchIsABoundaryTheFlowCanSound() {
-        // The tone is chosen from `entered` (see `WorkoutSession.tick(block)`), so the pause
-        // has to be NAMED when the first side runs out. And a long absence
+        // The tone is chosen from `entered` (see `WorkoutSession.tick(block)`), so
+        // the second half has to be NAMED when the first runs out — with its
+        // whole fifteen seconds, no pause taken out of them. And a long absence
         // across the whole move must not report a switch nobody is standing
         // at: `entered` and `stage` disagree, and the flow stays silent.
-        val moves = dearestComposition
-        val index = moves.indexOfFirst { it.isSplit }
+        val moves = warmupMoves
+        val index = moves.indexOfFirst { it.reverses }
         assertTrue(index >= 0)
-        val intoPause = GuidedBlock.warmup.advance(from = Step(index, GuidedStage.firstHalf), overshoot = 0, positions = moves)
-        assertEquals(GuidedStage.switchPause, intoPause?.entered)
-        assertEquals(Cooldown.sideSwitchPauseSec, intoPause?.remaining)
-        val intoSecond = GuidedBlock.warmup.advance(from = Step(index, GuidedStage.switchPause), overshoot = 0, positions = moves)
+        val intoSecond = GuidedBlock.warmup.advance(from = Step(index, GuidedStage.firstHalf), overshoot = 0, positions = moves)
         assertEquals(GuidedStage.secondHalf, intoSecond?.entered)
         assertEquals(Warmup.halfSeconds, intoSecond?.remaining)
         val landing = GuidedBlock.warmup.advance(from = Step(index, GuidedStage.getReady),
-                                                 overshoot = Warmup.slotSeconds(moves[index]) + 1,
+                                                 overshoot = Warmup.moveSeconds + 1,
                                                  positions = moves)
         assertEquals(GuidedStage.firstHalf, landing?.entered, "the run opened on the first half")
         assertEquals(index + 1, landing?.index, "...and came to rest past the whole move")
@@ -444,6 +397,21 @@ class GetReadyTest {
         assertEquals(Cooldown.positionSeconds, GuidedBlock.cooldown.stageSeconds(GuidedStage.whole, positions[index]))
     }
 
+    /** The other half of the rule the warm-up's circles changed: a SIDE switch
+     *  still stops the clock for its pause, because turning over re-sets the
+     *  body. Both blocks walk one stage machine, so the circle's shortcut must
+     *  not leak into the stretch. */
+    @Test
+    fun aSideSwitchStillPauses() {
+        val positions = Cooldown.positions(performed = listOf(Pattern.pull))
+        val index = positions.indexOfFirst { it.perSide }
+        assertTrue(index >= 0)
+        assertEquals(GuidedStage.switchPause,
+                     GuidedBlock.step(after = Step(index, GuidedStage.firstHalf), positions = positions)?.stage)
+        assertEquals(GuidedStage.secondHalf,
+                     GuidedBlock.step(after = Step(index, GuidedStage.switchPause), positions = positions)?.stage)
+    }
+
     @Test
     fun noStageIsEmpty() {
         // advance() walks stages while the overshoot covers them; a zero-length
@@ -455,7 +423,7 @@ class GetReadyTest {
             }
         }
         assertTrue(Cooldown.switchPauseSeconds > 0)
-        for (move in warmupMoves + dearestComposition) {
+        for (move in everyComposition.flatten()) {
             for (stage in GuidedStage.entries) {
                 assertTrue(GuidedBlock.warmup.stageSeconds(stage, move) > 0, "$stage at ${move.id} has no length")
             }

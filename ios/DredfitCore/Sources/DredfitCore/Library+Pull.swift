@@ -1,8 +1,7 @@
 //
 //  The two pull ladders — the slot that stands in every session.
 //
-//  Y-T-W raises are not on the row ladder (activation, not load); their
-//  technique lives in `WarmupTechnique`.
+//  Y-T-W raises are not on the row ladder (activation, not load).
 //
 //  The row is graded by the ANGLE of the support, so the ladder has lower
 //  rungs than a horizontal row.

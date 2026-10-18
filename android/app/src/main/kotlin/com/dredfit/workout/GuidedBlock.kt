@@ -1,6 +1,7 @@
 //
 //  The warm-up and the cool-down run the same machine: a transition, then the
-//  position held whole or in two halves with a switch between them, all on
+//  position held whole or in two halves with a switch between them — a counted
+//  pause when a side is switched, a tone alone when a direction is — all on
 //  one clock. Port of ios/Dredfit/GuidedBlock.swift.
 //
 
@@ -24,7 +25,9 @@ enum class GuidedBlock {
         GuidedStage.whole -> if (this == warmup) Warmup.moveSeconds else Cooldown.positionSeconds
         GuidedStage.firstHalf, GuidedStage.secondHalf ->
             if (this == warmup) Warmup.halfSeconds else Cooldown.sideSeconds
-        GuidedStage.switchPause -> if (this == warmup) Warmup.switchPauseSeconds else Cooldown.sideSwitchPauseSec
+        // Only a side switch pauses, and the warm-up composes no position
+        // with sides: one length, the cool-down's.
+        GuidedStage.switchPause -> Cooldown.sideSwitchPauseSec
     }
 
     /** `entered` names the stage the audible boundary opened; index/stage/
@@ -56,7 +59,11 @@ enum class GuidedBlock {
             return when (after.stage) {
                 GuidedStage.getReady ->
                     Step(after.index, if (positions[after.index].halves == null) GuidedStage.whole else GuidedStage.firstHalf)
-                GuidedStage.firstHalf -> Step(after.index, GuidedStage.switchPause)
+                GuidedStage.firstHalf -> {
+                    // `halves` is there: only a split position has a first half.
+                    val pauses = positions[after.index].halves?.pausesAtTheSwitch ?: true
+                    Step(after.index, if (pauses) GuidedStage.switchPause else GuidedStage.secondHalf)
+                }
                 GuidedStage.switchPause -> Step(after.index, GuidedStage.secondHalf)
                 GuidedStage.whole, GuidedStage.secondHalf -> {
                     val next = after.index + 1
@@ -78,8 +85,10 @@ interface GuidedPosition {
 }
 
 /** Every position opens with `getReady` (#52); one held whole runs `whole`,
- *  one with a halfway boundary `firstHalf` → `switchPause` → `secondHalf`.
- *  HALF, not side: half of the split warm-up moves switch a direction. */
+ *  one with a halfway boundary `firstHalf` → `switchPause` → `secondHalf`
+ *  when a SIDE is switched, and `firstHalf` → `secondHalf` when a direction
+ *  is: a circle reverses on the move (`WarmupHalves.pausesAtTheSwitch`).
+ *  HALF, not side: the warm-up's split moves switch a direction. */
 @Suppress("EnumEntryName")
 enum class GuidedStage { getReady, whole, firstHalf, switchPause, secondHalf }
 

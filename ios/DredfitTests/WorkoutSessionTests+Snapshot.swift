@@ -260,19 +260,25 @@ extension WorkoutSessionTests {
     }
 
     func testASwitchPausedNearItsEndGetsTheCountInBack() {
+        // The cool-down's: only a side switch pauses, and the cool-down opens
+        // on a per-side stretch.
         let store = makeStore()
         let flow = makeFlow(store)
-        flow.beginWarmup()
-        run(flow, until: { flow.warmup.stage == .switchPause }, limit: 1_000)
-        run(flow, until: { flow.warmup.clock.remaining == 1 })
+        flow.declineWarmup()
+        flow.exIndex = flow.exercises.count - 1
+        flow.setIndex = 2
+        flow.completeSet()
+        flow.beginCooldown()
+        run(flow, until: { flow.cooldown.stage == .switchPause }, limit: 1_000)
+        run(flow, until: { flow.cooldown.clock.remaining == 1 })
         flow.toggleBlockPause()
         clock += 30
         flow.toggleBlockPause()
         XCTAssertFalse(flow.blockPause.isPaused, "the switch is a transition too")
-        XCTAssertEqual(flow.warmup.clock.endDate, clock + TimeInterval(GetReady.countInSeconds))
+        XCTAssertEqual(flow.cooldown.clock.endDate, clock + TimeInterval(GetReady.countInSeconds))
         signals.events.removeAll()
         run(flow, for: GetReady.countInSeconds)
-        XCTAssertEqual(flow.warmup.stage, .secondHalf)
+        XCTAssertEqual(flow.cooldown.stage, .secondHalf)
         XCTAssertEqual(signals.tones, [.go], "no 3-2-1 inside the switch: its go is its signal")
     }
 

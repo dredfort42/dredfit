@@ -8,10 +8,10 @@ import DredfitCore
 
 extension WorkoutSession {
 
-    /// The six moves of THIS session (nine in the pool, six on screen). A
-    /// pure function of the session number and of what the athlete has set
-    /// aside, so a restored snapshot recomputes the same list rather than
-    /// carrying it.
+    /// The six moves of THIS session (fourteen in the pool, six on screen).
+    /// A pure function of the session — its number and its first exercise —
+    /// and of what the athlete has set aside, so a restored snapshot
+    /// recomputes the same list rather than carrying it.
     ///
     /// The hidden set is read LIVE, which the cool-down's twin is not — its
     /// composition is state, drawn into `cooldownPositions`. That difference
@@ -59,7 +59,7 @@ extension WorkoutSession {
     ///
     /// There is exactly one way that happens: the technique sheet setting the
     /// move on screen aside, or bringing an earlier one back. The list is a
-    /// pure function of the session number and the hidden set, so the write
+    /// pure function of the session and the hidden set, so the write
     /// lands instantly and `warmup.index` suddenly names a different move —
     /// the name on screen would change under the seconds of the move it
     /// replaced, and a split move would inherit the `.whole` stage of one
@@ -103,10 +103,10 @@ extension WorkoutSession {
     ///
     /// Land AFTER the last slot the athlete has already left behind, never on
     /// one of them. `warmup.index` and `cooldown.index` are ordinals, and a
-    /// recomposition is not a deletion: `Warmup.moves(sessionNumber:hiding:)`
-    /// re-derives its rotation window from what is LEFT and
-    /// `Cooldown.positions` re-grows its middle, so slot i after the write can
-    /// name the move that stood at i-1 before it. Clamping the ordinal would
+    /// recomposition is not a deletion: `Warmup.moves(sessionNumber:opening:
+    /// hiding:)` passes a group's turn to the next move in it — which the pool
+    /// may list EARLIER — and `Cooldown.positions` re-grows its middle, so
+    /// slot i after the write can name the move that stood at i-1 before it. Clamping the ordinal would
     /// reopen a move finished a minute earlier.
     ///
     /// Landing on the FIRST move not yet run would be the other error. What

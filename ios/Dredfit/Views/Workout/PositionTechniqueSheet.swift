@@ -17,21 +17,14 @@ struct PositionTechnique: Identifiable, Equatable {
 
 extension PositionTechnique {
     init(warmup move: WarmupMove) {
-        // A split move says the length of ONE half, as the cool-down twin
-        // below does: its slot is two halves with the switch pause between
-        // them, and "warm-up · 30 s" would be the number of neither half.
-        let capsule: String
-        switch move.halves {
-        case .sides:
-            capsule = String(localized: "positionSheet.warmupPerSide",
-                             defaultValue: "warm-up · \(Warmup.halfSeconds) s per side")
-        case .directions:
-            capsule = String(localized: "positionSheet.warmupPerDirection",
-                             defaultValue: "warm-up · \(Warmup.halfSeconds) s each way")
-        case nil:
-            capsule = String(localized: "positionSheet.warmup",
-                             defaultValue: "warm-up · \(Warmup.moveSeconds) s")
-        }
+        // A reversed move says the length of ONE direction, as the cool-down
+        // twin below says one side: "warm-up · 30 s" over a circle that turns
+        // at fifteen would be the number of neither half.
+        let capsule = move.reverses
+            ? String(localized: "positionSheet.warmupPerDirection",
+                     defaultValue: "warm-up · \(Warmup.halfSeconds) s each way")
+            : String(localized: "positionSheet.warmup",
+                     defaultValue: "warm-up · \(Warmup.moveSeconds) s")
         self.init(id: move.id, name: move.name, capsule: capsule, steps: move.steps)
     }
 
@@ -115,8 +108,8 @@ struct PositionTechniqueSheet: View {
     /// Without it, "not this one" would cost the same tap on the same
     /// position in every workout that draws it, and the cheap way out would
     /// be to skip the whole block. So the block loses one position and
-    /// composes another in its place; the pool is nine against six shown,
-    /// which is what pays for it.
+    /// composes another in its place; the pools are fourteen (warm-up) and
+    /// nine (cool-down) against six shown, which is what pays for it.
     ///
     /// The tap closes the sheet, because the answer to "don't show me this"
     /// is not to go on showing it: the block restarts the slot on its own

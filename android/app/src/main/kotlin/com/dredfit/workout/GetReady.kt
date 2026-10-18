@@ -18,7 +18,8 @@ object GetReady {
     const val seconds = 8
 
     /** On top of `seconds` for a position that changes the starting position
-     *  or needs a prop. Past the engine's reserve a longer transition is an
+     *  or needs a prop. Only the cool-down has such positions: the warm-up is
+     *  standing throughout. Past the engine's reserve a longer transition is an
      *  ENGINE change (`BlockReserveTest` holds the floor and the ceiling). */
     const val setupSupplementSec = 4
 

@@ -143,22 +143,18 @@ final class LibraryPinTests: XCTestCase {
         }
     }
 
-    /// The three warm-up movements the core carries stand on no strength
-    /// ladder and keep their full text — the warm-up reads them.
-    func testWarmupMovementsSurvivedTheLadders() {
-        XCTAssertEqual(WarmupTechnique.all.count, 3)
-        for move in WarmupTechnique.all {
-            XCTAssertFalse(move.name.isEmpty, "\(move.id): name")
-            XCTAssertEqual(move.steps.count, 3, "\(move.id): steps")
-            XCTAssertEqual(move.mistakes.count, 2, "\(move.id): mistakes")
-        }
-        // None of them may be back in a strength ladder.
+    /// The three movements §40.1 took off the ladders stay off them. Their
+    /// text left the core with the standing warm-up (§41.12, note of
+    /// 18.10.2026) — nothing shows them any more — but a ladder that took one
+    /// back would bring back the gap in its density that sent it away. The
+    /// names are the English catalog keys the ladders read in the test locale.
+    func testTheMovementsTakenOffTheLaddersStayOff() {
         let ladderNames = Set(Pattern.allCases.flatMap {
             ExerciseLibrary.entry(for: $0).variations.map(\.name)
         })
-        for move in WarmupTechnique.all {
-            XCTAssertFalse(ladderNames.contains(move.name),
-                           "\(move.id) belongs to the warm-up, not to a ladder")
+        XCTAssertTrue(ladderNames.contains("Glute bridge"), "the premise: names compare in English")
+        for name in ["Y-T-W raises", "Bird dog (hold)", "Single-leg Romanian deadlift"] {
+            XCTAssertFalse(ladderNames.contains(name), "\(name) is back on a ladder")
         }
     }
 }
