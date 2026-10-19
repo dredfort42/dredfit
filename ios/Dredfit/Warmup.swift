@@ -3,24 +3,20 @@
 //  per session, 30 s each. No positions, no journal entry, no engine
 //  involvement.
 //
-//  EVERY MOVE IS STANDING, and none of them is strength work (the owner's
-//  call, 18.10.2026). The block used to go down to the floor in every session
-//  — cat-cow was permanent and the floor moves came last — and in half of
-//  them on to the stomach as well, for Y-T-W. Three of its moves (Y-T-W, the
-//  bird dog, the single-leg Romanian deadlift) were there because v3 took
-//  them OFF the strength ladders, not because a warm-up needed them, and they
-//  brought balance, isometric holds and a change of position with them. What
-//  a warm-up is for is raising the temperature and taking the joints through
-//  the range the work will use; nothing here asks for more.
+//  EVERY MOVE IS STANDING, and none of them is strength work. A warm-up
+//  raises the temperature and takes the joints through the range the work
+//  will use. A trip to the floor, a balance, an isometric hold or a change of
+//  position every few moves asks more than that, and pays for it in
+//  transition time — so the movements that are about activation or balance
+//  rather than a dose (Y-T-W, the bird dog, the single-leg Romanian deadlift,
+//  all off the strength ladders) have no place here either.
 //
 //  Six SLOTS, each drawn from its own group: two to raise the pulse (marching
 //  always opens), two for the shoulders and arms, one for the trunk, and a
 //  last one chosen by the session's FIRST exercise — half squats before a
 //  squat, hip hinges before a hinge. One rotation window over one list keeps
 //  a composition balanced only while the list's order is intact, and a move
-//  set aside breaks the order: with something set aside, about 40 % of the
-//  compositions of the window-over-fifteen draft lost a whole group. A group
-//  per slot cannot lose one.
+//  set aside breaks the order; a group per slot cannot lose one.
 //
 //  A circle REVERSES halfway, and the clock does not stop for it: a tone marks
 //  the midpoint and the second half runs straight on. The side switch keeps
@@ -30,9 +26,8 @@
 //  Every slot therefore costs the same, the transition plus thirty seconds,
 //  and every composition 228 s. Nothing here is derived: `BlockReserveTests`
 //  computes the same figure from the constants and is what actually fails.
-//  The engine's reserve (`warmupMin`) is untouched — it was sized for a block
-//  with a trip to the floor and four switch pauses, and the shorter block
-//  leaves it slack rather than overrunning it.
+//  The engine's reserve (`warmupMin`) holds that with slack to spare: a
+//  shorter block never overruns it.
 //
 //  Moves that alternate continuously — side steps, torso rotations, side
 //  bends, overhead reaches — are NOT split, and the distinction is the steps,
@@ -235,7 +230,7 @@ enum Warmup {
     ]
 
     /// The last slot: the move that prepares the session's first exercise —
-    /// the block's one specific part, and the reason half squats no longer
+    /// the block's one specific part, and the reason half squats do not
     /// precede a session that opens on a push.
     ///
     /// Total over `Pattern`, with no default: a new pattern is a compile error

@@ -304,7 +304,7 @@ struct SplitStageWords {
     var everyHalf: String {
         switch halves {
         // A `cooldown.` key, named for the block that owns every per-side
-        // position since the warm-up stood up: renaming it would cost six
+        // position: renaming it would cost six
         // translations and the whole screenshot set to say exactly what it
         // says now.
         case .sides:      return String(localized: "cooldown.perSide",

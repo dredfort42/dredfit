@@ -1,7 +1,6 @@
 //
-//  The cap on set-aside block moves, after a pool lost moves: the standing
-//  warm-up dropped cat-cow, the bird dog and Y-T-W, and anyone who had set
-//  them aside still carries their ids.
+//  The cap on set-aside block moves when the set holds ids no pool has —
+//  moves this build does not carry, such as cat-cow, the bird dog and Y-T-W.
 //
 
 import XCTest

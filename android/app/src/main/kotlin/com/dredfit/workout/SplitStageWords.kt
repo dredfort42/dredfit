@@ -27,7 +27,7 @@ data class SplitStageWords(val halves: WarmupHalves) {
     val everyHalf: Words
         get() = when (halves) {
             // A `cooldown.` key, named for the block that owns every per-side
-            // position since the warm-up stood up — see BlockScreens.swift.
+            // position — see BlockScreens.swift.
             WarmupHalves.sides -> Words.keyed("cooldown.perSide", "15 s per side")
             WarmupHalves.directions -> Words.keyed("warmup.perDirection", "15 s each way")
         }

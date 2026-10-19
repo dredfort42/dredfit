@@ -146,9 +146,9 @@ const val MAX_HIDDEN_BLOCK_MOVES = 3
 
 fun AppStore.isBlockMoveHidden(id: String): Boolean = id in settings.hiddenBlockMoveIDs
 
-/** Counted over the ids a pool still knows. A move a later build dropped —
- *  the floor moves of the standing warm-up — stays in the set, because an
- *  imported backup or a downgrade must not lose it; but the sheet cannot
+/** Counted over the ids a pool still knows. An id this build has no move
+ *  for stays in the set, because an imported backup or a downgrade must
+ *  not lose it; but the sheet cannot
  *  name it or bring it back, so counting it would take a slot nobody can
  *  ever free. */
 val AppStore.canHideAnotherBlockMove: Boolean

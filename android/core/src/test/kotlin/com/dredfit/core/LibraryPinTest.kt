@@ -145,10 +145,10 @@ class LibraryPinTest {
         }
     }
 
-    /** The three movements §40.1 took off the ladders stay off them. Their
-     *  text left the core with the standing warm-up (§41.12, note of
-     *  18.10.2026) — nothing shows them any more — but a ladder that took one
-     *  back would bring back the gap in its density that sent it away. The
+    /** The three movements taken off the ladders for being gaps in their
+     *  density — Y-T-W, the bird dog, the single-leg Romanian deadlift — stay
+     *  off them. Nothing in the app shows them, and a ladder that took one
+     *  back would bring back the gap that sent it away. The
      *  names are the English catalog keys the ladders read. */
     @Test
     fun movementsTakenOffTheLaddersStayOff() {

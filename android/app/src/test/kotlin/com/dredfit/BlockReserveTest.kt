@@ -27,8 +27,9 @@
 //  — the forms without it — are for the tests alone. The standing warm-up costs
 //  the same whatever is set aside (every slot is a transition and thirty
 //  seconds), but that is exactly the kind of claim the sweep exists to keep
-//  true: under the floor pool a set-aside move widened the rotation onto a
-//  fourth switch pause, and only the hiding axis saw it.
+//  true: a set-aside move changes which moves a session draws, and a claim
+//  measured without the hiding axis is measured on compositions the app does
+//  not draw.
 //
 //  The last section reads the same composition rule the other way: where a
 //  block that is RUNNING picks up when the athlete changes the composition

@@ -1,8 +1,7 @@
 //
 //  Port of ios/DredfitTests/AppStoreTests+SetAside.swift: the cap on set-aside
-//  block moves, after a pool lost moves. The standing warm-up dropped cat-cow,
-//  the bird dog and Y-T-W, and anyone who had set them aside still carries
-//  their ids.
+//  block moves when the set holds ids no pool has — moves this build does not
+//  carry, such as cat-cow, the bird dog and Y-T-W.
 //
 
 package com.dredfit

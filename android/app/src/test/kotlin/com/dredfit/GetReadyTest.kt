@@ -86,9 +86,7 @@ class GetReadyTest {
     @Test
     fun onlyTheStandingPositionsKeepTheBaseTransition() {
         // The flag travels with the data, so this is the list issue #83
-        // pinned: the warm-up never leaves standing — it went down to the
-        // floor in every session until the standing pool — and in the
-        // cool-down only forward fold, the lat stretch and the wrists stay
+        // pinned: the warm-up never leaves standing, and in the cool-down only forward fold, the lat stretch and the wrists stay
         // upright with no wall to walk to.
         for (moves in everyComposition) {
             assertEquals(emptyList(), moves.filter { it.needsSetup }.map { it.id },

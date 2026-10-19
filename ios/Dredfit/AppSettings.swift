@@ -316,9 +316,9 @@ extension AppStore {
     /// False when the list is full — the control says so instead of silently
     /// doing nothing (the caller disables it; the guard below is the backstop).
     ///
-    /// Counted over the ids a pool still knows. A move a later build dropped —
-    /// the floor moves of the standing warm-up — stays in the set, because an
-    /// imported backup or a downgrade must not lose it; but the sheet cannot
+    /// Counted over the ids a pool still knows. An id this build has no move
+    /// for stays in the set, because an imported backup or a downgrade must
+    /// not lose it; but the sheet cannot
     /// name it or bring it back, so counting it would take a slot nobody can
     /// ever free.
     var canHideAnotherBlockMove: Bool {
