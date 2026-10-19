@@ -1,4 +1,4 @@
-<!-- Title must follow Conventional Commits, e.g. "feat: ..." / "fix: ..." (checked by the PR Title workflow). -->
+<!-- Title must follow Conventional Commits, e.g. "feat: ..." / "fix: ..." (checked by the PR title workflow). -->
 
 ## Summary
 

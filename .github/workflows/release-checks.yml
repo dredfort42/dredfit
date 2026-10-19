@@ -1,4 +1,4 @@
-name: Release Checks
+name: Release checks
 
 # Runs when a release/** or hotfix/** branch is pushed. Verifies the marketing
 # version matches the branch name, build numbers agree across targets, and the
@@ -16,11 +16,11 @@ concurrency:
 
 jobs:
   version:
-    name: Version consistency
+    name: "Release: version and changelog"
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v7
         with:
           # The tags and their history: the build number is compared with the

@@ -1,6 +1,6 @@
 # Dredfit
 
-[![CI](https://github.com/dredfort42/dredfit/actions/workflows/ci.yml/badge.svg)](https://github.com/dredfort42/dredfit/actions/workflows/ci.yml)
+[![iOS](https://github.com/dredfort42/dredfit/actions/workflows/ci.yml/badge.svg)](https://github.com/dredfort42/dredfit/actions/workflows/ci.yml)
 [![Lint](https://github.com/dredfort42/dredfit/actions/workflows/lint.yml/badge.svg)](https://github.com/dredfort42/dredfit/actions/workflows/lint.yml)
 [![Localization](https://github.com/dredfort42/dredfit/actions/workflows/localization.yml/badge.svg)](https://github.com/dredfort42/dredfit/actions/workflows/localization.yml)
 [![CodeQL](https://github.com/dredfort42/dredfit/actions/workflows/codeql.yml/badge.svg)](https://github.com/dredfort42/dredfit/actions/workflows/codeql.yml)
