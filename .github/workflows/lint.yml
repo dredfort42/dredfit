@@ -12,14 +12,14 @@ concurrency:
 
 jobs:
   swiftlint:
-    name: SwiftLint
+    name: "iOS: SwiftLint"
     runs-on: ubuntu-latest
     # Pinned so a SwiftLint release cannot turn main red on its own. Dependabot
     # does not bump container images: move this by hand, alongside the local
     # swiftlint, after running the new version over the tree.
     container: ghcr.io/realm/swiftlint:0.65.1
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v7
 
       - name: Run SwiftLint
@@ -31,7 +31,7 @@ jobs:
       # that has passed: say the rule it stood for instead. Runs after a red SwiftLint too, so one push reports both.
       # grep exits 1 on no match; anything above that is a guard that checked
       # nothing, and fails rather than passing in silence.
-      - name: No spec sections, review dates or R-ids in Swift
+      - name: Check Swift comments cite no spec sections, review dates or R-ids
         if: ${{ !cancelled() }}
         run: |
           set +e

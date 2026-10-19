@@ -1,4 +1,4 @@
-name: PR Title
+name: PR title
 
 # Checks that the PR title follows Conventional Commits (feat:, fix:, docs:,
 # chore: ...), because the squash/merge subject becomes a commit on develop.
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   lint:
-    name: Conventional PR title
+    name: "PR: Conventional Commits title"
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

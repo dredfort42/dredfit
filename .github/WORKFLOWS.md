@@ -9,26 +9,35 @@ step-by-step release procedure. All workflows live in
 
 | Workflow | File | Trigger | Gates a merge? | Runtime |
 |---|---|---|---|---|
-| **CI** — unit tests (Core + app) + engine-gate contract | `ci.yml` | push/PR to `main`, `develop`, `release/**`, `hotfix/**` + manual | ✅ **required** | ~5–15 min |
+| **iOS** — unit tests (Core + app) + engine-gate contract | `ci.yml` | push/PR to `main`, `develop`, `release/**`, `hotfix/**` + manual | ✅ **required** | ~5–15 min |
 | ↳ **Release build** — unsigned `-configuration Release`, generic iOS | `ci.yml` (`release-build`) | same | ❌ advisory (for now)† | ~10 min |
-| ↳ **App unit tests in Europe/Berlin** — `TEST_RUNNER_TZ` | `ci.yml` (`app-tests-timezone`) | push to CI's branches + manual, not PRs | ❌ advisory† | ~5–15 min |
-| **Lint** — SwiftLint (container pinned to `0.65.1`) | `lint.yml` | push/PR, as CI (no manual) | ✅ **required** | ~30 s |
+| ↳ **App unit tests in Europe/Berlin** — `TEST_RUNNER_TZ` | `ci.yml` (`app-tests-timezone`) | push to the iOS workflow's branches + manual, not PRs | ❌ advisory† | ~5–15 min |
+| **Lint** — SwiftLint (container pinned to `0.65.1`) | `lint.yml` | push/PR, as iOS (no manual) | ✅ **required** | ~30 s |
 | **Localization** — String Catalog completeness | `localization.yml` | same | ✅ **required** | ~10 s |
-| **Android** — Kotlin engine vs `golden.json`, app unit tests, debug build, unsigned release APK and bundle | `android.yml` | push/PR as CI, when `android/`, the fixture or a String Catalog changed + manual | ❌ not required | ~5 min |
-| **UI Tests** | `ui-tests.yml` | nightly, only if the app or its UI tests changed + manual | ❌ non-gating | ~75–100 min |
+| **Android** — Kotlin engine vs `golden.json`, app unit tests, debug build, unsigned release APK and bundle | `android.yml` | push/PR as iOS, when `android/`, the fixture or a String Catalog changed + manual | ❌ not required | ~5 min |
+| **iOS UI tests** | `ui-tests.yml` | nightly, only if the app or its UI tests changed + manual | ❌ non-gating | ~75–100 min |
 | **CodeQL** — Swift security scan | `codeql.yml` | push to `main`/`develop` + weekly | ❌ advisory | ~15 min |
-| **PR Title** — Conventional Commits | `pr-title.yml` | PR | ❌ advisory | ~5 s |
-| **Secret Scan** — gitleaks | `gitleaks.yml` | push/PR + weekly | ❌ advisory | ~1 min |
-| **Release Checks** — version/changelog | `release-checks.yml` | push to `release/**`, `hotfix/**` | ❌ advisory* | ~5 s |
+| **PR title** — Conventional Commits | `pr-title.yml` | PR | ❌ advisory | ~5 s |
+| **Secret scan** — gitleaks | `gitleaks.yml` | push/PR + weekly | ❌ advisory | ~1 min |
+| **Release checks** — version/changelog | `release-checks.yml` | push to `release/**`, `hotfix/**` | ❌ advisory* | ~5 s |
 | **Release** — GitHub Release | `release.yml` | tag `v*` | — | ~15 s |
 
-\* Release Checks is advisory in GitHub's sense (not in the required-checks list
+Names follow one pattern. A workflow is named for what it covers, in sentence
+case (iOS, Android, iOS UI tests, Lint, Localization, CodeQL, Secret scan, PR
+title, Release checks, Release). A job — the check name a PR shows, and the
+name branch protection matches — is `Scope: subject`, unique across all
+workflows: `iOS: app unit tests`, `Android: engine tests`, `Engine: gate table
+contract`. A step is an imperative in sentence case (`Check out`, `Run tests`,
+`Upload test results on failure`). Renaming a required job means updating
+`CONTEXTS` in `scripts/setup_branch_protection.sh` and re-running it.
+
+\* Release checks is advisory in GitHub's sense (not in the required-checks list
 because it only runs on release branches), but treat a red run as a hard stop:
 it means the version or changelog is wrong.
 
-† `continue-on-error`: a failure shows red on the job but leaves the CI run
+† `continue-on-error`: a failure shows red on the job but leaves the iOS run
 (and its badge) green, so it never blocks a merge or a release. Read the job
-itself. A manual CI run has its own concurrency group and does not cancel a
+itself. A manual iOS run has its own concurrency group and does not cancel a
 push run on the same branch. A push to `develop` starts up to five macOS jobs
 at once (both test jobs, both advisory jobs, CodeQL); on GitHub Free that is
 the whole macOS allowance, so a PR's required jobs may queue behind them.
@@ -41,27 +50,27 @@ them locally (see the release procedure below).
 ## The pipeline by stage
 
 ### 1. Open / update a pull request → `develop` (or `main`)
-Runs and **must be green to merge**: CI (Core + app unit tests), Lint,
-Localization. Also runs (advisory): PR Title, Secret Scan, CI's Release build.
+Runs and **must be green to merge**: iOS (Core + app unit tests), Lint,
+Localization. Also runs (advisory): PR title, Secret scan, the iOS release build.
 Branch protection
 keeps the merge button disabled until the required checks pass — see
 [Branch protection](#branch-protection).
 
 ### 2. Push to `develop` / `main`
-Same required checks re-run on the branch head, plus CodeQL and Secret Scan,
+Same required checks re-run on the branch head, plus CodeQL and Secret scan,
 and the app unit tests once more with the test process in `Europe/Berlin`
 (the runner is UTC, which hides day-boundary and DST mistakes) — on every
-push to CI's branches, `release/**` and `hotfix/**` included. Start it on any
-branch with CI's **Run workflow**.
+push to the iOS workflow's branches, `release/**` and `hotfix/**` included.
+Start it on any branch with the iOS workflow's **Run workflow**.
 
 ### 3. Cut a `release/x.y.z` or `hotfix/x.y.z` branch
-**Release Checks** verifies the marketing version matches the branch name, build
+**Release checks** verifies the marketing version matches the branch name, build
 numbers agree across all targets and exceed the build at the highest older
 `v*` tag, and `CHANGELOG.md` has a `## x.y.z` section. Without tags (a shallow
 clone) the build-number comparison is skipped with a notice, so the job checks
 out full history. Android's version is only noted when it differs: an iOS
 release never waits on a Play build ("Android release" below).
-CI (with the advisory Europe/Berlin and Release build jobs) + Lint +
+iOS (with the advisory Europe/Berlin and release build jobs) + Lint +
 Localization also run.
 
 ### 4. Tag `vX.Y.Z`
@@ -112,9 +121,9 @@ The App Store build itself is produced and uploaded manually from Xcode (Archive
    and fail to connect, which looks like a test failure but isn't. Judge the run
    by `** TEST SUCCEEDED **` and `Executed N tests, with 0 failures`, not by the
    pipe's exit code.
-6. **Create the `release/x.y.z` branch and push.** Confirm **Release Checks**,
-   **CI**, **Lint**, and **Localization** are green. A red advisory job inside
-   a green CI run (Europe/Berlin, Release build) does not block, but look at
+6. **Create the `release/x.y.z` branch and push.** Confirm **Release checks**,
+   **iOS**, **Lint**, and **Localization** are green. A red advisory job inside
+   a green iOS run (Europe/Berlin, Release build) does not block, but look at
    why before you merge.
 7. **Merge to `main`** (and back-merge `main` → `develop`).
 8. **Tag `vX.Y.Z` and push the tag.** The **Release** workflow publishes the
@@ -224,17 +233,16 @@ CI results only *block* if branch protection requires them. Apply it once:
 
 What it sets, and why (tuned for a solo maintainer):
 
-- **Required status checks** on `develop` and `main`: `DredfitCore package
-  tests`, `Dredfit app unit tests (iOS Simulator, no UI)`, `SwiftLint`,
-  `Localization`. A PR can't merge until these are green.
+- **Required status checks** on `develop` and `main`: `iOS: engine tests`,
+  `iOS: app unit tests`, `iOS: SwiftLint`, `Localization: String Catalogs`. A PR can't merge until these are green.
 - **`enforce_admins: false`** — you can still push the direct release plumbing
   (main → develop back-merges, release/* → main) as an admin without a PR. Turn
   it on if you want those gated too.
 - **No required reviewers** (solo repo); force-pushes and deletions are blocked;
   conversations must be resolved.
 
-The advisory checks (CodeQL, PR Title, gitleaks, and CI's Release build and
-Europe/Berlin jobs) are deliberately **not** required, so a third-party action outage can never wedge your merges. Promote any of them to required by adding its check-run name to
+The advisory checks (CodeQL, PR title, the secret scan, and the iOS release
+build and Europe/Berlin jobs) are deliberately **not** required, so a third-party action outage can never wedge your merges. Promote any of them to required by adding its check-run name to
 `CONTEXTS` in `scripts/setup_branch_protection.sh` and re-running.
 
 ## Local helpers (`scripts/`)

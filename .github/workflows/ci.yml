@@ -1,4 +1,4 @@
-name: CI
+name: iOS
 
 # Unit tests only (~5-15 min) — core package plus app units, no UI — and an
 # unsigned Release build beside them.
@@ -29,11 +29,11 @@ concurrency:
 
 jobs:
   core-tests:
-    name: DredfitCore package tests
+    name: "iOS: engine tests"
     runs-on: macos-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v7
 
       - name: Select Xcode
@@ -47,11 +47,11 @@ jobs:
         run: swift test --parallel -Xswiftc -warnings-as-errors
 
   gate-contract:
-    name: Engine gate contract
+    name: "Engine: gate table contract"
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v7
 
       # The gates themselves cannot run here: they live in `reference/`, which
@@ -63,18 +63,18 @@ jobs:
         run: python3 scripts/check_engine_gates.py --contract
 
       # The release gate's own tests, on the one cheap Python runner CI has:
-      # Release Checks runs check_version.py only on release branches, after
+      # Release checks runs check_version.py only on release branches, after
       # the change that broke it has merged.
       - name: Test the version check
         run: python3 scripts/test_check_version.py
 
   app-tests:
-    name: Dredfit app unit tests (iOS Simulator, no UI)
+    name: "iOS: app unit tests"
     runs-on: macos-latest
     # Serial execution costs wall-clock; the cap is a backstop, not a target.
     timeout-minutes: 45
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v7
 
       - name: Select Xcode
@@ -139,7 +139,7 @@ jobs:
             SWIFT_TREAT_WARNINGS_AS_ERRORS=YES GCC_TREAT_WARNINGS_AS_ERRORS=YES \
             | xcbeautify --renderer github-actions
 
-      - name: Coverage summary
+      - name: Summarize coverage
         if: always()
         run: |
           # Best-effort per-target coverage into the run summary. Informational
@@ -188,13 +188,13 @@ jobs:
   # Advisory and kept off pull requests: it is another macOS runner beside
   # app-tests, not a second gate. Runs after a merge, or by hand.
   app-tests-timezone:
-    name: Dredfit app unit tests (Europe/Berlin, advisory)
+    name: "iOS: app unit tests (Europe/Berlin, advisory)"
     if: github.event_name != 'pull_request'
     continue-on-error: true
     runs-on: macos-latest
     timeout-minutes: 45
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v7
 
       - name: Select Xcode
@@ -250,19 +250,19 @@ jobs:
   # `#if DEBUG`, or that only compiles without it, breaks here and nowhere
   # else until someone archives in Xcode. Unsigned, so it needs no secrets.
   release-build:
-    name: Dredfit Release build (generic iOS, unsigned)
+    name: "iOS: release build"
     # Advisory for now, like app-tests-timezone: reported, never reddens CI.
     continue-on-error: true
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v7
 
       - name: Select Xcode
         uses: ./.github/actions/setup-xcode
 
-      - name: Build Release
+      - name: Build the Release configuration
         timeout-minutes: 25
         run: |
           set -o pipefail

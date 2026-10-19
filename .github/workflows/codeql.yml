@@ -13,13 +13,13 @@ concurrency:
 
 jobs:
   analyze:
-    name: Analyze Swift
+    name: "iOS: CodeQL analysis"
     runs-on: macos-latest
     permissions:
       contents: read
       security-events: write
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v7
 
       - name: Select Xcode

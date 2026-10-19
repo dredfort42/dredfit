@@ -25,13 +25,13 @@ concurrency:
 
 jobs:
   changes:
-    name: Anything new for the Android port?
+    name: "Android: change filter"
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       run: ${{ steps.diff.outputs.run }}
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
@@ -61,13 +61,13 @@ jobs:
           fi
 
   core-tests:
-    name: Android core tests (Kotlin engine vs golden.json)
+    name: "Android: engine tests"
     needs: changes
     if: needs.changes.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v7
 
       # 25 is the JDK the build was verified on (the Android Studio JBR);
@@ -86,18 +86,18 @@ jobs:
         run: ./gradlew :core:test --console=plain
 
   app:
-    name: Android app (unit tests, debug build, generated strings)
+    name: "Android: app unit tests and builds"
     needs: changes
     if: needs.changes.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v7
 
       # First and cheapest: a catalog edited without regenerating leaves the
       # Android strings silently behind the iOS ones.
-      - name: Strings match the String Catalogs
+      - name: Check the strings match the String Catalogs
         run: python3 scripts/export_android_strings.py --check
 
       - name: Set up JDK
@@ -108,7 +108,7 @@ jobs:
 
       # The runner's preinstalled SDK, topped up with the one platform the app
       # compiles against — no third-party action for a single sdkmanager line.
-      - name: Android SDK platform
+      - name: Install the Android SDK platform
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;37.0.0" > /dev/null
@@ -116,7 +116,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Unit tests and debug build
+      - name: Run unit tests and the debug build
         working-directory: android
         run: ./gradlew :app:testDebugUnitTest :app:assembleDebug --console=plain
 
@@ -125,6 +125,6 @@ jobs:
       # what Google Play receives; it shares R8's output with the APK, so it
       # adds only its packaging. Both stay unsigned: the upload key never
       # leaves the owner's Mac (android/tools/build-release.sh).
-      - name: Release build (unsigned APK and bundle)
+      - name: Build the release (unsigned APK and bundle)
         working-directory: android
         run: ./gradlew :app:assembleRelease :app:bundleRelease --console=plain
