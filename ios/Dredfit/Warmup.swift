@@ -1,234 +1,313 @@
 //
-//  The warm-up block as data: a pool of nine mobility moves, six of them per
-//  session, 30 s each. No positions, no journal entry, no engine involvement.
+//  The warm-up block as data: a pool of fourteen standing moves, six of them
+//  per session, 30 s each. No positions, no journal entry, no engine
+//  involvement.
 //
-//  Three of the moves — Y-T-W, bird-dog and the single-leg Romanian deadlift
-//  — are not in the strength ladders: they are about activation, coordination
-//  and balance rather than a dose that can be graded, and inside a ladder each
-//  would stand as a gap in the density.
+//  EVERY MOVE IS STANDING, and none of them is strength work. A warm-up
+//  raises the temperature and takes the joints through the range the work
+//  will use. A trip to the floor, a balance, an isometric hold or a change of
+//  position every few moves asks more than that, and pays for it in
+//  transition time — so the movements that are about activation or balance
+//  rather than a dose (Y-T-W, the bird dog, the single-leg Romanian deadlift,
+//  all off the strength ladders) have no place here either.
 //
-//  Nine moves of 30 s DO NOT FIT the reserve the engine sets aside for the two
-//  blocks, so the block keeps its six slots and composes them from nine — as
-//  the cool-down composes six positions from a pool of nine.
+//  Six SLOTS, each drawn from its own group: two to raise the pulse (marching
+//  always opens), two for the shoulders and arms, one for the trunk, and a
+//  last one chosen by the session's FIRST exercise — half squats before a
+//  squat, hip hinges before a hinge. One rotation window over one list keeps
+//  a composition balanced only while the list's order is intact, and a move
+//  set aside breaks the order; a group per slot cannot lose one.
 //
-//  Every move with a HALFWAY BOUNDARY gets the cool-down's counted switch.
-//  Four of the nine have one: two are unilateral (single-leg RDL, bird dog)
-//  and two are circles whose own steps say to reverse direction halfway (arm
-//  circles, hip circles). A composition costs 228 s for its six slots and
-//  their transitions, plus the 4 s trip down to the floor when it draws a
-//  floor move, plus 4 s per split move: 240 to 244 with nothing set aside, and
-//  up to 248 once a move is set aside — a widened rotation window can draw all
-//  four split moves. Nothing here is derived: `BlockReserveTests` computes the
-//  same figures from the constants and is what actually fails. Past the
-//  engine's reserve, a longer block is an ENGINE change (`warmupMin`), made
-//  through the reference chain: the sixth minute of `warmupMin` was added for
-//  the counted switch (#233), though at the eight-second transition the two
-//  blocks would now fit in nine minutes (`GetReady.setupSupplementSec`).
+//  A circle REVERSES halfway, and the clock does not stop for it: a tone marks
+//  the midpoint and the second half runs straight on. The side switch keeps
+//  its pause — turning over or changing legs re-sets the body; reversing a
+//  circle does not, and a pause there would stop a movement for nothing.
 //
-//  Torso rotations and cat-cow are NOT split, and the distinction is the steps,
-//  not the shape of the movement: both alternate continuously — every rep, every
-//  breath — so there is no single moment to announce. A signal invented for them
-//  would interrupt a movement rather than mark it.
+//  Every slot therefore costs the same, the transition plus thirty seconds,
+//  and every composition 228 s. Nothing here is derived: `BlockReserveTests`
+//  computes the same figure from the constants and is what actually fails.
+//  The engine's reserve (`warmupMin`) holds that with slack to spare: a
+//  shorter block never overruns it.
+//
+//  Moves that alternate continuously — side steps, torso rotations, side
+//  bends, overhead reaches — are NOT split, and the distinction is the steps,
+//  not the shape of the movement: they change side every rep, so there is no
+//  single moment to announce. A signal invented for them would interrupt a
+//  movement rather than mark it.
 //
 
 import Foundation
 import DredfitCore
 
-/// What the two halves of a split warm-up move are.
+/// What the two halves of a split position are.
 ///
-/// The cool-down knows only `sides`, so it has no equivalent of this type: its
-/// nine positions are stretches, and a stretch is either symmetrical or done
-/// per side. The warm-up has circles.
-enum WarmupHalves: Equatable { case sides, directions }
+/// The warm-up's split moves all reverse a DIRECTION; sides belong to the
+/// cool-down's per-side stretches and the work screen's per-side holds, which
+/// share the type through `GuidedPosition`.
+enum WarmupHalves: Equatable {
+    case sides, directions
+
+    /// Whether the switch between the halves stops the clock. A side switch
+    /// re-sets the body — turn over, change the leg — and gets the pause
+    /// (`Cooldown.sideSwitchPauseSec`); a circle reverses on the move.
+    var pausesAtTheSwitch: Bool {
+        switch self {
+        case .sides:      return true
+        case .directions: return false
+        }
+    }
+}
 
 struct WarmupMove: Equatable, Identifiable {
     let id: String
     let name: String
-    /// The move happens on the floor. Coming DOWN to the floor is what earns
-    /// the supplement of issue #83 — moving between two floor positions does
-    /// not — so the flag on the move says where it is, and the composition
-    /// below decides who pays.
-    let onFloor: Bool
-    /// The move has a halfway boundary, and this says WHAT is switched at it.
-    /// nil is one continuous slot.
+    /// The move reverses direction halfway — a circle whose steps say so.
     ///
     /// A property of the movement, not of where it sits in the composition —
-    /// and it decides the WORDS, never the seconds: sides and directions both
-    /// run 15 + 4 + 15. "Switch sides" over a circle the person is about to
-    /// reverse would mislead as surely as saying nothing at the switch.
-    let halves: WarmupHalves?
-
-    /// Two halves and a switch between them.
-    var isSplit: Bool { halves != nil }
-    /// The move changes the starting position or needs a prop, so its
-    /// transition carries the supplement of issue #83. COMPUTED by the
-    /// composition, never written by hand: with three floor moves in the pool,
-    /// a per-move flag would charge the supplement up to three times for one
-    /// trip down to the floor.
-    var needsSetup: Bool
+    /// and it decides the WORDS and the tone, never the seconds: the two
+    /// halves are the 30 s slot with nothing between them.
+    let reverses: Bool
     let steps: [String]
+
+    /// Two halves with the switch between them, or one continuous slot.
+    var halves: WarmupHalves? { reverses ? .directions : nil }
+
+    /// Every move is standing, so no transition is a trip to the floor or to
+    /// a wall: the supplement of issue #83 is never paid in this block.
+    var needsSetup: Bool { false }
 }
 
 enum Warmup {
 
     static let moveSeconds = 30
-    /// Six on screen. The pool behind them is nine.
+    /// Six on screen. The pool behind them is fourteen.
     static let moveCount = 6
 
-    /// One 30 s slot split in half — a move with two sides or two directions
-    /// does not get twice the time. The switch pause rides on TOP of the slot,
-    /// exactly as it does in the cool-down.
+    /// One 30 s slot split in half — a reversed circle does not get twice the
+    /// time, and with no pause between them the two halves ARE the slot.
     static var halfSeconds: Int { moveSeconds / 2 }
 
-    /// The pause at the switch. `Cooldown.sideSwitchPauseSec`, not a number of
-    /// its own: one beat, one length, and that constant is already shared with
-    /// the workout's per-side holds.
-    ///
-    /// The RAW constant, not `Cooldown.switchPauseSeconds`: the warm-up's own
-    /// lengths ignore `--uitest-fast` (`moveSeconds` does), and a pause that
-    /// collapsed while the two halves it separates did not would give the
-    /// block a shape under the flag that it never has in production.
-    static var switchPauseSeconds: Int { Cooldown.sideSwitchPauseSec }
+    // MARK: - The pool of fourteen
 
-    // MARK: - The pool of nine
-
-    /// In DISPLAY order: standing work first, floor work last, so a session
-    /// goes down to the floor once and stays there.
+    /// In DISPLAY order, group by group, with the two lead-in-only moves last.
     private static var pool: [WarmupMove] {
         [
+            // Raise the pulse.
             move(id: "marching", name: String(localized: "Marching in place"),
-                 onFloor: false, halves: nil, steps: [
+                 reverses: false, steps: [
                 String(localized: "warmup.marching.step1",
                        defaultValue: "March at an easy pace, lifting the knees to hip height."),
                 String(localized: "warmup.marching.step2",
                        defaultValue: "Swing the arms freely and keep the shoulders relaxed."),
             ]),
+            move(id: "side-steps", name: String(localized: "Side steps"),
+                 reverses: false, steps: [
+                String(localized: "warmup.sideSteps.step1",
+                       defaultValue: "Step one foot out to the side as both arms swing up overhead."),
+                String(localized: "warmup.sideSteps.step2",
+                       defaultValue: "Bring the feet together as the arms come down, then step to the other side — no jumping."),
+            ]),
+            move(id: "heels-to-glutes", name: String(localized: "Heels to glutes"),
+                 reverses: false, steps: [
+                String(localized: "warmup.heelsToGlutes.step1",
+                       defaultValue: "Walk in place, bringing each heel up toward the glutes."),
+                String(localized: "warmup.heelsToGlutes.step2",
+                       defaultValue: "Stay light on the balls of the feet — no jumping, no hurry."),
+            ]),
+            // Shoulders and arms.
             move(id: "arm-circles", name: String(localized: "Arm circles"),
-                 onFloor: false, halves: .directions, steps: [
+                 reverses: true, steps: [
                 String(localized: "warmup.armCircles.step1",
                        defaultValue: "Circle straight arms forward — big, slow circles."),
                 String(localized: "warmup.armCircles.step2",
                        defaultValue: "Halfway through, switch direction and circle backward."),
             ]),
+            move(id: "arm-swings", name: String(localized: "Arm swings"),
+                 reverses: false, steps: [
+                String(localized: "warmup.armSwings.step1",
+                       defaultValue: "Open the arms wide at chest height, then swing them in to hug yourself."),
+                String(localized: "warmup.armSwings.step2",
+                       defaultValue: "Keep it loose; switch which arm crosses on top each time."),
+            ]),
+            move(id: "reach-and-pull", name: String(localized: "Reach and pull back"),
+                 reverses: false, steps: [
+                String(localized: "warmup.reachPull.step1",
+                       defaultValue: "Reach both arms forward at shoulder height, letting the shoulder blades spread."),
+                String(localized: "warmup.reachPull.step2",
+                       defaultValue: "Pull the elbows back past the ribs and squeeze the shoulder blades together."),
+            ]),
+            move(id: "wrist-circles", name: String(localized: "Wrist circles"),
+                 reverses: true, steps: [
+                String(localized: "warmup.wristCircles.step1",
+                       defaultValue: "Make loose fists and circle the wrists slowly, elbows still."),
+                String(localized: "warmup.wristCircles.step2",
+                       defaultValue: "Halfway through, switch direction."),
+            ]),
+            move(id: "overhead-reaches", name: String(localized: "Overhead reaches"),
+                 reverses: false, steps: [
+                String(localized: "warmup.overheadReaches.step1",
+                       defaultValue: "Reach one arm up high, lengthening that side, then the other."),
+                String(localized: "warmup.overheadReaches.step2",
+                       defaultValue: "Draw each elbow down toward the ribs on the way back; keep the lower back still."),
+            ]),
+            // The trunk.
             move(id: "torso-rotations", name: String(localized: "Torso rotations"),
-                 onFloor: false, halves: nil, steps: [
+                 reverses: false, steps: [
                 String(localized: "warmup.torsoRotations.step1",
                        defaultValue: "Feet planted, hips facing forward; turn the torso side to side."),
                 String(localized: "warmup.torsoRotations.step2",
                        defaultValue: "Let the arms swing loose — momentum, not force."),
             ]),
+            move(id: "side-bends", name: String(localized: "Side bends"),
+                 reverses: false, steps: [
+                String(localized: "warmup.sideBends.step1",
+                       defaultValue: "Feet hip-width; slide one hand down the side of the thigh as you bend to that side."),
+                String(localized: "warmup.sideBends.step2",
+                       defaultValue: "Come up through the middle and bend to the other side — no leaning forward."),
+            ]),
             move(id: "hip-circles", name: String(localized: "Hip circles"),
-                 onFloor: false, halves: .directions, steps: [
+                 reverses: true, steps: [
                 String(localized: "warmup.hipCircles.step1",
                        defaultValue: "Hands on the hips, feet shoulder-width; draw slow circles with the hips."),
                 String(localized: "warmup.hipCircles.step2",
                        defaultValue: "Keep the knees soft and switch direction halfway."),
             ]),
+            move(id: "standing-cat-cow", name: String(localized: "Standing cat-cow"),
+                 reverses: false, steps: [
+                String(localized: "warmup.standingCatCow.step1",
+                       defaultValue: "Knees slightly bent, hands on the thighs; exhale, round the back and tuck the chin."),
+                String(localized: "warmup.standingCatCow.step2",
+                       defaultValue: "Inhale, arch gently and open the chest — one slow wave per breath."),
+            ]),
+            // Lead-ins only (`leadIn(for:)`).
+            move(id: "hip-hinges", name: String(localized: "Hip hinges"),
+                 reverses: false, steps: [
+                String(localized: "warmup.hipHinges.step1",
+                       defaultValue: "Hands on the hips, knees soft; push the hips back as the chest leans forward."),
+                String(localized: "warmup.hipHinges.step2",
+                       defaultValue: "Keep the back flat and go only as far as is comfortable, then stand tall."),
+            ]),
+            // Slow, and said so: thirty seconds at an easy pace is fifteen to
+            // twenty half squats — more than a first working set of 3×4 —
+            // and the block is meant to leave the legs fresh for that set.
             move(id: "half-squats", name: String(localized: "Half squats"),
-                 onFloor: false, halves: nil, steps: [
+                 reverses: false, steps: [
                 String(localized: "warmup.halfSquats.step1",
-                       defaultValue: "Sit back to half depth, arms reaching forward for balance."),
+                       defaultValue: "Heels down, sit back to half depth with the arms reaching forward for balance."),
                 String(localized: "warmup.halfSquats.step2",
-                       defaultValue: "Heels stay down; rise smoothly without locking the knees."),
+                       defaultValue: "Slow and easy — about ten in all; rise without locking the knees."),
             ]),
-            // The three defined in the core (`WarmupTechnique`): their names
-            // and steps come from the CORE catalog, which carries them in six
-            // languages.
-            fromLibrary(WarmupTechnique.singleLegDeadlift, onFloor: false, halves: .sides),
-            move(id: "cat-cow", name: String(localized: "Cat-cow"),
-                 onFloor: true, halves: nil, steps: [
-                String(localized: "warmup.catCow.step1",
-                       defaultValue: "On all fours: exhale, round the back and tuck the chin."),
-                String(localized: "warmup.catCow.step2",
-                       defaultValue: "Inhale, arch gently and look slightly up — one slow wave per breath."),
-            ]),
-            fromLibrary(WarmupTechnique.birdDog, onFloor: true, halves: .sides),
-            fromLibrary(WarmupTechnique.ytw, onFloor: true, halves: nil),
         ]
     }
 
-    /// No default for `halves`, deliberately: an omitted argument would be a
-    /// move running thirty seconds on one leg or in one direction, with no
-    /// switch announced. A compile error is a stronger guard than a grep (the
-    /// rule `SetsHandle` keeps for the same reason).
-    private static func move(id: String, name: String, onFloor: Bool,
-                             halves: WarmupHalves?, steps: [String]) -> WarmupMove {
-        WarmupMove(id: id, name: name, onFloor: onFloor, halves: halves,
-                   needsSetup: false, steps: steps)
+    /// No default for `reverses`, deliberately: an omitted argument would be a
+    /// circle running thirty seconds in one direction with no switch
+    /// announced. A compile error is a stronger guard than a grep (the rule
+    /// `SetsHandle` keeps for the same reason).
+    private static func move(id: String, name: String, reverses: Bool,
+                             steps: [String]) -> WarmupMove {
+        WarmupMove(id: id, name: name, reverses: reverses, steps: steps)
     }
-
-    private static func fromLibrary(_ movement: WarmupMovement, onFloor: Bool,
-                                    halves: WarmupHalves?) -> WarmupMove {
-        WarmupMove(id: movement.id, name: movement.name, onFloor: onFloor,
-                   halves: halves, needsSetup: false, steps: movement.steps)
-    }
-
-    /// Always in the block: the two that open it cold and the one that takes
-    /// the spine through its range.
-    ///
-    /// "Permanent" is about the ROTATION, not about the athlete: a permanent
-    /// move can be set aside like any other, and it then gives its slot to a
-    /// rotating one rather than shortening the block.
-    private static let permanentIDs: Set<String> = ["marching", "arm-circles", "cat-cow"]
 
     // MARK: - Composition
 
-    /// The six moves of session `sessionNumber`, drawn from the pool of nine
-    /// with `hidden` set aside.
+    /// The first five slots and where each draws from, in display order.
     ///
-    /// Three are fixed; the other three step through the remaining six by one
-    /// per session, so each rotating move appears in three sessions out of six
-    /// and the block never repeats itself two weeks running. Deterministic in
-    /// the session number and the hidden set alone, which is what lets a
-    /// restored snapshot recompute the same list instead of carrying it.
+    /// Each group's rotation runs over its WHOLE list and advances one move
+    /// per session; a move set aside — or the one the lead-in already took —
+    /// passes its turn to the next in its group. Run over the whole list, the
+    /// rotation's period is the same whatever is set aside
+    /// (`rotationPeriod`), which is what lets the reserve tests walk every
+    /// composition there is.
     ///
-    /// `hidden` exists because a permanent move falls in every session —
-    /// cat-cow among them — and without it the only way to say "not this one"
-    /// would be the same tap, every workout, forever: for a sore wrist that is
-    /// the cost that makes people drop the whole block instead.
-    static func moves(sessionNumber: Int, hiding hidden: Set<String>) -> [WarmupMove] {
-        // `pool` is a computed property that builds nine localized moves, so
-        // it is read ONCE here and everything below works off the array.
+    /// Marching is a group of its own: it opens every block cold, and the
+    /// first thing a cold body gets is the gentlest raise there is.
+    private static let groups: [(ids: [String], slots: Int)] = [
+        (["marching"], 1),
+        (["side-steps", "heels-to-glutes"], 1),
+        (["arm-circles", "arm-swings", "reach-and-pull", "wrist-circles", "overhead-reaches"], 2),
+        (["torso-rotations", "side-bends", "hip-circles", "standing-cat-cow"], 1),
+    ]
+
+    /// The last slot: the move that prepares the session's first exercise —
+    /// the block's one specific part, and the reason half squats do not
+    /// precede a session that opens on a push.
+    ///
+    /// Total over `Pattern`, with no default: a new pattern is a compile error
+    /// here rather than a session that silently opens without a lead-in. Only
+    /// four patterns open a session today — squat, horizontal push, hinge,
+    /// pull (`Pattern.ordered` against the rotation) — but every pattern has
+    /// to land on a sensible move all the same.
+    static func leadIn(for pattern: Pattern) -> String {
+        switch pattern {
+        case .squat, .lunge, .calf:  return "half-squats"
+        case .hinge:                 return "hip-hinges"
+        case .pushH:                 return "arm-swings"
+        case .pushV:                 return "overhead-reaches"
+        case .pull, .pullBar:        return "reach-and-pull"
+        case .coreAntiExt:           return "standing-cat-cow"
+        case .coreRot:               return "torso-rotations"
+        }
+    }
+
+    /// The six moves of session `sessionNumber` opening on `opening`, drawn
+    /// from the pool with `hidden` set aside.
+    ///
+    /// Deterministic in its three inputs alone, which is what lets a restored
+    /// snapshot recompute the same list instead of carrying it.
+    ///
+    /// `hidden` exists because a move can fall in session after session — the
+    /// opener in every one — and without it the only way to say "not this
+    /// one" would be the same tap, every workout, forever: for a sore wrist
+    /// that is the cost that makes people drop the whole block instead.
+    static func moves(sessionNumber: Int, opening: Pattern?,
+                      hiding hidden: Set<String>) -> [WarmupMove] {
+        // `pool` is a computed property that builds fourteen localized moves,
+        // so it is read ONCE here and everything below works off the array.
         let whole = pool
         let setAside = honoured(hidden, of: whole)
-        let all = whole.filter { !setAside.contains($0.id) }
-        let permanent = all.filter { permanentIDs.contains($0.id) }
-        let rotating = all.filter { !permanentIDs.contains($0.id) }
-        // A hidden permanent move widens the rotation's window instead of
-        // leaving a hole: nine in the pool against six on screen is exactly
-        // the slack `honoured` spends, so the block is always six.
-        let slots = min(max(moveCount - permanent.count, 0), rotating.count)
+        let lead = opening.map(leadIn(for:)).flatMap { setAside.contains($0) ? nil : $0 }
+        var taken = setAside
+        if let lead { taken.insert(lead) }
         var chosen: Set<String> = []
-        if slots > 0 {
-            // Nonnegative modulo: a hand-edited session number can be
-            // anything, and Swift's % is a remainder. `rotating` is non-empty
-            // here — `slots > 0` cannot hold otherwise — but the guard is what
-            // says so out loud, because a % 0 is a crash, not a wrong list.
-            let start = ((sessionNumber - 1) % rotating.count + rotating.count) % rotating.count
-            chosen = Set((0..<slots).map { rotating[(start + $0) % rotating.count].id })
+        for group in groups {
+            let drawn = draw(group.slots, of: group.ids, session: sessionNumber, passing: taken)
+            chosen.formUnion(drawn)
+            taken.formUnion(drawn)
         }
-        var composed = all.filter { permanentIDs.contains($0.id) || chosen.contains($0.id) }
-        // Only the FIRST floor move pays the supplement of issue #83: the trip
-        // that changes the starting position is the trip down to the floor.
-        // Charging it again between two floor positions would spend reserve
-        // on a trip nobody makes.
-        if let first = composed.firstIndex(where: { $0.onFloor }) {
-            composed[first].needsSetup = true
+        // A group whose every move is set aside leaves its slot empty, and the
+        // block is six whatever is set aside: the first moves of the pool not
+        // yet taken fill in. In pool order, so an emptied raise slot is
+        // refilled by the other raise move first.
+        let bodyCount = moveCount - (lead == nil ? 0 : 1)
+        for move in whole where chosen.count < bodyCount && !taken.contains(move.id) {
+            chosen.insert(move.id)
         }
-        return composed
+        return whole.filter { chosen.contains($0.id) } + whole.filter { $0.id == lead }
     }
 
     /// The block's own rule with nothing set aside — what the pool composes
     /// before any athlete has said anything. The app never calls it.
     ///
     /// Nor does the reserve gate, except for the claims that are explicitly
-    /// about "before anything was set aside": walked for the WORST case it
-    /// would miss the dearest block the app can draw, because a set-aside
-    /// move widens the rotation's window. A convenience overload is a fine
+    /// about "before anything was set aside": a convenience overload is a fine
     /// thing; a convenience overload that a gate reaches for is how the gate
     /// stops watching.
-    static func moves(sessionNumber: Int) -> [WarmupMove] {
-        moves(sessionNumber: sessionNumber, hiding: [])
+    static func moves(sessionNumber: Int, opening: Pattern?) -> [WarmupMove] {
+        moves(sessionNumber: sessionNumber, opening: opening, hiding: [])
+    }
+
+    /// `slots` moves of `ids`, starting where session `session` puts the
+    /// group's rotation and passing over anything in `passing`.
+    private static func draw(_ slots: Int, of ids: [String], session: Int,
+                             passing: Set<String>) -> [String] {
+        guard !ids.isEmpty else { return [] }
+        // Nonnegative modulo: a hand-edited session number can be anything,
+        // and Swift's % is a remainder. `ids` is non-empty here, and the guard
+        // is what says so out loud, because a % 0 is a crash, not a wrong list.
+        let start = ((session - 1) % ids.count + ids.count) % ids.count
+        let turn = (0..<ids.count).map { ids[(start + $0) % ids.count] }
+        return Array(turn.filter { !passing.contains($0) }.prefix(slots))
     }
 
     /// As many of `hidden` as the block can afford, in pool order.
@@ -238,7 +317,7 @@ enum Warmup {
     /// the control can add, but a state file written by an older
     /// build, an imported backup or a future cap must not be able to compose a
     /// warm-up of two moves — or of none, which would index out of bounds on
-    /// the first screen. Six of nine are shown, so at most three can go.
+    /// the first screen. Six of fourteen are shown, so at most eight can go.
     private static func honoured(_ hidden: Set<String>, of whole: [WarmupMove]) -> Set<String> {
         let affordable = max(whole.count - moveCount, 0)
         guard hidden.count > affordable else { return hidden }
@@ -249,46 +328,42 @@ enum Warmup {
     /// screens read this and nothing else.
     ///
     /// No default for `hiding`, deliberately, and for the reason `move(id:...)`
-    /// above gives about `halves`: an omitted argument here is a control the
+    /// above gives about `reverses`: an omitted argument here is a control the
     /// athlete used that the block ignores, which is worse than not offering
     /// it. One caller, and a compile error is a stronger guard than a grep.
     static func moves(for session: Session, hiding hidden: Set<String>) -> [WarmupMove] {
-        moves(sessionNumber: session.sessionNumber, hiding: hidden)
+        moves(sessionNumber: session.sessionNumber,
+              opening: session.exercises.first?.pattern, hiding: hidden)
     }
 
     /// The name behind an id, for the sheet's list of what has been set aside:
     /// it holds ids and no moves. nil for an id from the cool-down's pool —
-    /// one list covers both, and the caller asks both pools.
+    /// one list covers both, and the caller asks both pools — and for a move
+    /// an earlier build had and this one does not.
     static func name(ofMove id: String) -> String? {
         pool.first { $0.id == id }?.name
     }
 
-    /// How many distinct compositions there are before they repeat. The
-    /// reserve tests walk all of them: with a pool, "the block fits" is a
-    /// claim about every session, not about one.
-    static var compositionCount: Int { pool.count - permanentIDs.count }
+    /// How many sessions before the compositions repeat: the least common
+    /// multiple of the group sizes, fixed whatever is set aside because each
+    /// rotation runs over its whole list. The reserve tests walk all of them:
+    /// with a pool, "the block fits" is a claim about every session, not
+    /// about one.
+    static var rotationPeriod: Int {
+        groups.map(\.ids.count).reduce(1) { period, size in
+            var (a, b) = (period, size)
+            while b != 0 { (a, b) = (b, a % b) }
+            return period / a * size
+        }
+    }
 
-    /// What the offer screen promises, DERIVED — a hand-typed 5 would go stale
-    /// the first time a move is added or the composition changes. Rounded up:
-    /// a promise the block overruns is worse than one it beats.
+    /// What the offer screen promises, DERIVED — a hand-typed 4 would go stale
+    /// the first time the transition or the slot changes. Rounded up: a
+    /// promise the block overruns is worse than one it beats.
     static func introMinutes(_ moves: [WarmupMove]) -> Int {
         let seconds = moves.reduce(0) { total, move in
-            total + GuidedBlock.warmup.stageSeconds(.getReady, of: move) + slotSeconds(of: move)
+            total + GuidedBlock.warmup.stageSeconds(.getReady, of: move) + moveSeconds
         }
         return max(1, Int((Double(seconds) / 60).rounded(.up)))
-    }
-}
-
-// MARK: - The slot
-
-extension Warmup {
-
-    /// What the move itself takes, its transition excluded: the slot, plus the
-    /// switch pause when it has two halves. ONE function rather than the
-    /// formula spelled out at each caller — the offer screen and the reserve
-    /// tests have to agree, and copies of a formula agree only until one of
-    /// them is edited.
-    static func slotSeconds(of move: WarmupMove) -> Int {
-        move.isSplit ? halfSeconds * 2 + switchPauseSeconds : moveSeconds
     }
 }

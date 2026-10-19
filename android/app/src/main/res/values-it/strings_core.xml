@@ -15,7 +15,6 @@
     <string name="core_bend_the_elbows_lowering_the_top_of_the__c414a30c">Piega i gomiti, abbassando la sommità della testa verso il pavimento tra le mani.</string>
     <string name="core_bend_the_elbows_slowly_lowering_the_top__7baea5ef">Piega i gomiti lentamente, abbassando la sommità della testa verso il pavimento.</string>
     <string name="core_bending_the_elbows_that_is_a_pull_up_not_ec447ebc">Piegare i gomiti: quella è una trazione, non lavoro scapolare.</string>
-    <string name="core_bird_dog_hold_f4fa71d8">Bird dog (isometria)</string>
     <string name="core_body_folding_forward_shoulders_hips_and__667d5d29">Il corpo si piega in avanti – spalle, bacino e gambe sullo stesso piano.</string>
     <string name="core_body_in_one_line_from_head_to_heels_elbo_92b8844f">Il corpo in linea dalla testa ai talloni, i gomiti a circa 45° dal busto.</string>
     <string name="core_body_straight_from_shoulders_to_heels_pu_78fd2009">Corpo dritto dalle spalle ai talloni; porta il petto al bordo avvicinando le scapole.</string>
@@ -46,7 +45,6 @@
     <string name="core_elbows_flared_out_to_90_this_overloads_t_122cf2fd">Gomiti aperti a 90° – così si sovraccaricano le spalle.</string>
     <string name="core_elbows_flared_to_90_keep_them_closer_to__4946863a">Gomiti aperti a 90° – tienili più vicini al busto.</string>
     <string name="core_elbows_too_far_too_soon_increase_the_lev_f988c767">Gomiti subito troppo avanti – allunga la leva poco alla volta.</string>
-    <string name="core_extend_the_opposite_arm_and_leg_into_one_55e31dc4">Distendi il braccio e la gamba opposti in linea con il busto.</string>
     <string name="core_extend_the_top_leg_forward_and_put_that__1087a36b">Distendi la gamba superiore in avanti e appoggia quel piede a terra: la base è più stretta e il busto lavora di più.</string>
     <string name="core_fast_bouncing_move_slowly_with_a_pause_a_4a11fcad">Molleggi veloci – muoviti lentamente, con una pausa in alto.</string>
     <string name="core_feet_elevated_inverted_row_8ddc4441">Rematore con i piedi rialzati</string>
@@ -110,14 +108,12 @@
     <string name="core_hold_the_torso_like_a_plank_and_pull_the_9204be32">Tieni il busto come in plank e porta il petto al bordo unendo le scapole.</string>
     <string name="core_hold_without_letting_the_hips_drop_free__157808b6">Tieni la posizione senza far scendere il bacino; mano libera sul fianco o verso l’alto.</string>
     <string name="core_hold_without_letting_the_hips_drop_free__3d97cdba">Tieni senza far scendere il bacino; la mano libera sul fianco.</string>
-    <string name="core_hold_without_wobbling_pelvis_and_shoulde_b8b96ad5">Tieni la posizione senza oscillare; bacino e spalle restano paralleli al pavimento.</string>
     <string name="core_holding_your_breath_keep_breathing_shall_9555c401">Stai trattenendo il respiro – continua a respirare in modo leggero e regolare.</string>
     <string name="core_hollow_hold_73454408">Hollow hold</string>
     <string name="core_horizontal_push_3bba3827">Spinta orizzontale</string>
     <string name="core_incline_push_up_323815d4">Flessioni inclinate</string>
     <string name="core_inverted_row_table_5e9c2f8d">Rematore al tavolo</string>
     <string name="core_jerking_and_kicking_with_the_legs_only_t_0bd40cd2">Strattoni e slanci con le gambe – lavorano solo schiena e braccia.</string>
-    <string name="core_jerking_the_torso_up_only_the_arms_and_s_ee5e19f2">Sollevare il busto di slancio – si alzano solo braccia e scapole.</string>
     <string name="core_jerky_pulls_slide_out_and_back_slowly_wi_eb7b5c91">Movimenti a strappo – scivola avanti e indietro lentamente, con controllo.</string>
     <string name="core_jump_lunge_91ab2bf9">Affondi con salto</string>
     <string name="core_keep_a_steady_rhythm_use_the_arms_for_ba_d05881b5">Tieni un ritmo costante; aiutati con le braccia per l’equilibrio.</string>
@@ -140,7 +136,6 @@
     <string name="core_lean_back_on_straight_arms_the_body_abou_8755cbf1">Inclinati indietro a braccia tese, il corpo a circa 80° rispetto al pavimento.</string>
     <string name="core_leaning_far_forward_keep_the_chest_up_an_58812527">Inclinarsi troppo in avanti – petto alto e core contratto.</string>
     <string name="core_leg_drifting_forward_keep_it_in_line_wit_82ca3259">La gamba si sposta in avanti – tienila in linea con il busto.</string>
-    <string name="core_lie_face_down_forehead_near_the_floor_ar_9596f0a5">Sdraiati a pancia in giù, la fronte vicino al pavimento, le braccia distese a formare una Y.</string>
     <string name="core_lie_on_your_back_feet_close_to_the_glute_96188dbb">Sdraiati sulla schiena, i piedi vicini ai glutei alla larghezza del bacino, le braccia lungo i fianchi.</string>
     <string name="core_lie_on_your_back_heels_on_a_towel_on_a_s_d33145cb">Sdraiati sulla schiena su un pavimento liscio, i talloni su un asciugamano, il bacino sollevato.</string>
     <string name="core_lie_on_your_back_one_foot_near_the_glute_5e2a6180">Sdraiati sulla schiena, un piede vicino ai glutei, l’altra gamba distesa.</string>
@@ -156,11 +151,9 @@
     <string name="core_lift_the_hips_with_one_leg_to_a_straight_bb6aa1e3">Solleva il bacino con una gamba sola fino a formare una linea retta, senza inclinarlo.</string>
     <string name="core_lift_the_hips_with_the_working_leg_pushi_d67976dc">Solleva il bacino con la gamba che lavora, spingendo appena con il tallone dell’altra: più è facile, meno spingi.</string>
     <string name="core_lift_the_shoulder_blades_and_straight_le_35a6ea92">Solleva le scapole e le gambe tese di 15–20 cm da terra.</string>
-    <string name="core_lift_the_straight_arms_hold_for_2_second_0214d49b">Solleva le braccia tese, tienile per 2 secondi avvicinando le scapole, poi abbassale.</string>
     <string name="core_loading_the_rear_leg_it_is_only_there_fo_a95adc2c">Caricare il peso sulla gamba dietro – serve solo per l’equilibrio.</string>
     <string name="core_long_lever_plank_a10ec9e5">Plank a leva lunga</string>
     <string name="core_losing_balance_fix_your_eyes_on_a_point__5f5a0f7a">Perdi l’equilibrio – fissa un punto davanti a te.</string>
-    <string name="core_lower_back_arching_as_the_leg_lifts_the__4882102b">La zona lombare si inarca quando alzi la gamba – la gamba non va più in alto del busto.</string>
     <string name="core_lower_back_arching_don_t_let_the_hips_sa_f8f487a9">La zona lombare si inarca – non lasciar cedere il bacino.</string>
     <string name="core_lower_back_lifting_off_the_floor_raise_t_fbc8a3da">La zona lombare si stacca da terra – alza di più le gambe o piega le ginocchia.</string>
     <string name="core_lower_back_sagging_that_strains_the_spin_76463ec6">La zona lombare cede – questo sovraccarica la colonna; meglio fermarsi prima.</string>
@@ -191,13 +184,11 @@
     <string name="core_negative_pull_up_both_feet_assisting_5bc1e4a3">Trazioni negative con entrambi i piedi in appoggio</string>
     <string name="core_negative_pull_up_one_foot_assisting_7bd4d2a8">Trazioni negative con un piede in appoggio</string>
     <string name="core_negative_single_leg_sliding_curl_65c32cf2">Sliding leg curl negativo a una gamba</string>
-    <string name="core_on_all_fours_hands_under_the_shoulders_k_4ea178b9">A quattro zampe: mani sotto le spalle, ginocchia sotto le anche.</string>
     <string name="core_one_straight_line_from_head_to_heels_glu_b74b24b5">Un’unica linea retta dalla testa ai talloni; glutei e addome contratti.</string>
     <string name="core_partial_pull_up_ca407c88">Trazioni parziali</string>
     <string name="core_pause_a_second_at_the_top_lower_slowly_330442fb">Fermati un secondo in alto, poi scendi lentamente.</string>
     <string name="core_pause_a_second_at_the_top_lower_under_co_fb2a5f55">Fermati un secondo in alto; scendi in modo controllato.</string>
     <string name="core_paused_lunge_05abecd8">Affondi con pausa</string>
-    <string name="core_pelvis_rotating_open_keep_the_hips_squar_2ab8ce24">Il bacino si apre di lato – tienilo parallelo al pavimento.</string>
     <string name="core_pelvis_tilting_sideways_keep_both_hip_bo_8660e68d">Il bacino si inclina di lato – tieni le due ossa dell’anca rivolte al soffitto.</string>
     <string name="core_per_side_1d272205">per lato</string>
     <string name="core_pike_push_up_3a091b65">Flessioni pike</string>
@@ -234,12 +225,10 @@
     <string name="core_reaching_with_the_chin_instead_of_the_ch_dc2f1ece">Arrivare con il mento invece che con il petto – guida il movimento con il petto.</string>
     <string name="core_rear_foot_on_a_chair_or_couch_behind_you_43a7376a">Il piede dietro su una sedia o sul divano, quello davanti a una falcata di distanza.</string>
     <string name="core_relaxed_shoulders_at_the_bottom_keep_the_61fc3ddd">Spalle rilassate in basso – tieni le scapole attive fino alla fine.</string>
-    <string name="core_repeat_in_a_t_position_and_a_w_position__08379b0d">Ripeti in posizione T e in posizione W – le tre posizioni insieme contano come una ripetizione.</string>
     <string name="core_reverse_lunge_dfce7918">Affondi indietro</string>
     <string name="core_rise_as_high_as_possible_pause_a_second__8bf8594a">Sollevati il più in alto possibile, un secondo di pausa, scendi in 3 secondi.</string>
     <string name="core_rise_as_high_as_you_can_onto_the_balls_o_7f9ea97e">Sollevati sulle punte il più in alto possibile, un secondo di pausa in alto.</string>
     <string name="core_rise_onto_the_ball_of_the_foot_as_high_a_1435f832">Sollevati sulla punta il più in alto possibile, un secondo di pausa.</string>
-    <string name="core_rounding_the_back_keep_the_shoulder_blad_13adaad0">Incurvare la schiena – tieni le scapole ferme e piegati dall’anca.</string>
     <string name="core_rushing_the_reps_control_both_directions_b43afa87">Ritmo troppo veloce – controlla il movimento in entrambe le direzioni.</string>
     <string name="core_sagging_hips_hold_the_body_like_a_plank_6b04bd71">Il bacino cede – tieni il corpo come in un plank.</string>
     <string name="core_sagging_hips_or_a_raised_butt_the_core_s_5b8a98cc">Bacino che cede o sedere troppo in alto – il core smette di lavorare.</string>
@@ -253,7 +242,6 @@
     <string name="core_shoulders_at_the_ears_pull_the_shoulder__72228fdb">Spalle alle orecchie – porta le scapole verso il basso; la sospensione deve essere attiva.</string>
     <string name="core_shoulders_at_the_ears_push_the_floor_awa_0fbcfb4c">Le spalle salgono verso le orecchie – spingi via il pavimento e tieni il collo lungo.</string>
     <string name="core_shoulders_creeping_back_to_the_ears_keep_2aba2392">Le spalle risalgono verso le orecchie: tienile basse per tutta l’isometria.</string>
-    <string name="core_shoulders_creeping_toward_the_ears_pull__bb37731b">Le spalle salgono verso le orecchie – porta le scapole in basso e indietro.</string>
     <string name="core_shoulders_drifting_past_the_hands_keep_t_4db53eae">Le spalle superano le mani: tienile esattamente sopra i polsi.</string>
     <string name="core_shrimp_squat_8ba0e895">Shrimp squat</string>
     <string name="core_side_plank_d2c22f20">Plank laterale</string>
@@ -264,7 +252,6 @@
     <string name="core_single_leg_calf_raise_on_a_step_aa94d6f1">Sollevamenti sulle punte a una gamba sullo scalino</string>
     <string name="core_single_leg_calf_raise_with_pause_1308a1da">Sollevamenti sulle punte a una gamba con pausa</string>
     <string name="core_single_leg_glute_bridge_2d090c15">Ponte glutei a una gamba</string>
-    <string name="core_single_leg_romanian_deadlift_09198452">Stacco rumeno a una gamba</string>
     <string name="core_single_leg_sliding_leg_curl_f582e987">Sliding leg curl a una gamba</string>
     <string name="core_single_leg_squat_to_a_chair_df605898">Squat a una gamba fino alla sedia</string>
     <string name="core_sit_back_and_down_for_2_seconds_knees_tr_a101ff79">Siediti all’indietro e in basso per ~2 secondi; le ginocchia seguono la linea delle punte, la schiena resta dritta.</string>
@@ -280,12 +267,10 @@
     <string name="core_squeeze_the_glutes_for_a_second_at_the_t_81dca493">Contrai i glutei per un secondo in alto, poi scendi lentamente senza toccare il pavimento.</string>
     <string name="core_stance_too_short_the_front_knee_travels__aceba6d7">Piedi troppo vicini – il ginocchio davanti supera di molto la punta del piede.</string>
     <string name="core_stand_a_step_away_from_a_wall_palms_on_i_1211d02a">Mettiti a un braccio di distanza dal muro, con i palmi appoggiati poco più larghi delle spalle, all’altezza del petto.</string>
-    <string name="core_stand_back_up_by_squeezing_the_glute_of__5c2a620b">Risali contraendo il gluteo della gamba d’appoggio.</string>
     <string name="core_stand_on_one_leg_and_lean_on_a_wall_or_a_2d5d50f2">In piedi su una gamba, appoggiati con una mano al muro o al tavolo perché tolga parte del peso.</string>
     <string name="core_stand_on_one_leg_bend_the_other_back_and_252b1a01">In piedi su una gamba; piega l’altra all’indietro e tieni il piede con una mano.</string>
     <string name="core_stand_on_one_leg_hand_on_a_wall_for_bala_a32cb2cc">In piedi su una gamba, una mano al muro per l’equilibrio.</string>
     <string name="core_stand_on_one_leg_the_other_extended_forw_84e595df">In piedi su una gamba, l’altra tesa in avanti, le braccia distese per l’equilibrio.</string>
-    <string name="core_stand_on_one_leg_with_a_soft_knee_hinge__ab095e0f">In piedi su una gamba, ginocchio morbido; piegati in avanti dall’anca con la schiena dritta.</string>
     <string name="core_stand_on_one_leg_with_the_ball_of_the_fo_c8deff24">In piedi su una gamba, con la punta del piede sul bordo dello scalino.</string>
     <string name="core_stand_on_one_leg_with_your_back_to_a_cha_7f85a36e">In piedi su una gamba con la schiena verso la sedia, l’altra gamba distesa avanti e le braccia davanti.</string>
     <string name="core_stand_up_through_the_front_heel_and_repe_47507bfd">Rialzati sul tallone anteriore e ripeti: la pausa a ogni ripetizione.</string>
@@ -308,14 +293,12 @@
     <string name="core_take_a_wide_hand_position_the_body_stays_c840aab9">Appoggia le mani ben larghe; il corpo resta una linea retta.</string>
     <string name="core_the_body_forms_a_star_straight_line_plus_d17224ae">Il corpo forma una stella: la linea retta più gli arti sollevati.</string>
     <string name="core_the_farther_the_elbows_the_harder_breath_cb54f431">Più i gomiti sono avanti, più è difficile – respira con regolarità e tieni la posizione.</string>
-    <string name="core_the_free_leg_extends_back_torso_and_leg__e0031aed">La gamba libera si allunga indietro; busto e gamba formano una linea, le mani scendono verso il pavimento.</string>
     <string name="core_the_front_shin_stays_near_vertical_weigh_e10da688">La tibia davanti resta quasi verticale; il peso sul tallone davanti.</string>
     <string name="core_the_higher_the_support_the_harder_it_get_5d860761">Più in alto sono i piedi, più è difficile – comincia da un appoggio basso.</string>
     <string name="core_the_support_is_not_solid_check_the_frame_d618b85d">L’appoggio non è saldo: controlla lo stipite e la presa prima della prima ripetizione.</string>
     <string name="core_the_support_wobbles_or_slides_check_it_b_9064176c">L’appoggio traballa o scivola: controllalo prima della prima ripetizione.</string>
     <string name="core_thighs_parallel_to_the_floor_at_the_bott_002374ae">In basso le cosce sono parallele al pavimento; risali espirando.</string>
     <string name="core_too_short_a_step_back_the_front_knee_get_c123b0fc">Passo indietro troppo corto – si sovraccarica il ginocchio davanti.</string>
-    <string name="core_torso_rotating_imagine_a_glass_of_water__bca859f3">Il busto ruota – immagina un bicchiere d’acqua appoggiato sulla zona lombare.</string>
     <string name="core_torso_tipping_forward_keep_the_chest_up_16441c48">Il busto si inclina in avanti – tieni il petto alto.</string>
     <string name="core_torso_tipping_forward_shoulders_and_hips_0f221401">Il busto si inclina in avanti – spalle e bacino sullo stesso piano.</string>
     <string name="core_torso_turning_keep_the_hips_and_shoulder_7146ca56">Il busto ruota: bacino e spalle guardano il pavimento.</string>
@@ -329,5 +312,4 @@
     <string name="core_weight_shifting_to_the_rear_leg_it_only__91fdf590">Il peso passa sulla gamba dietro: serve solo per l’equilibrio.</string>
     <string name="core_weight_split_evenly_then_it_is_just_a_pu_20495cd4">Il peso distribuito in modo uguale: allora è una flessione normale.</string>
     <string name="core_without_bending_the_elbows_pull_the_shou_df541bfc">Senza piegare i gomiti, porta le scapole in basso e indietro: il corpo sale di un paio di centimetri.</string>
-    <string name="core_y_t_w_raises_5bd629ab">Alzate Y-T-W</string>
 </resources>

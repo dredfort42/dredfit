@@ -103,7 +103,10 @@ object EngineConfig {
      *  variation below instead, while there is one. */
     internal const val deloadDrop = 3
     /** The two blocks are budgeted in whole minutes — see Engine.swift for the
-     *  arithmetic behind six and four. */
+     *  arithmetic behind six and four: the worst pair is 500 s against 600.
+     *  The warm-up's six minutes have room for a switch pause and a trip to
+     *  the floor that the standing warm-up does not take, so part of them is
+     *  slack, not spent. */
     const val warmupMin = 6
     const val cooldownMin = 4
     /** Rest between sets by BAND (the sets in the state, not the sets on

@@ -198,12 +198,10 @@ class BlockPauseTest {
         // by this feature — the stage lengths are the same ones GetReadyTest
         // measures against the reserved minutes.
         val positions = Cooldown.positions(performed = listOf(Pattern.pull))
-        val warmup = Warmup.moves(sessionNumber = 1)
+        val warmup = Warmup.moves(sessionNumber = 1, opening = Pattern.squat)
         assertEquals(Warmup.moveSeconds, GuidedBlock.warmup.stageSeconds(GuidedStage.whole, warmup[0]))
         assertEquals(GetReady.seconds, GuidedBlock.warmup.stageSeconds(GuidedStage.getReady, warmup[0]))
         assertEquals(Warmup.halfSeconds, GuidedBlock.warmup.stageSeconds(GuidedStage.firstHalf, warmup[0]))
-        assertEquals(Cooldown.sideSwitchPauseSec, GuidedBlock.warmup.stageSeconds(GuidedStage.switchPause, warmup[0]),
-                     "one gesture, one length — the cool-down's constant")
         assertEquals(Cooldown.positionSeconds, GuidedBlock.cooldown.stageSeconds(GuidedStage.whole, positions[0]))
         assertEquals(Cooldown.sideSeconds, GuidedBlock.cooldown.stageSeconds(GuidedStage.firstHalf, positions[0]))
         assertEquals(Cooldown.sideSwitchPauseSec, GuidedBlock.cooldown.stageSeconds(GuidedStage.switchPause, positions[0]))

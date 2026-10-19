@@ -289,7 +289,7 @@ final class DredfitUITests: XCTestCase {
 
     func testWarmupShowsAndSkips() {
         // Both transition labels below are asserted while their transition is
-        // on screen. The flag holds the automatic one ("Arm circles") open;
+        // on screen. The flag holds the automatic one ("Side steps") open;
         // the first is the count-in the offer's tap opens, which lasts
         // `GetReady.countInSeconds` whatever the flag says.
         seed("--uitest-long-transition")
@@ -305,7 +305,7 @@ final class DredfitUITests: XCTestCase {
                       "the first warm-up move is missing")
         // one impossible move must not cost the other five
         app.buttons["Skip this position"].tap()
-        XCTAssertTrue(app.staticTexts["Get ready: Arm circles"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.staticTexts["Get ready: Side steps"].waitForExistence(timeout: 3),
                       "skipping one move must advance to the next, not exit")
         app.buttons[AX.skipWarmup].tap()
         XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 3),

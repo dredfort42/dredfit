@@ -303,9 +303,9 @@ extension AppStore {
     }
 
     /// Three is the cap, and it is a floor argument rather than a taste: the
-    /// warm-up composes six moves out of a pool of nine, so three hidden still
-    /// leaves a full block to compose, and the cool-down keeps its two fixed
-    /// positions plus a rest pose. Past that the honest answer is not a
+    /// cool-down composes six positions out of a pool of nine, so three hidden
+    /// still leaves it a full block — its two fixed positions plus a rest pose
+    /// — and the warm-up's fourteen leave it more room than that. Past that the honest answer is not a
     /// shorter warm-up but no warm-up, and nothing here offers that.
     static let maxHiddenBlockMoves = 3
 
@@ -315,8 +315,17 @@ extension AppStore {
 
     /// False when the list is full — the control says so instead of silently
     /// doing nothing (the caller disables it; the guard below is the backstop).
+    ///
+    /// Counted over the ids a pool still knows. An id this build has no move
+    /// for stays in the set, because an imported backup or a downgrade must
+    /// not lose it; but the sheet cannot
+    /// name it or bring it back, so counting it would take a slot nobody can
+    /// ever free.
     var canHideAnotherBlockMove: Bool {
-        settings.hiddenBlockMoveIDs.count < Self.maxHiddenBlockMoves
+        let known = settings.hiddenBlockMoveIDs.filter {
+            Warmup.name(ofMove: $0) != nil || Cooldown.name(ofPosition: $0) != nil
+        }
+        return known.count < Self.maxHiddenBlockMoves
     }
 
     func setBlockMoveHidden(_ id: String, _ hidden: Bool) {

@@ -170,13 +170,10 @@ final class BlockPauseTests: XCTestCase {
         // by this feature — the stage lengths are the same ones GetReadyTests
         // measures against the reserved minutes.
         let positions = Cooldown.positions(performed: [.pull])
-        let warmup = Warmup.moves(sessionNumber: 1)
+        let warmup = Warmup.moves(sessionNumber: 1, opening: .squat)
         XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.whole, of: warmup[0]), Warmup.moveSeconds)
         XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.getReady, of: warmup[0]), GetReady.seconds)
         XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.firstHalf, of: warmup[0]), Warmup.halfSeconds)
-        XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.switchPause, of: warmup[0]),
-                       Cooldown.sideSwitchPauseSec,
-                       "one gesture, one length — the cool-down's constant")
         XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.whole, of: positions[0]),
                        Cooldown.positionSeconds)
         XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.firstHalf, of: positions[0]),

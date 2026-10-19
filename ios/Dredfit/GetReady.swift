@@ -19,19 +19,20 @@ enum GetReady {
 
     /// The supplement of issue #83, on top of `seconds`, for a position that
     /// changes the starting position (standing → the floor) or needs a prop
-    /// (a wall). The flag travels with the move or position (`needsSetup`) —
-    /// the cool-down set is dynamic, so an index would not survive
-    /// composition.
+    /// (a wall). Only the cool-down has such positions: the warm-up is
+    /// standing throughout. The flag travels with the position
+    /// (`needsSetup`) — the cool-down set is dynamic, so an index would not
+    /// survive composition.
     ///
     /// Neither this nor the base length is a taste: both are spent against a
     /// reserve the engine owns. `warmupMin + cooldownMin` is the whole budget
     /// for the two blocks, and the dearest pair the app can compose — every
-    /// supplemented position drawn, every switch pause played — is 520 s
+    /// supplemented position drawn, every switch pause played — is 500 s
     /// against a reserve of 600. Past the reserve, a longer transition is an
     /// ENGINE change, not an app one: the minute it needs goes into the
     /// reserve, and with it into every announced session duration.
     ///
-    /// Nine minutes would hold 520 s, and **the owner kept ten**: giving the
+    /// Nine minutes would hold 500 s, and **the owner kept ten**: giving the
     /// minute back is an engine change too, and would take a minute off every
     /// announced duration, the onboarding line and the store listing, to
     /// reclaim slack nobody is short of. `BlockReserveTests` holds the floor

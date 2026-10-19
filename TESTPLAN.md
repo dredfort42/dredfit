@@ -51,7 +51,7 @@ about pixels, not about strings. Walk those on a device before submitting.
 |---|---|---|
 | 1.1 | Tap an exercise row on Today before starting | Technique sheet opens; the workout does **not** start |
 | 1.2 | Tap **Start** | Full-screen flow opens on **WARM-UP**, on the first move's "Get ready" transition (§34); the screen does not auto-lock for the whole workout |
-| 1.3 | Let the warm-up run | 6 × (8 s transition + 30 s move), plus the 4 s trip to the floor and 4 s for each split move = 240–244 s. At 3-2-1 a tick sound + light haptic; at 0 a two-tone rise + success haptic starting the move; dots advance |
+| 1.3 | Let the warm-up run | 6 × (8 s transition + 30 s move) = 228 s, every move standing; a circle reverses halfway on the switch tone with the clock running. At 3-2-1 a tick sound + light haptic; at 0 a two-tone rise + success haptic starting the move; dots advance |
 | 1.3a | ⌚ Play music, run a countdown to 0 | The 3-2-1 ticks and the finale are clearly audible over the music at typical media volume; the music keeps playing (mixed, not paused) |
 | 1.3b | ⌚ Silent switch on | Signals are silent — haptics only. Same with **Sounds** off in settings |
 | 1.4 | Tap **Skip warm-up** | The *entire* warm-up block ends (not just the current move) and exercise 1 appears |
@@ -537,7 +537,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 
 | # | Check | Expected |
 |---|---|---|
-| 32.1 | Every warm-up move and cool-down position | A **technique** affordance under the name; the mini-sheet opens with the name, a block capsule ("warm-up · 30 s" / "cool-down · 30 s" / "cool-down · 15 s per side"), 2–3 numbered steps and **Got it** — all 15 positions |
+| 32.1 | Every warm-up move and cool-down position | A **technique** affordance under the name; the mini-sheet opens with the name, a block capsule ("warm-up · 30 s" / "warm-up · 15 s each way" / "cool-down · 30 s" / "cool-down · 15 s per side"), 2–3 numbered steps and **Got it** — all 23 positions (14 warm-up, 9 cool-down) |
 | 32.2 | The countdown while the sheet is open | **Frozen** — the number does not move; closing the sheet resumes from the same second. A deliberate divergence from the sheet on an ordinary rest, where the timer keeps ticking (32.6) |
 | 32.3 | Open during a side-switch pause (issue #35) | The 4→1 pause countdown freezes too and resumes on close |
 | 32.4 | Signals under the sheet | No ticks or go while frozen — the countdown is simply not running |
@@ -565,10 +565,10 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 34.4 | **Skip this move** during a transition | Skips the position it was announcing and lands on the next position's transition; on the last one it ends the block |
 | 34.5 | Complete the last exercise's last set | The cool-down opens the same way — a transition before "Hip flexor stretch", then the 15 s first side |
 | 34.6 | Every cool-down position | Preceded by its own transition, the per-side ones included: transition → 15 s → "Switch sides" 4 s → 15 s → next transition |
-| 34.7 | Total block length | Warm-up 240–244 s (248 once a move is set aside); worst cool-down 272 s. The PAIR is what the estimate reserves — `warmupMin` 6 + `cooldownMin` 4 = 10:00 — and the worst pair is 520 s, so it fits with 80 s to spare. `BlockReserveTests` computes both from the constants and is what fails first; the number on Today is unchanged, and must stay unchanged |
+| 34.7 | Total block length | Warm-up 228 s, whatever is set aside; worst cool-down 272 s. The PAIR is what the estimate reserves — `warmupMin` 6 + `cooldownMin` 4 = 10:00 — and the worst pair is 500 s, so it fits with 100 s to spare. `BlockReserveTests` computes both from the constants and is what fails first; the number on Today is unchanged, and must stay unchanged |
 | 34.8 | Lock the phone mid-transition, return after a while | If the transition still has time left, the countdown reflects real elapsed time. If it ran out more than 4 s before you came back, the block stands **paused** on it — a go nobody was there to hear must not start a position — and **Resume** is the way back in. Less than 4 s late, it simply carries on. It never jumps stages |
 | 34.9 | **technique** during a transition | The mini-sheet opens for the upcoming position and freezes its countdown, exactly as it does while a position runs |
-| 34.10 | VoiceOver on a transition | Reads one phrase — "Get ready: Cat-cow" — not the kicker and the name separately |
+| 34.10 | VoiceOver on a transition | Reads one phrase — "Get ready: Side steps" — not the kicker and the name separately |
 | 34.11 | All seven languages | «Приготовься» / "Prepárate" / "Prepare-se" / "Mach dich bereit" / "Prépare-toi" / "Preparati" over the name; the button reads «Начать» / "Empezar" / "Começar" / "Starten" / "Commencer" / "Inizia" (translated by sense — "ready" is a gendered adjective in most of them) |
 | 34.12 | es / pt-BR / de / fr / it at the largest accessibility sizes | The longest names ("Chest and shoulders at the wall", "Pecho y hombros en la pared", "Brust und Schultern an der Wand", "Poitrine et épaules au mur", "Petto e spalle al muro") wrap to three lines and the block's content **scrolls**; **I'm ready** and the block skip stay pinned and fully tappable. Applies to the running move and stretch screens too |
 
@@ -796,8 +796,8 @@ change lands by time under load), §43.10 (an old save file opens unchanged) and
 | 44.4a | Pull BOTH handles | They compose and the screen says so by arithmetic: the plan line counts what Start will run (3 movements at the cut set count), and the sets handle prices itself inside those three rather than inside the full six |
 | 44.5 | A movement at level 0 with two sets | Both handles are **absent**, and the weak-link prompt stays silent. This is §37.1 from the app's side: at the declared bottom there is nothing to offer, and a button that cannot work is worse than no button |
 | 44.6 | Level 0, answer **"tough"** many workouts running | The plan does not move — for **124 appearances** if you keep going. Known, accepted and named: below the declared floor there is nowhere to descend. What the app must not do is pretend otherwise |
-| 44.7 | Start a workout | The **warm-up asks first** — "6 positions · about 5 min", with start and skip — instead of dropping you into a countdown. Same for the cool-down after the last exercise |
-| 44.8 | The run-in before each guided position | **Eight seconds**, and **twelve** where the position means walking to a wall or getting down onto the floor. Time the worst warm-up and the worst cool-down: the two blocks TOGETHER may not exceed the 10:00 the plan reserves for the two of them |
+| 44.7 | Start a workout | The **warm-up asks first** — "6 positions · about 4 min", with start and skip — instead of dropping you into a countdown. Same for the cool-down after the last exercise |
+| 44.8 | The run-in before each guided position | **Eight seconds**, and **twelve** where a cool-down position means walking to a wall or getting down onto the floor (no warm-up move does). Time the worst warm-up and the worst cool-down: the two blocks TOGETHER may not exceed the 10:00 the plan reserves for the two of them |
 | 44.9 | **Went differently** with a number **below** the plan on set 1 of 3 | Carries forward: 8/8/8 for a planned 9. A number **above** the plan stays on its own set — 40 on set 1 of a planned 39 reads 40/39/39, not 40/40/40 |
 | 44.10 | Enter a number above the plan | One soft note per exercise — "do the plan, save your maximum for the last set" — which does not block the entry and does not promise the engine will do anything with the order. It will not: 12-8-8 and 8-8-12 reach the engine as the same number |
 | 44.11 | Settings | **No session length row.** Nothing offers 15, 20, 35 or 45 minutes, and nothing explains a default that no longer exists |
@@ -890,7 +890,7 @@ floors are gone — so is any screen word that named them. Walk this section on 
 | 47.10 | Pull the **easier variation** handle on any movement | It always lands on a *different* variation, and the plan it lands on is never more work than the one you were doing — including per-side movements, where the same number is twice the work (see §48.1) |
 | 47.11 | Bar on, `pull_bar` at the top of the hang | The hang → negative-pull-up boundary is crossed **only** by a probe. There is no descent, comeback or handle that walks across it by comparing seconds to reps |
 | 47.12 | Every movement's technique sheet, in each of the seven languages | All **59** positions carry a name, three numbered steps and two mistakes. No position shows a raw key, an empty line, or the English string on a translated device |
-| 47.13 | Warm-up and cool-down | Six positions each, drawn from pools of nine. The warm-up still runs **240–244 s** (248 once a move is set aside). Y-T-W, bird-dog and the single-leg Romanian deadlift appear in the **warm-up**, not among the strength movements |
+| 47.13 | Warm-up and cool-down | Six positions each, from pools of 14 (warm-up) and 9 (cool-down). The warm-up runs **228 s**. Y-T-W, bird-dog and the single-leg Romanian deadlift appear **nowhere** — not among the strength movements, and since the standing warm-up (57) not in the warm-up either |
 | 47.14 | A state file written by a pre-v3 build (see §48.5) | Opens with your movements, doses, rotation and bar answer carried across, and a card on Today saying what happened — **once** |
 
 ### 48. Measuring honestly (engine v3.1, spec §41)
@@ -1006,24 +1006,27 @@ walked to the rating, then opened from the calendar.
 
 ### 53. The warm-up counts the switch (app + engine §41.12)
 
-Four moves of the pool have a halfway boundary their own steps name: two are
-unilateral (single-leg Romanian deadlift, bird dog) and two are circles that
-reverse (arm circles, hip circles). Arm circles are in EVERY composition, so any
-session shows this; the unilateral pair needs one of sessions 2–5. Torso
-rotations and cat-cow alternate continuously and must stay one countdown.
+*Changed by the standing warm-up (57): the unilateral pair is gone, and the
+circles — arm circles, wrist circles, hip circles — reverse on the switch tone
+with the clock running, no pause. The rows below are rewritten to that; the side
+switch with its pause lives on in the cool-down (31) and the per-side holds.*
+
+Three moves of the pool have a halfway boundary their own steps name: the
+circles. Moves that alternate continuously — side steps, torso rotations, side
+bends, overhead reaches — must stay one countdown.
 
 | # | Check | Expected |
 |---|---|---|
-| 53.1 | A unilateral warm-up move | 15 s first side → **"Switch sides"** in accent with a 4→1 countdown → 15 s marked **"second side"** → the next transition |
-| 53.2 | A circle (arm circles, hip circles) | The same 15 + 4 + 15 with the same tones, and DIFFERENT words: **"Switch direction"**, then **"the other way"**, and "15 s each way" before the switch. Nothing on these screens says "side" |
-| 53.3 | Torso rotations, cat-cow, marching, half squats, Y-T-W | One 30 s countdown, no line above it, no switch tone. They alternate continuously — there is no single moment to announce |
-| 53.4 | Listen at each boundary | The pause opens with the **falling** two-tone and the second half starts on the rising go — the cool-down's signals exactly (31.2). 3-2-1 ticks precede the end of each half and **none** sound inside the pause |
-| 53.5 | The technique sheet of each kind | The capsule reads **"warm-up · 15 s per side"** for the unilateral pair, **"warm-up · 15 s each way"** for the circles, and "warm-up · 30 s" for the rest. Opening it freezes the countdown mid-pause too |
-| 53.6 | Pause during the switch, then Resume | Freezes; **Resume** gives the switch its whole 4 s again, as 35.5 does for the cool-down twin, and it hands over to the second half on its own single go — no lead-in, for the reason 35.5 gives |
-| 53.7 | Lock the phone across a whole split move | The block lands where the wall clock says. Nothing sounds a switch that is already over: the tone belongs to what is on screen |
-| 53.8 | The warm-up offer screen | "6 positions · about **4** min" for a 240 s composition and "about 5 min" for 244 or 248 — `introMinutes` rounds UP, and the shortened transition moved the boundary, so BOTH readings are correct and neither block may overrun what it promised |
+| 53.1 | A circle (arm circles, wrist circles, hip circles) | "15 s each way" over the first 15 s → 3-2-1 ticks → the **falling** switch two-tone, and the line becomes **"the other way"** in accent with the clock going straight on from 15 → the next transition. No pause, no 4→1, no go at the halfway point |
+| 53.2 | The words | Nothing on a circle's screen says "side"; VoiceOver reads "Switch direction" at the switch |
+| 53.3 | Marching, side steps, heels to glutes, arm swings, reach and pull back, overhead reaches, torso rotations, side bends, standing cat-cow, hip hinges, half squats | One 30 s countdown, no line above it, no switch tone. They alternate continuously or have no direction to reverse |
+| 53.4 | Listen at each boundary of a circle | Ticks before the halfway point, the switch tone AT it, ticks before the end, then the done of the transition — never a go in the middle |
+| 53.5 | The technique sheet of each kind | The capsule reads **"warm-up · 15 s each way"** for the circles and "warm-up · 30 s" for the rest; nothing in the warm-up reads "per side" |
+| 53.6 | Pause in the second half of a circle, then Resume | The way back in counts in and resumes the second half where it froze — there is no switch pause to give back |
+| 53.7 | Lock the phone across a whole circle | Away more than 4 s, the block freezes on the stage that was running (34.8) and Resume counts back in. Nothing sounds a switch that is already over: the tone belongs to what is on screen |
+| 53.8 | The warm-up offer screen | "6 positions · about **4** min" — every composition is 228 s, and `introMinutes` rounds up |
 | 53.9 | All seven languages | "Switch sides" / "second side" / "15 s per side" and "Switch direction" / "the other way" / "15 s each way" read naturally and stay distinct; nothing clips |
-| 53.10 | Today, on a fresh install | The plan line is **one minute longer than 2.1.0** — ≈ 24–32 min. The reserve for the two blocks grew to 10:00 to pay for the switch pause, and the price is on every announced duration |
+| 53.10 | Today, on a fresh install | The plan line is ≈ 24–32 min, as before the standing warm-up: the reserve for the two blocks stays 10:00, now with 100 s to spare |
 
 
 ### 54. The hold summary keeps the past and the future apart (app + engine §41.13)
@@ -1100,6 +1103,26 @@ of the top variation, until it fell. Seed the positions in `dredfit-state.json` 
 | 56.6 | Update from a build before this wave with a push frozen — 4×15 shown on a position of 5×15, the rows long back on five sets. Once with no workout in progress, once in the middle of one | With nothing in progress the first plan shows 5×15 — once; it says *A set is back.* only when the last card was written by a build that stamps the hold. In the middle of a workout the card **Continue the workout?** is still there and the workout carries on at 4×15 as it began; **Start over** instead runs 5×15. Carried to its end, that workout spends the release: the push then stays on 4×15 — a known residual — until a plan with the push in it comes up while the rows are a set down and the rows then get that set back, or until the push itself moves. A row set lost and won back between two plans with the push gives nothing back |
 | 56.7 | All seven languages, the smallest screen, the largest Dynamic Type | "+1 set once pulling catches up" reads naturally and drops under the variation line rather than clipping. Russian: «+1 подход, когда тяга догонит» |
 
+### 57. The warm-up stands (app)
+
+The owner's call of 18.10.2026: the warm-up leaves the floor and the strength work.
+Fourteen standing moves; each session draws six — marching first, then one more
+raise (side steps or heels to glutes), two for the shoulders and arms, one for the
+trunk — and its LAST move is chosen by the first exercise of the session: half
+squats before a squat, hip hinges before a hinge, arm swings before a push, reach and
+pull back before a row. Y-T-W, the bird dog, the single-leg Romanian deadlift and the
+floor cat-cow are gone.
+
+| # | Check | Expected |
+|---|---|---|
+| 57.1 | Walk a whole warm-up | Nobody goes down to the floor: every transition is 8 s, none is 12 s |
+| 57.2 | Look at the offer screen across several sessions | The names change from session to session; the last one matches the first exercise on Today (a squat session ends on **Half squats**) |
+| 57.3 | A session that opens on horizontal push or on a row | The warm-up ends on **Arm swings** or **Reach and pull back**, and that move is not also drawn earlier in the same block |
+| 57.4 | Set aside the move on screen, then bring it back from another one's sheet | The block stays six, never shows a set-aside move, and never reopens a move already done — the rebase lands forward, after the last move behind the athlete |
+| 57.5 | Update from a build that had cat-cow, bird dog or Y-T-W set aside | Those ids no longer appear under "Not shown any more", and they do **not** count against the three: three moves of the new pool can still be set aside |
+| 57.6 | Half squats' technique sheet | Says slow and easy, about ten in all — the block should leave the legs fresh for the first set |
+| 57.7 | All seven languages, the smallest screen, the largest Dynamic Type | The nine new names and their steps read naturally; the longest German name ("Vorstrecken und Zurückziehen") wraps rather than clips |
+
 ## Engine gates before a release
 
 Not a manual row — the five automated gates a release runs from `reference/`,
@@ -1113,7 +1136,7 @@ the repository, like `reference/` itself.
 | Command | Must print | Clean means |
 |---|---|---|
 | `python3 scripts/update_reference_manifest.py --check` | `OK:` | the local `reference/` really is the one that produced the fixture. It is not versioned, so it goes stale silently |
-| `node verify2.js` | `провалов: 0` | every block of the verifier — 1 762 742 checks on engine 3.8.0 |
+| `node verify2.js` | `провалов: 0` | every block of the verifier — 1 762 739 checks on engine 3.8.0 |
 | `node accept.js` | `ПРИЁМКА ЧИСТА` | not one `ПРОВАЛ` line across the thirty-three wave-acceptance blocks below. It is the wave's own gate: every wave replaces the copy in `reference/` with the one written for it |
 | `node passcheck_v3.js` | `Провалов всего: 0` | П1 and П2 both PASS — the two passability claims of §40, that every variation can be reached and that entering one never lengthens the session |
 | `node audit_static.js` | `НОВЫХ СРАБАТЫВАНИЙ НЕТ` | no new hit of the "fix applied to one branch of two" class |

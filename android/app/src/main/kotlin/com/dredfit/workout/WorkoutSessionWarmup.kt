@@ -9,7 +9,9 @@ package com.dredfit.workout
 import com.dredfit.journal.BlockRun
 import com.dredfit.workout.WorkoutSession.Phase
 
-/** The six moves of THIS session, the hidden set read LIVE. */
+/** The six moves of THIS session (fourteen in the pool, six on screen): a
+ *  function of the session — its number and its first exercise — and of the
+ *  hidden set, read LIVE. */
 val WorkoutSession.warmupMoves: List<WarmupMove>
     get() = Warmup.moves(session, hiding = store.settings.hiddenBlockMoveIDs)
 

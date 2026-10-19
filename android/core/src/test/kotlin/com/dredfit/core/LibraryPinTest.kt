@@ -145,23 +145,19 @@ class LibraryPinTest {
         }
     }
 
-    /** The three warm-up movements the core carries stand on no strength
-     *  ladder and keep their full text — the warm-up reads them. */
+    /** The three movements taken off the ladders for being gaps in their
+     *  density — Y-T-W, the bird dog, the single-leg Romanian deadlift — stay
+     *  off them. Nothing in the app shows them, and a ladder that took one
+     *  back would bring back the gap that sent it away. The
+     *  names are the English catalog keys the ladders read. */
     @Test
-    fun warmupMovementsSurvivedTheLadders() {
-        assertEquals(3, WarmupTechnique.all.size)
-        for (move in WarmupTechnique.all) {
-            assertFalse(move.name.isEmpty(), "${move.id}: name")
-            assertEquals(3, move.steps.size, "${move.id}: steps")
-            assertEquals(2, move.mistakes.size, "${move.id}: mistakes")
-        }
-        // None of them may be back in a strength ladder.
+    fun movementsTakenOffTheLaddersStayOff() {
         val ladderNames = Pattern.allCases.flatMap {
             ExerciseLibrary.entry(it).variations.map { v -> v.name }
         }.toSet()
-        for (move in WarmupTechnique.all) {
-            assertFalse(ladderNames.contains(move.name),
-                        "${move.id} belongs to the warm-up, not to a ladder")
+        assertTrue(ladderNames.contains("Glute bridge"), "the premise: names compare in English")
+        for (name in listOf("Y-T-W raises", "Bird dog (hold)", "Single-leg Romanian deadlift")) {
+            assertFalse(ladderNames.contains(name), "$name is back on a ladder")
         }
     }
 }

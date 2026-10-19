@@ -1,7 +1,8 @@
 //
 //  The warm-up and the cool-down run the same machine: each position is
 //  announced by a transition, then held whole or in two halves with a switch
-//  between them, all on one clock. One engine for both, so a rule of the
+//  between them — a counted pause when a side is switched, a tone alone when
+//  a direction is — all on one clock. One engine for both, so a rule of the
 //  machine cannot live in one block and be missing from the other; where the
 //  two differ on purpose, the code says so by name (`self == .cooldown`).
 //
@@ -33,11 +34,13 @@ extension CooldownPosition: GuidedPosition {
 
 /// Every position opens with `.getReady` (issue #52). One held whole runs
 /// `.whole`; one with a halfway boundary runs `.firstHalf` → `.switchPause`
-/// → `.secondHalf` — 15 + 4 + 15.
+/// → `.secondHalf` — 15 + 4 + 15 — when a SIDE is switched, and
+/// `.firstHalf` → `.secondHalf` when a direction is: a circle reverses on the
+/// move (`WarmupHalves.pausesAtTheSwitch`).
 ///
-/// HALF, not side: half of the warm-up's split moves switch a direction
-/// rather than a side, and a stage named for one of the two kinds would be
-/// wrong for the other every time it was read.
+/// HALF, not side: the warm-up's split moves switch a direction rather than a
+/// side, and a stage named for one of the two kinds would be wrong for the
+/// other every time it was read.
 enum GuidedStage { case getReady, whole, firstHalf, switchPause, secondHalf }
 
 /// Where a block stands: which position, which stage of it, and the clock.
@@ -67,7 +70,9 @@ extension GuidedBlock {
         case .firstHalf, .secondHalf:
             return self == .warmup ? Warmup.halfSeconds : Cooldown.sideSeconds
         case .switchPause:
-            return self == .warmup ? Warmup.switchPauseSeconds : Cooldown.sideSwitchPauseSec
+            // Only a side switch pauses, and the warm-up composes no position
+            // with sides: one length, the cool-down's.
+            return Cooldown.sideSwitchPauseSec
         }
     }
 
@@ -78,7 +83,10 @@ extension GuidedBlock {
         switch step.stage {
         case .getReady:
             return (step.index, positions[step.index].halves == nil ? .whole : .firstHalf)
-        case .firstHalf:   return (step.index, .switchPause)
+        case .firstHalf:
+            // `halves` is there: only a split position has a first half.
+            let pauses = positions[step.index].halves?.pausesAtTheSwitch ?? true
+            return (step.index, pauses ? .switchPause : .secondHalf)
         case .switchPause: return (step.index, .secondHalf)
         case .whole, .secondHalf:
             let next = step.index + 1
