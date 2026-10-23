@@ -20,7 +20,7 @@ android {
         // iOS ships as com.dredfit.Dredfit; the id is never shown to a person.
         applicationId = "app.dredfit"
         // Android 10 — the owner's floor (android/CLAUDE.md).
-        minSdk = 29
+        minSdk = 24
         targetSdk = 37
         // One place for both (gradle.properties says why each counts as it
         // does); scripts/check_version.py reads the same two lines.
