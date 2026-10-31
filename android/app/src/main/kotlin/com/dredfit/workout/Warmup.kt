@@ -7,8 +7,9 @@
 //
 //  Six SLOTS, each drawn from its own group, the last chosen by the session's
 //  first exercise (`leadIn`). A circle REVERSES halfway and the clock does
-//  not stop for it: a tone marks the midpoint. Only a side switch keeps its
-//  counted pause (`WarmupHalves.pausesAtTheSwitch`).
+//  not stop for it: a tone marks the midpoint. Only a side switch that
+//  re-sets the body — changing the front leg of a lunge — keeps its counted
+//  pause (`WarmupHalves.pausesAtTheSwitch`).
 //
 
 package com.dredfit.workout
@@ -24,15 +25,22 @@ import kotlin.math.ceil
  *  share the type through `GuidedPosition`. */
 @Suppress("EnumEntryName")
 enum class WarmupHalves {
-    sides, directions;
+    /** A side switch that re-sets the body — the front leg of a kneeling lunge
+     *  changed, the feet stepped over. */
+    sides,
+    /** A side switch made where the body already is: the other wrist, the
+     *  knees dropped the other way, the hands walked to the other side. */
+    sidesOnTheSpot,
+    directions;
 
-    /** Whether the switch between the halves stops the clock. A side switch
-     *  re-sets the body — turn over, change the leg — and gets the pause
-     *  (`Cooldown.sideSwitchPauseSec`); a circle reverses on the move. */
+    /** Whether the switch between the halves stops the clock. A re-set gets
+     *  the pause (`Cooldown.sideSwitchPauseSec`); a switch on the spot and a
+     *  circle reversing on the move do not — a pause there would stop a
+     *  movement for nothing, and the tone alone marks the half. */
     val pausesAtTheSwitch: Boolean
         get() = when (this) {
             sides -> true
-            directions -> false
+            sidesOnTheSpot, directions -> false
         }
 }
 

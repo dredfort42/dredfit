@@ -224,9 +224,9 @@ extension GuidedBlock {
 /// here, so a new stage is a compile error here rather than a screen that
 /// quietly says nothing.
 ///
-/// The words come from what is switched: sides run 15 + 4 + 15 and show the
-/// switch through the pause, directions run 15 + 15 and go straight to the
-/// second half's line. Telling someone to switch SIDES on a circle they are
+/// The words come from what is switched: a side re-set runs 15 + 4 + 15 and
+/// shows the switch through the pause; a side switched on the spot and a
+/// direction run 15 + 15 and go straight to the second half's line. Telling someone to switch SIDES on a circle they are
 /// about to reverse would mislead as surely as saying nothing at the switch.
 private struct SplitStageLine: View {
     private enum Phase { case beforeTheSwitch, switching, secondHalf }
@@ -287,7 +287,7 @@ struct SplitStageWords {
 
     var switching: String {
         switch halves {
-        case .sides:      return String(localized: "Switch sides")
+        case .sides, .sidesOnTheSpot: return String(localized: "Switch sides")
         case .directions: return String(localized: "warmup.switchDirection",
                                         defaultValue: "Switch direction")
         }
@@ -295,7 +295,7 @@ struct SplitStageWords {
 
     var secondHalf: String {
         switch halves {
-        case .sides:      return String(localized: "second side")
+        case .sides, .sidesOnTheSpot: return String(localized: "second side")
         case .directions: return String(localized: "warmup.otherWay",
                                         defaultValue: "the other way")
         }
@@ -307,7 +307,7 @@ struct SplitStageWords {
         // position: renaming it would cost six
         // translations and the whole screenshot set to say exactly what it
         // says now.
-        case .sides:      return String(localized: "cooldown.perSide",
+        case .sides, .sidesOnTheSpot: return String(localized: "cooldown.perSide",
                                         defaultValue: "15 s per side")
         case .directions: return String(localized: "warmup.perDirection",
                                         defaultValue: "15 s each way")

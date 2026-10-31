@@ -4,17 +4,18 @@
 //  preference.
 //
 //  `warmupMin + cooldownMin` is the whole budget the engine sets aside for the
-//  two blocks. The worst pair leaves 100 s of it over (500 of 600), and every
-//  second added to the transition costs twelve — six transitions per block —
-//  so past 16 s the reserve breaks, which is a change to the engine.
+//  two blocks. The worst pair leaves 76 s of it over (464 of 540), and every
+//  second added to the transition costs six per block. The cool-down binds
+//  first: 236 s of its own 240 leave four, so a nine-second transition
+//  overruns its minutes (`testEachBlockFitsItsOwnShareOfTheReserve`) — a
+//  change to the engine, because the reserve is the engine's.
 //
-//  SHORTENING it is the direction that does not break. The worst pair is 500 s
-//  against 600, so the reserve is not the smallest whole minute that fits —
-//  nine would hold it. The owner keeps ten rather than spend an engine change
-//  and a minute off every announced duration to reclaim slack nobody is short
-//  of. What is asserted below is therefore a floor and a ceiling, not an
-//  equality: the blocks may never overrun the reserve, and the reserve may
-//  never hold two spare minutes.
+//  SHORTENING is the direction that does not break, until the slack outgrows
+//  what the reserve is for: once the cool-down stopped pausing on the spot,
+//  ten minutes would have held 136 s spare, so the tenth minute went back to
+//  every announced duration (`warmupMin` 6 → 5). What is asserted below is a
+//  floor and a ceiling, not an equality: the blocks may never overrun the
+//  reserve, and the reserve may never hold two spare minutes.
 //
 //  Everything below is computed from the app's own constants and from the real
 //  composition rule, never from the spec's numbers restated. The worst case is
@@ -24,7 +25,7 @@
 //
 //  And it enumerates the axis the APP has: both composers take a `hiding:`
 //  set, and `Warmup.moves(sessionNumber:opening:)` /
-//  `Cooldown.positions(performed:)` — the forms without it — are for the tests
+//  `Cooldown.positions(sessionNumber:)` — the forms without it — are for the tests
 //  alone. The standing warm-up costs the same whatever is set aside (every
 //  slot is a transition and thirty seconds), but that is exactly the kind of
 //  claim the sweep exists to keep true: a set-aside move changes which moves
@@ -63,13 +64,17 @@ final class BlockReserveTests: XCTestCase {
         return seconds
     }
 
-    /// One cool-down position: its transition plus the hold. A per-side hold is
-    /// two halves with the switch pause between them.
+    /// One cool-down position: every stage the block's machine walks it
+    /// through, walked for the reason the warm-up's cost gives — a position
+    /// whose switch started pausing again costs four more seconds here.
     private func cost(_ position: CooldownPosition) -> Int {
-        let hold = position.perSide
-            ? Cooldown.sideSeconds + Cooldown.sideSwitchPauseSec + Cooldown.sideSeconds
-            : Cooldown.positionSeconds
-        return GetReady.stageSeconds(needsSetup: position.needsSetup) + hold
+        var step: (index: Int, stage: GuidedStage)? = (0, .getReady)
+        var seconds = 0
+        while let current = step {
+            seconds += GuidedBlock.cooldown.stageSeconds(current.stage, of: position)
+            step = GuidedBlock.step(after: current, positions: [position])
+        }
+        return seconds
     }
 
     // MARK: - The pools, and what can be set aside
@@ -99,22 +104,27 @@ final class BlockReserveTests: XCTestCase {
         return ids
     }
 
-    /// The nine positions of the cool-down pool, likewise — one movement at a
-    /// time, because a single pattern draws the two fixed positions, its own
-    /// and two top-ups, so the union over the ten reaches every one.
-    private var cooldownPool: [CooldownPosition] {
-        var pool: [CooldownPosition] = []
-        for pattern in Pattern.allCases {
-            for position in Cooldown.positions(performed: [pattern])
-            where !pool.contains(where: { $0.id == position.id }) {
-                pool.append(position)
+    /// The ten positions of the cool-down pool, likewise — each position of
+    /// session one set aside in turn, over the rotation, because a fallback
+    /// only appears once its zone's first choice is gone.
+    private var cooldownPoolIDs: [String] {
+        var ids: [String] = []
+        let first = Cooldown.positions(sessionNumber: 1).map(\.id)
+        let asides: [[String]] = [[]] + first.map { [$0] }
+        for hidden in asides {
+            for session in 1...Cooldown.rotationPeriod {
+                for position in Cooldown.positions(sessionNumber: session, hiding: Set(hidden))
+                where !ids.contains(position.id) {
+                    ids.append(position.id)
+                }
             }
         }
-        return pool
+        return ids
     }
 
     /// Every set the athlete can actually put in `hiddenBlockMoveIDs`. The cap
-    /// is the app's, not a number chosen here — 470 subsets of fourteen.
+    /// is the app's, not a number chosen here — 470 subsets of fourteen for the
+    /// warm-up, 176 of ten for the cool-down.
     private func hiddenSets(of ids: [String]) -> [Set<String>] {
         (0...AppStore.maxHiddenBlockMoves).flatMap { subsets(of: ids, sized: $0) }
     }
@@ -172,54 +182,30 @@ final class BlockReserveTests: XCTestCase {
 
     // MARK: - The cool-down
 
-    /// The dearest six the pool holds — a CEILING, and a tight one.
-    ///
-    /// Every composition is exactly six DISTINCT positions of the nine whatever
-    /// is set aside (`testEveryCompositionIsSixOfThePool` pins that), so nothing
-    /// the composer can draw costs more than the six dearest; and
-    /// `reachableCooldownSec()` shows a real session reaching it, which is what
-    /// makes this the worst case and not merely a bound.
-    ///
-    /// A ceiling rather than a cross product for cost alone: the cool-down's
-    /// other input is the workout, and 130 hidden sets against 1024 movement
-    /// subsets in two orders is a quarter of a million compositions. The
-    /// warm-up, whose only other input is the session number, is enumerated
-    /// outright above.
+    /// The dearest cool-down the app can compose, ENUMERATED: the block's only
+    /// inputs are the session number and the hidden set, so every composition
+    /// there is fits in 2 × 176.
     private func worstCooldownSec() -> Int {
-        cooldownPool.map(cost).sorted(by: >).prefix(Cooldown.positionCount).reduce(0, +)
-    }
-
-    /// What a session can actually draw with nothing set aside — every subset of
-    /// the movements, in both orders, because the composition maps `performed`
-    /// in order and tops up from the pool, so order is part of the input.
-    private func reachableCooldownSec() -> Int {
-        var worst = 0
-        let all = Pattern.allCases
-        for mask in 0..<(1 << all.count) {
-            let performed = all.enumerated().filter { mask & (1 << $0.offset) != 0 }.map(\.element)
-            guard !performed.isEmpty else { continue }
-            for ordered in [performed, performed.reversed()] {
-                let sec = Cooldown.positions(performed: Array(ordered)).map(cost).reduce(0, +)
-                worst = max(worst, sec)
+        hiddenSets(of: cooldownPoolIDs).flatMap { hidden in
+            (1...Cooldown.rotationPeriod).map {
+                Cooldown.positions(sessionNumber: $0, hiding: hidden).map(cost).reduce(0, +)
             }
-        }
-        return worst
+        }.max() ?? 0
     }
 
-    /// The inputs the six-of-the-pool check walks: one movement (the maximum
-    /// top-up, where the fixed frame and the pool order do all the work), and
-    /// the whole session in both orders (the minimum). The cost of the block is
-    /// pinned by the ceiling above; what these have to show is that the
-    /// composer still fills six slots however much is set aside.
-    private var cooldownInputs: [[Pattern]] {
-        Pattern.allCases.map { [$0] } + [Pattern.allCases, Array(Pattern.allCases.reversed())]
+    /// …and with nothing set aside: what every session costs before anyone has
+    /// said anything.
+    private func plainCooldownSec() -> [Int] {
+        (1...Cooldown.rotationPeriod).map {
+            Cooldown.positions(sessionNumber: $0).map(cost).reduce(0, +)
+        }
     }
 
     // MARK: - The reserve
 
     func testTheWorstCompositionFitsTheEngineReserve() {
         let reserve = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
-        XCTAssertEqual(reserve, 600, "the reserve is 10:00")
+        XCTAssertEqual(reserve, 540, "the reserve is 9:00")
         XCTAssertLessThanOrEqual(
             worstWarmupSec() + worstCooldownSec(), reserve,
             "the worst composition of the two blocks overruns the engine's reserve")
@@ -229,11 +215,10 @@ final class BlockReserveTests: XCTestCase {
     /// equality to pin — and with no assert here nothing would watch the two
     /// numbers at all. What is pinned is what the reserve still HAS to be.
     ///
-    /// Nine minutes would hold the worst pair. **The owner keeps ten**: giving
-    /// the minute back is an engine change — `cooldownMin` 4 → 3 through the
-    /// whole reference chain — and it would take a minute off every announced
-    /// duration, off the onboarding line and off the store listing, to buy
-    /// slack nobody is short of.
+    /// Nine minutes is the smallest whole minute that holds the worst pair.
+    /// Ten held 136 s spare once the cool-down stopped pausing on the spot, so
+    /// the minute went back to every announced duration — through the
+    /// reference chain, because the reserve is the engine's.
     ///
     /// So two properties, and the names say which is which. The floor is
     /// safety and is not negotiable: the blocks must never overrun what the
@@ -242,12 +227,23 @@ final class BlockReserveTests: XCTestCase {
     func testTheReserveHoldsTheBlocksWithOneSpareMinuteAtMost() {
         let reserve = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
         let worst = worstWarmupSec() + worstCooldownSec()
-        XCTAssertEqual(worst, 500, "the worst pair the app can compose is 228 + 272")
+        XCTAssertEqual(worst, 464, "the worst pair the app can compose is 228 + 236")
         XCTAssertGreaterThanOrEqual(reserve - worst, 0,
                                     "the blocks overrun what the engine reserves")
         XCTAssertLessThan(reserve - worst, 120,
                           "two whole minutes of slack: the reserve is no longer "
                           + "sized against the blocks it exists for")
+    }
+
+    /// Each block inside its OWN minutes, not only the pair inside their sum.
+    /// The energy estimate charges a block at most its own share of the
+    /// reserve (`EnergyEstimate.segments`), so a cool-down that ran on the
+    /// warm-up's spare seconds would be billed short of what it took.
+    func testEachBlockFitsItsOwnShareOfTheReserve() {
+        XCTAssertLessThanOrEqual(worstWarmupSec(), EngineConfig.warmupMin * 60,
+                                 "the warm-up overruns its own minutes")
+        XCTAssertLessThanOrEqual(worstCooldownSec(), EngineConfig.cooldownMin * 60,
+                                 "the cool-down overruns its own minutes")
     }
 
     /// The two halves separately, so a failure says WHICH block moved. The
@@ -270,6 +266,25 @@ final class BlockReserveTests: XCTestCase {
             // And not absurdly more: rounding up one minute, never two.
             XCTAssertLessThan(announced * 60, actual + 60,
                               "\(named): the offer overstates the block by a minute")
+        }
+    }
+
+    /// The cool-down's offer, likewise over every composition the app can draw.
+    /// Its minutes come from `WorkoutSession.cooldownMinutes(of:)`, a formula of
+    /// its own, and the block's cost from the stage machine walked here: two
+    /// derivations, so a rounding gone the wrong way shows.
+    func testTheCooldownOfferNeverPromisesLessThanTheBlockTakes() {
+        for hidden in hiddenSets(of: cooldownPoolIDs) {
+            for session in 1...Cooldown.rotationPeriod {
+                let positions = Cooldown.positions(sessionNumber: session, hiding: hidden)
+                let announced = WorkoutSession.cooldownMinutes(of: positions[...])
+                let actual = positions.map(cost).reduce(0, +)
+                let named = "session \(session), set aside \(hidden.sorted())"
+                XCTAssertGreaterThanOrEqual(announced * 60, actual,
+                                            "\(named): the offer promises \(announced) min for \(actual) s")
+                XCTAssertLessThan(announced * 60, actual + 60,
+                                  "\(named): the offer overstates the block by a minute")
+            }
         }
     }
 
@@ -297,15 +312,13 @@ final class BlockReserveTests: XCTestCase {
                        "with nothing set aside the warm-up is 228 s")
         XCTAssertEqual(worstWarmupSec(), 228,
                        "and with anything set aside, the same 228 s")
-        XCTAssertEqual(worstCooldownSec(), 272, "the worst cool-down the app can compose is 272 s")
-        // The dearest six of the pool is the BOUND the reserve is measured
-        // against, and a real session reaches it exactly — which is what makes
-        // it the worst case and not merely a bound.
-        XCTAssertEqual(reachableCooldownSec(), 272,
-                       "the dearest cool-down a real session reaches")
-        XCTAssertLessThanOrEqual(reachableCooldownSec(), worstCooldownSec(),
-                                 "a real session cannot beat the ceiling the reserve "
-                                 + "is measured against")
+        // Six slots, one trip down and the kneeling lunge's re-set. The
+        // standing lunge replaces the kneeling one and refills nothing else,
+        // so no composition plays two pauses — the worst is the plain block.
+        XCTAssertEqual(plainCooldownSec(), [236, 236],
+                       "with nothing set aside every session of the rotation is 236 s")
+        XCTAssertEqual(worstCooldownSec(), 236,
+                       "and with anything set aside, never more")
     }
 
     /// The period the sweeps walk, pinned: a loop bound nothing pins is a loop
@@ -419,16 +432,15 @@ final class BlockReserveTests: XCTestCase {
     }
 
     /// The claim `worstCooldownSec()` rests on: whatever is set aside, the block
-    /// is six distinct positions OF THE POOL, so the dearest six of the pool is
-    /// a ceiling on what it can cost.
+    /// is six distinct positions of the pool, none of them set aside — so the
+    /// sweep over sessions and hidden sets is every block there is.
     func testEveryCompositionIsSixOfThePool() {
-        let pool = cooldownPool
-        let ids = pool.map(\.id)
-        XCTAssertEqual(ids.count, 9, "nine in the cool-down pool")
+        let ids = cooldownPoolIDs
+        XCTAssertEqual(ids.count, 10, "ten in the cool-down pool")
         for hidden in hiddenSets(of: ids) {
-            for performed in cooldownInputs {
-                let composed = Cooldown.positions(performed: performed, hiding: hidden)
-                let named = "\(performed.count) movements, set aside \(hidden.sorted())"
+            for session in 1...Cooldown.rotationPeriod {
+                let composed = Cooldown.positions(sessionNumber: session, hiding: hidden)
+                let named = "session \(session), set aside \(hidden.sorted())"
                 XCTAssertEqual(composed.count, Cooldown.positionCount, named)
                 XCTAssertEqual(Set(composed.map(\.id)).count, composed.count,
                                "\(named): no position twice")
@@ -439,7 +451,7 @@ final class BlockReserveTests: XCTestCase {
             }
         }
         // The same overflow the warm-up survives, for the same reason.
-        XCTAssertEqual(Cooldown.positions(performed: Pattern.allCases, hiding: Set(ids)).count,
+        XCTAssertEqual(Cooldown.positions(sessionNumber: 1, hiding: Set(ids)).count,
                        Cooldown.positionCount,
                        "the whole pool set aside still composes a block")
     }
@@ -449,7 +461,8 @@ final class BlockReserveTests: XCTestCase {
     // The same composition rule read the other way. A block running when the
     // athlete sets a move aside has to land somewhere in the list that comes
     // back, and `WorkoutSession.rebaseLanding` is the rule both blocks use.
-    // The two scenarios below are the ones a clamp of the ordinal gets wrong.
+    // The scenarios below are the ones a clamp of the ordinal gets wrong; the
+    // cool-down's, with the floor its levels add, are in CooldownTests.
 
     /// Session 4, opening on a squat, runs [marching, heels to glutes, wrist
     /// circles, overhead reaches, standing cat-cow, half squats]. Setting
@@ -470,48 +483,57 @@ final class BlockReserveTests: XCTestCase {
         let passed = Set(before.prefix(3))
         XCTAssertTrue(passed.contains(after[3]),
                       "the ordinal the clamp kept names a move already done")
-        let landing = try XCTUnwrap(WorkoutSession.rebaseLanding(in: after, after: passed))
+        let landing = try XCTUnwrap(WorkoutSession.rebaseLanding(in: after, after: passed, notBefore: 0))
         XCTAssertEqual(after[landing], "standing-cat-cow")
         XCTAssertFalse(passed.contains(after[landing]), "the block reopened a finished move")
     }
 
-    /// The cool-down's twin, and the one the athlete cannot even see coming:
-    /// "Bring back" does not dismiss the technique sheet. A cool-down composed
-    /// with the wall stretch set aside is [hip flexors, forward fold, lat, wrists,
-    /// lying twist, rest pose]; restoring it on slot 5 re-inserts into the
-    /// opening and pushes everything after it one slot right, so a clamped
-    /// ordinal would name the wrists — already done.
-    func testBringingAPositionBackNeverReopensOneAlreadyDone() throws {
-        let performed: [Pattern] = [.squat, .pull, .pushH, .coreRot]
-        let before = Cooldown.positions(performed: performed, hiding: ["chest-wall"]).map(\.id)
-        XCTAssertEqual(before, ["hip-flexors", "forward-fold", "lat-stretch",
-                                "wrists", "lying-twist", "rest-pose"])
-        let after = Cooldown.positions(performed: performed, hiding: []).map(\.id)
-        let passed = Set(before.prefix(4))
-        XCTAssertTrue(passed.contains(after[4]),
-                      "the ordinal the clamp kept names a position already done")
-        let landing = try XCTUnwrap(WorkoutSession.rebaseLanding(in: after, after: passed))
-        XCTAssertEqual(after[landing], "rest-pose")
-        XCTAssertFalse(passed.contains(after[landing]), "the block reopened a finished stretch")
+    /// The warm-up's version of the dropped stand-in. A move set aside passes
+    /// its group's turn to the next one, and bringing it back takes the turn
+    /// back from a stand-in that may already be done: landing after the last
+    /// move still in the list would run the brought-back move AND everything
+    /// from the slot on screen on — seven moves in a block of six.
+    func testBringingAMoveBackNeverLengthensTheWarmup() {
+        for id in warmupPoolIDs {
+            for session in 1...Warmup.rotationPeriod {
+                let before = Warmup.moves(sessionNumber: session, opening: .squat, hiding: [id]).map(\.id)
+                let after = Warmup.moves(sessionNumber: session, opening: .squat).map(\.id)
+                for slot in before.indices where after != before {
+                    let behind = Array(before.prefix(slot))
+                    let landing = WorkoutSession.rebaseLanding(in: after, after: Set(behind), notBefore: 0)
+                    let run = behind + (landing.map { Array(after[$0...]) } ?? [])
+                    let named = "session \(session), bringing \(id) back on slot \(slot)"
+                    XCTAssertEqual(Set(run).count, run.count, "\(named): a move runs twice")
+                    XCTAssertLessThanOrEqual(run.count, Warmup.moveCount,
+                                             "\(named): the warm-up runs longer than it promised")
+                }
+            }
+        }
     }
 
-    /// The rule itself, at its three ends. Forward-only is the invariant: a
-    /// landing behind the athlete would be replayed slot by slot by the ordinal
+    /// The rule itself, at its ends. Forward-only is the invariant: a landing
+    /// behind the athlete would be replayed slot by slot by the ordinal
     /// machine that advances from it, and a block whose every slot is behind
     /// them is over rather than repeated.
     func testTheLandingIsForwardOnlyAndEndsTheBlockWhenNothingIsLeft() {
         let ids = ["a", "b", "c"]
-        XCTAssertEqual(WorkoutSession.rebaseLanding(in: ids, after: []), 0,
+        XCTAssertEqual(WorkoutSession.rebaseLanding(in: ids, after: [], notBefore: 0), 0,
                        "nothing behind the athlete: the block opens where it is")
-        XCTAssertEqual(WorkoutSession.rebaseLanding(in: ids, after: ["a"]), 1)
+        XCTAssertEqual(WorkoutSession.rebaseLanding(in: ids, after: ["a"], notBefore: 0), 1)
         // Measured from the LAST id behind them, not from the first one that is
         // not: "b" sits between two passed slots, and landing on it would put
         // the ordinal machine back through "c".
-        XCTAssertNil(WorkoutSession.rebaseLanding(in: ids, after: ["a", "c"]),
+        XCTAssertNil(WorkoutSession.rebaseLanding(in: ids, after: ["a", "c"], notBefore: 0),
                      "every slot is behind the athlete: the block is over")
-        XCTAssertEqual(WorkoutSession.rebaseLanding(in: ids, after: ["x"]), 0,
-                       "a set-aside id that is not in the list moves nothing")
-        XCTAssertNil(WorkoutSession.rebaseLanding(in: [], after: []))
+        // A slot already used counts even when its move has left the list —
+        // the stand-in a brought-back move replaces. Landing on "a" would run
+        // four moves in a block of three.
+        XCTAssertEqual(WorkoutSession.rebaseLanding(in: ids, after: ["x"], notBefore: 0), 1,
+                       "a move already done still took its slot")
+        XCTAssertEqual(WorkoutSession.rebaseLanding(in: ids, after: [], notBefore: 2), 2,
+                       "the floor holds with nothing behind the athlete")
+        XCTAssertNil(WorkoutSession.rebaseLanding(in: ids, after: [], notBefore: 3))
+        XCTAssertNil(WorkoutSession.rebaseLanding(in: [], after: [], notBefore: 0))
     }
 
     /// Pinned by value on purpose: these two numbers are spent against a reserve

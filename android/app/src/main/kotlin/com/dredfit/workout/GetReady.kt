@@ -17,10 +17,11 @@ object GetReady {
     /** Eight: five is a rush, ten is longer than the change of posture takes. */
     const val seconds = 8
 
-    /** On top of `seconds` for a position that changes the starting position
-     *  or needs a prop. Only the cool-down has such positions: the warm-up is
-     *  standing throughout. Past the engine's reserve a longer transition is an
-     *  ENGINE change (`BlockReserveTest` holds the floor and the ceiling). */
+    /** On top of `seconds` for the one transition that changes the starting
+     *  position: the cool-down's trip down to the floor. The warm-up is
+     *  standing throughout, and neither block walks to a wall any more. Past
+     *  the engine's reserve a longer transition is an ENGINE change
+     *  (`BlockReserveTest` holds the floor and the ceiling). */
     const val setupSupplementSec = 4
 
     /** The count-in a START TAP earns before any clock runs. Four holds the

@@ -45,31 +45,32 @@ final class GetReadyTests: XCTestCase {
                        "marching starts where the user already stands")
     }
 
-    func testAPositionThatHasToBeGotIntoGetsTheSupplement() {
-        // The differentiated pause of issue #83: base plus supplement for a
-        // position that changes the starting position or needs a prop.
+    func testAPositionThatHasToBeGotIntoGetsTheSupplement() throws {
+        // The differentiated pause of issue #83: base plus supplement for the
+        // transition that changes the starting position.
         XCTAssertEqual(GetReady.setupSupplementSec, 4)
         XCTAssertEqual(GetReady.stageSeconds(needsSetup: true),
                        GetReady.seconds + GetReady.setupSupplementSec)
-        let positions = Cooldown.positions(performed: [.pull])
-        XCTAssertEqual(positions[0].id, "hip-flexors")
-        XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.getReady, of: positions[0]),
+        let positions = Cooldown.positions(sessionNumber: 1)
+        let descent = try XCTUnwrap(positions.firstIndex { $0.level > .standing })
+        XCTAssertEqual(positions[descent].id, "hip-flexors")
+        XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.getReady, of: positions[descent]),
                        GetReady.seconds + GetReady.setupSupplementSec,
-                       "the block opens by getting down onto one knee")
+                       "the trip down onto one knee pays the supplement")
     }
 
-    func testOnlyTheStandingPositionsKeepTheBaseTransition() {
+    func testOnlyTheTripDownPaysTheSupplement() {
         // The flag travels with the data, so this is the list issue #83
-        // pinned: the warm-up never leaves standing, and in the cool-down only forward fold, the lat stretch and the wrists stay
-        // upright with no wall to walk to.
+        // pinned: the warm-up never leaves standing, and the cool-down goes
+        // down once — what follows the kneeling lunge is already on the floor.
         for moves in everyComposition {
             XCTAssertEqual(moves.filter(\.needsSetup).map(\.id), [],
                            "\(moves.map(\.id)): a warm-up transition paid the supplement")
         }
-        let allNine = Cooldown.positions(performed: [.squat, .pull, .pushH])
-            + Cooldown.positions(performed: [.coreAntiExt, .calf, .lunge])
-        let standing = Set(allNine.filter { !$0.needsSetup }.map(\.id))
-        XCTAssertEqual(standing, ["forward-fold", "lat-stretch", "wrists"])
+        for session in 1...Cooldown.rotationPeriod {
+            XCTAssertEqual(Cooldown.positions(sessionNumber: session).filter(\.needsSetup).map(\.id),
+                           ["hip-flexors"], "session \(session)")
+        }
     }
 
     func testTheTransitionLeavesRoomForTheCountdownItPlays() {
@@ -90,55 +91,47 @@ final class GetReadyTests: XCTestCase {
     /// one without noticing the copy. Calling the real function makes that
     /// impossible instead of merely unlikely.
     private func cost(of position: CooldownPosition) -> Int {
-        let hold = position.perSide
+        let hold = position.halves?.pausesAtTheSwitch == true
             ? Cooldown.sideSeconds * 2 + Cooldown.sideSwitchPauseSec
             : Cooldown.positionSeconds
         return GetReady.stageSeconds(needsSetup: position.needsSetup) + hold
     }
 
-    /// The decision this feature rests on: the transitions — supplements
-    /// included (#83) — ride on top of the minutes the engine reserves for
-    /// the two blocks. The worst case with nothing set aside is exact: the
-    /// dearest warm-up plus the fixed three positions plus the costliest three
-    /// the mapping can draw. BlockReserveTests adds the set-aside axis, where
-    /// the warm-up stays at 228 s — every slot costs the same.
+    /// The decision this feature rests on: the transitions — the one
+    /// supplement included (#83) — ride on top of the minutes the engine
+    /// reserves for the two blocks. The worst case with nothing set aside is
+    /// exact: the dearest warm-up plus the dearest session of the cool-down's
+    /// rotation. BlockReserveTests adds the set-aside axis, where neither
+    /// block grows.
     ///
     /// The FIT is not exact: a reserve is whole minutes, so it carries slack.
     /// What is guarded is that the slack stays under two minutes — more, and
     /// the engine would be holding minutes the blocks do not use.
     func testBothBlocksFitInsideTheReservedWarmupAndCooldownMinutes() {
         let warmup = everyComposition.map { $0.map(cost(of:)).reduce(0, +) }.max() ?? 0
-
-        // One pattern per pool position; index 2 of a one-pattern composition
-        // is the position that pattern maps to.
-        let pool = [Pattern.squat, .pull, .pushH, .coreAntiExt, .calf, .lunge]
-            .map { Cooldown.positions(performed: [$0])[2] }
-        let worstMapped = pool.map(cost(of:)).sorted(by: >).prefix(3).reduce(0, +)
-        let anyComposition = Cooldown.positions(performed: [.squat])
-        let fixed = cost(of: anyComposition[0]) + cost(of: anyComposition[1])
-            + cost(of: anyComposition[5])
+        let cooldown = (1...Cooldown.rotationPeriod).map {
+            Cooldown.positions(sessionNumber: $0).map(cost(of:)).reduce(0, +)
+        }.max() ?? 0
         let reserved = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
 
         // Lengthening the transition is what makes the reserve an engine
         // constraint; shortening it only ever leaves slack.
         XCTAssertEqual(warmup, 228)
-        XCTAssertEqual(fixed + worstMapped, 272)
-        XCTAssertLessThanOrEqual(warmup + fixed + worstMapped, reserved,
+        XCTAssertEqual(cooldown, 236)
+        XCTAssertLessThanOrEqual(warmup + cooldown, reserved,
                                  "the worst case overruns the reserved minutes")
-        // Ten minutes is not the smallest whole minute that fits, and the
-        // owner keeps it: giving the minute back is `cooldownMin` 4 → 3
-        // through the reference chain, and it would take a minute off every
-        // announced duration to reclaim slack nobody is short of. What is
-        // guarded is drift, not tightness — `BlockReserveTests` holds the same
-        // floor and ceiling over the axis the app actually composes on.
-        XCTAssertLessThan(reserved - (warmup + fixed + worstMapped), 120,
+        // Nine is the smallest whole minute that fits: ten held more than two
+        // spare once the cool-down stopped pausing on the spot, and the minute
+        // went back through the reference chain. `BlockReserveTests` holds the
+        // same floor and ceiling over the axis the app actually composes on.
+        XCTAssertLessThan(reserved - (warmup + cooldown), 120,
                           "two whole minutes of slack: the reserve is no longer "
                           + "sized against the blocks it exists for")
     }
 
     func testARealCompositionLeavesRoom() {
-        let performed = Engine.generateSession(.initial).exercises.map(\.pattern)
-        let cooldown = Cooldown.positions(performed: performed)
+        let session = Engine.generateSession(.initial)
+        let cooldown = Cooldown.positions(sessionNumber: session.sessionNumber)
             .reduce(0) { $0 + cost(of: $1) }
         let warmup = warmupMoves.map(cost(of:)).reduce(0, +)
         XCTAssertLessThan(warmup + cooldown,
@@ -270,6 +263,12 @@ final class GetReadyTests: XCTestCase {
                               defaultValue: "Switch direction"))
         XCTAssertTrue(WarmupHalves.sides.pausesAtTheSwitch, "turning over re-sets the body")
         XCTAssertFalse(WarmupHalves.directions.pausesAtTheSwitch, "a circle reverses on the move")
+        // A side switched on the spot keeps the words of a side and loses only
+        // the pause: the twist's knees go the other way, not "the other way".
+        let onTheSpot = SplitStageWords(halves: .sidesOnTheSpot)
+        XCTAssertEqual([onTheSpot.switching, onTheSpot.secondHalf, onTheSpot.everyHalf],
+                       [sides.switching, sides.secondHalf, sides.everyHalf])
+        XCTAssertFalse(WarmupHalves.sidesOnTheSpot.pausesAtTheSwitch, "the body stays where it is")
     }
 
     func testTheTwoHalvesOfACircleAreTheSlot() throws {
@@ -311,7 +310,7 @@ final class GetReadyTests: XCTestCase {
 
     // MARK: - What the signal has to be chosen from
 
-    func testAdvanceCanLandOnATransitionItDidNotEnter() {
+    func testAdvanceCanLandOnATransitionItDidNotEnter() throws {
         // Warm-up: one second past a move's own end, so the run opens on the
         // move and rests inside the next position's transition.
         let warmup = GuidedBlock.warmup.advance(from: (0, .getReady),
@@ -321,36 +320,38 @@ final class GetReadyTests: XCTestCase {
         XCTAssertEqual(warmup?.stage, .getReady, "...but came to rest on a transition")
         XCTAssertEqual(warmup?.index, 1)
 
-        // Cool-down: the same shape across a whole per-side position.
-        let positions = Cooldown.positions(performed: [.pull])
-        XCTAssertTrue(positions[0].perSide, "hip flexors open the block per side")
+        // Cool-down: the same shape across a whole per-side position — the
+        // kneeling lunge, whose sides are a re-set with a pause between them.
+        let positions = Cooldown.positions(sessionNumber: 1)
+        let lunge = try XCTUnwrap(positions.firstIndex { $0.halves == .sides })
         let cooldown = GuidedBlock.cooldown.advance(
-            from: (0, .getReady),
+            from: (lunge, .getReady),
             overshoot: Cooldown.sideSeconds * 2 + Cooldown.sideSwitchPauseSec + 2,
             positions: positions)
         XCTAssertEqual(cooldown?.entered, .firstHalf, "the run opened on the first side")
         XCTAssertEqual(cooldown?.stage, .getReady, "...but came to rest on a transition")
-        XCTAssertEqual(cooldown?.index, 1)
-        XCTAssertEqual(cooldown?.remaining,
-                       GetReady.seconds + GetReady.setupSupplementSec - 2,
-                       "chest wall carries the supplement — the wall has to be walked to")
+        XCTAssertEqual(cooldown?.index, lunge + 1)
+        XCTAssertEqual(cooldown?.remaining, GetReady.seconds - 2,
+                       "the next position is already on the floor — the trip down is paid once")
     }
 
     // MARK: - The cool-down stage machine
 
     func testEveryCooldownPositionOpensWithTheTransition() {
-        let positions = Cooldown.positions(performed: [.pull])
-        for (index, position) in positions.enumerated() {
-            let after = GuidedBlock.step(after: (index, .getReady), positions: positions)
-            XCTAssertEqual(after?.index, index, "\(position.id): the transition stays put")
-            XCTAssertEqual(after?.stage, position.perSide ? .firstHalf : .whole,
-                           "\(position.id): the transition hands over to the position itself")
+        for session in 1...Cooldown.rotationPeriod {
+            let positions = Cooldown.positions(sessionNumber: session)
+            for (index, position) in positions.enumerated() {
+                let after = GuidedBlock.step(after: (index, .getReady), positions: positions)
+                XCTAssertEqual(after?.index, index, "\(position.id): the transition stays put")
+                XCTAssertEqual(after?.stage, position.perSide ? .firstHalf : .whole,
+                               "\(position.id): the transition hands over to the position itself")
+            }
         }
     }
 
     func testABilateralPositionWalksTransitionThenTheWholeSlot() {
-        // squat → forward fold, the first bilateral position of the block.
-        let positions = Cooldown.positions(performed: [.squat])
+        // The chest opener, the first bilateral position of session one.
+        let positions = Cooldown.positions(sessionNumber: 1)
         guard let index = positions.firstIndex(where: { !$0.perSide }) else {
             return XCTFail("the composition must contain a bilateral position")
         }
@@ -360,13 +361,13 @@ final class GetReadyTests: XCTestCase {
                        Cooldown.positionSeconds)
     }
 
-    /// The other half of the rule the warm-up's circles changed: a SIDE switch
-    /// still stops the clock for its pause, because turning over re-sets the
-    /// body. Both blocks walk one stage machine, so the circle's shortcut must
-    /// not leak into the stretch.
-    func testASideSwitchStillPauses() throws {
-        let positions = Cooldown.positions(performed: [.pull])
-        let index = try XCTUnwrap(positions.firstIndex(where: \.perSide))
+    /// The other half of the rule the warm-up's circles changed: a side switch
+    /// that re-sets the body — the lunge changing its front leg — still stops
+    /// the clock for its pause. Both blocks walk one stage machine, so the
+    /// shortcut of a switch on the spot must not leak into a re-set.
+    func testASideReSetStillPauses() throws {
+        let positions = Cooldown.positions(sessionNumber: 1)
+        let index = try XCTUnwrap(positions.firstIndex { $0.halves == .sides })
         XCTAssertEqual(GuidedBlock.step(after: (index, .firstHalf), positions: positions)?.stage,
                        .switchPause)
         XCTAssertEqual(GuidedBlock.step(after: (index, .switchPause), positions: positions)?.stage,
@@ -376,7 +377,7 @@ final class GetReadyTests: XCTestCase {
     func testNoStageIsEmpty() {
         // advance() walks stages while the overshoot covers them; a zero-length
         // stage would spin forever.
-        for position in Cooldown.positions(performed: [.pull]) {
+        for position in (1...Cooldown.rotationPeriod).flatMap({ Cooldown.positions(sessionNumber: $0) }) {
             for stage in [GuidedStage.getReady, .whole, .firstHalf, .switchPause, .secondHalf] {
                 XCTAssertGreaterThan(GuidedBlock.cooldown.stageSeconds(stage, of: position), 0,
                                      "\(position.id).\(stage) has no length")

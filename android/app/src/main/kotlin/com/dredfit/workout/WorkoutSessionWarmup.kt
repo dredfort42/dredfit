@@ -48,7 +48,7 @@ fun WorkoutSession.rebaseWarmupOnComposition(previous: List<String>) {
     val moves = warmupMoves
     if (moves.isEmpty()) { finishWarmup(); return }
     val passed = previous.take(maxOf(0, warmup.index)).toSet()
-    val index = WorkoutSession.rebaseLanding(moves.map { it.id }, after = passed)
+    val index = WorkoutSession.rebaseLanding(moves.map { it.id }, after = passed, notBefore = 0)
     if (index == null) {
         finishWarmup()
         return
@@ -60,10 +60,24 @@ fun WorkoutSession.rebaseWarmupOnComposition(previous: List<String>) {
 }
 
 /** Where a recomposed block picks up — AFTER the last slot already left
- *  behind; null when nothing is left. */
-fun WorkoutSession.Companion.rebaseLanding(ids: List<String>, after: Set<String>): Int? {
+ *  behind; null when nothing is left.
+ *
+ *  Never earlier than the number of slots already used, either. Bringing a
+ *  move back can DROP one already done — the stand-in that ran in its place —
+ *  and landing after the last survivor would then run one move more than the
+ *  block promised. And never before `notBefore`: the cool-down passes the
+ *  first slot on the level the athlete has reached (`cooldownLanding`),
+ *  because a position brought back above it would get them up again. The
+ *  warm-up stands throughout and passes 0.
+ *
+ *  The cost is that a move brought back mid-block may not appear until the
+ *  next workout — and, when the block has no slot left for both, takes the
+ *  place of the one on screen: the block keeps the length it promised and
+ *  never runs a position twice. */
+fun WorkoutSession.Companion.rebaseLanding(ids: List<String>, after: Set<String>, notBefore: Int): Int? {
     val last = ids.indexOfLast { it in after }
-    val index = if (last >= 0) last + 1 else 0
+    val afterPassed = if (last >= 0) last + 1 else 0
+    val index = maxOf(afterPassed, after.size, notBefore)
     return if (index < ids.size) index else null
 }
 

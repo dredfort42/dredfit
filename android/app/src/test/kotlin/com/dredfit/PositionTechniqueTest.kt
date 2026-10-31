@@ -25,11 +25,22 @@ import kotlin.test.assertTrue
 
 class PositionTechniqueTest {
 
-    /** Two compositions that together surface all nine pool positions. */
+    /** The whole pool of ten: each of session one's positions set aside in
+     *  turn, over the rotation — a fallback only appears once its zone's first
+     *  choice is gone. */
     private val allCooldownPositions: List<CooldownPosition>
-        get() = (Cooldown.positions(listOf(Pattern.squat, Pattern.pull, Pattern.pushH, Pattern.coreRot,
-                                           Pattern.calf, Pattern.lunge)) +
-            Cooldown.positions(listOf(Pattern.calf, Pattern.lunge, Pattern.coreAntiExt))).distinct()
+        get() {
+            val seen = mutableListOf<CooldownPosition>()
+            val first = Cooldown.positions(sessionNumber = 1).map { it.id }
+            for (hidden in listOf(emptyList<String>()) + first.map { listOf(it) }) {
+                for (session in 1..Cooldown.rotationPeriod) {
+                    for (position in Cooldown.positions(sessionNumber = session, hiding = hidden.toSet())) {
+                        if (seen.none { it.id == position.id }) seen += position
+                    }
+                }
+            }
+            return seen
+        }
 
     @Test
     fun theWarmupBlockIsSixDistinctMoves() {
@@ -42,7 +53,7 @@ class PositionTechniqueTest {
     @Test
     fun everyPositionCarriesTwoToThreeSteps() {
         val cooldown = allCooldownPositions
-        assertEquals(9, cooldown.size, "the two compositions must surface the whole pool")
+        assertEquals(10, cooldown.size, "the compositions must surface the whole pool")
         for (position in cooldown) {
             assertTrue(position.steps.size in 2..3, "${position.id}: ${position.steps.size} steps")
             assertFalse(position.steps.any { it.english.isEmpty() }, "${position.id}: an empty step")

@@ -29,7 +29,7 @@ class GoldenTest {
     /** The fixture must come from the pinned reference version. */
     @Test
     fun generatorIsThePinnedReferenceVersion() {
-        assertEquals("adaptive_engine.js v3.8.0", golden.generator,
+        assertEquals("adaptive_engine.js v3.9.0", golden.generator,
                      "golden.json regenerated from an unexpected reference version")
     }
 

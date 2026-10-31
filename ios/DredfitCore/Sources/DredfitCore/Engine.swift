@@ -87,15 +87,14 @@ public enum EngineConfig {
     /// the variation below instead, while there is one.
     static let deloadDrop = 3
     /// The two blocks are budgeted in whole minutes: the app's worst warm-up
-    /// plus cool-down is 500 s against the 600 this and `cooldownMin` give
-    /// (`BlockReserveTests`). Nine minutes would hold it; ten stays because a
-    /// minute given back is a change to the reference engine and the golden
-    /// fixture, and shortens every announced session length. The warm-up's
-    /// six minutes have room for a switch pause and a trip to the floor that
-    /// the standing warm-up does not take, so part of them is slack, not
-    /// spent. The Health estimate caps
-    /// each block at its own minutes (`EnergyEstimate`).
-    public static let warmupMin = 6
+    /// plus cool-down is 464 s against the 540 this and `cooldownMin` give
+    /// (`BlockReserveTests`). The smallest whole minute that holds the pair,
+    /// and each block fits its own: the warm-up's 228 s in five, the
+    /// cool-down's 236 s in four — which is also what the Health estimate caps
+    /// each block at (`EnergyEstimate`). Ten minutes would have held more than
+    /// two spare once the cool-down stopped pausing on the spot, so the minute
+    /// went back to every announced session length.
+    public static let warmupMin = 5
     /// The two blocks share a reserve of `warmupMin + cooldownMin` — see
     /// GetReady.swift for the arithmetic it is spent by.
     public static let cooldownMin = 4

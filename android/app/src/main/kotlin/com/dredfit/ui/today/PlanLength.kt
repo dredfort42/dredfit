@@ -30,7 +30,7 @@ fun PlanLength(floor: Int, full: Int, count: Int, modifier: Modifier = Modifier)
     }
 }
 
-/** What the number above is made of at both ends: ten of those minutes are
+/** What the number above is made of at both ends: nine of those minutes are
  *  the two blocks, and their share is largest on the shortest sessions. It
  *  states the fact and stops there. */
 @Composable

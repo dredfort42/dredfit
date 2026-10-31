@@ -117,8 +117,9 @@ fun RunningPositionScreen(name: String, halves: WarmupHalves?, stage: GuidedStag
  * The line a split position shows over its countdown. The switch is a TIER
  * LOUDER than the second half after it — 17 against 14 — because it is the
  * one moment a split position asks for something new. The words come from
- * what is switched: sides run 15 + 4 + 15 and show the switch through the
- * pause, directions run 15 + 15 and go straight to the second half's line.
+ * what is switched: a side re-set runs 15 + 4 + 15 and shows the switch
+ * through the pause; a side switched on the spot and a direction run 15 + 15
+ * and go straight to the second half's line.
  */
 @Composable
 private fun SplitStageLine(stage: GuidedStage, halves: WarmupHalves) {

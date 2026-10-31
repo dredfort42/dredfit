@@ -478,8 +478,8 @@ final class StoreScreenshots: XCTestCase {
     //
     // Seeded, not `--uitest-long-session`. That hook plants the top of EVERY
     // ladder at four sets — a 67-minute session — and the listing promises
-    // about 32 min for a full one (31.5 on reference 3.5.0 since #240 and on
-    // 3.8.0 — read the current release_texts, not this line). The
+    // about 31 min for a full one (30.5 on reference 3.9.0 — read the current
+    // release_texts, not this line). The
     // header would have argued with the description on the same page of the
     // store. Seed D gives the four-set band to the movement on screen ALONE
     // (hinge, top variation, §40.5: bands exist nowhere else), leaves the

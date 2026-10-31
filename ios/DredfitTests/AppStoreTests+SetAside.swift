@@ -25,7 +25,7 @@ extension AppStoreTests {
                       "ids nothing can name or bring back must not fill the cap")
 
         // Both pools count: one list holds the warm-up's and the cool-down's.
-        for id in ["side-steps", "chest-wall", "side-bends"] { store.setBlockMoveHidden(id, true) }
+        for id in ["side-steps", "half-fold", "side-bends"] { store.setBlockMoveHidden(id, true) }
         XCTAssertTrue(store.isBlockMoveHidden("side-bends"))
         XCTAssertFalse(store.canHideAnotherBlockMove,
                        "three moves of the pools are the cap, a cool-down position among them")

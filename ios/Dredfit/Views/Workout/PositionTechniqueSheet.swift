@@ -109,7 +109,7 @@ struct PositionTechniqueSheet: View {
     /// position in every workout that draws it, and the cheap way out would
     /// be to skip the whole block. So the block loses one position and
     /// composes another in its place; the pools are fourteen (warm-up) and
-    /// nine (cool-down) against six shown, which is what pays for it.
+    /// ten (cool-down) against six shown, which is what pays for it.
     ///
     /// The tap closes the sheet, because the answer to "don't show me this"
     /// is not to go on showing it: the block restarts the slot on its own

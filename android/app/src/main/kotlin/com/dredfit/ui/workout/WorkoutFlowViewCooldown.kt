@@ -40,9 +40,12 @@ fun CooldownIntroView(observed: Observed<WorkoutSession>) {
     BlockOffer(
         title = tr("Cool-down"),
         lines = {
-            // The third sentence says what the block IS: some positions follow
-            // the movements performed today.
-            Text(tr("The work is done. A few minutes of stretching helps it settle. Some of the positions follow the movements you did today."),
+            // The second sentence says what the block IS — the one way down,
+            // and no getting up again — so the person saying no knows what
+            // they are turning down, and the person saying yes knows to have a
+            // bit of floor. Nothing promises recovery: no study finds a
+            // cool-down speeds it.
+            Text(tr("The work is done. A few calm minutes of stretching, from standing down to lying — you stay down until the end."),
                  style = dredfitFont(15f), color = c.ink2, modifier = Modifier.padding(top = 8.dp))
             Text(tr("%lld positions · about %lld min", flow.cooldownPositions.size, flow.cooldownIntroMinutes),
                  style = dredfitFont(13.5f), color = c.ink2, modifier = Modifier.padding(top = 6.dp))

@@ -303,9 +303,9 @@ extension AppStore {
     }
 
     /// Three is the cap, and it is a floor argument rather than a taste: the
-    /// cool-down composes six positions out of a pool of nine, so three hidden
-    /// still leaves it a full block — its two fixed positions plus a rest pose
-    /// — and the warm-up's fourteen leave it more room than that. Past that the honest answer is not a
+    /// cool-down composes six positions out of a pool of ten, one of which only
+    /// stands in for its own zone, and the warm-up six out of fourteen, so three
+    /// hidden still leaves each a full block. Past that the honest answer is not a
     /// shorter warm-up but no warm-up, and nothing here offers that.
     static let maxHiddenBlockMoves = 3
 

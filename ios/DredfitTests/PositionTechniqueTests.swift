@@ -5,12 +5,21 @@ import DredfitCore
 @MainActor
 final class PositionTechniqueTests: XCTestCase {
 
-    /// Two compositions that together surface all nine pool positions.
+    /// The whole pool of ten: each of session one's positions set aside in
+    /// turn, over the rotation — a fallback only appears once its zone's first
+    /// choice is gone.
     private var allCooldownPositions: [CooldownPosition] {
-        let all = Cooldown.positions(performed: [.squat, .pull, .pushH, .coreRot, .calf, .lunge])
-            + Cooldown.positions(performed: [.calf, .lunge, .coreAntiExt])
         var seen: [CooldownPosition] = []
-        for position in all where !seen.contains(position) { seen.append(position) }
+        let first = Cooldown.positions(sessionNumber: 1).map(\.id)
+        let asides: [[String]] = [[]] + first.map { [$0] }
+        for hidden in asides {
+            for session in 1...Cooldown.rotationPeriod {
+                for position in Cooldown.positions(sessionNumber: session, hiding: Set(hidden))
+                where !seen.contains(where: { $0.id == position.id }) {
+                    seen.append(position)
+                }
+            }
+        }
         return seen
     }
 
@@ -24,7 +33,7 @@ final class PositionTechniqueTests: XCTestCase {
 
     func testEveryPositionCarriesTwoToThreeSteps() {
         let cooldown = allCooldownPositions
-        XCTAssertEqual(cooldown.count, 9, "the two compositions must surface the whole pool")
+        XCTAssertEqual(cooldown.count, 10, "the compositions must surface the whole pool")
         for position in cooldown {
             XCTAssertTrue((2...3).contains(position.steps.count),
                           "\(position.id): \(position.steps.count) steps")
