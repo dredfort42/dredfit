@@ -7,13 +7,20 @@
 //  nothing anywhere could put it back. The guard therefore has to stand in
 //  FRONT of the state change rather than behind it.
 //
+//  The same holds for the escape that ends a guided block. It is a 56 pt
+//  full-width button under "I'm ready", it fires on contact, and a block
+//  left by accident cannot be picked up again: one bump of the phone — a
+//  child's hand on the screen — took a cool-down straight to the rating.
+//
 
 import SwiftUI
 
-/// One of the four skips, holding the action it will run if confirmed.
+/// One of the six skips, holding the action it will run if confirmed.
 struct SkipConfirmation: Identifiable {
     enum Kind: String {
         case probeSet, workingSet, restOfSets, exercise
+        /// The escape that ends a whole guided block.
+        case warmup, cooldown
     }
 
     let kind: Kind
@@ -21,6 +28,10 @@ struct SkipConfirmation: Identifiable {
     /// one skip cannot be answered by another: the tap that opened this is the
     /// tap that runs.
     let perform: () -> Void
+    /// What saying no hands back. A block's question freezes the block while
+    /// it stands — a position must not run on, or end, behind an alert nobody
+    /// has answered yet — so "Keep going" has to give the clock back.
+    var cancel: () -> Void = {}
 
     var id: String { kind.rawValue }
 
@@ -29,6 +40,8 @@ struct SkipConfirmation: Identifiable {
         case .probeSet, .workingSet: return String(localized: "Skip this set?")
         case .restOfSets:            return String(localized: "Skip the remaining sets?")
         case .exercise:              return String(localized: "Skip this exercise?")
+        case .warmup:                return String(localized: "Skip the warm-up?")
+        case .cooldown:              return String(localized: "Skip the cool-down?")
         }
     }
 
@@ -61,10 +74,23 @@ struct SkipConfirmation: Identifiable {
                 It counts as not trained, and any number you entered for it \
                 is not kept. Its plan stays exactly as it is.
                 """)
+        // What a block's escape loses is the block itself, and the cool-down's
+        // sentence says the one thing nobody can see from the button: there
+        // is no way back into it from the rating.
+        case .warmup:
+            return String(localized: """
+                The workout goes straight to the first exercise. \
+                The plan does not change.
+                """)
+        case .cooldown:
+            return String(localized: """
+                The workout goes straight to the rating, and the cool-down \
+                cannot be started again. The plan does not change.
+                """)
         }
     }
 
-    /// ONE SHORT VERB FOR ALL FOUR, and the length is the point.
+    /// ONE SHORT VERB FOR ALL SIX, and the length is the point.
     /// `UIAlertController` lays two actions side by side only while both
     /// titles fit on one line and stacks them otherwise, so per-kind labels
     /// would make the layout itself differ between two controls that sit at
@@ -79,7 +105,7 @@ struct SkipConfirmation: Identifiable {
     /// up at the same time, and no control in the workout reads exactly this.
     var confirmTitle: String { String(localized: "Skip") }
 
-    // NO `.destructive` ROLE ON ANY OF THE FOUR — not even the exercise-level
+    // NO `.destructive` ROLE ON ANY OF THE SIX — not even the exercise-level
     // one, though `leaveExercise` really does discard the facts entered for
     // the pattern. Red says "danger", and this app's position on a skip is
     // the opposite: a skipped movement stays exactly where it was, no penalty
@@ -94,7 +120,7 @@ struct SkipConfirmation: Identifiable {
 }
 
 extension View {
-    /// One alert for all four, driven by the pending question.
+    /// One alert for all six, driven by the pending question.
     ///
     /// An ALERT and not a `confirmationDialog`, for the reason written out at
     /// the workout's exit alert: iOS 26 draws the latter as an anchored
@@ -108,7 +134,7 @@ extension View {
         return alert(pending.wrappedValue?.title ?? "",
                      isPresented: shown,
                      presenting: pending.wrappedValue) { skip in
-            Button(String(localized: "Keep going"), role: .cancel) { }
+            Button(String(localized: "Keep going"), role: .cancel) { skip.cancel() }
             Button(skip.confirmTitle) { skip.perform() }
         } message: { skip in
             Text(verbatim: skip.message)

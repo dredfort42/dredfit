@@ -118,7 +118,7 @@ extension WorkoutFlowView {
                                onStart: { flow.reentering ? flow.endBlockReentry() : flow.countIn(.warmup) },
                                onPauseToggle: { flow.toggleBlockPause() },
                                onSkipPosition: { flow.skipPosition(of: .warmup) },
-                               onSkipBlock: { flow.finishWarmup() })
+                               onSkipBlock: { askToSkip(.warmup) })
             } else {
                 warmupMoveView
             }
@@ -140,7 +140,7 @@ extension WorkoutFlowView {
                          onTechnique: { openWarmupTechnique() },
                          onPauseToggle: { flow.toggleBlockPause() },
                          onSkipPosition: { flow.skipPosition(of: .warmup) },
-                         onSkipBlock: { flow.finishWarmup() })
+                         onSkipBlock: { askToSkip(.warmup) })
     }
 
     func openWarmupTechnique() {

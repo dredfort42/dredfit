@@ -150,9 +150,12 @@ final class BlockPauseUITests: XCTestCase {
         let skip = app.buttons[AX.skipCooldown]
         XCTAssertTrue(skip.waitForExistence(timeout: 10),
                       "the resumed cool-down must still offer a way out of the block")
+        // The escape asks first; the block stands frozen behind the question.
         skip.tap()
+        driver.confirmSkip()
         if !rating.waitForExistence(timeout: 10), skip.exists {
             skip.tap()
+            driver.confirmSkip()
         }
         XCTAssertTrue(rating.waitForExistence(timeout: 10),
                       "a paused-and-resumed cool-down still reaches the rating")

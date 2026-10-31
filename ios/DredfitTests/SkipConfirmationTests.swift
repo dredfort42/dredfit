@@ -10,7 +10,8 @@ import XCTest
 @MainActor
 final class SkipConfirmationTests: XCTestCase {
 
-    private let all: [SkipConfirmation.Kind] = [.probeSet, .workingSet, .restOfSets, .exercise]
+    private let all: [SkipConfirmation.Kind] = [.probeSet, .workingSet, .restOfSets, .exercise,
+                                                .warmup, .cooldown]
 
     private func make(_ kind: SkipConfirmation.Kind) -> SkipConfirmation {
         SkipConfirmation(kind: kind) { }
@@ -33,14 +34,16 @@ final class SkipConfirmationTests: XCTestCase {
     func testTheConfirmLabelIsNeverTheLabelOfTheControlThatRaisedIt() {
         let controls = [String(localized: "Skip this set"),
                         String(localized: "Skip remaining sets"),
-                        String(localized: "Skip exercise")]
+                        String(localized: "Skip exercise"),
+                        GuidedBlock.warmup.skipTitle,
+                        GuidedBlock.cooldown.skipTitle]
         for kind in all {
             XCTAssertFalse(controls.contains(make(kind).confirmTitle),
                            "\(kind) answers itself with the words already on screen")
         }
     }
 
-    /// ONE label for all four, because `UIAlertController` picks its layout
+    /// ONE label for all six, because `UIAlertController` picks its layout
     /// from the button widths: per-kind labels would make two controls that
     /// sit at equal weight in the same row stack differently — in Russian
     /// "Пропустить этот подход" fits beside the cancel and "Пропустить это
@@ -49,14 +52,14 @@ final class SkipConfirmationTests: XCTestCase {
     /// Identical strings cannot diverge in any language or at any text size,
     /// which is what makes this the fix rather than a shorter wording. Which
     /// question is up is read off the TITLE, and the titles are all different.
-    func testAllFourAnswerToTheSameButton() {
+    func testAllSixAnswerToTheSameButton() {
         XCTAssertEqual(Set(all.map { make($0).confirmTitle }).count, 1,
                        "a per-kind confirm label lets the alert's layout differ")
-        XCTAssertEqual(Set(all.map { make($0).title }).count, 3,
-                       "the two set-level skips share a question; the other two do not")
+        XCTAssertEqual(Set(all.map { make($0).title }).count, 5,
+                       "the two set-level skips share a question; the other four do not")
     }
 
-    /// All four questions have the SAME shape, with no red `.destructive`
+    /// All six questions have the SAME shape, with no red `.destructive`
     /// button on any of them: red says "danger", and this app's position on a
     /// skip is that a skipped movement stays exactly where it was, no penalty
     /// and no rollback. What is destroyed is the numbers, and the message says
@@ -109,5 +112,31 @@ final class SkipConfirmationTests: XCTestCase {
         XCTAssertEqual(ran, 0, "building the question must not perform it")
         skip.perform()
         XCTAssertEqual(ran, 1)
+    }
+
+    /// A block's question freezes the block, so saying no has to hand the
+    /// clock back — and only saying no: the answer that skips must not also
+    /// resume a block it is ending, and building the question runs neither.
+    func testKeepGoingRunsTheCancelAndOnlyIt() {
+        var performed = 0
+        var cancelled = 0
+        let skip = SkipConfirmation(kind: .cooldown,
+                                    perform: { performed += 1 },
+                                    cancel: { cancelled += 1 })
+        XCTAssertEqual(cancelled, 0, "building the question must not answer it")
+        skip.cancel()
+        XCTAssertEqual(cancelled, 1)
+        XCTAssertEqual(performed, 0, "saying no must not skip")
+    }
+
+    /// The cool-down's question says the one thing the button cannot: there
+    /// is no way back into the block from the rating.
+    func testTheCooldownQuestionSaysItCannotBeStartedAgain() {
+        XCTAssertEqual(make(.cooldown).message,
+                       String(localized: """
+                           The workout goes straight to the rating, and the cool-down \
+                           cannot be started again. The plan does not change.
+                           """))
+        XCTAssertNotEqual(make(.warmup).message, make(.cooldown).message)
     }
 }
