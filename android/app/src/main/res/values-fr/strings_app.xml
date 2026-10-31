@@ -403,7 +403,9 @@
     <string name="app_skip_exercise_9f0a5f13">Passer l’exercice</string>
     <string name="app_skip_remaining_sets_1a7d71a9">Passer les séries restantes</string>
     <string name="app_skip_rest_d5dcae64">Passer le repos</string>
+    <string name="app_skip_the_cool_down_027a2254">Passer le retour au calme ?</string>
     <string name="app_skip_the_remaining_sets_566569a0">Passer les séries restantes ?</string>
+    <string name="app_skip_the_warm_up_1a296655">Passer l’échauffement ?</string>
     <string name="app_skip_this_exercise_d548505c">Passer cet exercice ?</string>
     <string name="app_skip_this_position_23f7f634">Passer cette position</string>
     <string name="app_skip_this_set_6f13e09e">Passer cette série ?</string>
@@ -463,6 +465,8 @@
     <string name="app_the_rating_doesn_t_apply_to_these_moveme_ba7eb3eb">Le ressenti ne s’applique pas à ces mouvements — ils restent comme ils étaient.</string>
     <string name="app_the_tones_play_even_with_the_ringer_swit_307ab9b6">Les sons se font entendre même quand la sonnerie est coupée.</string>
     <string name="app_the_work_is_done_a_few_minutes_of_stretc_c8e80f4d">Le travail est fait. Quelques minutes d’étirements aident à l’assimiler. Certaines positions reprennent les mouvements que tu as faits aujourd’hui.</string>
+    <string name="app_the_workout_goes_straight_to_the_first_e_5f8b1ce6">La séance passe directement au premier exercice. Le plan ne change pas.</string>
+    <string name="app_the_workout_goes_straight_to_the_rating__a369ffee">La séance passe directement au ressenti, et le retour au calme ne peut pas être relancé. Le plan ne change pas.</string>
     <string name="app_the_workout_is_done_only_the_rating_is_l_88bf7855">La séance est terminée — il ne reste plus que le ressenti.</string>
     <string name="app_then_bdbb0242">Avant : %s</string>
     <string name="app_this_is_the_most_for_this_movement_3c9d7590">C’est le maximum pour ce mouvement.</string>

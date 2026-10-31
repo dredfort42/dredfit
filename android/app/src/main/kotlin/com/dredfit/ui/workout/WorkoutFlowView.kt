@@ -282,7 +282,11 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, re
             Box(Modifier.weight(1f)) {
                 when (phase) {
                     Phase.WarmupIntro -> WarmupIntroView(observed)
-                    Phase.Warmup -> WarmupView(observed) { positionTechnique = it; observed.act { freezeForPositionTechnique() } }
+                    Phase.Warmup -> WarmupView(
+                        observed,
+                        openTechnique = { positionTechnique = it; observed.act { freezeForPositionTechnique() } },
+                        askSkip = { pendingSkip = it },
+                    )
                     Phase.Work -> WorkView(observed, observedStore, { techniqueTarget = it }, { pendingSkip = it })
                     Phase.ExerciseSummary -> ExerciseSummaryView(observed)
                     is Phase.Rest -> FlowRestView(observed, phase) {
@@ -290,10 +294,14 @@ fun WorkoutFlowView(active: ActiveWorkout, observedStore: Observed<AppStore>, re
                         techniqueTarget = flow.restTechniqueTarget
                     }
                     Phase.CooldownIntro -> CooldownIntroView(observed)
-                    Phase.Cooldown -> CooldownView(observed, observedStore) {
-                        positionTechnique = it
-                        observed.act { freezeForPositionTechnique() }
-                    }
+                    Phase.Cooldown -> CooldownView(
+                        observed, observedStore,
+                        openTechnique = {
+                            positionTechnique = it
+                            observed.act { freezeForPositionTechnique() }
+                        },
+                        askSkip = { pendingSkip = it },
+                    )
                     Phase.Feedback -> FeedbackView(
                         session = active.session, facts = flow.actuals, overrides = flow.overrides,
                         actualSets = flow.actualSets, setsSkipped = flow.setsSkipped, skipped = flow.skippedPatterns,

@@ -27,7 +27,6 @@ import com.dredfit.workout.cooldownIntroMinutes
 import com.dredfit.workout.countIn
 import com.dredfit.workout.declineCooldown
 import com.dredfit.workout.endBlockReentry
-import com.dredfit.workout.finishCooldown
 import com.dredfit.workout.rebaseCooldownOnComposition
 import com.dredfit.workout.reentering
 import com.dredfit.workout.skipPosition
@@ -56,7 +55,7 @@ fun CooldownIntroView(observed: Observed<WorkoutSession>) {
 
 @Composable
 fun CooldownView(observed: Observed<WorkoutSession>, observedStore: Observed<AppStore>,
-                 openTechnique: (PositionTechnique) -> Unit) {
+                 openTechnique: (PositionTechnique) -> Unit, askSkip: (SkipConfirmation) -> Unit) {
     val flow by observed
     val store by observedStore
     // A position set aside from its sheet recomposes the block; the slot
@@ -81,7 +80,7 @@ fun CooldownView(observed: Observed<WorkoutSession>, observedStore: Observed<App
             onStart = { observed.act { if (reentering) endBlockReentry() else countIn(GuidedBlock.cooldown) } },
             onPauseToggle = { observed.act { toggleBlockPause() } },
             onSkipPosition = { observed.act { skipPosition(GuidedBlock.cooldown) } },
-            onSkipBlock = { observed.act { finishCooldown() } },
+            onSkipBlock = { observed.askToSkip(GuidedBlock.cooldown)?.let(askSkip) },
         )
     } else {
         RunningPositionScreen(
@@ -91,7 +90,7 @@ fun CooldownView(observed: Observed<WorkoutSession>, observedStore: Observed<App
             paused = flow.blockPause.isHeld, onTechnique = technique,
             onPauseToggle = { observed.act { toggleBlockPause() } },
             onSkipPosition = { observed.act { skipPosition(GuidedBlock.cooldown) } },
-            onSkipBlock = { observed.act { finishCooldown() } },
+            onSkipBlock = { observed.askToSkip(GuidedBlock.cooldown)?.let(askSkip) },
         )
     }
 }

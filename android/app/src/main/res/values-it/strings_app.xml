@@ -403,7 +403,9 @@
     <string name="app_skip_exercise_9f0a5f13">Salta l’esercizio</string>
     <string name="app_skip_remaining_sets_1a7d71a9">Salta le serie rimaste</string>
     <string name="app_skip_rest_d5dcae64">Salta il recupero</string>
+    <string name="app_skip_the_cool_down_027a2254">Saltare il defaticamento?</string>
     <string name="app_skip_the_remaining_sets_566569a0">Saltare le serie rimaste?</string>
+    <string name="app_skip_the_warm_up_1a296655">Saltare il riscaldamento?</string>
     <string name="app_skip_this_exercise_d548505c">Saltare questo esercizio?</string>
     <string name="app_skip_this_position_23f7f634">Salta questa posizione</string>
     <string name="app_skip_this_set_6f13e09e">Saltare questa serie?</string>
@@ -463,6 +465,8 @@
     <string name="app_the_rating_doesn_t_apply_to_these_moveme_ba7eb3eb">La valutazione non riguarda questi movimenti: restano come erano.</string>
     <string name="app_the_tones_play_even_with_the_ringer_swit_307ab9b6">I suoni si sentono anche con la suoneria disattivata.</string>
     <string name="app_the_work_is_done_a_few_minutes_of_stretc_c8e80f4d">Il lavoro è fatto. Qualche minuto di stretching aiuta a farlo sedimentare. Alcune posizioni seguono i movimenti che hai fatto oggi.</string>
+    <string name="app_the_workout_goes_straight_to_the_first_e_5f8b1ce6">L’allenamento passa subito al primo esercizio. Il piano non cambia.</string>
+    <string name="app_the_workout_goes_straight_to_the_rating__a369ffee">L’allenamento passa subito alla valutazione e il defaticamento non si può riavviare. Il piano non cambia.</string>
     <string name="app_the_workout_is_done_only_the_rating_is_l_88bf7855">L’allenamento è fatto – manca solo la valutazione.</string>
     <string name="app_then_bdbb0242">Prima: %s</string>
     <string name="app_this_is_the_most_for_this_movement_3c9d7590">È il massimo per questo movimento.</string>

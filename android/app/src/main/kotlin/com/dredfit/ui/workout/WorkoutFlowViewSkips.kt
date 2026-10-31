@@ -3,16 +3,22 @@
 //  set, the rest of the sets, or the movement — and which question each asks.
 //  Port of ios/Dredfit/Views/Workout/WorkoutFlowView+Skips.swift. On iOS the
 //  choice sits on the view; here it is plain Kotlin, so a JVM test reaches it
-//  (WorkoutFlowSkipsTest). The skips themselves are WorkoutSessionSkips.kt.
+//  (WorkoutFlowSkipsTest). The block-level escape's question is here too. The skips themselves are WorkoutSessionSkips.kt.
 //
 
 package com.dredfit.ui.workout
 
 import com.dredfit.core.EngineConfig
+import com.dredfit.ui.Observed
 import com.dredfit.ui.workout.SkipConfirmation.Kind
+import com.dredfit.workout.GuidedBlock
 import com.dredfit.workout.WorkoutSession
+import com.dredfit.workout.WorkoutSession.Phase
 import com.dredfit.workout.Words
+import com.dredfit.workout.finish
+import com.dredfit.workout.freezeForPositionTechnique
 import com.dredfit.workout.leaveExercise
+import com.dredfit.workout.resumePositionCountdown
 import com.dredfit.workout.setsPerformedHere
 import com.dredfit.workout.skipRestOfExercise
 import com.dredfit.workout.skipSet
@@ -49,9 +55,40 @@ fun WorkoutSession.exerciseEscape(): ExerciseEscape? {
     return ExerciseEscape(Words.of("Skip remaining sets"), "exercise-skip-rest", Kind.restOfSets)
 }
 
+/**
+ * "Skip warm-up" / "Skip cool-down", asked first. The block stands still while
+ * the question does — frozen the way the technique sheet freezes it — so a
+ * stray tap answered half a minute later finds the position where it was, and
+ * the seconds the alert stood up are not billed as stretching (the ending
+ * closes the freeze).
+ *
+ * null when the block is no longer running: a tap on the escape of a screen
+ * the block left in the same instant has nothing left to ask about, and must
+ * not freeze or question the rating that replaced it.
+ */
+fun Observed<WorkoutSession>.askToSkip(block: GuidedBlock): SkipConfirmation? {
+    val running = when (block) {
+        GuidedBlock.warmup -> Phase.Warmup
+        GuidedBlock.cooldown -> Phase.Cooldown
+    }
+    if (value.phase != running) return null
+    act { freezeForPositionTechnique() }
+    return SkipConfirmation(
+        kind = when (block) {
+            GuidedBlock.warmup -> Kind.warmup
+            GuidedBlock.cooldown -> Kind.cooldown
+        },
+        perform = { act { finish(block) } },
+        cancel = { act { resumePositionCountdown() } },
+    )
+}
+
 /** What a confirmed question does. */
 fun WorkoutSession.perform(kind: Kind) = when (kind) {
     Kind.probeSet, Kind.workingSet -> skipSet()
     Kind.restOfSets -> skipRestOfExercise()
     Kind.exercise -> leaveExercise()
+    // A block's question is raised by `askToSkip`, whose perform ends the block.
+    Kind.warmup -> finish(GuidedBlock.warmup)
+    Kind.cooldown -> finish(GuidedBlock.cooldown)
 }
