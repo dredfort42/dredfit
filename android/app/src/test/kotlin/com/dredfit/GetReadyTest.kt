@@ -72,30 +72,33 @@ class GetReadyTest {
 
     @Test
     fun aPositionThatHasToBeGotIntoGetsTheSupplement() {
-        // The differentiated pause of issue #83: base plus supplement for a
-        // position that changes the starting position or needs a prop.
+        // The differentiated pause of issue #83: base plus supplement for the
+        // transition that changes the starting position.
         assertEquals(4, GetReady.setupSupplementSec)
         assertEquals(GetReady.seconds + GetReady.setupSupplementSec, GetReady.stageSeconds(needsSetup = true))
-        val positions = Cooldown.positions(performed = listOf(Pattern.pull))
-        assertEquals("hip-flexors", positions[0].id)
+        val positions = Cooldown.positions(sessionNumber = 1)
+        val descent = assertNotNull(positions.indexOfFirst { it.level > CooldownPosition.Level.standing }
+                                        .takeIf { it >= 0 })
+        assertEquals("hip-flexors", positions[descent].id)
         assertEquals(GetReady.seconds + GetReady.setupSupplementSec,
-                     GuidedBlock.cooldown.stageSeconds(GuidedStage.getReady, positions[0]),
-                     "the block opens by getting down onto one knee")
+                     GuidedBlock.cooldown.stageSeconds(GuidedStage.getReady, positions[descent]),
+                     "the trip down onto one knee pays the supplement")
     }
 
     @Test
-    fun onlyTheStandingPositionsKeepTheBaseTransition() {
+    fun onlyTheTripDownPaysTheSupplement() {
         // The flag travels with the data, so this is the list issue #83
-        // pinned: the warm-up never leaves standing, and in the cool-down only forward fold, the lat stretch and the wrists stay
-        // upright with no wall to walk to.
+        // pinned: the warm-up never leaves standing, and the cool-down goes
+        // down once — what follows the kneeling lunge is already on the floor.
         for (moves in everyComposition) {
             assertEquals(emptyList(), moves.filter { it.needsSetup }.map { it.id },
                          "${moves.map { it.id }}: a warm-up transition paid the supplement")
         }
-        val allNine = Cooldown.positions(performed = listOf(Pattern.squat, Pattern.pull, Pattern.pushH)) +
-            Cooldown.positions(performed = listOf(Pattern.coreAntiExt, Pattern.calf, Pattern.lunge))
-        val standing = allNine.filter { !it.needsSetup }.map { it.id }.toSet()
-        assertEquals(setOf("forward-fold", "lat-stretch", "wrists"), standing)
+        for (session in 1..Cooldown.rotationPeriod) {
+            assertEquals(listOf("hip-flexors"),
+                         Cooldown.positions(sessionNumber = session).filter { it.needsSetup }.map { it.id },
+                         "session $session")
+        }
     }
 
     @Test
@@ -119,17 +122,18 @@ class GetReadyTest {
      * impossible instead of merely unlikely.
      */
     private fun cost(position: CooldownPosition): Int {
-        val hold = if (position.perSide) Cooldown.sideSeconds * 2 + Cooldown.sideSwitchPauseSec else Cooldown.positionSeconds
+        val hold = if (position.halves?.pausesAtTheSwitch == true) Cooldown.sideSeconds * 2 + Cooldown.sideSwitchPauseSec
+                   else Cooldown.positionSeconds
         return GetReady.stageSeconds(needsSetup = position.needsSetup) + hold
     }
 
     /**
-     * The decision this feature rests on: the transitions — supplements
-     * included (#83) — ride on top of the minutes the engine reserves for
-     * the two blocks. The worst case with nothing set aside is exact: the
-     * dearest warm-up plus the fixed three positions plus the costliest three
-     * the mapping can draw. BlockReserveTest adds the set-aside axis, where
-     * the warm-up stays at 228 s — every slot costs the same.
+     * The decision this feature rests on: the transitions — the one
+     * supplement included (#83) — ride on top of the minutes the engine
+     * reserves for the two blocks. The worst case with nothing set aside is
+     * exact: the dearest warm-up plus the dearest session of the cool-down's
+     * rotation. BlockReserveTest adds the set-aside axis, where neither
+     * block grows.
      *
      * The FIT is not exact: a reserve is whole minutes, so it carries slack.
      * What is guarded is that the slack stays under two minutes — more, and
@@ -138,36 +142,29 @@ class GetReadyTest {
     @Test
     fun bothBlocksFitInsideTheReservedWarmupAndCooldownMinutes() {
         val warmup = everyComposition.maxOf { moves -> moves.sumOf { cost(it) } }
-
-        // One pattern per pool position; index 2 of a one-pattern composition
-        // is the position that pattern maps to.
-        val pool = listOf(Pattern.squat, Pattern.pull, Pattern.pushH, Pattern.coreAntiExt, Pattern.calf, Pattern.lunge)
-            .map { Cooldown.positions(performed = listOf(it))[2] }
-        val worstMapped = pool.map { cost(it) }.sortedDescending().take(3).sum()
-        val anyComposition = Cooldown.positions(performed = listOf(Pattern.squat))
-        val fixed = cost(anyComposition[0]) + cost(anyComposition[1]) + cost(anyComposition[5])
+        val cooldown = (1..Cooldown.rotationPeriod).maxOf { session ->
+            Cooldown.positions(sessionNumber = session).sumOf { cost(it) }
+        }
         val reserved = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
 
         // Lengthening the transition is what makes the reserve an engine
         // constraint; shortening it only ever leaves slack.
         assertEquals(228, warmup)
-        assertEquals(272, fixed + worstMapped)
-        assertTrue(warmup + fixed + worstMapped <= reserved, "the worst case overruns the reserved minutes")
-        // Ten minutes is not the smallest whole minute that fits, and the
-        // owner keeps it: giving the minute back is `cooldownMin` 4 → 3
-        // through the reference chain, and it would take a minute off every
-        // announced duration to reclaim slack nobody is short of. What is
-        // guarded is drift, not tightness — `BlockReserveTest` holds the same
-        // floor and ceiling over the axis the app actually composes on.
-        assertTrue(reserved - (warmup + fixed + worstMapped) < 120,
+        assertEquals(236, cooldown)
+        assertTrue(warmup + cooldown <= reserved, "the worst case overruns the reserved minutes")
+        // Nine is the smallest whole minute that fits: ten held more than two
+        // spare once the cool-down stopped pausing on the spot, and the minute
+        // went back through the reference chain. `BlockReserveTest` holds the
+        // same floor and ceiling over the axis the app actually composes on.
+        assertTrue(reserved - (warmup + cooldown) < 120,
                    "two whole minutes of slack: the reserve is no longer " +
                        "sized against the blocks it exists for")
     }
 
     @Test
     fun aRealCompositionLeavesRoom() {
-        val performed = Engine.generateSession(EngineState.initial).exercises.map { it.pattern }
-        val cooldown = Cooldown.positions(performed = performed).sumOf { cost(it) }
+        val session = Engine.generateSession(EngineState.initial)
+        val cooldown = Cooldown.positions(sessionNumber = session.sessionNumber).sumOf { cost(it) }
         val warmup = warmupMoves.sumOf { cost(it) }
         assertTrue(warmup + cooldown < (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60)
     }
@@ -302,6 +299,12 @@ class GetReadyTest {
         assertEquals("Switch direction", directions.switching.english)
         assertTrue(WarmupHalves.sides.pausesAtTheSwitch, "turning over re-sets the body")
         assertFalse(WarmupHalves.directions.pausesAtTheSwitch, "a circle reverses on the move")
+        // A side switched on the spot keeps the words of a side and loses only
+        // the pause: the twist's knees go the other way, not "the other way".
+        val onTheSpot = SplitStageWords(halves = WarmupHalves.sidesOnTheSpot)
+        assertEquals(listOf(sides.switching.english, sides.secondHalf.english, sides.everyHalf.english),
+                     listOf(onTheSpot.switching.english, onTheSpot.secondHalf.english, onTheSpot.everyHalf.english))
+        assertFalse(WarmupHalves.sidesOnTheSpot.pausesAtTheSwitch, "the body stays where it is")
     }
 
     @Test
@@ -358,52 +361,54 @@ class GetReadyTest {
         assertEquals(GuidedStage.getReady, warmup?.stage, "...but came to rest on a transition")
         assertEquals(1, warmup?.index)
 
-        // Cool-down: the same shape across a whole per-side position.
-        val positions = Cooldown.positions(performed = listOf(Pattern.pull))
-        assertTrue(positions[0].perSide, "hip flexors open the block per side")
+        // Cool-down: the same shape across a whole per-side position — the
+        // kneeling lunge, whose sides are a re-set with a pause between them.
+        val positions = Cooldown.positions(sessionNumber = 1)
+        val lunge = assertNotNull(positions.indexOfFirst { it.halves == WarmupHalves.sides }.takeIf { it >= 0 })
         val cooldown = GuidedBlock.cooldown.advance(
-            from = Step(0, GuidedStage.getReady),
+            from = Step(lunge, GuidedStage.getReady),
             overshoot = Cooldown.sideSeconds * 2 + Cooldown.sideSwitchPauseSec + 2,
             positions = positions)
         assertEquals(GuidedStage.firstHalf, cooldown?.entered, "the run opened on the first side")
         assertEquals(GuidedStage.getReady, cooldown?.stage, "...but came to rest on a transition")
-        assertEquals(1, cooldown?.index)
-        assertEquals(GetReady.seconds + GetReady.setupSupplementSec - 2, cooldown?.remaining,
-                     "chest wall carries the supplement — the wall has to be walked to")
+        assertEquals(lunge + 1, cooldown?.index)
+        assertEquals(GetReady.seconds - 2, cooldown?.remaining,
+                     "the next position is already on the floor — the trip down is paid once")
     }
 
     // MARK: - The cool-down stage machine
 
     @Test
     fun everyCooldownPositionOpensWithTheTransition() {
-        val positions = Cooldown.positions(performed = listOf(Pattern.pull))
-        for ((index, position) in positions.withIndex()) {
-            val after = GuidedBlock.step(after = Step(index, GuidedStage.getReady), positions = positions)
-            assertEquals(index, after?.index, "${position.id}: the transition stays put")
-            assertEquals(if (position.perSide) GuidedStage.firstHalf else GuidedStage.whole, after?.stage,
-                         "${position.id}: the transition hands over to the position itself")
+        for (session in 1..Cooldown.rotationPeriod) {
+            val positions = Cooldown.positions(sessionNumber = session)
+            for ((index, position) in positions.withIndex()) {
+                val after = GuidedBlock.step(after = Step(index, GuidedStage.getReady), positions = positions)
+                assertEquals(index, after?.index, "${position.id}: the transition stays put")
+                assertEquals(if (position.perSide) GuidedStage.firstHalf else GuidedStage.whole, after?.stage,
+                             "${position.id}: the transition hands over to the position itself")
+            }
         }
     }
 
     @Test
     fun aBilateralPositionWalksTransitionThenTheWholeSlot() {
-        // squat → forward fold, the first bilateral position of the block.
-        val positions = Cooldown.positions(performed = listOf(Pattern.squat))
+        // The chest opener, the first bilateral position of session one.
+        val positions = Cooldown.positions(sessionNumber = 1)
         val index = positions.indexOfFirst { !it.perSide }
         assertTrue(index >= 0, "the composition must contain a bilateral position")
         assertEquals(GuidedStage.whole, GuidedBlock.step(after = Step(index, GuidedStage.getReady), positions = positions)?.stage)
         assertEquals(Cooldown.positionSeconds, GuidedBlock.cooldown.stageSeconds(GuidedStage.whole, positions[index]))
     }
 
-    /** The other half of the rule the warm-up's circles changed: a SIDE switch
-     *  still stops the clock for its pause, because turning over re-sets the
-     *  body. Both blocks walk one stage machine, so the circle's shortcut must
-     *  not leak into the stretch. */
+    /** The other half of the rule the warm-up's circles changed: a side switch
+     *  that re-sets the body — the lunge changing its front leg — still stops
+     *  the clock for its pause. Both blocks walk one stage machine, so the
+     *  shortcut of a switch on the spot must not leak into a re-set. */
     @Test
-    fun aSideSwitchStillPauses() {
-        val positions = Cooldown.positions(performed = listOf(Pattern.pull))
-        val index = positions.indexOfFirst { it.perSide }
-        assertTrue(index >= 0)
+    fun aSideReSetStillPauses() {
+        val positions = Cooldown.positions(sessionNumber = 1)
+        val index = assertNotNull(positions.indexOfFirst { it.halves == WarmupHalves.sides }.takeIf { it >= 0 })
         assertEquals(GuidedStage.switchPause,
                      GuidedBlock.step(after = Step(index, GuidedStage.firstHalf), positions = positions)?.stage)
         assertEquals(GuidedStage.secondHalf,
@@ -414,7 +419,7 @@ class GetReadyTest {
     fun noStageIsEmpty() {
         // advance() walks stages while the overshoot covers them; a zero-length
         // stage would spin forever.
-        for (position in Cooldown.positions(performed = listOf(Pattern.pull))) {
+        for (position in (1..Cooldown.rotationPeriod).flatMap { Cooldown.positions(sessionNumber = it) }) {
             for (stage in GuidedStage.entries) {
                 assertTrue(GuidedBlock.cooldown.stageSeconds(stage, position) > 0,
                            "${position.id}.$stage has no length")

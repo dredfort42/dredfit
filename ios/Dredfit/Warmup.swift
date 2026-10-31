@@ -19,9 +19,10 @@
 //  set aside breaks the order; a group per slot cannot lose one.
 //
 //  A circle REVERSES halfway, and the clock does not stop for it: a tone marks
-//  the midpoint and the second half runs straight on. The side switch keeps
-//  its pause — turning over or changing legs re-sets the body; reversing a
-//  circle does not, and a pause there would stop a movement for nothing.
+//  the midpoint and the second half runs straight on. A side switch that
+//  re-sets the body — changing the front leg of a lunge — keeps its pause;
+//  reversing a circle does not, and a pause there would stop a movement for
+//  nothing.
 //
 //  Every slot therefore costs the same, the transition plus thirty seconds,
 //  and every composition 228 s. Nothing here is derived: `BlockReserveTests`
@@ -45,15 +46,22 @@ import DredfitCore
 /// cool-down's per-side stretches and the work screen's per-side holds, which
 /// share the type through `GuidedPosition`.
 enum WarmupHalves: Equatable {
-    case sides, directions
+    /// A side switch that re-sets the body — the front leg of a kneeling lunge
+    /// changed, the feet stepped over.
+    case sides
+    /// A side switch made where the body already is: the other wrist, the
+    /// knees dropped the other way, the hands walked to the other side.
+    case sidesOnTheSpot
+    case directions
 
-    /// Whether the switch between the halves stops the clock. A side switch
-    /// re-sets the body — turn over, change the leg — and gets the pause
-    /// (`Cooldown.sideSwitchPauseSec`); a circle reverses on the move.
+    /// Whether the switch between the halves stops the clock. A re-set gets
+    /// the pause (`Cooldown.sideSwitchPauseSec`); a switch on the spot and a
+    /// circle reversing on the move do not — a pause there would stop a
+    /// movement for nothing, and the tone alone marks the half.
     var pausesAtTheSwitch: Bool {
         switch self {
-        case .sides:      return true
-        case .directions: return false
+        case .sides:                       return true
+        case .sidesOnTheSpot, .directions: return false
         }
     }
 }

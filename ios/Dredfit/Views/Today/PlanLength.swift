@@ -31,7 +31,7 @@ struct PlanLength: View {
     }
 }
 
-/// What the number above is made of at both ends. Ten of those minutes are the
+/// What the number above is made of at both ends. Nine of those minutes are the
 /// warm-up and the cool-down, and their share is largest on exactly the
 /// shortest sessions.
 ///
@@ -40,7 +40,7 @@ struct PlanLength: View {
 /// before they have seen one, would be an invitation rather than a disclosure.
 ///
 /// Beside `PlanLength` rather than inside it: the range carries an
-/// accessibility label of its own ("about 24 to 32 minutes · 6 exercises"), and
+/// accessibility label of its own ("about 23 to 31 minutes · 6 exercises"), and
 /// a second line under the same identifier would rewrite what a query reads.
 struct PlanEndsNote: View {
     let warmupMin: Int

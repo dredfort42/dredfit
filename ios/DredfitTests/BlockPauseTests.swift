@@ -164,21 +164,21 @@ final class BlockPauseTests: XCTestCase {
 
     // MARK: - Honest numbers
 
-    func testThePauseAddsNothingToWhatTheBlocksPromise() {
+    func testThePauseAddsNothingToWhatTheBlocksPromise() throws {
         // The pause is user-initiated, so no estimate moves (#61 follows the
         // precedent of #52). What the blocks cost uninterrupted is unchanged
         // by this feature — the stage lengths are the same ones GetReadyTests
         // measures against the reserved minutes.
-        let positions = Cooldown.positions(performed: [.pull])
+        let lunge = try XCTUnwrap(Cooldown.positions(sessionNumber: 1).first { $0.halves == .sides })
         let warmup = Warmup.moves(sessionNumber: 1, opening: .squat)
         XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.whole, of: warmup[0]), Warmup.moveSeconds)
         XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.getReady, of: warmup[0]), GetReady.seconds)
         XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.firstHalf, of: warmup[0]), Warmup.halfSeconds)
-        XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.whole, of: positions[0]),
+        XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.whole, of: lunge),
                        Cooldown.positionSeconds)
-        XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.firstHalf, of: positions[0]),
+        XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.firstHalf, of: lunge),
                        Cooldown.sideSeconds)
-        XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.switchPause, of: positions[0]),
+        XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.switchPause, of: lunge),
                        Cooldown.sideSwitchPauseSec)
     }
 }

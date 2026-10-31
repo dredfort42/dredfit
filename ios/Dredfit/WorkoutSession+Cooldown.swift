@@ -1,7 +1,7 @@
 //
 //  The cool-down block (issue #28): offered once the work is behind, composed
-//  from the movements actually performed, and run on the guided blocks'
-//  engine (+Blocks).
+//  zone by zone for the session, and run on the guided blocks' engine
+//  (+Blocks).
 //
 
 import Foundation
@@ -11,7 +11,7 @@ extension WorkoutSession {
 
     /// Rounded up: the block is an offer, and a promise it overruns is worse
     /// than one it beats.
-    var cooldownIntroMinutes: Int { cooldownMinutes(of: cooldownPositions[...]) }
+    var cooldownIntroMinutes: Int { Self.cooldownMinutes(of: cooldownPositions[...]) }
 
     /// What is LEFT of the block, for the header that answers "how much
     /// longer" everywhere else in the flow — the work screen reserves the
@@ -26,17 +26,15 @@ extension WorkoutSession {
         guard phase == .cooldown, cooldownPositions.indices.contains(cooldown.index) else {
             return nil
         }
-        return cooldownMinutes(of: cooldownPositions[cooldown.index...])
+        return Self.cooldownMinutes(of: cooldownPositions[cooldown.index...])
     }
 
     /// One arithmetic for the offer and for what is left of it: two copies
     /// would let the block promise five minutes and then count down from four.
-    func cooldownMinutes(of positions: ArraySlice<CooldownPosition>) -> Int {
+    static func cooldownMinutes(of positions: ArraySlice<CooldownPosition>) -> Int {
         let seconds = positions.reduce(0) { total, position in
-            let hold = position.perSide
-                ? Cooldown.sideSeconds + Cooldown.sideSwitchPauseSec + Cooldown.sideSeconds
-                : Cooldown.positionSeconds
-            return total + GetReady.stageSeconds(needsSetup: position.needsSetup) + hold
+            total + GetReady.stageSeconds(needsSetup: position.needsSetup)
+                + Cooldown.slotSeconds(of: position)
         }
         return max(1, Int((Double(seconds) / 60).rounded(.up)))
     }
@@ -51,16 +49,17 @@ extension WorkoutSession {
     /// input the block started with, and restart the slot on its transition.
     /// A position nobody announced must not begin under the thumb.
     ///
-    /// WHICH slot is `rebaseLanding`'s rule, shared with the warm-up. A clamp
-    /// of the ordinal would get by when the position on screen is hidden — the
-    /// middle only ever tops up at its tail — but "Bring back" re-inserts into
-    /// `opening` and pushes everything after it one slot right, and a clamp
-    /// would then reopen a stretch already done while dropping the one that
-    /// was running. The sheet does not close on that tap, so nobody would see
-    /// the block move under them.
+    /// WHICH slot is `cooldownLanding`'s rule: the warm-up's `rebaseLanding`
+    /// with a floor at the level reached. A clamp of the ordinal would reopen
+    /// a stretch already done: a zone emptied by the position on screen is
+    /// refilled on the refill's own level, which can sort in above the slot,
+    /// and "Bring back" puts a position back on its level — above the athlete,
+    /// as often as not, in place of a stand-in they already did. The sheet
+    /// does not close on that tap, so nobody would see the block move under
+    /// them.
     func rebaseCooldownOnComposition() {
         guard phase == .cooldown else { return }
-        let recomposed = Cooldown.positions(performed: performedPatterns,
+        let recomposed = Cooldown.positions(sessionNumber: session.sessionNumber,
                                             hiding: store.settings.hiddenBlockMoveIDs)
         // Nothing to say when the block is unchanged — bringing back a
         // position the composition never drew is the ordinary case. And never
@@ -70,7 +69,11 @@ extension WorkoutSession {
         // Read BEFORE the new list is stored: the prefix of the composition
         // that was running is what the block has already been through.
         let passed = Set(cooldownPositions.prefix(max(0, cooldown.index)).map(\.id))
-        guard let index = Self.rebaseLanding(in: recomposed.map(\.id), after: passed) else {
+        // The level of the position on screen: where the athlete is, or is
+        // getting to. The index is state, hence the check.
+        let reached = cooldownPositions.indices.contains(cooldown.index)
+            ? cooldownPositions[cooldown.index].level : .standing
+        guard let index = Self.cooldownLanding(in: recomposed, after: passed, reached: reached) else {
             // Nothing left that is not already behind the athlete. The old
             // composition stays put on the way out — `finishCooldown` is the
             // ending, and no screen reads the list again.
@@ -87,10 +90,20 @@ extension WorkoutSession {
         persistProgress()
     }
 
-    /// What the cool-down is composed FROM: the movements the workout actually
-    /// performed. One spelling, because `startCooldown` and the recompose above
-    /// have to agree — two would let a set-aside position come back as soon as
-    /// another one was hidden.
+    /// `rebaseLanding` with the cool-down's floor: the first slot on the level
+    /// the athlete has reached. The block only goes down, so a position
+    /// brought back above it — the kneeling lunge while they kneel in the rest
+    /// pose, whose standing twin is already behind them — waits for the next
+    /// workout rather than getting them up, and the zone is not stretched
+    /// twice.
+    static func cooldownLanding(in positions: [CooldownPosition], after passed: Set<String>,
+                                reached: CooldownPosition.Level) -> Int? {
+        let floor = positions.firstIndex { $0.level >= reached } ?? positions.count
+        return rebaseLanding(in: positions.map(\.id), after: passed, notBefore: floor)
+    }
+
+    /// The movements the workout actually performed — whether there is
+    /// anything to cool down from at all.
     var performedPatterns: [Pattern] {
         exercises.map(\.pattern).filter { !skippedPatterns.contains($0) }
     }
@@ -98,8 +111,9 @@ extension WorkoutSession {
     /// A workout of pure skips has nothing to stretch — straight to the
     /// rating instead.
     func startCooldown() {
-        cooldownPositions = Cooldown.positions(performed: performedPatterns,
-                                               hiding: store.settings.hiddenBlockMoveIDs)
+        cooldownPositions = performedPatterns.isEmpty ? [] :
+            Cooldown.positions(sessionNumber: session.sessionNumber,
+                               hiding: store.settings.hiddenBlockMoveIDs)
         guard !cooldownPositions.isEmpty else {
             // Never offered, so never begun: zero, for the reason `finishNow`
             // gives.

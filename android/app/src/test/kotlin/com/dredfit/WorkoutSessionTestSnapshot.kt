@@ -313,8 +313,8 @@ class WorkoutSessionTestSnapshot : WorkoutSessionTestCase() {
 
     @Test
     fun aSwitchPausedNearItsEndGetsTheCountInBack() {
-        // The cool-down's: only a side switch pauses, and the cool-down opens
-        // on a per-side stretch.
+        // The cool-down's: only a side switch that re-sets the body pauses —
+        // the kneeling lunge, third in session one.
         val store = makeStore()
         val flow = makeFlow(store)
         flow.declineWarmup()

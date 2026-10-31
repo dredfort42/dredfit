@@ -25,6 +25,16 @@ enum Theme {
     static var accentText: Color { fatalError("the probe draws nothing") }
 }
 
+/// The same extension counts set-aside block moves by asking the two pools for
+/// a name. The probe composes no block, so these trap like the store does.
+enum Warmup {
+    static func name(ofMove id: String) -> String? { fatalError("the probe composes no block") }
+}
+
+enum Cooldown {
+    static func name(ofPosition id: String) -> String? { fatalError("the probe composes no block") }
+}
+
 extension View {
     func dredfitFont(_ size: CGFloat, weight: Font.Weight = .regular) -> some View {
         font(.system(size: size, weight: weight))

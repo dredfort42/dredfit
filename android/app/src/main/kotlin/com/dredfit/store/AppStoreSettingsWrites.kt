@@ -140,8 +140,9 @@ fun AppStore.markOwnNumberReported() {
     update { it.copy(settings = it.settings.copy(hasReportedOwnNumber = true)) }
 }
 
-/** Three still leaves a full block to compose: the cool-down's six of nine,
- *  and the warm-up's fourteen leave it more room than that. */
+/** Three still leaves a full block to compose: the cool-down's six of ten,
+ *  one of which only stands in for its own zone, and the warm-up's six of
+ *  fourteen. */
 const val MAX_HIDDEN_BLOCK_MOVES = 3
 
 fun AppStore.isBlockMoveHidden(id: String): Boolean = id in settings.hiddenBlockMoveIDs

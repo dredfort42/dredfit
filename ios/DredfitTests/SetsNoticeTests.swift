@@ -185,7 +185,7 @@ final class SetsNoticeTests: AppStoreTestCase {
             "Cool-down",
             "Start the cool-down",
             "cooldown.skip",
-            "The work is done. A few minutes of stretching helps it settle. Some of the positions follow the movements you did today.",
+            "The work is done. A few calm minutes of stretching, from standing down to lying — you stay down until the end.",
             "Warm-up",
             "Start the warm-up",
             "Skip warm-up",

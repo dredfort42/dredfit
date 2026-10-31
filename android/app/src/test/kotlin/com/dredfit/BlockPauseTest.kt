@@ -13,10 +13,12 @@ import com.dredfit.workout.GetReady
 import com.dredfit.workout.GuidedBlock
 import com.dredfit.workout.GuidedStage
 import com.dredfit.workout.Warmup
+import com.dredfit.workout.WarmupHalves
 import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -197,13 +199,13 @@ class BlockPauseTest {
         // precedent of #52). What the blocks cost uninterrupted is unchanged
         // by this feature — the stage lengths are the same ones GetReadyTest
         // measures against the reserved minutes.
-        val positions = Cooldown.positions(performed = listOf(Pattern.pull))
+        val lunge = assertNotNull(Cooldown.positions(sessionNumber = 1).firstOrNull { it.halves == WarmupHalves.sides })
         val warmup = Warmup.moves(sessionNumber = 1, opening = Pattern.squat)
         assertEquals(Warmup.moveSeconds, GuidedBlock.warmup.stageSeconds(GuidedStage.whole, warmup[0]))
         assertEquals(GetReady.seconds, GuidedBlock.warmup.stageSeconds(GuidedStage.getReady, warmup[0]))
         assertEquals(Warmup.halfSeconds, GuidedBlock.warmup.stageSeconds(GuidedStage.firstHalf, warmup[0]))
-        assertEquals(Cooldown.positionSeconds, GuidedBlock.cooldown.stageSeconds(GuidedStage.whole, positions[0]))
-        assertEquals(Cooldown.sideSeconds, GuidedBlock.cooldown.stageSeconds(GuidedStage.firstHalf, positions[0]))
-        assertEquals(Cooldown.sideSwitchPauseSec, GuidedBlock.cooldown.stageSeconds(GuidedStage.switchPause, positions[0]))
+        assertEquals(Cooldown.positionSeconds, GuidedBlock.cooldown.stageSeconds(GuidedStage.whole, lunge))
+        assertEquals(Cooldown.sideSeconds, GuidedBlock.cooldown.stageSeconds(GuidedStage.firstHalf, lunge))
+        assertEquals(Cooldown.sideSwitchPauseSec, GuidedBlock.cooldown.stageSeconds(GuidedStage.switchPause, lunge))
     }
 }

@@ -1,8 +1,9 @@
 //
 //  The warm-up and the cool-down run the same machine: a transition, then the
 //  position held whole or in two halves with a switch between them — a counted
-//  pause when a side is switched, a tone alone when a direction is — all on
-//  one clock. Port of ios/Dredfit/GuidedBlock.swift.
+//  pause when switching sides re-sets the body, a tone alone when a side is
+//  switched on the spot or a direction reversed — all on one clock. Port of
+//  ios/Dredfit/GuidedBlock.swift.
 //
 
 package com.dredfit.workout
@@ -86,9 +87,10 @@ interface GuidedPosition {
 
 /** Every position opens with `getReady` (#52); one held whole runs `whole`,
  *  one with a halfway boundary `firstHalf` → `switchPause` → `secondHalf`
- *  when a SIDE is switched, and `firstHalf` → `secondHalf` when a direction
- *  is: a circle reverses on the move (`WarmupHalves.pausesAtTheSwitch`).
- *  HALF, not side: the warm-up's split moves switch a direction. */
+ *  when switching sides re-sets the body, and `firstHalf` → `secondHalf` when
+ *  the body stays put: a side switched on the spot, a circle reversed on the
+ *  move (`WarmupHalves.pausesAtTheSwitch`). HALF, not side: the warm-up's
+ *  split moves switch a direction. */
 @Suppress("EnumEntryName")
 enum class GuidedStage { getReady, whole, firstHalf, switchPause, secondHalf }
 

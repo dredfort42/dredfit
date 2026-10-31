@@ -109,10 +109,11 @@ private fun WorkoutSession.endByItself(block: GuidedBlock) {
 
 /** The signal belongs to what is on screen: anything but a landing on the
  *  boundary that opened the run stays silent. Each audible boundary is
- *  SPOKEN as well, in the words the new screen shows — except a circle's
- *  switch, spoken as the instruction ("Switch direction") while its screen
- *  goes straight to the state ("the other way"): the screen has no pause to
- *  show an instruction in, and the ear still needs one. */
+ *  SPOKEN as well, in the words the new screen shows — except a switch with
+ *  no pause, spoken as the instruction ("Switch direction", "Switch sides")
+ *  while its screen goes straight to the state ("the other way", "second
+ *  side"): the screen has no pause to show an instruction in, and the ear
+ *  still needs one. */
 private fun WorkoutSession.signal(next: GuidedBlock.Advance, landingOn: GuidedPosition) {
     when {
         next.entered == GuidedStage.getReady && next.stage == GuidedStage.getReady -> {
@@ -125,9 +126,10 @@ private fun WorkoutSession.signal(next: GuidedBlock.Advance, landingOn: GuidedPo
             landingOn.halves?.let { announce(SplitStageWords(it).switching) }
         }
         next.entered == GuidedStage.secondHalf && landingOn.halves?.pausesAtTheSwitch == false -> {
-            // A circle reverses with no pause to open, so the halfway boundary
-            // IS the switch and sounds like one. A go here would read as a
-            // second start in the middle of a movement that never stopped.
+            // A circle reversed or a side switched on the spot has no pause to
+            // open, so the halfway boundary IS the switch and sounds like one.
+            // A go here would read as a second start in the middle of a hold
+            // that never stopped.
             playSwitch()
             landingOn.halves?.let { announce(SplitStageWords(it).switching) }
         }
