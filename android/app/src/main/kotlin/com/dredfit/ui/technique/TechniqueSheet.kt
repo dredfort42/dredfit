@@ -115,7 +115,7 @@ fun TechniqueSheet(target: TechniqueTarget, planned: Boolean, observedStore: Obs
     }
 
     pendingStepDown?.let { step ->
-        // The same guard the four skips carry: this plan has no undo. No
+        // The same guard the six skips carry: this plan has no undo. No
         // destructive role — a rung down is an ordinary answer to a day.
         DredfitAlert(
             title = tr("technique.stepDown.confirmTitle", tr(step.name)),

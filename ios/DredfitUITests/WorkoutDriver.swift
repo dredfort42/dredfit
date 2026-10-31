@@ -44,6 +44,26 @@ struct WorkoutDriver {
     /// that are plainly on screen — the same quirk that forces coordinates
     /// here in the first place — so refusing those would refuse half the
     /// flow's own buttons.
+    /// The element's frame reads finite three times running, 0.1 s apart.
+    ///
+    /// `coordinateTap` reads the frame once and XCUITest reads it again while
+    /// synthesizing the tap, and a block screen rebuilt behind a closing sheet
+    /// reports `CGRect.null` for a snapshot or two. A tap aimed into that
+    /// window does not return false: it raises NSInternalInconsistencyException
+    /// inside the synthesis and takes the test down (measured twice in a row on
+    /// the cool-down's escape, 1.1 s after the technique sheet closed). Three
+    /// finite reads in a row is a screen that has finished being rebuilt.
+    func settled(_ element: XCUIElement) -> Bool {
+        for read in 0..<3 {
+            if read > 0 { Thread.sleep(forTimeInterval: 0.1) }
+            guard element.exists else { return false }
+            let frame = element.frame
+            guard frame.origin.x.isFinite, frame.origin.y.isFinite,
+                  frame.width.isFinite, frame.height.isFinite else { return false }
+        }
+        return true
+    }
+
     @discardableResult
     func coordinateTap(_ element: XCUIElement) -> Bool {
         guard element.exists else { return false }
@@ -67,8 +87,8 @@ struct WorkoutDriver {
     static let bottomRight = CGVector(dx: 0.94, dy: 0.94)
     static let corners = [topLeft, topRight, bottomLeft, bottomRight]
 
-    /// All four in-workout skips ask before they act (SkipConfirmation.swift),
-    /// and all four answer to the same short button — deliberately, because
+    /// All six in-workout skips ask before they act (SkipConfirmation.swift),
+    /// and all six answer to the same short button — deliberately, because
     /// the alert's layout follows its label widths and per-kind labels made
     /// two neighbouring controls stack differently. Which question is up is
     /// read off the TITLE, never off this; a test that needs to know asserts
@@ -77,8 +97,9 @@ struct WorkoutDriver {
     /// ENGLISH ONLY, unlike everything else this driver taps. An alert button
     /// carries no identifier that survives into the accessibility tree, so a
     /// label is what there is — which means a localized walk (S7) must not
-    /// route a skip through here. It does not today: `completeWorkout` never
-    /// skips, it finishes every set.
+    /// route a skip through here. It does not today: `completeWorkout` finishes
+    /// every set, and leaves the cool-down by its block escape only when asked
+    /// to (`skipCooldown: true`), which no localized walk passes.
     ///
     /// The onboarding cards carry a "Skip" of their own. It is a different
     /// screen and never up at the same time, and no control inside the workout
@@ -192,8 +213,10 @@ struct WorkoutDriver {
     ///
     /// THE BUDGET IS THE CHECK — DO NOT RAISE THESE SECONDS. Under
     /// `--uitest-fast` the block also ends by itself, ~17 s after the escape is
-    /// first offered. 4 s + one retry + 5 s holds the whole wait under 9 s, so
-    /// a rating that arrives in time can only be the skip.
+    /// first offered. The escape asks first and the block stands frozen while
+    /// the question is up; 2 s to aim + 2 s for the question + one retry of
+    /// both + 5 s holds the whole wait under 13 s, so a rating that arrives in
+    /// time can only be the skip.
     /// Widened to 20 s the test goes green on the block merely running out,
     /// having stopped checking the skip at all: I-22's first fix already moved
     /// this wait 3 s → 15 s and the transition was lost anyway, so the next
@@ -223,15 +246,23 @@ struct WorkoutDriver {
         // failure below still says what it always said.
         var aimed = false
         let deadline = Date.now.addingTimeInterval(2)
-        repeat { aimed = coordinateTap(skip) } while !aimed && Date.now < deadline
+        repeat {
+            aimed = settled(skip) && coordinateTap(skip)
+        } while !aimed && Date.now < deadline
         guard aimed else {
             XCTFail("the running cool-down must offer a way out of the block",
                     file: file, line: line)
             return false
         }
-        if !skip.waitForNonExistence(timeout: 2), !rating.exists {
+        // The answer is the proof the question was asked: a rating reached
+        // without it would be the escape ending the block on one tap again.
+        var asked = confirmSkip(timeout: 2)
+        if !asked, !rating.exists {
             coordinateTap(skip)
+            asked = confirmSkip(timeout: 2)
         }
+        XCTAssertTrue(asked, "the cool-down's escape left the block without asking",
+                      file: file, line: line)
         XCTAssertTrue(rating.waitForExistence(timeout: 5),
                       "skipping the cool-down lands on the rating",
                       file: file, line: line)
@@ -292,6 +323,7 @@ struct WorkoutDriver {
             } else if skipsCooldown, skipCooldownButton.exists {
                 sawCooldown = true
                 coordinateTap(skipCooldownButton)
+                confirmSkip(timeout: 3)                        // the escape asks first
                 _ = skipCooldownButton.waitForNonExistence(timeout: 3)
             } else {
                 // resting, stretching or mid-transition — under

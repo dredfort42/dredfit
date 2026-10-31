@@ -307,8 +307,25 @@ final class DredfitUITests: XCTestCase {
         app.buttons["Skip this position"].tap()
         XCTAssertTrue(app.staticTexts["Get ready: Side steps"].waitForExistence(timeout: 3),
                       "skipping one move must advance to the next, not exit")
-        app.buttons[AX.skipWarmup].tap()
-        XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 3),
+        // The block's escape asks first — a stray tap must not end the block —
+        // and saying no leaves it exactly where it was. The flag holds the
+        // transition open, so the same label proves the block did not move.
+        driver.coordinateTap(app.buttons[AX.skipWarmup])
+        XCTAssertTrue(app.staticTexts["Skip the warm-up?"].waitForExistence(timeout: 5),
+                      "the block escape left the warm-up without asking")
+        app.buttons["Keep going"].tap()
+        XCTAssertTrue(app.staticTexts["Get ready: Side steps"].waitForExistence(timeout: 5),
+                      "declining the question still left the warm-up")
+        // …and it gives the clock back. The question freezes the block while
+        // it stands; a "Keep going" that thawed nothing would leave the same
+        // second on screen for good, and the label above cannot tell.
+        let countdown = app.staticTexts[AX.getReadyCountdown]
+        let frozenAt = countdown.label
+        let moved = expectation(for: NSPredicate(format: "label != %@", frozenAt),
+                                evaluatedWith: countdown)
+        wait(for: [moved], timeout: 5)
+        XCTAssertTrue(driver.skip(control: AX.skipWarmup), "the question never came")
+        XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 5),
                       "skipping the warm-up must lead to the first exercise")
     }
 

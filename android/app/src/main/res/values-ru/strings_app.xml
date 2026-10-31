@@ -422,7 +422,9 @@
     <string name="app_skip_exercise_9f0a5f13">Пропустить упражнение</string>
     <string name="app_skip_remaining_sets_1a7d71a9">Пропустить оставшиеся подходы</string>
     <string name="app_skip_rest_d5dcae64">Пропустить отдых</string>
+    <string name="app_skip_the_cool_down_027a2254">Пропустить заминку?</string>
     <string name="app_skip_the_remaining_sets_566569a0">Пропустить оставшиеся подходы?</string>
+    <string name="app_skip_the_warm_up_1a296655">Пропустить разминку?</string>
     <string name="app_skip_this_exercise_d548505c">Пропустить это упражнение?</string>
     <string name="app_skip_this_position_23f7f634">Пропустить позицию</string>
     <string name="app_skip_this_set_6f13e09e">Пропустить этот подход?</string>
@@ -482,6 +484,8 @@
     <string name="app_the_rating_doesn_t_apply_to_these_moveme_ba7eb3eb">Оценка этих движений не касается — они останутся как были.</string>
     <string name="app_the_tones_play_even_with_the_ringer_swit_307ab9b6">Звуки играют, даже когда переключатель звонка выключен.</string>
     <string name="app_the_work_is_done_a_few_calm_minutes_of_s_674d8af7">Работа сделана. Несколько спокойных минут растяжки: сначала стоя, потом на полу — и до конца вставать уже не нужно.</string>
+    <string name="app_the_workout_goes_straight_to_the_first_e_5f8b1ce6">Тренировка сразу перейдет к первому упражнению. План не изменится.</string>
+    <string name="app_the_workout_goes_straight_to_the_rating__a369ffee">Тренировка сразу перейдет к оценке, и заминку уже не начать заново. План не изменится.</string>
     <string name="app_the_workout_is_done_only_the_rating_is_l_88bf7855">Тренировка сделана — осталась только оценка.</string>
     <string name="app_then_bdbb0242">Тогда: %s</string>
     <string name="app_this_is_the_most_for_this_movement_3c9d7590">Это максимум для этого движения.</string>

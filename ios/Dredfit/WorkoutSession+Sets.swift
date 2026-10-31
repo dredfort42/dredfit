@@ -70,7 +70,8 @@ extension WorkoutSession {
         return SessionAhead.minutes(of: ahead, ends: session.cooldownMin)
     }
 
-    /// The technique sheet of a guided block is open. Freezes the running
+    /// The technique sheet of a guided block is open — or the question its
+    /// block-level escape asks (`skipQuestion(for:)`). Freezes the running
     /// countdown: the end date comes off (the tick guards go quiet) while the
     /// remaining seconds stay put and rebuild it. The way back in from a
     /// pause freezes with it — reading is not getting back into position

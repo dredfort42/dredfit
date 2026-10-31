@@ -125,7 +125,7 @@ nonisolated enum EnergyEstimate {
     /// priced from its rating alone.
     ///
     /// `warmupSec` and `cooldownSec` are what the two guided blocks ACTUALLY
-    /// ran. Both have a footer button that ends the block on one tap, so
+    /// ran. Both have a footer button that ends the block early, so
     /// charging their full planned length would bill a person who declined
     /// both for minutes they never spent. `nil` means not measured — a record
     /// written before the flow measured them, or a block a process death cut

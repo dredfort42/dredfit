@@ -83,7 +83,7 @@ extension WorkoutFlowView {
                                onStart: { flow.reentering ? flow.endBlockReentry() : flow.countIn(.cooldown) },
                                onPauseToggle: { flow.toggleBlockPause() },
                                onSkipPosition: { flow.skipPosition(of: .cooldown) },
-                               onSkipBlock: { flow.finishCooldown() })
+                               onSkipBlock: { askToSkip(.cooldown) })
             } else {
                 cooldownPositionView
             }
@@ -102,7 +102,7 @@ extension WorkoutFlowView {
                                onTechnique: { openCooldownTechnique() },
                                onPauseToggle: { flow.toggleBlockPause() },
                                onSkipPosition: { flow.skipPosition(of: .cooldown) },
-                               onSkipBlock: { flow.finishCooldown() })
+                               onSkipBlock: { askToSkip(.cooldown) })
     }
 
     func openCooldownTechnique() {

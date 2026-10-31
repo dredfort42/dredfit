@@ -90,9 +90,9 @@ struct GetReadyScreen: View {
             // on the way down to the mat; under it stands a button of the same
             // full width and the same 56 pt that ends the whole block, and it
             // fires on contact. That is the geometry `SkipConfirmation` was
-            // written for — at 18 pt, under the button that logs a set — so
-            // until the block escape gets its question too, the gap at least
-            // clears the one the guarded pair keeps.
+            // written for — at 18 pt, under the button that logs a set — and
+            // the escape asks its question too; the gap still clears the one
+            // the guarded pair keeps, so the question comes up less often.
             .padding(.bottom, 20)
 
             BlockSkipButton(title: block.skipTitle,

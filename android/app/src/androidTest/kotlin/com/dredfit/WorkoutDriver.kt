@@ -70,9 +70,11 @@ class WorkoutDriver(private val test: DredfitUITest) {
         tapUntilGone(AX.startWorkout)
 
         // The warm-up is offered; taking it and leaving it by the block's
-        // own escape walks the offer, the transition and the footer.
+        // own escape walks the offer, the transition and the footer. The
+        // escape asks first, so the walk answers the question too.
         tapUntilGone(AX.warmupStart)
-        tapUntilGone(AX.skipWarmup)
+        tapUntilGone(AX.skipWarmup) { test.exists(AX.skipConfirm) }
+        tapUntilGone(AX.skipConfirm)
 
         val started = System.currentTimeMillis()
         while (!test.exists(AX.ratingPlan)) {

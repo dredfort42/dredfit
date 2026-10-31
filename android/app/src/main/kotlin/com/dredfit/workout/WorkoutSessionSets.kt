@@ -36,7 +36,8 @@ val WorkoutSession.minutesLeft: Int?
         return SessionAhead.minutes(ahead, ends = session.cooldownMin)
     }
 
-/** The technique sheet of a guided block is open: the running countdown
+/** The technique sheet of a guided block is open — or the question its
+ *  block-level escape asks (`askToSkip`): the running countdown
  *  freezes, the way back in with it, and the block stops costing time. */
 fun WorkoutSession.freezeForPositionTechnique() {
     warmup.clock.freeze()

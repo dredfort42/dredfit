@@ -9,6 +9,13 @@ import DredfitCore
 
 extension WorkoutFlowView {
 
+    // MARK: - The escape that ends a guided block
+
+    /// "Skip warm-up" / "Skip cool-down", asked first (`skipQuestion(for:)`).
+    func askToSkip(_ block: GuidedBlock) {
+        pendingSkip = flow.skipQuestion(for: block)
+    }
+
     // MARK: - The skip that happens DURING the workout
 
     /// The set-level skip, or nil when it would take the movement with it —

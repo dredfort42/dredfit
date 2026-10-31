@@ -186,6 +186,22 @@ final class StoreScreenshots: XCTestCase {
     /// warm-up" / "Skip the warm-up"), and only the block itself carries
     /// `skip-warmup`. A driver that knew about the block button alone sat on
     /// the offer screen until the set assert timed out.
+    /// A block's escape asks first, and its alert holds the block frozen until
+    /// it is answered. An alert button carries no identifier, so this is the
+    /// one place the walk taps by label: the catalog's "Skip" in all seven
+    /// languages, looked up INSIDE the alert so no other control can match.
+    private static let skipConfirmLabels = ["Skip", "Пропустить", "Omitir", "Pular",
+                                            "Überspringen", "Passer", "Salta"]
+
+    private func answerSkipQuestion(_ app: XCUIApplication) {
+        let alert = app.alerts.firstMatch
+        guard alert.waitForExistence(timeout: 3) else { return }
+        for label in Self.skipConfirmLabels where alert.buttons[label].exists {
+            alert.buttons[label].tap()
+            return
+        }
+    }
+
     private func startWorkoutPastWarmup(_ app: XCUIApplication) {
         XCTAssertTrue(app.buttons["start-workout"].waitForExistence(timeout: 10),
                       "seeded Today should show a plan")
@@ -195,6 +211,7 @@ final class StoreScreenshots: XCTestCase {
             introSkip.tap()
         } else if app.buttons["skip-warmup"].waitForExistence(timeout: 3) {
             settledTap(app.buttons["skip-warmup"])
+            answerSkipQuestion(app)
         }
     }
 
@@ -300,6 +317,7 @@ final class StoreScreenshots: XCTestCase {
                 cooldownIntroSkip.tap()          // the cool-down is OFFERED first
             } else if skipCooldown.exists {
                 coordinateTap(skipCooldown)
+                answerSkipQuestion(app)
             }
             guardCounter += 1
         }

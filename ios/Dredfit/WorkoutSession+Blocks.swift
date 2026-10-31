@@ -79,6 +79,31 @@ extension WorkoutSession {
         }
     }
 
+    /// The question a block's escape asks, with the block already frozen.
+    ///
+    /// The block stands still while the question does — frozen the way the
+    /// technique sheet freezes it — so a stray tap answered half a minute later
+    /// finds the position where it was, and the seconds the alert stood up are
+    /// not billed as stretching: "Skip" ends the block through `finish`, whose
+    /// `clearBlockPause` closes the freeze, and "Keep going" thaws it.
+    ///
+    /// nil when the block is no longer running: a tap on the escape of a
+    /// screen the block left in the same instant — it ran out on its own
+    /// between the render and the touch — has nothing left to ask about, and
+    /// must not freeze or question the rating that replaced it.
+    func skipQuestion(for block: GuidedBlock) -> SkipConfirmation? {
+        let (kind, running): (SkipConfirmation.Kind, Phase)
+        switch block {
+        case .warmup:   (kind, running) = (.warmup, .warmup)
+        case .cooldown: (kind, running) = (.cooldown, .cooldown)
+        }
+        guard phase == running else { return nil }
+        freezeForPositionTechnique()
+        return SkipConfirmation(kind: kind,
+                                perform: { [weak self] in self?.finish(block) },
+                                cancel: { [weak self] in self?.resumePositionCountdown() })
+    }
+
     func finish(_ block: GuidedBlock) {
         switch block {
         case .warmup: finishWarmup()

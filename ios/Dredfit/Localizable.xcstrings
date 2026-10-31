@@ -409,6 +409,98 @@
         }
       }
     },
+    "Skip the cool-down?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abwärmen überspringen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip the cool-down?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Omitir el enfriamiento?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer le retour au calme ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saltare il defaticamento?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pular o desaquecimento?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пропустить заминку?"
+          }
+        }
+      }
+    },
+    "Skip the warm-up?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aufwärmen überspringen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip the warm-up?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Omitir el calentamiento?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer l’échauffement ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saltare il riscaldamento?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pular o aquecimento?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пропустить разминку?"
+          }
+        }
+      }
+    },
     "Sounds": {
       "localizations": {
         "de": {
@@ -486,6 +578,98 @@
           "stringUnit": {
             "state": "translated",
             "value": "Кошка-корова стоя"
+          }
+        }
+      }
+    },
+    "The workout goes straight to the first exercise. The plan does not change.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Training geht direkt mit der ersten Übung weiter. Der Plan ändert sich nicht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The workout goes straight to the first exercise. The plan does not change."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El entrenamiento pasa directamente al primer ejercicio. El plan no cambia."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La séance passe directement au premier exercice. Le plan ne change pas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’allenamento passa subito al primo esercizio. Il piano non cambia."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O treino vai direto para o primeiro exercício. O plano não muda."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тренировка сразу перейдет к первому упражнению. План не изменится."
+          }
+        }
+      }
+    },
+    "The workout goes straight to the rating, and the cool-down cannot be started again. The plan does not change.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Training geht direkt zur Einschätzung, und das Abwärmen lässt sich nicht erneut starten. Der Plan ändert sich nicht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The workout goes straight to the rating, and the cool-down cannot be started again. The plan does not change."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El entrenamiento pasa directamente a la valoración, y el enfriamiento no se puede volver a empezar. El plan no cambia."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La séance passe directement au ressenti, et le retour au calme ne peut pas être relancé. Le plan ne change pas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’allenamento passa subito alla valutazione e il defaticamento non si può riavviare. Il piano non cambia."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O treino vai direto para a avaliação, e o desaquecimento não pode ser reiniciado. O plano não muda."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тренировка сразу перейдет к оценке, и заминку уже не начать заново. План не изменится."
           }
         }
       }

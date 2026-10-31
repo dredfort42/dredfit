@@ -47,7 +47,7 @@ struct TodayView: View {
     @State private var destination: Destination?
     @State private var freshStartConfirmShown = false
     /// The questions this screen asks before it acts. Each stands in
-    /// FRONT of a change that cannot be taken back — the rule the four skips
+    /// FRONT of a change that cannot be taken back — the rule the six skips
     /// and the technique sheet already follow (SkipConfirmation.swift).
     ///
     /// They live here, not in the views that ask them: those come and go as

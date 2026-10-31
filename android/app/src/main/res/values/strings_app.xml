@@ -390,7 +390,9 @@
     <string name="app_skip_exercise_9f0a5f13">Skip exercise</string>
     <string name="app_skip_remaining_sets_1a7d71a9">Skip remaining sets</string>
     <string name="app_skip_rest_d5dcae64">Skip rest</string>
+    <string name="app_skip_the_cool_down_027a2254">Skip the cool-down?</string>
     <string name="app_skip_the_remaining_sets_566569a0">Skip the remaining sets?</string>
+    <string name="app_skip_the_warm_up_1a296655">Skip the warm-up?</string>
     <string name="app_skip_this_exercise_d548505c">Skip this exercise?</string>
     <string name="app_skip_this_position_23f7f634">Skip this position</string>
     <string name="app_skip_this_set_6f13e09e">Skip this set?</string>
@@ -450,6 +452,8 @@
     <string name="app_the_rating_doesn_t_apply_to_these_moveme_ba7eb3eb">The rating doesn\'t apply to these movements — they stay as they were.</string>
     <string name="app_the_tones_play_even_with_the_ringer_swit_307ab9b6">The tones play even with the ringer switch off.</string>
     <string name="app_the_work_is_done_a_few_calm_minutes_of_s_674d8af7">The work is done. A few calm minutes of stretching, from standing down to lying — you stay down until the end.</string>
+    <string name="app_the_workout_goes_straight_to_the_first_e_5f8b1ce6">The workout goes straight to the first exercise. The plan does not change.</string>
+    <string name="app_the_workout_goes_straight_to_the_rating__a369ffee">The workout goes straight to the rating, and the cool-down cannot be started again. The plan does not change.</string>
     <string name="app_the_workout_is_done_only_the_rating_is_l_88bf7855">The workout is done — only the rating is left.</string>
     <string name="app_then_bdbb0242">Then: %s</string>
     <string name="app_this_is_the_most_for_this_movement_3c9d7590">This is the most for this movement.</string>
