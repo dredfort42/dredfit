@@ -110,7 +110,8 @@ final class BlockReserveTests: XCTestCase {
     private var cooldownPoolIDs: [String] {
         var ids: [String] = []
         let first = Cooldown.positions(sessionNumber: 1).map(\.id)
-        for hidden in [[]] + first.map { [$0] } {
+        let asides: [[String]] = [[]] + first.map { [$0] }
+        for hidden in asides {
             for session in 1...Cooldown.rotationPeriod {
                 for position in Cooldown.positions(sessionNumber: session, hiding: Set(hidden))
                 where !ids.contains(position.id) {

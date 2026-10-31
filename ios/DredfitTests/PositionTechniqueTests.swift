@@ -11,7 +11,8 @@ final class PositionTechniqueTests: XCTestCase {
     private var allCooldownPositions: [CooldownPosition] {
         var seen: [CooldownPosition] = []
         let first = Cooldown.positions(sessionNumber: 1).map(\.id)
-        for hidden in [[]] + first.map { [$0] } {
+        let asides: [[String]] = [[]] + first.map { [$0] }
+        for hidden in asides {
             for session in 1...Cooldown.rotationPeriod {
                 for position in Cooldown.positions(sessionNumber: session, hiding: Set(hidden))
                 where !seen.contains(where: { $0.id == position.id }) {
