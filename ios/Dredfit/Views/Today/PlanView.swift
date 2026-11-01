@@ -54,7 +54,7 @@ struct PlanView: View {
                     .accessibilityIdentifier("plan-length")
                     .dredfitFont(15)
                     .foregroundStyle(Theme.ink2)
-                // Ten of those minutes are the two blocks at the ends, and on
+                // Nine of those minutes are the two blocks at the ends, and on
                 // the shortest sessions that is a third of the number the
                 // person is judging "will this fit" by.
                 PlanEndsNote(warmupMin: session.warmupMin,
