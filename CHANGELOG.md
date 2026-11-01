@@ -1,5 +1,123 @@
 # Changelog
 
+## 2.6.0
+
+This release is about the two blocks around the work. The warm-up now happens
+standing, the cool-down goes from standing down to lying, and skipping either
+one from inside the running block asks first. Both blocks came out shorter, so
+the plan engine moves to reference **3.9.0** with a single change: the time it
+reserves for the warm-up drops from six minutes to five, and the reserve for
+the two blocks together from 10:00 to 9:00. The length Today, the next-workout
+preview and the lock-screen widget announce is therefore a minute shorter,
+because the blocks take less time, not because a workout does less: a fresh
+install now reads about 23–31 minutes on Today (re-measured on 3.9.0 as 30.5
+and 23.3), where it read 24–32. During the exercises and rests the minutes
+left read as before; inside the cool-down they count its shorter block. The
+reference chain ran in full, and in the golden trace's 413 steps only that
+reservation and the estimate move. What this release does not touch: the entry
+plan of three sets of four in the gentlest variation of six movements, the
+exercises and their ladders, the saved state and the journal format, so there
+are no migrations, the Health permissions and data types, the App Privacy
+answers, and the network, which the app still never uses. The app catalog
+gains 55 strings, loses 25 and rewords 5, and 18 leave the core catalog, in
+all seven languages.
+
+### The warm-up stands (#327)
+
+- **Fourteen standing moves, six in each workout.** Marching in place always
+  opens; then come a move to warm up, two for the shoulders and arms, one for
+  the trunk, and last a move that leads into the workout's first exercise —
+  half squats before a squat, hip hinges before a hinge. Before, the warm-up
+  went down to the floor and borrowed strength work: Y-T-W raises, bird dog,
+  the single-leg Romanian deadlift and cat-cow on the floor are gone from it.
+- **Circles change direction halfway, on a tone.** The clock keeps running
+  through the switch; there is no pause in it.
+- The block takes about four minutes (228 s).
+
+### The cool-down goes down (#331, engine 3.9.0)
+
+- **Six zones in every workout, from standing to lying.** Two positions
+  standing — the chest or the wrists, taking turns, then a half forward fold;
+  one way down, a kneeling lunge for the hip flexors; one kneeling — the rest
+  pose or its side-reach variant, taking turns; one lying — the figure-four
+  stretch or knees to chest; and a lying twist last, with slow breathing and a
+  hint on how to get up. The cool-down no longer needs a wall or anything to
+  hold on to.
+- **Sides switch on the spot, on a tone.** The clock keeps running; in the
+  two blocks only the lunges keep their four-second pause between sides. Side
+  holds in the workout itself keep theirs.
+- **A position you set aside never sends you back up.** What takes its place
+  keeps the block going down, and the block never grows longer for it.
+  Bringing a position back in the middle of the warm-up or the cool-down no
+  longer runs a seventh position or sends you back up.
+- **Positions set aside that no longer exist free their slot.** The warm-up
+  moves and cool-down positions that are gone leave "Not shown any more"
+  without a word and no longer count against the limit of three. If you had
+  set aside the forward fold, the seated glute stretch, cat-cow, or chest and
+  shoulders at the wall, that zone comes back under its new
+  position — the half forward fold, the figure-four stretch lying, standing
+  cat-cow in the warm-up's trunk group, the chest opener every other session —
+  and can be set aside again.
+- The block takes about four minutes (232–236 s).
+- **A minute back to every session** (engine 3.9.0, §41.18). Both blocks now
+  run under four minutes, and the time the engine reserves for them comes
+  down by one: `warmupMin` goes from 6 to 5, the two blocks together from
+  10:00 to 9:00. On a fresh install Today, the next-workout preview and the
+  lock-screen widget read ≈ 23–31 min; Today and the preview add "Includes about 9 min of
+  warm-up and cool-down.". The calorie estimate plans at most 300 s for a
+  warm-up it has no measured length for, instead of 360; the model itself is
+  unchanged. During the exercises and rests the minutes left read as
+  before; inside the cool-down they count its shorter block.
+
+### Skipping a running block asks first (#330)
+
+- **"Skip warm-up" and "Skip cool-down" inside a running block ask before
+  they end it.** A
+  person wrote in: a toddler tapped the phone, the cool-down ended and the
+  rating opened. Now "Skip the warm-up?" or "Skip the cool-down?" comes
+  first, the block stands still while the question is up, and "Keep going"
+  returns to the same place. The skip on the screen that offers a block,
+  before it starts, still skips without a question.
+
+### Housekeeping
+
+- **One naming pattern** for CI's workflows, jobs and steps (#328).
+- 1 070 → 1 094 automated tests: 118 → 121 core, 872 → 893 app units, 80 UI.
+
+## 2.6.0 (Android)
+
+The Android app follows iOS 2.6.0 in the same release: the standing warm-up,
+the cool-down that goes from standing to lying, and the question before a
+running block is skipped, all as on the iPhone and in the same seven
+languages, with the strings generated from the iOS catalogs. The Kotlin port
+of the engine moves to reference **3.9.0** and stays held to the same golden
+trace as the Swift port, so the length Today and the next-workout preview
+announce is a minute shorter as well: about 23–31 minutes for a fresh install.
+During the exercises and rests the minutes left read as before; inside the
+cool-down they count its shorter block. What does not change: the saved state
+and the journal format, so there are no migrations; no account, no network
+permission, no analytics; Android 10 and later, phones. The Play version code
+moves from 1 to 2.
+
+### What changed
+
+- **The warm-up stands** (#327): fourteen standing moves, six in each
+  workout, the last one leading into the first exercise; nothing on the floor
+  and no strength work. Circles change direction halfway on a tone, with the
+  clock running.
+- **The cool-down goes down** (#331): six zones from standing to lying, no
+  wall or support needed, sides switched on the spot on a tone; in the two
+  blocks only the lunges keep their four-second pause. Positions set aside
+  that no longer exist free their slot of the three.
+- **Skipping a running block asks first** (#330): "Skip warm-up" and "Skip
+  cool-down" inside a running block stop it and ask; "Keep going" returns to
+  the same place. The skip on a block's offer screen still asks nothing.
+
+### Housekeeping
+
+- 132 core and 1 027 app unit tests, with the release build passing Android
+  lint.
+
 ## 2.5.0 (Android)
 
 **Dredfit comes to Android**, first to Google Play's internal testing. It is

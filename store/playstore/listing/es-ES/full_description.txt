@@ -3,8 +3,8 @@ Abre la app: tu entrenamiento ya está listo. Esa es toda la idea.
 Dredfit es un entrenador adaptativo de peso corporal, como un termostato. Sin cuestionario, sin elegir objetivo, nada que configurar antes. Ajusta cada entrenamiento según el anterior: respondes una pregunta al terminar —difícil, según el plan o fácil— y el plan se mueve. ¿Ya entrenas? Escribe lo que hiciste y eso se vuelve el plan.
 
 Dónde empieza
-• El primer día son tres series de cuatro, en la variación más suave de seis movimientos: flexiones de rodillas, sentadillas, puente de glúteos. Unos 32 minutos con calentamiento y enfriamiento.
-• Ese es el punto de entrada, no el mínimo posible: responde «difícil» y el plan baja, hasta dos series de cuatro, una sesión de unos 24 minutos. El primer día pide justo tres series de cuatro. Si está a tu alcance hoy, el resto sale de tus respuestas; si no, esta no es la herramienta por ahora —mejor decirlo aquí que tras instalarla.
+• El primer día son tres series de cuatro, en la variación más suave de seis movimientos: flexiones de rodillas, sentadillas, puente de glúteos. Unos 31 minutos con calentamiento y enfriamiento.
+• Ese es el punto de entrada, no el mínimo posible: responde «difícil» y el plan baja, hasta dos series de cuatro, una sesión de unos 23 minutos. El primer día pide justo tres series de cuatro. Si está a tu alcance hoy, el resto sale de tus respuestas; si no, esta no es la herramienta por ahora —mejor decirlo aquí que tras instalarla.
 
 Por qué funciona
 • Nunca se planea lo que no hayas hecho. Tu posición son dos datos: variación y dosis —repeticiones en una serie, o segundos en una isometría. Un paso es +1 repetición (o +5 segundos) en una serie.

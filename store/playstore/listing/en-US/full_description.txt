@@ -3,8 +3,8 @@ Open the app — your workout is ready. That's the whole idea.
 Dredfit is an adaptive bodyweight trainer that works like a thermostat. No onboarding quiz, no goal picker, nothing to set up first. It adjusts every next workout to how the last one went: answer one question afterwards — tough, on plan, or easy — and the plan moves. Already training? Enter what you did, and it becomes the plan.
 
 Where it starts
-• Day one is three sets of four, in the gentlest variation of six movements: knee push-ups, squats, a glute bridge and the like. About 32 minutes with the warm-up and cool-down.
-• That is where you start, not the least you can do: answer "tough" and the plan comes down — an easier variation, or a set off, as far as two sets of four, a session of about 24 minutes. What day one asks of you is the three sets of four. If that is roughly within reach, everything else follows from your answers; if it is not, this is the wrong tool for now — better said here than after you install it.
+• Day one is three sets of four, in the gentlest variation of six movements: knee push-ups, squats, a glute bridge and the like. About 31 minutes with the warm-up and cool-down.
+• That is where you start, not the least you can do: answer "tough" and the plan comes down — an easier variation, or a set off, as far as two sets of four, a session of about 23 minutes. What day one asks of you is the three sets of four. If that is roughly within reach, everything else follows from your answers; if it is not, this is the wrong tool for now — better said here than after you install it.
 
 Why it works
 • Nothing is ever planned that you have not already done. Your position is two facts: the variation you are on, and the dose — reps in a set, or seconds in a hold. One step is +1 rep (or +5 seconds) in a single set.
