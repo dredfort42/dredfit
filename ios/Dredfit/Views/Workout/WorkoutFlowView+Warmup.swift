@@ -66,8 +66,9 @@ extension WorkoutFlowView {
     /// What the offer is actually offering.
     ///
     /// This is the screen where "do it or not" is decided, and the composition
-    /// changes from session to session (six compositions of six out of a pool
-    /// of nine) — without the list it could be read only one name at a time
+    /// changes from session to session (six out of a pool of fourteen, the
+    /// last one chosen by the session's first exercise) — without the list it
+    /// could be read only one name at a time
     /// INSIDE the block being decided about. The names are already localized
     /// — they are the same strings the running screen shows — and the list
     /// needs no separator of its own: the locale's own list format has one.
@@ -117,7 +118,7 @@ extension WorkoutFlowView {
                                onStart: { flow.reentering ? flow.endBlockReentry() : flow.countIn(.warmup) },
                                onPauseToggle: { flow.toggleBlockPause() },
                                onSkipPosition: { flow.skipPosition(of: .warmup) },
-                               onSkipBlock: { flow.finishWarmup() })
+                               onSkipBlock: { askToSkip(.warmup) })
             } else {
                 warmupMoveView
             }
@@ -139,7 +140,7 @@ extension WorkoutFlowView {
                          onTechnique: { openWarmupTechnique() },
                          onPauseToggle: { flow.toggleBlockPause() },
                          onSkipPosition: { flow.skipPosition(of: .warmup) },
-                         onSkipBlock: { flow.finishWarmup() })
+                         onSkipBlock: { askToSkip(.warmup) })
     }
 
     func openWarmupTechnique() {

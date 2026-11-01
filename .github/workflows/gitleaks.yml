@@ -1,4 +1,4 @@
-name: Secret Scan
+name: Secret scan
 
 # Scans commits for leaked secrets (API keys, tokens, private keys) with
 # gitleaks. Free for public repositories. Advisory — surfaces a leak fast but
@@ -18,11 +18,11 @@ permissions:
 
 jobs:
   gitleaks:
-    name: gitleaks
+    name: "Repo: secret scan"
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v7
         with:
           fetch-depth: 0

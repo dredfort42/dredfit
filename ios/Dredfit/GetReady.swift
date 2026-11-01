@@ -17,26 +17,24 @@ enum GetReady {
     /// `setupSupplementSec`.
     static let seconds = 8
 
-    /// The supplement of issue #83, on top of `seconds`, for a position that
-    /// changes the starting position (standing → the floor) or needs a prop
-    /// (a wall). The flag travels with the move or position (`needsSetup`) —
-    /// the cool-down set is dynamic, so an index would not survive
-    /// composition.
+    /// The supplement of issue #83, on top of `seconds`, for the one
+    /// transition that changes the starting position: the cool-down's trip
+    /// down to the floor. The warm-up is standing throughout, and neither
+    /// block walks to a wall any more. The flag travels with the position
+    /// (`needsSetup`) — the cool-down set is dynamic, so an index would not
+    /// survive composition.
     ///
     /// Neither this nor the base length is a taste: both are spent against a
     /// reserve the engine owns. `warmupMin + cooldownMin` is the whole budget
     /// for the two blocks, and the dearest pair the app can compose — every
-    /// supplemented position drawn, every switch pause played — is 520 s
-    /// against a reserve of 600. Past the reserve, a longer transition is an
-    /// ENGINE change, not an app one: the minute it needs goes into the
-    /// reserve, and with it into every announced session duration.
-    ///
-    /// Nine minutes would hold 520 s, and **the owner kept ten**: giving the
-    /// minute back is an engine change too, and would take a minute off every
-    /// announced duration, the onboarding line and the store listing, to
-    /// reclaim slack nobody is short of. `BlockReserveTests` holds the floor
-    /// (the blocks never overrun the reserve) and the ceiling (the reserve
-    /// never holds two spare minutes).
+    /// supplemented position drawn, every switch pause played — is 464 s
+    /// against a reserve of 540, each block inside its own minutes. Past the
+    /// reserve, a longer transition is an ENGINE change, not an app one: the
+    /// minute it needs goes into the reserve, and with it into every announced
+    /// session duration. `BlockReserveTests` holds the floor (the blocks never
+    /// overrun the reserve) and the ceiling (the reserve never holds two spare
+    /// minutes) — the ceiling is why the tenth minute went back to every
+    /// announced duration once the cool-down stopped pausing on the spot.
     static let setupSupplementSec = 4
 
     /// The count-in a START TAP earns before any clock runs.

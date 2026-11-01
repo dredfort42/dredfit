@@ -313,19 +313,25 @@ class WorkoutSessionTestSnapshot : WorkoutSessionTestCase() {
 
     @Test
     fun aSwitchPausedNearItsEndGetsTheCountInBack() {
+        // The cool-down's: only a side switch that re-sets the body pauses —
+        // the kneeling lunge, third in session one.
         val store = makeStore()
         val flow = makeFlow(store)
-        flow.beginWarmup()
-        run(flow, limit = 1_000) { flow.warmup.stage == GuidedStage.switchPause }
-        run(flow) { flow.warmup.clock.remaining == 1 }
+        flow.declineWarmup()
+        flow.exIndex = flow.exercises.size - 1
+        flow.setIndex = 2
+        flow.completeSet()
+        flow.beginCooldown()
+        run(flow, limit = 1_000) { flow.cooldown.stage == GuidedStage.switchPause }
+        run(flow) { flow.cooldown.clock.remaining == 1 }
         flow.toggleBlockPause()
         advance(30)
         flow.toggleBlockPause()
         assertFalse(flow.blockPause.isPaused, "the switch is a transition too")
-        assertEquals(clock.plusSeconds(GetReady.countInSeconds.toLong()), flow.warmup.clock.endDate)
+        assertEquals(clock.plusSeconds(GetReady.countInSeconds.toLong()), flow.cooldown.clock.endDate)
         signals.events.clear()
         run(flow, GetReady.countInSeconds)
-        assertEquals(GuidedStage.secondHalf, flow.warmup.stage)
+        assertEquals(GuidedStage.secondHalf, flow.cooldown.stage)
         assertEquals(listOf<Event>(Event.Go), signals.tones, "no 3-2-1 inside the switch: its go is its signal")
     }
 

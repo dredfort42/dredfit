@@ -79,6 +79,31 @@ extension WorkoutSession {
         }
     }
 
+    /// The question a block's escape asks, with the block already frozen.
+    ///
+    /// The block stands still while the question does — frozen the way the
+    /// technique sheet freezes it — so a stray tap answered half a minute later
+    /// finds the position where it was, and the seconds the alert stood up are
+    /// not billed as stretching: "Skip" ends the block through `finish`, whose
+    /// `clearBlockPause` closes the freeze, and "Keep going" thaws it.
+    ///
+    /// nil when the block is no longer running: a tap on the escape of a
+    /// screen the block left in the same instant — it ran out on its own
+    /// between the render and the touch — has nothing left to ask about, and
+    /// must not freeze or question the rating that replaced it.
+    func skipQuestion(for block: GuidedBlock) -> SkipConfirmation? {
+        let (kind, running): (SkipConfirmation.Kind, Phase)
+        switch block {
+        case .warmup:   (kind, running) = (.warmup, .warmup)
+        case .cooldown: (kind, running) = (.cooldown, .cooldown)
+        }
+        guard phase == running else { return nil }
+        freezeForPositionTechnique()
+        return SkipConfirmation(kind: kind,
+                                perform: { [weak self] in self?.finish(block) },
+                                cancel: { [weak self] in self?.resumePositionCountdown() })
+    }
+
     func finish(_ block: GuidedBlock) {
         switch block {
         case .warmup: finishWarmup()
@@ -171,7 +196,11 @@ extension WorkoutSession {
         // was and the subtree it was in has just been replaced, so nothing is
         // read: the tone was the only channel, and it is behind the same
         // switch as the haptic. The words are the ones the new screen already
-        // shows — no string of their own to drift.
+        // shows — no string of their own to drift — with one exception: a
+        // switch with no pause is spoken as the instruction ("Switch
+        // direction", "Switch sides") while its screen goes straight to the
+        // state ("the other way", "second side"). The screen has no pause to
+        // show an instruction in; the ear still needs one.
         switch (next.entered, next.stage) {
         case (.getReady, .getReady):
             playDone()
@@ -182,6 +211,13 @@ extension WorkoutSession {
             playSwitch()
             // Only a split position has this stage, so `halves` is there —
             // and nothing is invented if it somehow is not.
+            if let halves = position.halves { announce(SplitStageWords(halves: halves).switching) }
+        case (.secondHalf, _) where position.halves?.pausesAtTheSwitch == false:
+            // A circle reversed or a side switched on the spot has no pause to
+            // open, so the halfway boundary IS the switch and sounds like one.
+            // A go here would read as a second start in the middle of a hold
+            // that never stopped.
+            playSwitch()
             if let halves = position.halves { announce(SplitStageWords(halves: halves).switching) }
         default:
             playGo()

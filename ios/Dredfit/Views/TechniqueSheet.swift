@@ -200,7 +200,7 @@ struct TechniqueSheet: View {
                 .contains { store.canMakeEasier($0.pattern) }
             if stepBelow != nil || !promisedARungBelow { store.markTechniqueOpened() }
         }
-        // The same guard the four skips carry, and for the same reason: this
+        // The same guard the six skips carry, and for the same reason: this
         // plan has no undo. An ALERT, like them — iOS 26
         // draws a confirmationDialog as an anchored popover, which suppresses
         // its own cancel and treats the stray tap as an answer.
@@ -249,7 +249,7 @@ struct TechniqueSheet: View {
     /// tap on the description or a drag that starts on it must not rewrite the
     /// plan.
     ///
-    /// And the capsule ASKS before it acts, for the reason the four skips do:
+    /// And the capsule ASKS before it acts, for the reason the six skips do:
     /// the plan has no undo, the way back up is measured in appearances rather
     /// than in taps, and a guard against a stray thumb has to stand in FRONT
     /// of the state change.

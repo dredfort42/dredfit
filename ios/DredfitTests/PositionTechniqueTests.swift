@@ -5,33 +5,42 @@ import DredfitCore
 @MainActor
 final class PositionTechniqueTests: XCTestCase {
 
-    /// Two compositions that together surface all nine pool positions.
+    /// The whole pool of ten: each of session one's positions set aside in
+    /// turn, over the rotation — a fallback only appears once its zone's first
+    /// choice is gone.
     private var allCooldownPositions: [CooldownPosition] {
-        let all = Cooldown.positions(performed: [.squat, .pull, .pushH, .coreRot, .calf, .lunge])
-            + Cooldown.positions(performed: [.calf, .lunge, .coreAntiExt])
         var seen: [CooldownPosition] = []
-        for position in all where !seen.contains(position) { seen.append(position) }
+        let first = Cooldown.positions(sessionNumber: 1).map(\.id)
+        let asides: [[String]] = [[]] + first.map { [$0] }
+        for hidden in asides {
+            for session in 1...Cooldown.rotationPeriod {
+                for position in Cooldown.positions(sessionNumber: session, hiding: Set(hidden))
+                where !seen.contains(where: { $0.id == position.id }) {
+                    seen.append(position)
+                }
+            }
+        }
         return seen
     }
 
     func testTheWarmupBlockIsSixDistinctMoves() {
-        XCTAssertEqual(Warmup.moves(sessionNumber: 1).count, 6)
-        XCTAssertEqual(Set(Warmup.moves(sessionNumber: 1).map(\.id)).count, 6, "ids must be unique")
-        for move in Warmup.moves(sessionNumber: 1) {
+        XCTAssertEqual(Warmup.moves(sessionNumber: 1, opening: .squat).count, 6)
+        XCTAssertEqual(Set(Warmup.moves(sessionNumber: 1, opening: .squat).map(\.id)).count, 6, "ids must be unique")
+        for move in Warmup.moves(sessionNumber: 1, opening: .squat) {
             XCTAssertFalse(move.name.isEmpty, "\(move.id): empty name")
         }
     }
 
     func testEveryPositionCarriesTwoToThreeSteps() {
         let cooldown = allCooldownPositions
-        XCTAssertEqual(cooldown.count, 9, "the two compositions must surface the whole pool")
+        XCTAssertEqual(cooldown.count, 10, "the compositions must surface the whole pool")
         for position in cooldown {
             XCTAssertTrue((2...3).contains(position.steps.count),
                           "\(position.id): \(position.steps.count) steps")
             XCTAssertFalse(position.steps.contains(where: \.isEmpty),
                            "\(position.id): an empty step")
         }
-        for move in Warmup.moves(sessionNumber: 1) {
+        for move in Warmup.moves(sessionNumber: 1, opening: .squat) {
             XCTAssertTrue((2...3).contains(move.steps.count),
                           "\(move.id): \(move.steps.count) steps")
             XCTAssertFalse(move.steps.contains(where: \.isEmpty),
@@ -40,7 +49,7 @@ final class PositionTechniqueTests: XCTestCase {
     }
 
     func testSheetModelMirrorsItsSource() {
-        let move = Warmup.moves(sessionNumber: 1)[0]
+        let move = Warmup.moves(sessionNumber: 1, opening: .squat)[0]
         let fromWarmup = PositionTechnique(warmup: move)
         XCTAssertEqual(fromWarmup.id, move.id)
         XCTAssertEqual(fromWarmup.name, move.name)
@@ -53,17 +62,17 @@ final class PositionTechniqueTests: XCTestCase {
         XCTAssertEqual(fromCooldown.steps, position.steps)
     }
 
-    /// A warm-up move that splits the way `halves` says. Found rather than
-    /// named by session number: the rotation is what decides who appears, and
-    /// a hard-coded 2 would go stale the first time the pool changes.
-    private func warmupMove(halves: WarmupHalves?) -> WarmupMove? {
-        (1...Warmup.compositionCount)
-            .flatMap(Warmup.moves(sessionNumber:))
-            .first { $0.halves == halves }
+    /// A warm-up move that reverses or not, as asked. Found rather than named
+    /// by session number: the rotation is what decides who appears, and a
+    /// hard-coded 2 would go stale the first time the pool changes.
+    private func warmupMove(reverses: Bool) -> WarmupMove? {
+        (1...Warmup.rotationPeriod)
+            .flatMap { Warmup.moves(sessionNumber: $0, opening: .squat) }
+            .first { $0.reverses == reverses }
     }
 
     func testCapsulesTellTheBlocksAndTheSidesApart() {
-        let warmup = PositionTechnique(warmup: Warmup.moves(sessionNumber: 1)[0]).capsule
+        let warmup = PositionTechnique(warmup: Warmup.moves(sessionNumber: 1, opening: .squat)[0]).capsule
         let positions = allCooldownPositions
         let perSide = PositionTechnique(
             cooldown: positions.first(where: \.perSide)!).capsule
@@ -78,26 +87,23 @@ final class PositionTechniqueTests: XCTestCase {
         XCTAssertTrue(bilateral.contains("\(Cooldown.positionSeconds)"))
     }
 
-    /// A split warm-up move has two halves, and the sheet says the length of
-    /// ONE of them. "warm-up · 30 s" on a move that runs 15 + 15
-    /// would be the number of neither half — the sheet is read while the
-    /// countdown is frozen, precisely to check what is being asked.
-    ///
-    /// Both kinds, and they must not read alike: a circle is reversed, not
-    /// swapped, and the capsule is where the person finds out which.
-    func testASplitWarmupMoveNamesTheLengthOfOneHalf() throws {
-        let bySide = try XCTUnwrap(warmupMove(halves: .sides), "the pool must draw one")
-        let byDirection = try XCTUnwrap(warmupMove(halves: .directions), "...and one of these")
-        let whole = try XCTUnwrap(warmupMove(halves: nil))
-        let capsules = [bySide, byDirection].map { PositionTechnique(warmup: $0).capsule }
-        for capsule in capsules {
-            XCTAssertTrue(capsule.contains("\(Warmup.halfSeconds)"),
-                          "the capsule must name one half: \(capsule)")
-            XCTAssertFalse(capsule.contains("\(Warmup.moveSeconds)"),
-                           "the whole slot is not what is asked for: \(capsule)")
-        }
-        XCTAssertEqual(Set(capsules).count, 2, "sides and directions must not read alike")
-        XCTAssertFalse(capsules.contains(PositionTechnique(warmup: whole).capsule),
-                       "a split move must not read like a move that runs straight through")
+    /// A circle has two halves, and the sheet says the length of ONE of them.
+    /// "warm-up · 30 s" on a move that turns at fifteen would be the number of
+    /// neither half — the sheet is read while the countdown is frozen,
+    /// precisely to check what is being asked. And it says a DIRECTION: the
+    /// cool-down's per-side capsule over a circle would tell the person to
+    /// swap something they are meant to reverse.
+    func testACircleNamesTheLengthOfOneDirection() throws {
+        let circle = try XCTUnwrap(warmupMove(reverses: true), "the pool must draw a circle")
+        let whole = try XCTUnwrap(warmupMove(reverses: false))
+        let capsule = PositionTechnique(warmup: circle).capsule
+        XCTAssertTrue(capsule.contains("\(Warmup.halfSeconds)"),
+                      "the capsule must name one half: \(capsule)")
+        XCTAssertFalse(capsule.contains("\(Warmup.moveSeconds)"),
+                       "the whole slot is not what is asked for: \(capsule)")
+        XCTAssertEqual(capsule, String(localized: "positionSheet.warmupPerDirection",
+                                       defaultValue: "warm-up · \(Warmup.halfSeconds) s each way"))
+        XCTAssertNotEqual(capsule, PositionTechnique(warmup: whole).capsule,
+                          "a circle must not read like a move that runs straight through")
     }
 }

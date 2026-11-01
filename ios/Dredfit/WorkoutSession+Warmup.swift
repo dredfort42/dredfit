@@ -8,10 +8,10 @@ import DredfitCore
 
 extension WorkoutSession {
 
-    /// The six moves of THIS session (nine in the pool, six on screen). A
-    /// pure function of the session number and of what the athlete has set
-    /// aside, so a restored snapshot recomputes the same list rather than
-    /// carrying it.
+    /// The six moves of THIS session (fourteen in the pool, six on screen).
+    /// A pure function of the session — its number and its first exercise —
+    /// and of what the athlete has set aside, so a restored snapshot
+    /// recomputes the same list rather than carrying it.
     ///
     /// The hidden set is read LIVE, which the cool-down's twin is not — its
     /// composition is state, drawn into `cooldownPositions`. That difference
@@ -59,7 +59,7 @@ extension WorkoutSession {
     ///
     /// There is exactly one way that happens: the technique sheet setting the
     /// move on screen aside, or bringing an earlier one back. The list is a
-    /// pure function of the session number and the hidden set, so the write
+    /// pure function of the session and the hidden set, so the write
     /// lands instantly and `warmup.index` suddenly names a different move —
     /// the name on screen would change under the seconds of the move it
     /// replaced, and a split move would inherit the `.whole` stage of one
@@ -82,7 +82,7 @@ extension WorkoutSession {
         // The prefix of the OLD list is what the block has already been
         // through, run or skipped. `max(0,)` because the index is state.
         let passed = Set(previous.prefix(max(0, warmup.index)))
-        guard let index = Self.rebaseLanding(in: moves.map(\.id), after: passed) else {
+        guard let index = Self.rebaseLanding(in: moves.map(\.id), after: passed, notBefore: 0) else {
             // Everything the new composition holds is behind the athlete —
             // ending the block is the honest answer, not reopening one of them.
             finishWarmup()
@@ -103,11 +103,20 @@ extension WorkoutSession {
     ///
     /// Land AFTER the last slot the athlete has already left behind, never on
     /// one of them. `warmup.index` and `cooldown.index` are ordinals, and a
-    /// recomposition is not a deletion: `Warmup.moves(sessionNumber:hiding:)`
-    /// re-derives its rotation window from what is LEFT and
-    /// `Cooldown.positions` re-grows its middle, so slot i after the write can
-    /// name the move that stood at i-1 before it. Clamping the ordinal would
-    /// reopen a move finished a minute earlier.
+    /// recomposition is not a deletion: `Warmup.moves(sessionNumber:opening:
+    /// hiding:)` passes a group's turn to the next move in it — which the pool
+    /// may list EARLIER — and `Cooldown.positions` refills an emptied zone on
+    /// its own level, which can sort in above the slot on screen, so slot i
+    /// after the write can name the move that stood at i-1 before it. Clamping
+    /// the ordinal would reopen a move finished a minute earlier.
+    ///
+    /// Never earlier than the number of slots already used, either. Bringing a
+    /// move back can DROP one already done — the stand-in that ran in its
+    /// place — and landing after the last survivor would then run one move
+    /// more than the block promised. And never before `floor`: the cool-down
+    /// passes the first slot on the level the athlete has reached
+    /// (`cooldownLanding`), because a position brought back above it would get
+    /// them up again. The warm-up stands throughout and passes 0.
     ///
     /// Landing on the FIRST move not yet run would be the other error. What
     /// advances from here is an ordinal machine (`skipPosition`,
@@ -119,12 +128,14 @@ extension WorkoutSession {
     /// left behind next time.
     ///
     /// The cost is that a move brought back mid-block may not appear until the
-    /// next workout. That is the honest half of the trade: the block keeps the
-    /// length it promised and never runs a position twice.
+    /// next workout — and, when the block has no slot left for both, takes the
+    /// place of the one on screen. That is the honest half of the trade: the
+    /// block keeps the length it promised and never runs a position twice.
     ///
     /// nil when nothing is left — the block is over.
-    static func rebaseLanding(in ids: [String], after passed: Set<String>) -> Int? {
-        let index = (ids.lastIndex { passed.contains($0) }).map { $0 + 1 } ?? 0
+    static func rebaseLanding(in ids: [String], after passed: Set<String>, notBefore floor: Int) -> Int? {
+        let afterPassed = (ids.lastIndex { passed.contains($0) }).map { $0 + 1 } ?? 0
+        let index = max(afterPassed, passed.count, floor)
         return index < ids.count ? index : nil
     }
 

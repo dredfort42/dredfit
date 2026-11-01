@@ -46,7 +46,6 @@ import com.dredfit.ui.tr
 import com.dredfit.workout.Cooldown
 import com.dredfit.workout.CooldownPosition
 import com.dredfit.workout.Warmup
-import com.dredfit.workout.WarmupHalves
 import com.dredfit.workout.WarmupMove
 import com.dredfit.workout.Words
 
@@ -54,16 +53,14 @@ import com.dredfit.workout.Words
  *  knows about neither. */
 data class PositionTechnique(val id: String, val name: Words, val capsule: Words, val steps: List<Words>) {
     companion object {
-        /** A split move names the length of ONE half: its slot is two halves
-         *  with the switch between, and "warm-up · 30 s" would be the number
-         *  of neither. */
+        /** A reversed move says the length of ONE direction, as the cool-down
+         *  twin below says one side: "warm-up · 30 s" over a circle that turns
+         *  at fifteen would be the number of neither half. */
         fun of(move: WarmupMove): PositionTechnique {
-            val capsule = when (move.halves) {
-                WarmupHalves.sides ->
-                    Words.keyed("positionSheet.warmupPerSide", "warm-up · %lld s per side", Warmup.halfSeconds)
-                WarmupHalves.directions ->
-                    Words.keyed("positionSheet.warmupPerDirection", "warm-up · %lld s each way", Warmup.halfSeconds)
-                null -> Words.keyed("positionSheet.warmup", "warm-up · %lld s", Warmup.moveSeconds)
+            val capsule = if (move.reverses) {
+                Words.keyed("positionSheet.warmupPerDirection", "warm-up · %lld s each way", Warmup.halfSeconds)
+            } else {
+                Words.keyed("positionSheet.warmup", "warm-up · %lld s", Warmup.moveSeconds)
             }
             return PositionTechnique(move.id, move.name, capsule, move.steps)
         }

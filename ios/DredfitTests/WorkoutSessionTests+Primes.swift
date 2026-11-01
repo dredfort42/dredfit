@@ -31,11 +31,18 @@ extension WorkoutSessionTests {
         return flow
     }
 
-    /// The warm-up, at the start of the first half of a split move.
-    private func warmupOnASplitMove() -> WorkoutSession {
+    /// The cool-down, at the start of the first half of its opening per-side
+    /// stretch. The cool-down and not the warm-up, because only a SIDE switch
+    /// pauses: the warm-up's split moves are circles, and they reverse on the
+    /// move.
+    private func cooldownOnASplitPosition() -> WorkoutSession {
         let flow = makeFlow(makeStore())
-        flow.beginWarmup()
-        run(flow, until: { flow.warmup.stage == .firstHalf })
+        flow.declineWarmup()
+        flow.exIndex = flow.exercises.count - 1
+        flow.setIndex = 2
+        flow.completeSet()
+        flow.beginCooldown()
+        run(flow, until: { flow.cooldown.stage == .firstHalf })
         return flow
     }
 
@@ -135,20 +142,21 @@ extension WorkoutSessionTests {
     }
 
     func testTheSwitchPauseIsNeverPrimed() {
-        let flow = warmupOnASplitMove()
-        run(flow, until: { flow.warmup.clock.remaining == 1 })
+        let flow = cooldownOnASplitPosition()
+        run(flow, until: { flow.cooldown.stage == .switchPause })
+        run(flow, until: { flow.cooldown.clock.remaining == 1 })
         signals.primes = 0
-        run(flow, until: { flow.warmup.stage == .secondHalf })
+        run(flow, until: { flow.cooldown.stage == .secondHalf })
         XCTAssertEqual(signals.primes, 0, "the switch pause sounds no 3-2-1: its ticks would bury the switch tone")
     }
 
     func testALongerSwitchPauseIsNeverPrimedEither() {
-        let flow = warmupOnASplitMove()
-        // No split move pauses longer than the count-in; one that did would
+        let flow = cooldownOnASplitPosition()
+        // No split position pauses longer than the count-in; one that did would
         // pass its four with nothing to prime for.
-        flow.enterStage(index: flow.warmup.index, stage: .switchPause, remaining: primedAt + 3, of: .warmup)
+        flow.enterStage(index: flow.cooldown.index, stage: .switchPause, remaining: primedAt + 3, of: .cooldown)
         signals.primes = 0
-        run(flow, until: { flow.warmup.stage == .secondHalf })
+        run(flow, until: { flow.cooldown.stage == .secondHalf })
         XCTAssertEqual(signals.primes, 0)
     }
 
@@ -266,8 +274,8 @@ extension WorkoutSessionTests {
     }
 
     func testASwitchPauseReadAboutPrimesNothing() {
-        let flow = warmupOnASplitMove()
-        run(flow, until: { flow.warmup.stage == .switchPause })
+        let flow = cooldownOnASplitPosition()
+        run(flow, until: { flow.cooldown.stage == .switchPause })
         flow.freezeForPositionTechnique()
         clock += 120
         signals.primes = 0

@@ -1,4 +1,4 @@
-name: UI Tests
+name: iOS UI tests
 
 # UI tests only — the unit suites already run on every push in ci.yml.
 #
@@ -34,7 +34,7 @@ concurrency:
 
 jobs:
   changes:
-    name: Anything new for the UI suite?
+    name: "iOS: UI change filter"
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -43,7 +43,7 @@ jobs:
     outputs:
       run: ${{ steps.diff.outputs.run }}
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
@@ -91,14 +91,14 @@ jobs:
   ui-suite:
     needs: changes
     if: needs.changes.outputs.run == 'true'
-    name: DredfitUITests (iOS Simulator)
+    name: "iOS: UI tests"
     runs-on: macos-latest
     # A clean run takes 75-100 min, and with the retries working a genuine
     # regression runs each failing test three times. At 120 the job would be
     # killed before xcodebuild printed which tests failed.
     timeout-minutes: 240
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v7
 
       - name: Select Xcode

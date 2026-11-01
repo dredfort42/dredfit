@@ -42,7 +42,6 @@ import com.dredfit.workout.beginWarmup
 import com.dredfit.workout.countIn
 import com.dredfit.workout.declineWarmup
 import com.dredfit.workout.endBlockReentry
-import com.dredfit.workout.finishWarmup
 import com.dredfit.workout.rebaseWarmupOnComposition
 import com.dredfit.workout.reentering
 import com.dredfit.workout.skipPosition
@@ -106,7 +105,8 @@ fun BlockOffer(title: String, lines: @Composable ColumnScope.() -> Unit, start: 
 /** The way back in from a pause wears the transition's screen: it is the
  *  same beat — the name, the 3-2-1, then the position. */
 @Composable
-fun WarmupView(observed: Observed<WorkoutSession>, openTechnique: (PositionTechnique) -> Unit) {
+fun WarmupView(observed: Observed<WorkoutSession>, openTechnique: (PositionTechnique) -> Unit,
+               askSkip: (SkipConfirmation) -> Unit) {
     val flow by observed
     // The OLD list is what the rebase needs: `warmupMoves` is computed, so
     // by the time a change is seen it already answers with the new one.
@@ -132,7 +132,7 @@ fun WarmupView(observed: Observed<WorkoutSession>, openTechnique: (PositionTechn
             onStart = { observed.act { if (reentering) endBlockReentry() else countIn(GuidedBlock.warmup) } },
             onPauseToggle = { observed.act { toggleBlockPause() } },
             onSkipPosition = { observed.act { skipPosition(GuidedBlock.warmup) } },
-            onSkipBlock = { observed.act { finishWarmup() } },
+            onSkipBlock = { observed.askToSkip(GuidedBlock.warmup)?.let(askSkip) },
         )
     } else {
         RunningPositionScreen(
@@ -142,7 +142,7 @@ fun WarmupView(observed: Observed<WorkoutSession>, openTechnique: (PositionTechn
             onTechnique = technique,
             onPauseToggle = { observed.act { toggleBlockPause() } },
             onSkipPosition = { observed.act { skipPosition(GuidedBlock.warmup) } },
-            onSkipBlock = { observed.act { finishWarmup() } },
+            onSkipBlock = { observed.askToSkip(GuidedBlock.warmup)?.let(askSkip) },
         )
     }
 }

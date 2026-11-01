@@ -90,9 +90,9 @@ struct GetReadyScreen: View {
             // on the way down to the mat; under it stands a button of the same
             // full width and the same 56 pt that ends the whole block, and it
             // fires on contact. That is the geometry `SkipConfirmation` was
-            // written for — at 18 pt, under the button that logs a set — so
-            // until the block escape gets its question too, the gap at least
-            // clears the one the guarded pair keeps.
+            // written for — at 18 pt, under the button that logs a set — and
+            // the escape asks its question too; the gap still clears the one
+            // the guarded pair keeps, so the question comes up less often.
             .padding(.bottom, 20)
 
             BlockSkipButton(title: block.skipTitle,
@@ -224,10 +224,10 @@ extension GuidedBlock {
 /// here, so a new stage is a compile error here rather than a screen that
 /// quietly says nothing.
 ///
-/// The words come from what is switched, and only the words do: sides and
-/// directions run the same 15 + 4 + 15. Telling someone to switch SIDES on a
-/// circle they are about to reverse would mislead as surely as saying
-/// nothing at the switch.
+/// The words come from what is switched: a side re-set runs 15 + 4 + 15 and
+/// shows the switch through the pause; a side switched on the spot and a
+/// direction run 15 + 15 and go straight to the second half's line. Telling someone to switch SIDES on a circle they are
+/// about to reverse would mislead as surely as saying nothing at the switch.
 private struct SplitStageLine: View {
     private enum Phase { case beforeTheSwitch, switching, secondHalf }
     private let phase: Phase
@@ -287,7 +287,7 @@ struct SplitStageWords {
 
     var switching: String {
         switch halves {
-        case .sides:      return String(localized: "Switch sides")
+        case .sides, .sidesOnTheSpot: return String(localized: "Switch sides")
         case .directions: return String(localized: "warmup.switchDirection",
                                         defaultValue: "Switch direction")
         }
@@ -295,7 +295,7 @@ struct SplitStageWords {
 
     var secondHalf: String {
         switch halves {
-        case .sides:      return String(localized: "second side")
+        case .sides, .sidesOnTheSpot: return String(localized: "second side")
         case .directions: return String(localized: "warmup.otherWay",
                                         defaultValue: "the other way")
         }
@@ -303,11 +303,11 @@ struct SplitStageWords {
 
     var everyHalf: String {
         switch halves {
-        // A `cooldown.` key read by the warm-up too: the key is older than the
-        // warm-up's switch, the STRING is the same 15 s per side in both
-        // blocks, and renaming it would cost six translations and the whole
-        // screenshot set to say exactly what it says now.
-        case .sides:      return String(localized: "cooldown.perSide",
+        // A `cooldown.` key, named for the block that owns every per-side
+        // position: renaming it would cost six
+        // translations and the whole screenshot set to say exactly what it
+        // says now.
+        case .sides, .sidesOnTheSpot: return String(localized: "cooldown.perSide",
                                         defaultValue: "15 s per side")
         case .directions: return String(localized: "warmup.perDirection",
                                         defaultValue: "15 s each way")

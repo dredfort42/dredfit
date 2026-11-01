@@ -27,7 +27,6 @@ import com.dredfit.workout.cooldownIntroMinutes
 import com.dredfit.workout.countIn
 import com.dredfit.workout.declineCooldown
 import com.dredfit.workout.endBlockReentry
-import com.dredfit.workout.finishCooldown
 import com.dredfit.workout.rebaseCooldownOnComposition
 import com.dredfit.workout.reentering
 import com.dredfit.workout.skipPosition
@@ -41,9 +40,12 @@ fun CooldownIntroView(observed: Observed<WorkoutSession>) {
     BlockOffer(
         title = tr("Cool-down"),
         lines = {
-            // The third sentence says what the block IS: some positions follow
-            // the movements performed today.
-            Text(tr("The work is done. A few minutes of stretching helps it settle. Some of the positions follow the movements you did today."),
+            // The second sentence says what the block IS — the one way down,
+            // and no getting up again — so the person saying no knows what
+            // they are turning down, and the person saying yes knows to have a
+            // bit of floor. Nothing promises recovery: no study finds a
+            // cool-down speeds it.
+            Text(tr("The work is done. A few calm minutes of stretching, from standing down to lying — you stay down until the end."),
                  style = dredfitFont(15f), color = c.ink2, modifier = Modifier.padding(top = 8.dp))
             Text(tr("%lld positions · about %lld min", flow.cooldownPositions.size, flow.cooldownIntroMinutes),
                  style = dredfitFont(13.5f), color = c.ink2, modifier = Modifier.padding(top = 6.dp))
@@ -56,7 +58,7 @@ fun CooldownIntroView(observed: Observed<WorkoutSession>) {
 
 @Composable
 fun CooldownView(observed: Observed<WorkoutSession>, observedStore: Observed<AppStore>,
-                 openTechnique: (PositionTechnique) -> Unit) {
+                 openTechnique: (PositionTechnique) -> Unit, askSkip: (SkipConfirmation) -> Unit) {
     val flow by observed
     val store by observedStore
     // A position set aside from its sheet recomposes the block; the slot
@@ -81,7 +83,7 @@ fun CooldownView(observed: Observed<WorkoutSession>, observedStore: Observed<App
             onStart = { observed.act { if (reentering) endBlockReentry() else countIn(GuidedBlock.cooldown) } },
             onPauseToggle = { observed.act { toggleBlockPause() } },
             onSkipPosition = { observed.act { skipPosition(GuidedBlock.cooldown) } },
-            onSkipBlock = { observed.act { finishCooldown() } },
+            onSkipBlock = { observed.askToSkip(GuidedBlock.cooldown)?.let(askSkip) },
         )
     } else {
         RunningPositionScreen(
@@ -91,7 +93,7 @@ fun CooldownView(observed: Observed<WorkoutSession>, observedStore: Observed<App
             paused = flow.blockPause.isHeld, onTechnique = technique,
             onPauseToggle = { observed.act { toggleBlockPause() } },
             onSkipPosition = { observed.act { skipPosition(GuidedBlock.cooldown) } },
-            onSkipBlock = { observed.act { finishCooldown() } },
+            onSkipBlock = { observed.askToSkip(GuidedBlock.cooldown)?.let(askSkip) },
         )
     }
 }

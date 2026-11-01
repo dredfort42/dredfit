@@ -25,15 +25,14 @@ extension WorkoutFlowView {
                         .dredfitFont(32, weight: .heavy)
                         .tracking(-0.5)
                         .foregroundStyle(Theme.ink)
-                    // The third sentence says what the block IS: three of the
-                    // six positions are drawn from the movements actually
-                    // performed today, so the person saying no knows what
-                    // they are turning down. "Some", deliberately — two
-                    // positions and the rest pose are fixed, and a short
-                    // session tops the middle three up from a fixed pool.
+                    // The second sentence says what the block IS — the one
+                    // way down, and no getting up again — so the person
+                    // saying no knows what they are turning down, and the
+                    // person saying yes knows to have a bit of floor. Nothing
+                    // promises recovery: no study finds a cool-down speeds it.
                     Text("""
-                        The work is done. A few minutes of stretching helps it settle. \
-                        Some of the positions follow the movements you did today.
+                        The work is done. A few calm minutes of stretching, \
+                        from standing down to lying — you stay down until the end.
                         """)
                         .dredfitFont(15)
                         .foregroundStyle(Theme.ink2)
@@ -84,7 +83,7 @@ extension WorkoutFlowView {
                                onStart: { flow.reentering ? flow.endBlockReentry() : flow.countIn(.cooldown) },
                                onPauseToggle: { flow.toggleBlockPause() },
                                onSkipPosition: { flow.skipPosition(of: .cooldown) },
-                               onSkipBlock: { flow.finishCooldown() })
+                               onSkipBlock: { askToSkip(.cooldown) })
             } else {
                 cooldownPositionView
             }
@@ -103,7 +102,7 @@ extension WorkoutFlowView {
                                onTechnique: { openCooldownTechnique() },
                                onPauseToggle: { flow.toggleBlockPause() },
                                onSkipPosition: { flow.skipPosition(of: .cooldown) },
-                               onSkipBlock: { flow.finishCooldown() })
+                               onSkipBlock: { askToSkip(.cooldown) })
     }
 
     func openCooldownTechnique() {

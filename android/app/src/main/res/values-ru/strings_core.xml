@@ -15,7 +15,6 @@
     <string name="core_bend_the_elbows_lowering_the_top_of_the__c414a30c">Сгибай локти, опуская макушку к полу между ладонями.</string>
     <string name="core_bend_the_elbows_slowly_lowering_the_top__7baea5ef">Медленно сгибай локти, опуская макушку к полу.</string>
     <string name="core_bending_the_elbows_that_is_a_pull_up_not_ec447ebc">Сгибание локтей — это уже подтягивание, а не работа лопаток.</string>
-    <string name="core_bird_dog_hold_f4fa71d8">«Птица-собака» (удержание)</string>
     <string name="core_body_folding_forward_shoulders_hips_and__667d5d29">Тело складывается вперед — плечи, таз и ноги в одной плоскости.</string>
     <string name="core_body_in_one_line_from_head_to_heels_elbo_92b8844f">Тело одной линией от макушки до пят, локти под 45° к корпусу.</string>
     <string name="core_body_straight_from_shoulders_to_heels_pu_78fd2009">Тело прямое от плеч до пят; подтяни грудь к краю, сводя лопатки.</string>
@@ -46,7 +45,6 @@
     <string name="core_elbows_flared_out_to_90_this_overloads_t_122cf2fd">Локти разведены на 90° в стороны — перегружаются плечи.</string>
     <string name="core_elbows_flared_to_90_keep_them_closer_to__4946863a">Локти разведены на 90° — держи их ближе к корпусу.</string>
     <string name="core_elbows_too_far_too_soon_increase_the_lev_f988c767">Локти слишком далеко сразу — удлиняй рычаг постепенно.</string>
-    <string name="core_extend_the_opposite_arm_and_leg_into_one_55e31dc4">Вытяни противоположные руку и ногу в одну линию с корпусом.</string>
     <string name="core_extend_the_top_leg_forward_and_put_that__1087a36b">Вытяни верхнюю ногу вперед и поставь ее стопой на пол — площадь опоры меньше, корпусу тяжелее.</string>
     <string name="core_fast_bouncing_move_slowly_with_a_pause_a_4a11fcad">Пружинишь — работай медленно, с паузой вверху.</string>
     <string name="core_feet_elevated_inverted_row_8ddc4441">Тяга под опорой, ноги на возвышении</string>
@@ -110,14 +108,12 @@
     <string name="core_hold_the_torso_like_a_plank_and_pull_the_9204be32">Держи корпус как в планке и подтягивай грудь к краю, сводя лопатки.</string>
     <string name="core_hold_without_letting_the_hips_drop_free__157808b6">Держи, не позволяя тазу опускаться; свободная рука на поясе или вверх.</string>
     <string name="core_hold_without_letting_the_hips_drop_free__3d97cdba">Держи, не позволяя тазу опускаться; свободная рука на поясе.</string>
-    <string name="core_hold_without_wobbling_pelvis_and_shoulde_b8b96ad5">Держи, не раскачиваясь; таз и плечи параллельны полу.</string>
     <string name="core_holding_your_breath_keep_breathing_shall_9555c401">Задержка дыхания — дыши ровно и неглубоко.</string>
     <string name="core_hollow_hold_73454408">«Лодочка» (удержание)</string>
     <string name="core_horizontal_push_3bba3827">Горизонтальный жим</string>
     <string name="core_incline_push_up_323815d4">Отжимания от опоры</string>
     <string name="core_inverted_row_table_5e9c2f8d">Тяга под опорой</string>
     <string name="core_jerking_and_kicking_with_the_legs_only_t_0bd40cd2">Рывки и помощь ногами — работают только спина и руки.</string>
-    <string name="core_jerking_the_torso_up_only_the_arms_and_s_ee5e19f2">Рывок корпусом — поднимаются только руки и лопатки.</string>
     <string name="core_jerky_pulls_slide_out_and_back_slowly_wi_eb7b5c91">Рывки — скользи туда и обратно медленно, под контролем.</string>
     <string name="core_jump_lunge_91ab2bf9">Выпады в прыжке</string>
     <string name="core_keep_a_steady_rhythm_use_the_arms_for_ba_d05881b5">Держи ритм; руки помогают удерживать равновесие.</string>
@@ -140,7 +136,6 @@
     <string name="core_lean_back_on_straight_arms_the_body_abou_8755cbf1">Отклонись назад на прямых руках, тело под углом около 80° к полу.</string>
     <string name="core_leaning_far_forward_keep_the_chest_up_an_58812527">Сильный наклон вперед — держи грудь выше, мышцы корпуса в напряжении.</string>
     <string name="core_leg_drifting_forward_keep_it_in_line_wit_82ca3259">Нога уходит вперед — держи ее на одной линии с корпусом.</string>
-    <string name="core_lie_face_down_forehead_near_the_floor_ar_9596f0a5">Лежа на животе, лоб у пола, руки вытянуты в форме буквы Y.</string>
     <string name="core_lie_on_your_back_feet_close_to_the_glute_96188dbb">Лежа на спине, стопы у ягодиц на ширине таза, руки вдоль тела.</string>
     <string name="core_lie_on_your_back_heels_on_a_towel_on_a_s_d33145cb">Лежа на спине, пятки на полотенце на гладком полу, таз поднят.</string>
     <string name="core_lie_on_your_back_one_foot_near_the_glute_5e2a6180">Лежа на спине, одна стопа у ягодиц, вторая нога вытянута.</string>
@@ -156,11 +151,9 @@
     <string name="core_lift_the_hips_with_one_leg_to_a_straight_bb6aa1e3">Опираясь на одну ногу, подними таз до прямой линии и держи его ровно.</string>
     <string name="core_lift_the_hips_with_the_working_leg_pushi_d67976dc">Подними таз рабочей ногой, слегка подталкивая пяткой второй ноги, — помощи тем меньше, чем легче идет.</string>
     <string name="core_lift_the_shoulder_blades_and_straight_le_35a6ea92">Оторви лопатки и прямые ноги от пола на 15–20 см.</string>
-    <string name="core_lift_the_straight_arms_hold_for_2_second_0214d49b">Подними прямые руки на 2 секунды, сводя лопатки, затем опусти.</string>
     <string name="core_loading_the_rear_leg_it_is_only_there_fo_a95adc2c">Опора на заднюю ногу — она нужна только для равновесия.</string>
     <string name="core_long_lever_plank_a10ec9e5">Планка с удлиненным рычагом</string>
     <string name="core_losing_balance_fix_your_eyes_on_a_point__5f5a0f7a">Потеря равновесия — фиксируй взгляд перед собой.</string>
-    <string name="core_lower_back_arching_as_the_leg_lifts_the__4882102b">Прогиб в пояснице при подъеме ноги — нога не выше корпуса.</string>
     <string name="core_lower_back_arching_don_t_let_the_hips_sa_f8f487a9">Прогиб в пояснице — таз не должен провисать.</string>
     <string name="core_lower_back_lifting_off_the_floor_raise_t_fbc8a3da">Поясница отрывается от пола — подними ноги выше или согни колени.</string>
     <string name="core_lower_back_sagging_that_strains_the_spin_76463ec6">Поясница провисает — это риск для спины, лучше закончить раньше.</string>
@@ -191,13 +184,11 @@
     <string name="core_negative_pull_up_both_feet_assisting_5bc1e4a3">Негативные с опорой обеих ног</string>
     <string name="core_negative_pull_up_one_foot_assisting_7bd4d2a8">Негативные с опорой одной ноги</string>
     <string name="core_negative_single_leg_sliding_curl_65c32cf2">Негативное сгибание ног скольжением на одной ноге</string>
-    <string name="core_on_all_fours_hands_under_the_shoulders_k_4ea178b9">На четвереньках: ладони под плечами, колени под тазом.</string>
     <string name="core_one_straight_line_from_head_to_heels_glu_b74b24b5">Прямая линия от макушки до пят; ягодицы и пресс напряжены.</string>
     <string name="core_partial_pull_up_ca407c88">Частичные подтягивания</string>
     <string name="core_pause_a_second_at_the_top_lower_slowly_330442fb">Секунда паузы вверху, медленно вниз.</string>
     <string name="core_pause_a_second_at_the_top_lower_under_co_fb2a5f55">Секунда паузы вверху; опускание под контролем.</string>
     <string name="core_paused_lunge_05abecd8">Выпады с паузой</string>
-    <string name="core_pelvis_rotating_open_keep_the_hips_squar_2ab8ce24">Разворот таза в сторону — держи таз ровно, обе тазовые кости смотрят в пол.</string>
     <string name="core_pelvis_tilting_sideways_keep_both_hip_bo_8660e68d">Таз перекашивается — обе тазовые кости смотрят в потолок.</string>
     <string name="core_per_side_1d272205">на сторону</string>
     <string name="core_pike_push_up_3a091b65">Отжимания уголком</string>
@@ -234,12 +225,10 @@
     <string name="core_reaching_with_the_chin_instead_of_the_ch_dc2f1ece">Подбородок тянется вместо груди — веди движение грудью.</string>
     <string name="core_rear_foot_on_a_chair_or_couch_behind_you_43a7376a">Задняя стопа — на стуле или диване за спиной; передняя нога — в шаге впереди.</string>
     <string name="core_relaxed_shoulders_at_the_bottom_keep_the_61fc3ddd">Расслабленные плечи внизу — держи лопатки включенными до конца.</string>
-    <string name="core_repeat_in_a_t_position_and_a_w_position__08379b0d">Повтори в позициях T и W — все три вместе считаются за один повтор.</string>
     <string name="core_reverse_lunge_dfce7918">Выпады назад</string>
     <string name="core_rise_as_high_as_possible_pause_a_second__8bf8594a">Поднимись максимально высоко, секунда паузы, вниз 3 секунды.</string>
     <string name="core_rise_as_high_as_you_can_onto_the_balls_o_7f9ea97e">Поднимись на носки максимально высоко, секунда паузы вверху.</string>
     <string name="core_rise_onto_the_ball_of_the_foot_as_high_a_1435f832">Поднимись на носок максимально высоко, секунда паузы.</string>
-    <string name="core_rounding_the_back_keep_the_shoulder_blad_13adaad0">Круглая спина — держи лопатки собранными, наклон из таза.</string>
     <string name="core_rushing_the_reps_control_both_directions_b43afa87">Слишком быстрый темп — контролируй движение в обе стороны.</string>
     <string name="core_sagging_hips_hold_the_body_like_a_plank_6b04bd71">Таз провисает — держи корпус как в планке.</string>
     <string name="core_sagging_hips_or_a_raised_butt_the_core_s_5b8a98cc">Провисший таз или поднятые ягодицы — выключаются мышцы корпуса.</string>
@@ -253,7 +242,6 @@
     <string name="core_shoulders_at_the_ears_pull_the_shoulder__72228fdb">Плечи у ушей — потяни лопатки вниз, вис должен быть активным.</string>
     <string name="core_shoulders_at_the_ears_push_the_floor_awa_0fbcfb4c">Плечи у ушей — толкай пол от себя, шея длинная.</string>
     <string name="core_shoulders_creeping_back_to_the_ears_keep_2aba2392">Плечи возвращаются к ушам — держи их опущенными все удержание.</string>
-    <string name="core_shoulders_creeping_toward_the_ears_pull__bb37731b">Плечи ползут к ушам — тяни лопатки вниз и назад.</string>
     <string name="core_shoulders_drifting_past_the_hands_keep_t_4db53eae">Плечи уезжают за ладони — держи их точно над кистями.</string>
     <string name="core_shrimp_squat_8ba0e895">Приседания «креветка»</string>
     <string name="core_side_plank_d2c22f20">Боковая планка</string>
@@ -264,7 +252,6 @@
     <string name="core_single_leg_calf_raise_on_a_step_aa94d6f1">Подъемы на носки на одной ноге на ступеньке</string>
     <string name="core_single_leg_calf_raise_with_pause_1308a1da">Подъемы на носки на одной ноге с паузой</string>
     <string name="core_single_leg_glute_bridge_2d090c15">Ягодичный мостик на одной ноге</string>
-    <string name="core_single_leg_romanian_deadlift_09198452">Румынская тяга на одной ноге</string>
     <string name="core_single_leg_sliding_leg_curl_f582e987">Сгибание ног скольжением на одной ноге</string>
     <string name="core_single_leg_squat_to_a_chair_df605898">Присед на одной ноге к опоре</string>
     <string name="core_sit_back_and_down_for_2_seconds_knees_tr_a101ff79">Садись назад и вниз ~2 секунды; колени идут по линии носков, спина прямая.</string>
@@ -280,12 +267,10 @@
     <string name="core_squeeze_the_glutes_for_a_second_at_the_t_81dca493">Сожми ягодицы на секунду вверху, затем медленно опустись, не касаясь пола.</string>
     <string name="core_stance_too_short_the_front_knee_travels__aceba6d7">Слишком короткий шаг — колено уходит далеко за носок.</string>
     <string name="core_stand_a_step_away_from_a_wall_palms_on_i_1211d02a">Встань в шаге от стены, ладони на ней чуть шире плеч на уровне груди.</string>
-    <string name="core_stand_back_up_by_squeezing_the_glute_of__5c2a620b">Поднимись обратно, напрягая ягодицу опорной ноги.</string>
     <string name="core_stand_on_one_leg_and_lean_on_a_wall_or_a_2d5d50f2">Стоя на одной ноге, опирайся рукой о стену или стол так, чтобы она сняла часть веса.</string>
     <string name="core_stand_on_one_leg_bend_the_other_back_and_252b1a01">Стоя на одной ноге, согни вторую назад и возьми ее стопу рукой.</string>
     <string name="core_stand_on_one_leg_hand_on_a_wall_for_bala_a32cb2cc">Стоя на одной ноге, рука на стене для равновесия.</string>
     <string name="core_stand_on_one_leg_the_other_extended_forw_84e595df">Стоя на одной ноге, вторую вытяни вперед, руки перед собой для равновесия.</string>
-    <string name="core_stand_on_one_leg_with_a_soft_knee_hinge__ab095e0f">Стоя на одной ноге с мягким коленом, наклоняйся вперед от таза с прямой спиной.</string>
     <string name="core_stand_on_one_leg_with_the_ball_of_the_fo_c8deff24">Стоя на одной ноге, носок на краю ступеньки.</string>
     <string name="core_stand_on_one_leg_with_your_back_to_a_cha_7f85a36e">Встань спиной к стулу на одной ноге, вторую вытяни вперед, руки перед собой.</string>
     <string name="core_stand_up_through_the_front_heel_and_repe_47507bfd">Вставай через пятку передней ноги и повтори — пауза на каждом повторе.</string>
@@ -308,14 +293,12 @@
     <string name="core_take_a_wide_hand_position_the_body_stays_c840aab9">Поставь руки широко; тело — одна прямая линия.</string>
     <string name="core_the_body_forms_a_star_straight_line_plus_d17224ae">Тело образует звезду: прямая линия плюс поднятые рука и нога.</string>
     <string name="core_the_farther_the_elbows_the_harder_breath_cb54f431">Чем дальше локти, тем тяжелее — дыши ровно и держи.</string>
-    <string name="core_the_free_leg_extends_back_torso_and_leg__e0031aed">Свободная нога уходит назад; корпус и нога — одна линия, руки к полу.</string>
     <string name="core_the_front_shin_stays_near_vertical_weigh_e10da688">Передняя голень почти вертикальна, вес на пятке передней ноги.</string>
     <string name="core_the_higher_the_support_the_harder_it_get_5d860761">Чем выше опора для ног, тем тяжелее — начинай с невысокой.</string>
     <string name="core_the_support_is_not_solid_check_the_frame_d618b85d">Опора ненадежна — проверь косяк и хват до первого повтора.</string>
     <string name="core_the_support_wobbles_or_slides_check_it_b_9064176c">Опора качается или скользит — проверь ее до первого повтора.</string>
     <string name="core_thighs_parallel_to_the_floor_at_the_bott_002374ae">Внизу бедра параллельны полу; вверх — на выдохе.</string>
     <string name="core_too_short_a_step_back_the_front_knee_get_c123b0fc">Слишком короткий шаг назад — перегружается переднее колено.</string>
-    <string name="core_torso_rotating_imagine_a_glass_of_water__bca859f3">Корпус разворачивается — представь стакан воды на пояснице.</string>
     <string name="core_torso_tipping_forward_keep_the_chest_up_16441c48">Корпус заваливается вперед — грудь смотрит прямо.</string>
     <string name="core_torso_tipping_forward_shoulders_and_hips_0f221401">Корпус заваливается вперед — плечи и таз в одной плоскости.</string>
     <string name="core_torso_turning_keep_the_hips_and_shoulder_7146ca56">Корпус разворачивается — таз и плечи смотрят в пол.</string>
@@ -329,5 +312,4 @@
     <string name="core_weight_shifting_to_the_rear_leg_it_only__91fdf590">Вес переносится на заднюю ногу — она только держит равновесие.</string>
     <string name="core_weight_split_evenly_then_it_is_just_a_pu_20495cd4">Вес распределен поровну — тогда это обычные отжимания.</string>
     <string name="core_without_bending_the_elbows_pull_the_shou_df541bfc">Не сгибая локтей, потяни лопатки вниз и назад — корпус поднимется на пару сантиметров.</string>
-    <string name="core_y_t_w_raises_5bd629ab">Подъемы Y-T-W</string>
 </resources>

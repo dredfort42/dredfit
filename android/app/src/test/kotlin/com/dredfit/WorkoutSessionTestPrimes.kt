@@ -68,11 +68,18 @@ class WorkoutSessionTestPrimes : WorkoutSessionTestCase() {
         return flow
     }
 
-    /** The warm-up, at the start of the first half of a split move. */
-    private fun warmupOnASplitMove(): WorkoutSession {
+    /** The cool-down, at the start of the first half of its opening per-side
+     *  stretch. The cool-down and not the warm-up, because only a SIDE switch
+     *  pauses: the warm-up's split moves are circles, and they reverse on the
+     *  move. */
+    private fun cooldownOnASplitPosition(): WorkoutSession {
         val flow = makeFlow(makeStore())
-        flow.beginWarmup()
-        run(flow) { flow.warmup.stage == GuidedStage.firstHalf }
+        flow.declineWarmup()
+        flow.exIndex = flow.exercises.size - 1
+        flow.setIndex = 2
+        flow.completeSet()
+        flow.beginCooldown()
+        run(flow) { flow.cooldown.stage == GuidedStage.firstHalf }
         return flow
     }
 
@@ -179,22 +186,23 @@ class WorkoutSessionTestPrimes : WorkoutSessionTestCase() {
 
     @Test
     fun theSwitchPauseIsNeverPrimed() {
-        val flow = warmupOnASplitMove()
-        run(flow) { flow.warmup.clock.remaining == 1 }
+        val flow = cooldownOnASplitPosition()
+        run(flow) { flow.cooldown.stage == GuidedStage.switchPause }
+        run(flow) { flow.cooldown.clock.remaining == 1 }
         signals.primes = 0
-        run(flow) { flow.warmup.stage == GuidedStage.secondHalf }
+        run(flow) { flow.cooldown.stage == GuidedStage.secondHalf }
         assertEquals(0, signals.primes, "the switch pause sounds no 3-2-1: its ticks would bury the switch tone")
     }
 
     @Test
     fun aLongerSwitchPauseIsNeverPrimedEither() {
-        val flow = warmupOnASplitMove()
-        // No split move pauses longer than the count-in; one that did would
+        val flow = cooldownOnASplitPosition()
+        // No split position pauses longer than the count-in; one that did would
         // pass its four with nothing to prime for.
-        flow.enterStage(index = flow.warmup.index, stage = GuidedStage.switchPause, remaining = primedAt + 3,
-                        block = GuidedBlock.warmup)
+        flow.enterStage(index = flow.cooldown.index, stage = GuidedStage.switchPause, remaining = primedAt + 3,
+                        block = GuidedBlock.cooldown)
         signals.primes = 0
-        run(flow) { flow.warmup.stage == GuidedStage.secondHalf }
+        run(flow) { flow.cooldown.stage == GuidedStage.secondHalf }
         assertEquals(0, signals.primes)
     }
 
@@ -320,8 +328,8 @@ class WorkoutSessionTestPrimes : WorkoutSessionTestCase() {
 
     @Test
     fun aSwitchPauseReadAboutPrimesNothing() {
-        val flow = warmupOnASplitMove()
-        run(flow) { flow.warmup.stage == GuidedStage.switchPause }
+        val flow = cooldownOnASplitPosition()
+        run(flow) { flow.cooldown.stage == GuidedStage.switchPause }
         flow.freezeForPositionTechnique()
         advance(120)
         signals.primes = 0

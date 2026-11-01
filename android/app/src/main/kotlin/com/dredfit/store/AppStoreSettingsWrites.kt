@@ -7,6 +7,8 @@
 package com.dredfit.store
 
 import com.dredfit.core.SwiftJson
+import com.dredfit.workout.Cooldown
+import com.dredfit.workout.Warmup
 import java.time.Instant
 
 /** Refuses to turn the last training day into rest: `nextTrainingDate`
@@ -138,12 +140,21 @@ fun AppStore.markOwnNumberReported() {
     update { it.copy(settings = it.settings.copy(hasReportedOwnNumber = true)) }
 }
 
-/** Three still leaves a full warm-up to compose (six of nine). */
+/** Three still leaves a full block to compose: the cool-down's six of ten,
+ *  one of which only stands in for its own zone, and the warm-up's six of
+ *  fourteen. */
 const val MAX_HIDDEN_BLOCK_MOVES = 3
 
 fun AppStore.isBlockMoveHidden(id: String): Boolean = id in settings.hiddenBlockMoveIDs
 
-val AppStore.canHideAnotherBlockMove: Boolean get() = settings.hiddenBlockMoveIDs.size < MAX_HIDDEN_BLOCK_MOVES
+/** Counted over the ids a pool still knows. An id this build has no move
+ *  for stays in the set, because an imported backup or a downgrade must
+ *  not lose it; but the sheet cannot
+ *  name it or bring it back, so counting it would take a slot nobody can
+ *  ever free. */
+val AppStore.canHideAnotherBlockMove: Boolean
+    get() = settings.hiddenBlockMoveIDs.count { Warmup.nameOfMove(it) != null || Cooldown.nameOfPosition(it) != null } <
+        MAX_HIDDEN_BLOCK_MOVES
 
 fun AppStore.setBlockMoveHidden(id: String, hidden: Boolean) {
     if (hidden) {

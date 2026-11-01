@@ -23,10 +23,10 @@ BRANCHES=("develop" "main")
 
 # These names must match the check-run names exactly (the job `name:` fields).
 CONTEXTS=(
-  "DredfitCore package tests"
-  "Dredfit app unit tests (iOS Simulator, no UI)"
-  "SwiftLint"
-  "Localization"
+  "iOS: engine tests"
+  "iOS: app unit tests"
+  "iOS: SwiftLint"
+  "Localization: String Catalogs"
 )
 
 DRY_RUN=0

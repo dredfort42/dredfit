@@ -50,7 +50,7 @@ final class GetReadyUITests: XCTestCase {
         XCTAssertTrue(transition.waitForExistence(timeout: 3),
                       "every position gets its own transition")
         // The label VoiceOver reads: kicker and name are one phrase.
-        XCTAssertTrue(app.staticTexts["Get ready: Arm circles"].exists,
+        XCTAssertTrue(app.staticTexts["Get ready: Side steps"].exists,
                       "the transition must name what is coming")
 
         // "I'm ready" counts you in rather than dropping the move under the
@@ -107,8 +107,9 @@ final class GetReadyUITests: XCTestCase {
                       "the count-in must hand the first move over on its own")
         app.buttons["Skip this position"].tap()
         XCTAssertTrue(app.buttons[AX.getReadyStart].waitForExistence(timeout: 5))
-        app.buttons[AX.skipWarmup].tap()
-        XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 3),
+        XCTAssertTrue(WorkoutDriver(app: app).skip(control: AX.skipWarmup),
+                      "the block escape must ask, and confirming must leave")
+        XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 5),
                       "skipping the warm-up from its transition must reach exercise 1")
     }
 }

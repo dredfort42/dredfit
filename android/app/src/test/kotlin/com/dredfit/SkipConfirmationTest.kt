@@ -9,6 +9,8 @@ package com.dredfit
 
 import com.dredfit.ui.workout.SkipConfirmation
 import com.dredfit.ui.workout.SkipConfirmation.Kind
+import com.dredfit.ui.workout.skipTitle
+import com.dredfit.workout.GuidedBlock
 import com.dredfit.workout.Words
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,23 +38,24 @@ class SkipConfirmationTest {
      *  to TalkBack — the one that matters is the one inside the alert. */
     @Test
     fun theConfirmLabelIsNeverTheLabelOfTheControlThatRaisedIt() {
-        val controls = listOf(Words.of("Skip this set"), Words.of("Skip remaining sets"), Words.of("Skip exercise"))
+        val controls = listOf(Words.of("Skip this set"), Words.of("Skip remaining sets"), Words.of("Skip exercise"),
+                              GuidedBlock.warmup.skipTitle, GuidedBlock.cooldown.skipTitle)
         for (kind in all) {
             assertFalse(make(kind).confirmTitle in controls, "$kind answers itself with the words already on screen")
         }
     }
 
-    /** ONE label for all four, so the alert's layout cannot differ between
+    /** ONE label for all six, so the alert's layout cannot differ between
      *  two controls that sit at equal weight; the titles tell them apart. */
     @Test
-    fun allFourAnswerToTheSameButton() {
+    fun allSixAnswerToTheSameButton() {
         assertEquals(1, all.map { make(it).confirmTitle }.toSet().size, "a per-kind confirm label")
-        assertEquals(3, all.map { make(it).title }.toSet().size,
-                     "the two set-level skips share a question; the other two do not")
+        assertEquals(5, all.map { make(it).title }.toSet().size,
+                     "the two set-level skips share a question; the other four do not")
     }
 
     @Test
-    fun theFourQuestionsDifferOnlyInWhatTheySay() {
+    fun theSixQuestionsDifferOnlyInWhatTheySay() {
         val shapes = all.map(::make)
         for (skip in shapes) {
             assertTrue(skip.title.english.endsWith("?"), "${skip.kind} does not read as a question")
@@ -87,5 +90,29 @@ class SkipConfirmationTest {
         assertEquals(0, ran, "building the question must not perform it")
         skip.perform()
         assertEquals(1, ran)
+    }
+
+    /** A block's question freezes the block, so saying no has to hand the
+     *  clock back — and only saying no: the answer that skips must not also
+     *  resume a block it is ending, and building the question runs neither. */
+    @Test
+    fun keepGoingRunsTheCancelAndOnlyIt() {
+        var performed = 0
+        var cancelled = 0
+        val skip = SkipConfirmation(Kind.cooldown, perform = { performed += 1 }, cancel = { cancelled += 1 })
+        assertEquals(0, cancelled, "building the question must not answer it")
+        skip.cancel()
+        assertEquals(1, cancelled)
+        assertEquals(0, performed, "saying no must not skip")
+    }
+
+    /** The cool-down's question says the one thing the button cannot: there
+     *  is no way back into the block from the rating. */
+    @Test
+    fun theCooldownQuestionSaysItCannotBeStartedAgain() {
+        assertEquals(Words.of("The workout goes straight to the rating, and the cool-down cannot be started again. " +
+                                  "The plan does not change."),
+                     make(Kind.cooldown).message)
+        assertNotEquals(make(Kind.warmup).message, make(Kind.cooldown).message)
     }
 }

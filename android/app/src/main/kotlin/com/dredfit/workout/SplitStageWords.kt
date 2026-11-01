@@ -14,20 +14,21 @@ data class SplitStageWords(val halves: WarmupHalves) {
 
     val switching: Words
         get() = when (halves) {
-            WarmupHalves.sides -> Words.of("Switch sides")
+            WarmupHalves.sides, WarmupHalves.sidesOnTheSpot -> Words.of("Switch sides")
             WarmupHalves.directions -> Words.keyed("warmup.switchDirection", "Switch direction")
         }
 
     val secondHalf: Words
         get() = when (halves) {
-            WarmupHalves.sides -> Words.of("second side")
+            WarmupHalves.sides, WarmupHalves.sidesOnTheSpot -> Words.of("second side")
             WarmupHalves.directions -> Words.keyed("warmup.otherWay", "the other way")
         }
 
     val everyHalf: Words
         get() = when (halves) {
-            // A `cooldown.` key read by the warm-up too — see BlockScreens.swift.
-            WarmupHalves.sides -> Words.keyed("cooldown.perSide", "15 s per side")
+            // A `cooldown.` key, named for the block that owns every per-side
+            // position — see BlockScreens.swift.
+            WarmupHalves.sides, WarmupHalves.sidesOnTheSpot -> Words.keyed("cooldown.perSide", "15 s per side")
             WarmupHalves.directions -> Words.keyed("warmup.perDirection", "15 s each way")
         }
 }

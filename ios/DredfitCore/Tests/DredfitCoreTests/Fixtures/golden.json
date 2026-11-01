@@ -1,5 +1,5 @@
 {
- "generator": "adaptive_engine.js v3.8.0",
+ "generator": "adaptive_engine.js v3.9.0",
  "patternOrder": [
   "squat",
   "push_h",
@@ -525,8 +525,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 31.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 30.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -796,8 +796,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 32.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -1091,8 +1091,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 32.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -1401,8 +1401,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 32.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -1706,8 +1706,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 33.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -2011,8 +2011,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 31.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 30.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -2296,8 +2296,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 34.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -2591,8 +2591,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 34,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -2901,8 +2901,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 33.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -3211,8 +3211,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 35.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -3506,8 +3506,8 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 34.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -3791,8 +3791,8 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 34.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -4101,8 +4101,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 31.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 30.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -4372,8 +4372,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 33.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -4667,8 +4667,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 32.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -4979,8 +4979,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 32.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -5286,8 +5286,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 33.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -5598,8 +5598,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 32,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -5911,8 +5911,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 34.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -6226,8 +6226,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 33.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -6541,8 +6541,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 32.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -6856,8 +6856,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 35,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -7166,8 +7166,8 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 33.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -7481,8 +7481,8 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 34,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -7796,8 +7796,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 35,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -8073,8 +8073,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 34.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -8371,8 +8371,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 35.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -8679,8 +8679,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 34.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -8972,8 +8972,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 38,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -9270,8 +9270,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 34.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -9664,8 +9664,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 31.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 30.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -9935,8 +9935,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 33.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -10230,8 +10230,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 32.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -10535,8 +10535,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 33,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -10845,8 +10845,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 34.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -11145,8 +11145,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 32.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -11425,8 +11425,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 35.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -11725,8 +11725,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 35.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -12030,8 +12030,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 34.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -12335,8 +12335,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 37.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -12635,8 +12635,8 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 36.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -12922,8 +12922,8 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 36,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -13222,8 +13222,8 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 38.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -13522,8 +13522,8 @@
     },
     {
      "sessionNumber": 14,
-     "estimatedTotalMin": 33.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -13832,8 +13832,8 @@
     },
     {
      "sessionNumber": 15,
-     "estimatedTotalMin": 38,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -14147,8 +14147,8 @@
     },
     {
      "sessionNumber": 16,
-     "estimatedTotalMin": 35.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -14457,8 +14457,8 @@
     },
     {
      "sessionNumber": 17,
-     "estimatedTotalMin": 28.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 27.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -14761,8 +14761,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 35.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -15034,8 +15034,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 33.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -15329,8 +15329,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 36.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -15638,8 +15638,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 34.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -15944,8 +15944,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 36,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -16258,8 +16258,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 35.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -16565,8 +16565,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 36.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -16880,8 +16880,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 34.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -17193,8 +17193,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 36.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -17498,8 +17498,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 34.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -17907,8 +17907,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 33.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -18190,8 +18190,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 32.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -18485,8 +18485,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 34.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -18801,8 +18801,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 33.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -19113,8 +19113,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 34.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -19425,8 +19425,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 33.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -19719,8 +19719,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 35.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -20016,8 +20016,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 35,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -20331,8 +20331,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 34.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -20638,8 +20638,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 35.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -21035,8 +21035,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 31.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 30.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -21310,8 +21310,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 32.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -21605,8 +21605,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 35.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -21926,8 +21926,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 32.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -22227,8 +22227,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 34.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -22532,8 +22532,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 37.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -22838,8 +22838,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 37.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -23138,8 +23138,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 34.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -23445,8 +23445,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 38.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -23757,8 +23757,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 35.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -24057,8 +24057,8 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 38.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -24371,8 +24371,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 32.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -24657,8 +24657,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 34.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -24960,8 +24960,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 31.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 30.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -25263,8 +25263,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 33,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -25569,8 +25569,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 30.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 29.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -25884,8 +25884,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 31.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 30.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -26384,8 +26384,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 34.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -26708,8 +26708,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 32.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -27148,8 +27148,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 61,
-     "warmupMin": 6,
+     "estimatedTotalMin": 60,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -27480,8 +27480,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 68.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 67.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -27812,8 +27812,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 78.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 77.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -28151,8 +28151,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 72,
-     "warmupMin": 6,
+     "estimatedTotalMin": 71,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -28516,8 +28516,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 79.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 78.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -28887,8 +28887,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 69.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 68.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -29257,8 +29257,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 76.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 75.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -29621,8 +29621,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 77.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 76.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -29992,8 +29992,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 77.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 76.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -30345,8 +30345,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 76.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 75.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -30697,8 +30697,8 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 81.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 80.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -31061,8 +31061,8 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 73.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 72.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -31432,8 +31432,8 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 82.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 81.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -31803,8 +31803,8 @@
     },
     {
      "sessionNumber": 14,
-     "estimatedTotalMin": 71,
-     "warmupMin": 6,
+     "estimatedTotalMin": 70,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -32354,8 +32354,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 32.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -32628,8 +32628,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 34.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -32931,8 +32931,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 33.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -33245,8 +33245,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 32.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -33561,8 +33561,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 34.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -33870,8 +33870,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 32.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -34164,8 +34164,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 35.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -34464,8 +34464,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 33.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -34781,8 +34781,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 33.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -35096,8 +35096,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 34,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -35497,8 +35497,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 32.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -35773,8 +35773,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 33.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -36073,8 +36073,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 33.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -36388,8 +36388,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 33.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -36695,8 +36695,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 35,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -37002,8 +37002,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 32.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -37324,8 +37324,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 35.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -37640,8 +37640,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 35,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -37963,8 +37963,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 33.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -38279,8 +38279,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 36,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -38605,8 +38605,8 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 34.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -38916,8 +38916,8 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 34.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -39218,8 +39218,8 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 36.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -39530,8 +39530,8 @@
     },
     {
      "sessionNumber": 14,
-     "estimatedTotalMin": 33.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -39955,8 +39955,8 @@
    "steps": [
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 35.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -40232,8 +40232,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 35.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -40530,8 +40530,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 34,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -40850,8 +40850,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 35.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -41157,8 +41157,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 35.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -41479,8 +41479,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 37,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -41784,8 +41784,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 37.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -42094,8 +42094,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 36.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -42406,8 +42406,8 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 37.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -42711,8 +42711,8 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 37,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -43032,8 +43032,8 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 36.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -43454,8 +43454,8 @@
    "steps": [
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 35,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -43786,8 +43786,8 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 34,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -44373,8 +44373,8 @@
     },
     {
      "sessionNumber": 14,
-     "estimatedTotalMin": 31,
-     "warmupMin": 6,
+     "estimatedTotalMin": 30,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -44965,8 +44965,8 @@
     },
     {
      "sessionNumber": 15,
-     "estimatedTotalMin": 26.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 25.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -45559,8 +45559,8 @@
     },
     {
      "sessionNumber": 16,
-     "estimatedTotalMin": 26.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 25.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -45902,8 +45902,8 @@
     },
     {
      "sessionNumber": 17,
-     "estimatedTotalMin": 24.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 23.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -46496,8 +46496,8 @@
     },
     {
      "sessionNumber": 18,
-     "estimatedTotalMin": 25.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 24.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -46839,8 +46839,8 @@
     },
     {
      "sessionNumber": 19,
-     "estimatedTotalMin": 24.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 23.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -47182,8 +47182,8 @@
     },
     {
      "sessionNumber": 20,
-     "estimatedTotalMin": 25.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 24.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -47525,8 +47525,8 @@
     },
     {
      "sessionNumber": 21,
-     "estimatedTotalMin": 25.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 24.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -48372,8 +48372,8 @@
     },
     {
      "sessionNumber": 22,
-     "estimatedTotalMin": 24.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 23.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -48890,8 +48890,8 @@
    "steps": [
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 34.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -49222,8 +49222,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 32.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -49814,8 +49814,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 28.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 27.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -50153,8 +50153,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 29.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 28.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -50745,8 +50745,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 29.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 28.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -51097,8 +51097,8 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 32,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -51707,8 +51707,8 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 28.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 27.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -52549,8 +52549,8 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 28.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 27.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -52901,8 +52901,8 @@
     },
     {
      "sessionNumber": 14,
-     "estimatedTotalMin": 27.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 26.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -53249,8 +53249,8 @@
     },
     {
      "sessionNumber": 15,
-     "estimatedTotalMin": 29.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 28.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -53779,8 +53779,8 @@
    "steps": [
     {
      "sessionNumber": 21,
-     "estimatedTotalMin": 100.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 99.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -54111,8 +54111,8 @@
     },
     {
      "sessionNumber": 22,
-     "estimatedTotalMin": 32.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -54698,8 +54698,8 @@
     },
     {
      "sessionNumber": 23,
-     "estimatedTotalMin": 26.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 25.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -55285,8 +55285,8 @@
     },
     {
      "sessionNumber": 24,
-     "estimatedTotalMin": 25,
-     "warmupMin": 6,
+     "estimatedTotalMin": 24,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -55872,8 +55872,8 @@
     },
     {
      "sessionNumber": 25,
-     "estimatedTotalMin": 24.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 23.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -56466,8 +56466,8 @@
     },
     {
      "sessionNumber": 26,
-     "estimatedTotalMin": 25.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 24.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -57053,8 +57053,8 @@
     },
     {
      "sessionNumber": 27,
-     "estimatedTotalMin": 24.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 23.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -57895,8 +57895,8 @@
     },
     {
      "sessionNumber": 28,
-     "estimatedTotalMin": 27.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 26.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -58405,8 +58405,8 @@
    "steps": [
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 36.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -58744,8 +58744,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 36.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -59093,8 +59093,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 37.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -59446,8 +59446,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 36.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -59805,8 +59805,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 33.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -60175,8 +60175,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 36,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -60531,8 +60531,8 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 37.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -60896,8 +60896,8 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 32.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -61249,8 +61249,8 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 33,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -61845,8 +61845,8 @@
     },
     {
      "sessionNumber": 14,
-     "estimatedTotalMin": 29.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 28.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -62362,8 +62362,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 30.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 29.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -62642,8 +62642,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 34.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -62935,8 +62935,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 36.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -63243,8 +63243,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 33.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -63549,8 +63549,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 37.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -63852,8 +63852,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 36.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -64143,8 +64143,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 34.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -64451,8 +64451,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 38,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -64877,8 +64877,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 32.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -65209,8 +65209,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 33.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -65556,8 +65556,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 34.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -65913,8 +65913,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 33.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -66270,8 +66270,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 35.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -66622,8 +66622,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 34.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -66954,8 +66954,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 36.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -67286,8 +67286,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 36.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -67633,8 +67633,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 35.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -67990,8 +67990,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 37.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -68525,8 +68525,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 36.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -68817,8 +68817,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 38.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -69328,8 +69328,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 38.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -69844,8 +69844,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 36.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -70366,8 +70366,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 39.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 38.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -70887,8 +70887,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 35.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -71399,8 +71399,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 37.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -71907,8 +71907,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 39.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 38.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -72353,8 +72353,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 49.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 48.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -72676,8 +72676,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 39.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 38.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -73031,8 +73031,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 44.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 43.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -73399,8 +73399,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 36.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -73770,8 +73770,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 42.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 41.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -74119,8 +74119,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 40.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 39.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -74467,8 +74467,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 38.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -75044,8 +75044,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 52.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 51.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -75631,8 +75631,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 50.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 49.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -76146,8 +76146,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 40.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 39.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -76731,8 +76731,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 50.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 49.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -77063,8 +77063,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 61.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 60.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -77397,8 +77397,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 57.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 56.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -77729,8 +77729,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 65,
-     "warmupMin": 6,
+     "estimatedTotalMin": 64,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -78068,8 +78068,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 61.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 60.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -78413,8 +78413,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 66.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 65.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -78758,8 +78758,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 80.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 79.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -79104,8 +79104,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 80.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 79.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -79449,8 +79449,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 81.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 80.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -79787,8 +79787,8 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 83.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 82.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -80122,8 +80122,8 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 86.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 85.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -80454,8 +80454,8 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 97,
-     "warmupMin": 6,
+     "estimatedTotalMin": 96,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -80786,8 +80786,8 @@
     },
     {
      "sessionNumber": 14,
-     "estimatedTotalMin": 95.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 94.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -81118,8 +81118,8 @@
     },
     {
      "sessionNumber": 15,
-     "estimatedTotalMin": 94,
-     "warmupMin": 6,
+     "estimatedTotalMin": 93,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -81450,8 +81450,8 @@
     },
     {
      "sessionNumber": 16,
-     "estimatedTotalMin": 100.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 99.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -81782,8 +81782,8 @@
     },
     {
      "sessionNumber": 17,
-     "estimatedTotalMin": 95.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 94.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -82114,8 +82114,8 @@
     },
     {
      "sessionNumber": 18,
-     "estimatedTotalMin": 97.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 96.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -82446,8 +82446,8 @@
     },
     {
      "sessionNumber": 19,
-     "estimatedTotalMin": 99.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 98.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -82952,8 +82952,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 37,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -83286,8 +83286,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 38.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -83633,8 +83633,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 37.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -83992,8 +83992,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 36.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -84349,8 +84349,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 40.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 39.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -84703,8 +84703,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 36.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -85042,8 +85042,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 39.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 38.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -85389,8 +85389,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 38,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -85748,8 +85748,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 36.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -86107,8 +86107,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 41.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 40.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -86454,8 +86454,8 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 37.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -86793,8 +86793,8 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 38.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -87324,8 +87324,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 72,
-     "warmupMin": 6,
+     "estimatedTotalMin": 71,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -87909,8 +87909,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 81.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 80.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -88241,8 +88241,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 92.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 91.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -88580,8 +88580,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 87.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 86.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -88954,8 +88954,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 93.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 92.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -89330,8 +89330,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 80.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 79.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -89946,8 +89946,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 88.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 87.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -90571,8 +90571,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 90.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 89.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -90951,8 +90951,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 86.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 85.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -91326,8 +91326,8 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 56.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 55.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -91948,8 +91948,8 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 65.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 64.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -92494,8 +92494,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 31.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 30.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -92772,8 +92772,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 36.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -93082,8 +93082,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 38.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -93407,8 +93407,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 33.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -93710,8 +93710,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 33.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -94009,8 +94009,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 33,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -94328,8 +94328,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 24.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 23.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -94621,8 +94621,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 29.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 28.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -94926,8 +94926,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 27.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 26.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -95231,8 +95231,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 26.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 25.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -95536,8 +95536,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 25.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 24.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -96049,8 +96049,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 28.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 27.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -96354,8 +96354,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 33.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -96664,8 +96664,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 32.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -97112,8 +97112,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 33.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -97402,8 +97402,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 32.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -97697,8 +97697,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 34,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -98001,8 +98001,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 33.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -98308,8 +98308,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 34.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -98610,8 +98610,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 33.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -99017,8 +99017,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 35.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -99294,8 +99294,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 32.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -99589,8 +99589,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 35.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -99905,8 +99905,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 34.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -100212,8 +100212,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 34.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -100522,8 +100522,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 34,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -100924,8 +100924,8 @@
    "steps": [
     {
      "sessionNumber": 42,
-     "estimatedTotalMin": 45.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 44.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -101207,8 +101207,8 @@
     },
     {
      "sessionNumber": 43,
-     "estimatedTotalMin": 43.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 42.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -101514,8 +101514,8 @@
     },
     {
      "sessionNumber": 44,
-     "estimatedTotalMin": 37.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -101827,8 +101827,8 @@
     },
     {
      "sessionNumber": 45,
-     "estimatedTotalMin": 45.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 44.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -102149,8 +102149,8 @@
     },
     {
      "sessionNumber": 46,
-     "estimatedTotalMin": 37.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -102584,8 +102584,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 33,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -102904,8 +102904,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 38.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -103235,8 +103235,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 37.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -103591,8 +103591,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 33,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -103938,8 +103938,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 38,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -104254,8 +104254,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 35.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -104569,8 +104569,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 36.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -104873,8 +104873,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 39.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 38.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -105290,8 +105290,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 35,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -105588,8 +105588,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 37.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -105905,8 +105905,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 37.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -106222,8 +106222,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 35.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -106538,8 +106538,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 38.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -106965,8 +106965,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 32.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -107262,8 +107262,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 34,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -107559,8 +107559,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 32.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -107870,8 +107870,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 33.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -108172,8 +108172,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 34.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -108483,8 +108483,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 31.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 30.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -108774,8 +108774,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 35.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -109071,8 +109071,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 35.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -109486,8 +109486,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 32,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -109758,8 +109758,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 33.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -110054,8 +110054,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 32.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -110365,8 +110365,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 29.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 28.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -110862,8 +110862,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 32.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -111163,8 +111163,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 28.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 27.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -111444,8 +111444,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 34.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -111839,8 +111839,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 29.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 28.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -112115,8 +112115,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 35.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -112410,8 +112410,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 32.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -112725,8 +112725,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 35,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -113040,8 +113040,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 34.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -113345,8 +113345,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 36.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -113636,8 +113636,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 34.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -113941,8 +113941,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 38.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -114360,8 +114360,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 29.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 28.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -114635,8 +114635,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 33.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -114929,8 +114929,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 33,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -115243,8 +115243,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 33.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -115552,8 +115552,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 34.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -115862,8 +115862,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 32.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -116270,8 +116270,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 29.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 28.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -116546,8 +116546,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 33.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -116856,8 +116856,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 31.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 30.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -117170,8 +117170,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 29.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 28.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -117482,8 +117482,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 34.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -117787,8 +117787,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 28.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 27.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -118192,8 +118192,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 31.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 30.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -118477,8 +118477,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 32.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -118775,8 +118775,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 31.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 30.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -119079,8 +119079,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 32,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -119393,8 +119393,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 34,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -119701,8 +119701,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 32.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -120014,8 +120014,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 34.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -120309,8 +120309,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 34.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -120713,8 +120713,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 33,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -120985,8 +120985,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 33.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -121281,8 +121281,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 34.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -121587,8 +121587,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 32.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 31.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -121893,8 +121893,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 36.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -122194,8 +122194,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 34,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -122477,8 +122477,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 35.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -122758,8 +122758,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 36.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -123140,8 +123140,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 42.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 41.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -123433,8 +123433,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 39.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 38.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -123735,8 +123735,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 42.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 41.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -124052,8 +124052,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 47.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 46.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -124370,8 +124370,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 39.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 38.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -124693,8 +124693,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 46.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 45.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -125129,8 +125129,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 41.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 40.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -125420,8 +125420,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 35.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -125735,8 +125735,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 42.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 41.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -126061,8 +126061,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 41.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 40.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -126381,8 +126381,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 39.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 38.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -126701,8 +126701,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 41.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 40.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -127134,8 +127134,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 42.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 41.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -127422,8 +127422,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 39.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 38.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -127729,8 +127729,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 40.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 39.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -128051,8 +128051,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 43,
-     "warmupMin": 6,
+     "estimatedTotalMin": 42,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -128363,8 +128363,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 37.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -128680,8 +128680,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 43.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 42.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -129098,8 +129098,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 43.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 42.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -129388,8 +129388,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 38.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -129690,8 +129690,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 39.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 38.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -130133,8 +130133,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 33.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -130427,8 +130427,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 33.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -130730,8 +130730,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 34.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -131043,8 +131043,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 34.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -131351,8 +131351,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 34.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 33.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -131773,8 +131773,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 41.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 40.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -132070,8 +132070,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 37.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -132386,8 +132386,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 40,
-     "warmupMin": 6,
+     "estimatedTotalMin": 39,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -132718,8 +132718,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 41.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 40.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -133039,8 +133039,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 37.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -133371,8 +133371,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 40.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 39.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -133677,8 +133677,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 40,
-     "warmupMin": 6,
+     "estimatedTotalMin": 39,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -134001,8 +134001,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 40.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 39.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -134322,8 +134322,8 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 43.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 42.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -134773,8 +134773,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 63.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 62.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -135076,8 +135076,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 47.3,
-     "warmupMin": 6,
+     "estimatedTotalMin": 46.3,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -135378,8 +135378,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 55.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 54.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -135695,8 +135695,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 64.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 63.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -136007,8 +136007,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 45.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 44.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -136324,8 +136324,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 63.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 62.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -136621,8 +136621,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 54.4,
-     "warmupMin": 6,
+     "estimatedTotalMin": 53.4,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -136928,8 +136928,8 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 57.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 56.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -137366,8 +137366,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 40.2,
-     "warmupMin": 6,
+     "estimatedTotalMin": 39.2,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -137668,8 +137668,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 37.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 36.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -137969,8 +137969,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 42.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 41.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -138280,8 +138280,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 45.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 44.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -138603,8 +138603,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 39.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 38.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -138920,8 +138920,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 45.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 44.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -139335,8 +139335,8 @@
    "steps": [
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 38.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -139634,8 +139634,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 36.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -139936,8 +139936,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 38.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -140252,8 +140252,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 38.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -140573,8 +140573,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 39.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 38.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -141002,8 +141002,8 @@
    "steps": [
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 39.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 38.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -141301,8 +141301,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 36.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 35.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -141603,8 +141603,8 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 38.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 37.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -141919,8 +141919,8 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 41.6,
-     "warmupMin": 6,
+     "estimatedTotalMin": 40.6,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -142241,8 +142241,8 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 39.5,
-     "warmupMin": 6,
+     "estimatedTotalMin": 38.5,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -142670,8 +142670,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 29.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 28.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -142985,8 +142985,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 30.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 29.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -143280,8 +143280,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 33,
-     "warmupMin": 6,
+     "estimatedTotalMin": 32,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -143589,8 +143589,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 35.1,
-     "warmupMin": 6,
+     "estimatedTotalMin": 34.1,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -144023,8 +144023,8 @@
    "steps": [
     {
      "sessionNumber": 1,
-     "estimatedTotalMin": 60.7,
-     "warmupMin": 6,
+     "estimatedTotalMin": 59.7,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -144311,8 +144311,8 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 52.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 51.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -144620,8 +144620,8 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 55.8,
-     "warmupMin": 6,
+     "estimatedTotalMin": 54.8,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
@@ -144937,8 +144937,8 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 63.9,
-     "warmupMin": 6,
+     "estimatedTotalMin": 62.9,
+     "warmupMin": 5,
      "cooldownMin": 4,
      "exercises": [
       {
