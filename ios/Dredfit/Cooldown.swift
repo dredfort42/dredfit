@@ -19,7 +19,7 @@
 //  three movements of the session, so it almost always landed on the same
 //  three positions, and the twist that now closes the block never came up.
 //
-//  EVERY SIDE SWITCH PAUSES (§41.19). A switch "on the spot", on a tone with
+//  EVERY SIDE SWITCH PAUSES. A switch "on the spot", on a tone with
 //  the clock running, was tried in 2.6.0 and lost in use: no stretch changes
 //  side in no time — the legs of the figure-four uncross and cross again, the
 //  knees of the twist pass through the middle, the hands of the side reach

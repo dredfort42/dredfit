@@ -14,7 +14,7 @@
 //  what the reserve is for: once the cool-down stopped pausing on the spot,
 //  ten minutes would have held 136 s spare, so the tenth minute went back to
 //  every announced duration (`warmupMin` 6 → 5). When every side switch
-//  paused again (§41.19) the cool-down outgrew its four minutes, and the
+//  paused again, the cool-down outgrew its four minutes, and the
 //  minute moved between the shares (4 + 5) rather than coming back: ten
 //  would have held exactly two spare. What is asserted below is a
 //  floor and a ceiling, not an equality: the blocks may never overrun the
@@ -223,7 +223,7 @@ final class BlockReserveTests: XCTestCase {
     /// the minute went back to every announced duration — through the
     /// reference chain, because the reserve is the engine's. With every side
     /// switch pausing again ten would hold exactly 120 s spare, which is why
-    /// §41.19 moved a minute between the shares instead.
+    /// the minute moved between the shares instead.
     ///
     /// So two properties, and the names say which is which. The floor is
     /// safety and is not negotiable: the blocks must never overrun what the

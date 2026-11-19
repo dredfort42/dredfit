@@ -20,7 +20,7 @@
 //
 //  A circle REVERSES halfway, and the clock does not stop for it: a tone marks
 //  the midpoint and the second half runs straight on. A side switch keeps
-//  its pause — every stretch re-sets something to change sides (§41.19);
+//  its pause — every stretch re-sets something to change sides;
 //  reversing a circle does not, and a pause there would stop a movement for
 //  nothing.
 //
@@ -49,7 +49,7 @@ enum WarmupHalves: Equatable {
     /// A side switch. Every one re-sets something — a leg, the knees, the
     /// hands — so every one pauses: a third case, a side switched "on the
     /// spot" with the clock running, shipped in 2.6.0 and took three to five
-    /// seconds of re-set out of the second side (§41.19).
+    /// seconds of re-set out of the second side.
     case sides
     case directions
 

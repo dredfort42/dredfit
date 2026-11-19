@@ -153,7 +153,7 @@ class GetReadyTest {
         assertEquals(248, cooldown)
         assertTrue(warmup + cooldown <= reserved, "the worst case overruns the reserved minutes")
         // Nine is the smallest whole minute that fits: when every side switch
-        // paused again (§41.19), ten would have held two spare, so the minute
+        // paused again, ten would have held two spare, so the minute
         // moved between the two shares instead. `BlockReserveTest` holds the
         // same floor and ceiling over the axis the app actually composes on.
         assertTrue(reserved - (warmup + cooldown) < 120,

@@ -104,7 +104,7 @@ object EngineConfig {
     internal const val deloadDrop = 3
     /** The two blocks are budgeted in whole minutes — see Engine.swift for the
      *  arithmetic behind four and five: the worst pair is 480 s against 540,
-     *  and each block fits its own minutes (§41.19 moved the minute from the
+     *  and each block fits its own minutes (the minute moved from the
      *  warm-up's share to the cool-down's when every side switch paused again). */
     const val warmupMin = 4
     const val cooldownMin = 5

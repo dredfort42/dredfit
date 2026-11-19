@@ -93,7 +93,7 @@ public enum EngineConfig {
     /// cool-down's 252 s in five — which is also what the Health estimate caps
     /// each block at (`EnergyEstimate`).
     ///
-    /// Four and five, not five and four (§41.19): every side switch of the
+    /// Four and five, not five and four, because every side switch of the
     /// cool-down pauses again — a switch "on the spot" took three to five
     /// seconds of re-set out of the second side's fifteen — and the cool-down
     /// outgrew its four minutes. The minute moved between the shares rather

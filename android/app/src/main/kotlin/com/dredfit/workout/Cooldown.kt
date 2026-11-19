@@ -8,7 +8,7 @@
 //  Two positions standing, then a single descent — onto one knee, onto both
 //  knees, onto the back — and nobody gets up again until the block is over.
 //  Two of the six zones alternate their variant from session to session.
-//  EVERY side switch pauses (§41.19): a switch "on the spot" with the clock
+//  EVERY side switch pauses: a switch "on the spot" with the clock
 //  running took the re-set out of the second side
 //  (`WarmupHalves.pausesAtTheSwitch`).
 //

@@ -33,8 +33,8 @@ enum GetReady {
     /// minute it needs goes into the reserve, and with it into every announced
     /// session duration. `BlockReserveTests` holds the floor (the blocks never
     /// overrun the reserve) and the ceiling (the reserve never holds two spare
-    /// minutes) — the ceiling is why, when every side switch paused again
-    /// (§41.19), a minute moved from the warm-up's share to the cool-down's
+    /// minutes) — the ceiling is why, when every side switch paused again,
+    /// a minute moved from the warm-up's share to the cool-down's
     /// instead of a tenth one being added to every announced duration.
     static let setupSupplementSec = 4
 

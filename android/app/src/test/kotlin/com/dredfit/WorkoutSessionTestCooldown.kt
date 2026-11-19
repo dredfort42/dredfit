@@ -39,7 +39,7 @@ class WorkoutSessionTestCooldown : WorkoutSessionTestCase() {
         return flow
     }
 
-    /** §41.19, as the flow runs it: the figure-four — switched "on the spot"
+    /** As the flow runs it: the figure-four — switched "on the spot"
      *  with the clock running in 2.6.0, which took the re-set out of the second
      *  side — switches on the tone into a pause, and the second side starts
      *  whole on a go when the pause is over. */

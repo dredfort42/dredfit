@@ -8,7 +8,7 @@
 //  Six SLOTS, each drawn from its own group, the last chosen by the session's
 //  first exercise (`leadIn`). A circle REVERSES halfway and the clock does
 //  not stop for it: a tone marks the midpoint. A side switch keeps its
-//  counted pause (`WarmupHalves.pausesAtTheSwitch`, §41.19).
+//  counted pause (`WarmupHalves.pausesAtTheSwitch`).
 //
 
 package com.dredfit.workout
@@ -27,7 +27,7 @@ enum class WarmupHalves {
     /** A side switch. Every one re-sets something — a leg, the knees, the
      *  hands — so every one pauses: a side switched "on the spot" with the
      *  clock running shipped in 2.6.0 and took three to five seconds of re-set
-     *  out of the second side (§41.19). */
+     *  out of the second side. */
     sides,
     directions;
 

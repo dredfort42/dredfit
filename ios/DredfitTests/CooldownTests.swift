@@ -119,7 +119,7 @@ final class CooldownTests: XCTestCase {
     }
 
     func testAPerSidePositionSplitsIntoTwoWholeSidesPlusThePause() {
-        // 15 + 4 + 15 (issue #35, §41.19):
+        // 15 + 4 + 15 (issue #35):
         // the slot splits into two equal whole sides, and the pause is the
         // app-layer constant shared with the workout's per-side holds.
         XCTAssertEqual(Cooldown.sideSeconds * 2, Cooldown.positionSeconds,
@@ -155,7 +155,7 @@ final class CooldownTests: XCTestCase {
         XCTAssertEqual(next?.stage, .getReady)
     }
 
-    /// §41.19: no stretch changes side in no time, so EVERY side switch of
+    /// No stretch changes side in no time, so EVERY side switch of
     /// the pool stops the clock — the 2.6.0 switch "on the spot" took the
     /// re-set out of the second side. Over the whole pool, not one session:
     /// wrists and the side reach are drawn only every other session.
