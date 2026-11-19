@@ -117,12 +117,12 @@ final class GetReadyTests: XCTestCase {
         // Lengthening the transition is what makes the reserve an engine
         // constraint; shortening it only ever leaves slack.
         XCTAssertEqual(warmup, 228)
-        XCTAssertEqual(cooldown, 236)
+        XCTAssertEqual(cooldown, 248)
         XCTAssertLessThanOrEqual(warmup + cooldown, reserved,
                                  "the worst case overruns the reserved minutes")
-        // Nine is the smallest whole minute that fits: ten held more than two
-        // spare once the cool-down stopped pausing on the spot, and the minute
-        // went back through the reference chain. `BlockReserveTests` holds the
+        // Nine is the smallest whole minute that fits: when every side switch
+        // paused again (§41.19), ten would have held two spare, so the minute
+        // moved between the two shares instead. `BlockReserveTests` holds the
         // same floor and ceiling over the axis the app actually composes on.
         XCTAssertLessThan(reserved - (warmup + cooldown), 120,
                           "two whole minutes of slack: the reserve is no longer "
@@ -261,14 +261,8 @@ final class GetReadyTests: XCTestCase {
         XCTAssertEqual(directions.switching,
                        String(localized: "warmup.switchDirection",
                               defaultValue: "Switch direction"))
-        XCTAssertTrue(WarmupHalves.sides.pausesAtTheSwitch, "turning over re-sets the body")
+        XCTAssertTrue(WarmupHalves.sides.pausesAtTheSwitch, "a side switch re-sets the body")
         XCTAssertFalse(WarmupHalves.directions.pausesAtTheSwitch, "a circle reverses on the move")
-        // A side switched on the spot keeps the words of a side and loses only
-        // the pause: the twist's knees go the other way, not "the other way".
-        let onTheSpot = SplitStageWords(halves: .sidesOnTheSpot)
-        XCTAssertEqual([onTheSpot.switching, onTheSpot.secondHalf, onTheSpot.everyHalf],
-                       [sides.switching, sides.secondHalf, sides.everyHalf])
-        XCTAssertFalse(WarmupHalves.sidesOnTheSpot.pausesAtTheSwitch, "the body stays where it is")
     }
 
     func testTheTwoHalvesOfACircleAreTheSlot() throws {
@@ -362,9 +356,8 @@ final class GetReadyTests: XCTestCase {
     }
 
     /// The other half of the rule the warm-up's circles changed: a side switch
-    /// that re-sets the body — the lunge changing its front leg — still stops
-    /// the clock for its pause. Both blocks walk one stage machine, so the
-    /// shortcut of a switch on the spot must not leak into a re-set.
+    /// still stops the clock for its pause. Both blocks walk one stage
+    /// machine, so the circle's shortcut must not leak into a side.
     func testASideReSetStillPauses() throws {
         let positions = Cooldown.positions(sessionNumber: 1)
         let index = try XCTUnwrap(positions.firstIndex { $0.halves == .sides })

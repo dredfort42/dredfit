@@ -4,16 +4,19 @@
 //  ENGINE constraint rather than an app preference.
 //
 //  `warmupMin + cooldownMin` is the whole budget the engine sets aside for the
-//  two blocks. The worst pair leaves 76 s of it over (464 of 540), and every
-//  second added to the transition costs six per block. The cool-down binds
-//  first: 236 s of its own 240 leave four, so a nine-second transition
+//  two blocks. The worst pair leaves 60 s of it over (480 of 540), and every
+//  second added to the transition costs six per block. The warm-up binds
+//  first: 228 s of its own 240 leave twelve, so an eleven-second transition
 //  overruns its minutes (`eachBlockFitsItsOwnShareOfTheReserve`) — a change to
 //  the engine, because the reserve is the engine's.
 //
 //  SHORTENING is the direction that does not break, until the slack outgrows
 //  what the reserve is for: once the cool-down stopped pausing on the spot,
 //  ten minutes would have held 136 s spare, so the tenth minute went back to
-//  every announced duration (`warmupMin` 6 → 5). What is asserted below is a
+//  every announced duration (`warmupMin` 6 → 5). When every side switch
+//  paused again (§41.19) the cool-down outgrew its four minutes, and the
+//  minute moved between the shares (4 + 5) rather than coming back: ten
+//  would have held exactly two spare. What is asserted below is a
 //  floor and a ceiling, not an equality: the blocks may never overrun the
 //  reserve, and the reserve may never hold two spare minutes.
 //
@@ -227,7 +230,9 @@ class BlockReserveTest {
      * Nine minutes is the smallest whole minute that holds the worst pair.
      * Ten held 136 s spare once the cool-down stopped pausing on the spot, so
      * the minute went back to every announced duration — through the
-     * reference chain, because the reserve is the engine's.
+     * reference chain, because the reserve is the engine's. With every side
+     * switch pausing again ten would hold exactly 120 s spare, which is why
+     * §41.19 moved a minute between the shares instead.
      *
      * So two properties, and the names say which is which. The floor is
      * safety and is not negotiable: the blocks must never overrun what the
@@ -238,7 +243,7 @@ class BlockReserveTest {
     fun theReserveHoldsTheBlocksWithOneSpareMinuteAtMost() {
         val reserve = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
         val worst = worstWarmupSec() + worstCooldownSec()
-        assertEquals(464, worst, "the worst pair the app can compose is 228 + 236")
+        assertEquals(480, worst, "the worst pair the app can compose is 228 + 252")
         assertTrue(reserve - worst >= 0, "the blocks overrun what the engine reserves")
         assertTrue(reserve - worst < 120,
                    "two whole minutes of slack: the reserve is no longer " +
@@ -317,12 +322,14 @@ class BlockReserveTest {
         assertEquals(228, worstWarmupSec(hiding = emptySet()),
                      "with nothing set aside the warm-up is 228 s")
         assertEquals(228, worstWarmupSec(), "and with anything set aside, the same 228 s")
-        // Six slots, one trip down and the kneeling lunge's re-set. The
-        // standing lunge replaces the kneeling one and refills nothing else,
-        // so no composition plays two pauses — the worst is the plain block.
-        assertEquals(listOf(236, 236), plainCooldownSec(),
-                     "with nothing set aside every session of the rotation is 236 s")
-        assertEquals(236, worstCooldownSec(), "and with anything set aside, never more")
+        // Six slots, one trip down and a pause at every side switch: four
+        // per-side stretches in every session of the rotation (the lunge, the
+        // figure-four, the twist, and the wrists or the side reach). Setting
+        // aside the chest opener and the rest pose draws BOTH alternates, five
+        // pauses — the dearest block the app can compose.
+        assertEquals(listOf(248, 248), plainCooldownSec(),
+                     "with nothing set aside every session of the rotation is 248 s")
+        assertEquals(252, worstCooldownSec(), "and with anything set aside, never more than one pause more")
     }
 
     /** The period the sweeps walk, pinned: a loop bound nothing pins is a loop

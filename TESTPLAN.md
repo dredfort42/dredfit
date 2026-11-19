@@ -512,7 +512,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 30.1 | Complete the last exercise's last set, then **Start the cool-down** | "COOL-DOWN" header, six dots, **GET READY** with a 4 s count-in — the Start tap already was the "I'm ready" — and then a standing position for 30 s: "Chest opener" in session one, "Wrists and forearms" in session two. The first position below standing, the kneeling "Hip flexor stretch", gets the 12 s transition (§34) and the "15 s per side" hint |
 | 30.2 | The six positions | One per zone, in the order the body goes down: chest opener or wrists (alternating by session) → half forward fold → hip flexor stretch on one knee → rest pose or its side reach (alternating) → figure-four lying → lying twist last. Once down, nobody stands up again; no duplicates (58) |
 | 30.3 | Set positions aside (technique sheet) | A zone whose every variant is set aside is refilled from its own level first: without the twist the block ends on knees to chest; without the kneeling lunge the hip flexors are stretched standing, and the standing lunge never appears beside the kneeling one |
-| 30.4 | Let it run | 6 × 30 s of stretching = 3:00, an 8 s transition per position, 4 s more once for the trip down, and one 4 s pause in the kneeling lunge — the only switch that re-sets the body. 236 s with nothing set aside, never more, never under 232. All of it sits inside the "≈" every estimate carries; the rating follows |
+| 30.4 | Let it run | 6 × 30 s of stretching = 3:00, an 8 s transition per position, 4 s more once for the trip down, and a 4 s pause at every side switch (§41.19). 248 s with nothing set aside; 252 s at most, when five sided stretches meet in one block (e.g. the chest opener set aside in an odd session); 240 s at least. All of it sits inside the "≈" every estimate carries; the rating follows |
 | 30.5 | "Skip this move" / "Skip cool-down" | One position or the whole block; either way the rating still comes and the workout records exactly as before |
 | 30.6 | "Finish now" from mid-workout | **No** cool-down — whoever cut the workout short is out of time by definition |
 | 30.7 | Skip all six exercises | No cool-down either — nothing was trained, nothing to stretch |
@@ -526,7 +526,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 
 | # | Check | Expected |
 |---|---|---|
-| 31.1 | The kneeling hip flexor stretch (or its standing twin) | 15 s first side → "Switch sides" in accent with a 4→1 countdown → 15 s marked "second side". The wrists, the side reach, the figure-four and the twist switch **on the spot**: a tone at 15 s and the second side runs straight on, no pause (58.2); bilateral positions (chest opener, half fold, rest pose, knees to chest) run one 30 s countdown. Every position with sides must be counted by the app — chest and wrists were not, until 1.8.2 (I-10) |
+| 31.1 | The kneeling hip flexor stretch (or its standing twin) | 15 s first side → "Switch sides" in accent with a 4→1 countdown → 15 s marked "second side". The wrists, the side reach, the figure-four and the twist switch the same way, through the 4 s pause (59.1); bilateral positions (chest opener, half fold, rest pose, knees to chest) run one 30 s countdown. Every position with sides must be counted by the app — chest and wrists were not, until 1.8.2 (I-10) |
 | 31.2 | Listen at each boundary | The pause opens with a **falling** two-tone (the go inverted) — audibly distinct from the rising go that starts the second side and the next position; 3-2-1 ticks precede the end of each side, none inside the pause |
 | 31.3 | A per-side hold (bird dog / side plank) | After side one the same pause runs and the second side starts itself — no tap; **Stop**, **Went differently** and **Skip exercise** are unavailable during the pause |
 | 31.4 | Stop the second side within the first ~3 s | Mis-tap grace: the countdown cancels and **Start hold** returns for the second side, first side's result intact |
@@ -564,8 +564,8 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 34.3 | On the transition after the first move, tap **I'm ready** | The transition drops to a 4 s count-in on the same screen — 3-2-1, then the go — and the move starts. In the last 4 s the button is not there: those seconds already are the count-in. The transition is a floor on the pause between positions, never a wait |
 | 34.4 | **Skip this move** during a transition | Skips the position it was announcing and lands on the next position's transition; on the last one it ends the block |
 | 34.5 | Complete the last exercise's last set | The cool-down opens the same way — a 4 s count-in before its first standing position, then 30 s |
-| 34.6 | Every cool-down position | Preceded by its own transition, the per-side ones included: transition → 15 s → "Switch sides" 4 s → 15 s → next transition in the kneeling lunge; transition → 15 s → tone → 15 s for a side switched on the spot |
-| 34.7 | Total block length | Warm-up 228 s, whatever is set aside; worst cool-down 236 s. The PAIR is what the estimate reserves — `warmupMin` 5 + `cooldownMin` 4 = 9:00 — and the worst pair is 464 s, so it fits with 76 s to spare, each block inside its own minutes. `BlockReserveTests` computes both from the constants and is what fails first; ten minutes would hold more than two spare, which is why the tenth went back to every announced duration (§41.18) |
+| 34.6 | Every cool-down position | Preceded by its own transition, the per-side ones included: transition → 15 s → "Switch sides" 4 s → 15 s → next transition, for every position with sides |
+| 34.7 | Total block length | Warm-up 228 s, whatever is set aside; worst cool-down 252 s. The PAIR is what the estimate reserves — `warmupMin` 4 + `cooldownMin` 5 = 9:00 — and the worst pair is 480 s, so it fits with 60 s to spare, each block inside its own minutes. `BlockReserveTests` computes both from the constants and is what fails first; ten minutes would hold two spare, which is why §41.19 moved a minute between the shares instead of adding one |
 | 34.8 | Lock the phone mid-transition, return after a while | If the transition still has time left, the countdown reflects real elapsed time. If it ran out more than 4 s before you came back, the block stands **paused** on it — a go nobody was there to hear must not start a position — and **Resume** is the way back in. Less than 4 s late, it simply carries on. It never jumps stages |
 | 34.9 | **technique** during a transition | The mini-sheet opens for the upcoming position and freezes its countdown, exactly as it does while a position runs |
 | 34.10 | VoiceOver on a transition | Reads one phrase — "Get ready: Side steps" — not the kicker and the name separately |
@@ -796,7 +796,7 @@ change lands by time under load), §43.10 (an old save file opens unchanged) and
 | 44.4a | Pull BOTH handles | They compose and the screen says so by arithmetic: the plan line counts what Start will run (3 movements at the cut set count), and the sets handle prices itself inside those three rather than inside the full six |
 | 44.5 | A movement at level 0 with two sets | Both handles are **absent**, and the weak-link prompt stays silent. This is §37.1 from the app's side: at the declared bottom there is nothing to offer, and a button that cannot work is worse than no button |
 | 44.6 | Level 0, answer **"tough"** many workouts running | The plan does not move — for **124 appearances** if you keep going. Known, accepted and named: below the declared floor there is nowhere to descend. What the app must not do is pretend otherwise |
-| 44.7 | Start a workout | The **warm-up asks first** — "6 positions · about 4 min", with start and skip — instead of dropping you into a countdown. Same for the cool-down after the last exercise |
+| 44.7 | Start a workout | The **warm-up asks first** — "6 positions · about 4 min", with start and skip — instead of dropping you into a countdown. Same for the cool-down after the last exercise ("about 5 min" in most compositions, 4 when the set-aside positions bring it to 240 s) |
 | 44.8 | The run-in before each guided position | **Eight seconds**, and **twelve** once per cool-down — the one trip down to the floor (no warm-up move has one). Time the worst warm-up and the worst cool-down: the two blocks TOGETHER may not exceed the 9:00 the plan reserves for the two of them |
 | 44.9 | **Went differently** with a number **below** the plan on set 1 of 3 | Carries forward: 8/8/8 for a planned 9. A number **above** the plan stays on its own set — 40 on set 1 of a planned 39 reads 40/39/39, not 40/40/40 |
 | 44.10 | Enter a number above the plan | One soft note per exercise — "do the plan, save your maximum for the last set" — which does not block the entry and does not promise the engine will do anything with the order. It will not: 12-8-8 and 8-8-12 reach the engine as the same number |
@@ -1026,7 +1026,7 @@ bends, overhead reaches — must stay one countdown.
 | 53.7 | Lock the phone across a whole circle | Away more than 4 s, the block freezes on the stage that was running (34.8) and Resume counts back in. Nothing sounds a switch that is already over: the tone belongs to what is on screen |
 | 53.8 | The warm-up offer screen | "6 positions · about **4** min" — every composition is 228 s, and `introMinutes` rounds up |
 | 53.9 | All seven languages | "Switch sides" / "second side" / "15 s per side" and "Switch direction" / "the other way" / "15 s each way" read naturally and stay distinct; nothing clips |
-| 53.10 | Today, on a fresh install | The plan line is ≈ 23–31 min: the reserve for the two blocks is 9:00 since the cool-down stopped pausing on the spot (58.8) |
+| 53.10 | Today, on a fresh install | The plan line is ≈ 23–31 min: the reserve for the two blocks is 9:00 since the cool-down stopped pausing on the spot (58.8), split 4 + 5 since every side switch paused again (59) |
 
 
 ### 54. The hold summary keeps the past and the future apart (app + engine §41.13)
@@ -1136,14 +1136,32 @@ back: `warmupMin` 6 → 5, and every announced duration is a minute shorter.
 | # | Check | Expected |
 |---|---|---|
 | 58.1 | Walk a whole cool-down | Standing → standing → one knee → kneeling → lying → lying, never back up; exactly one 12 s transition (the trip down), every other one 8 s |
-| 58.2 | The wrists, the side reach, the figure-four, the twist | The second side starts on a tone at 15 s with no pause and no "Switch sides" screen; only the kneeling lunge (or its standing twin) shows the 4 s "Switch sides" |
+| 58.2 | The wrists, the side reach, the figure-four, the twist | Superseded by 59.1: they switch through the 4 s pause like the lunges |
 | 58.3 | Two sessions in a row | Session one opens on the chest opener and kneels into the rest pose's side reach; session two opens on the wrists and kneels into the plain rest pose; the other four positions are the same |
 | 58.4 | Set aside the twist, then the kneeling lunge | Without the twist the block ends on knees to chest; without the kneeling lunge the hip flexors are stretched standing, at the end of the standing part — the two lunges are never in one block |
 | 58.5 | Set aside the position on screen, or bring one back from the sheet | The block never shows a set-aside position, never reopens one already done, never runs more than six and never gets the athlete up: bringing back the kneeling lunge while kneeling, with the standing lunge behind, carries on in the side reach — the lunge waits for the next workout |
 | 58.6 | Update from a build that had a wall stretch, the lat stretch, the forward fold or the seated glute stretch set aside | Those ids no longer show under "Not shown any more", and they do not count against the three |
-| 58.7 | The offer screen | "6 positions · about 4 min", and the sentence says the block goes from standing down to lying and stays down |
-| 58.8 | Today on a fresh install | ≈ 23–31 min (30.5/23.3 on the 3.9.0 reference) and "Includes about 9 min of warm-up and cool-down" |
+| 58.7 | The offer screen | "6 positions · about 5 min" (241–252 s since §41.19; "about 4 min" for a 240 s block), and the sentence says the block goes from standing down to lying and stays down |
+| 58.8 | Today on a fresh install | ≈ 23–31 min (30.5/23.3 on the 3.10.0 reference — §41.19 moved no duration) and "Includes about 9 min of warm-up and cool-down" |
 | 58.9 | All seven languages, the smallest screen, the largest Dynamic Type | The six new names and their steps read naturally; the longest ("Hüftbeuger im Stehen dehnen", "Fléchisseurs de hanche debout") wraps rather than clips |
+
+### 59. Every side switch pauses (app + engine §41.19)
+
+The owner's finding in use, 19.11.2026: a side switched "on the spot" (58.2) is not
+instant. Uncrossing and crossing the legs of the figure-four, bringing the twist's knees
+through the middle, walking the hands over, taking the other wrist: three to five seconds
+came out of the second side's fifteen. Every side switch now pauses 4 s, like the lunges.
+Only the warm-up's circles still reverse with no pause — reversing a circle is instant.
+The cool-down grew to 248–252 s, past its four minutes, so a minute moved from the
+warm-up's share to the cool-down's: `warmupMin` 5 → 4, `cooldownMin` 4 → 5. The sum is
+still 9:00, and no announced duration changes.
+
+| # | Check | Expected |
+|---|---|---|
+| 59.1 | The wrists, the side reach, the figure-four, the twist | 15 s first side → switch tone and the "Switch sides" screen with its 4→1 → a go, and 15 s marked "second side", all fifteen of them |
+| 59.2 | A warm-up circle | Still reverses on a tone with the clock running, no pause |
+| 59.3 | Today, and the plan sheet | ≈ 23–31 min and "Includes about 9 min of warm-up and cool-down", the same as before |
+| 59.4 | The remaining-time line inside the workout | Counts five minutes for the cool-down ahead, not four |
 
 ## Engine gates before a release
 
@@ -1158,7 +1176,7 @@ the repository, like `reference/` itself.
 | Command | Must print | Clean means |
 |---|---|---|
 | `python3 scripts/update_reference_manifest.py --check` | `OK:` | the local `reference/` really is the one that produced the fixture. It is not versioned, so it goes stale silently |
-| `node verify2.js` | `провалов: 0` | every block of the verifier — 1 762 739 checks on engine 3.9.0 |
+| `node verify2.js` | `провалов: 0` | every block of the verifier — 1 762 739 checks on engine 3.10.0 |
 | `node accept.js` | `ПРИЁМКА ЧИСТА` | not one `ПРОВАЛ` line across the thirty-four wave-acceptance blocks below. It is the wave's own gate: every wave replaces the copy in `reference/` with the one written for it |
 | `node passcheck_v3.js` | `Провалов всего: 0` | П1 and П2 both PASS — the two passability claims of §40, that every variation can be reached and that entering one never lengthens the session |
 | `node audit_static.js` | `НОВЫХ СРАБАТЫВАНИЙ НЕТ` | no new hit of the "fix applied to one branch of two" class |

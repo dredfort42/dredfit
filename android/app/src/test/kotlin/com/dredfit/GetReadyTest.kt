@@ -150,11 +150,11 @@ class GetReadyTest {
         // Lengthening the transition is what makes the reserve an engine
         // constraint; shortening it only ever leaves slack.
         assertEquals(228, warmup)
-        assertEquals(236, cooldown)
+        assertEquals(248, cooldown)
         assertTrue(warmup + cooldown <= reserved, "the worst case overruns the reserved minutes")
-        // Nine is the smallest whole minute that fits: ten held more than two
-        // spare once the cool-down stopped pausing on the spot, and the minute
-        // went back through the reference chain. `BlockReserveTest` holds the
+        // Nine is the smallest whole minute that fits: when every side switch
+        // paused again (§41.19), ten would have held two spare, so the minute
+        // moved between the two shares instead. `BlockReserveTest` holds the
         // same floor and ceiling over the axis the app actually composes on.
         assertTrue(reserved - (warmup + cooldown) < 120,
                    "two whole minutes of slack: the reserve is no longer " +
@@ -297,14 +297,8 @@ class GetReadyTest {
         assertNotEquals(sides.everyHalf.english, directions.everyHalf.english)
         assertEquals("Switch sides", sides.switching.english)
         assertEquals("Switch direction", directions.switching.english)
-        assertTrue(WarmupHalves.sides.pausesAtTheSwitch, "turning over re-sets the body")
+        assertTrue(WarmupHalves.sides.pausesAtTheSwitch, "a side switch re-sets the body")
         assertFalse(WarmupHalves.directions.pausesAtTheSwitch, "a circle reverses on the move")
-        // A side switched on the spot keeps the words of a side and loses only
-        // the pause: the twist's knees go the other way, not "the other way".
-        val onTheSpot = SplitStageWords(halves = WarmupHalves.sidesOnTheSpot)
-        assertEquals(listOf(sides.switching.english, sides.secondHalf.english, sides.everyHalf.english),
-                     listOf(onTheSpot.switching.english, onTheSpot.secondHalf.english, onTheSpot.everyHalf.english))
-        assertFalse(WarmupHalves.sidesOnTheSpot.pausesAtTheSwitch, "the body stays where it is")
     }
 
     @Test
@@ -402,9 +396,8 @@ class GetReadyTest {
     }
 
     /** The other half of the rule the warm-up's circles changed: a side switch
-     *  that re-sets the body — the lunge changing its front leg — still stops
-     *  the clock for its pause. Both blocks walk one stage machine, so the
-     *  shortcut of a switch on the spot must not leak into a re-set. */
+     *  still stops the clock for its pause. Both blocks walk one stage
+     *  machine, so the circle's shortcut must not leak into a side. */
     @Test
     fun aSideReSetStillPauses() {
         val positions = Cooldown.positions(sessionNumber = 1)

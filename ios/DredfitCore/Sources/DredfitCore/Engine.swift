@@ -87,17 +87,22 @@ public enum EngineConfig {
     /// the variation below instead, while there is one.
     static let deloadDrop = 3
     /// The two blocks are budgeted in whole minutes: the app's worst warm-up
-    /// plus cool-down is 464 s against the 540 this and `cooldownMin` give
+    /// plus cool-down is 480 s against the 540 this and `cooldownMin` give
     /// (`BlockReserveTests`). The smallest whole minute that holds the pair,
-    /// and each block fits its own: the warm-up's 228 s in five, the
-    /// cool-down's 236 s in four — which is also what the Health estimate caps
-    /// each block at (`EnergyEstimate`). Ten minutes would have held more than
-    /// two spare once the cool-down stopped pausing on the spot, so the minute
-    /// went back to every announced session length.
-    public static let warmupMin = 5
+    /// and each block fits its own: the warm-up's 228 s in four, the
+    /// cool-down's 252 s in five — which is also what the Health estimate caps
+    /// each block at (`EnergyEstimate`).
+    ///
+    /// Four and five, not five and four (§41.19): every side switch of the
+    /// cool-down pauses again — a switch "on the spot" took three to five
+    /// seconds of re-set out of the second side's fifteen — and the cool-down
+    /// outgrew its four minutes. The minute moved between the shares rather
+    /// than being added: ten minutes would have held exactly two spare and
+    /// lengthened every announced session.
+    public static let warmupMin = 4
     /// The two blocks share a reserve of `warmupMin + cooldownMin` — see
     /// GetReady.swift for the arithmetic it is spent by.
-    public static let cooldownMin = 4
+    public static let cooldownMin = 5
     /// Rest between sets by BAND (the sets in the state, not the sets on
     /// screen): a cut takes volume off, not recovery.
     static let restSetByBand = [1: 60, 2: 60, 3: 60, 4: 90, 5: 120]

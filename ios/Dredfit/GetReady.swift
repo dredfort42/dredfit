@@ -27,14 +27,15 @@ enum GetReady {
     /// Neither this nor the base length is a taste: both are spent against a
     /// reserve the engine owns. `warmupMin + cooldownMin` is the whole budget
     /// for the two blocks, and the dearest pair the app can compose — every
-    /// supplemented position drawn, every switch pause played — is 464 s
+    /// supplemented position drawn, every switch pause played — is 480 s
     /// against a reserve of 540, each block inside its own minutes. Past the
     /// reserve, a longer transition is an ENGINE change, not an app one: the
     /// minute it needs goes into the reserve, and with it into every announced
     /// session duration. `BlockReserveTests` holds the floor (the blocks never
     /// overrun the reserve) and the ceiling (the reserve never holds two spare
-    /// minutes) — the ceiling is why the tenth minute went back to every
-    /// announced duration once the cool-down stopped pausing on the spot.
+    /// minutes) — the ceiling is why, when every side switch paused again
+    /// (§41.19), a minute moved from the warm-up's share to the cool-down's
+    /// instead of a tenth one being added to every announced duration.
     static let setupSupplementSec = 4
 
     /// The count-in a START TAP earns before any clock runs.

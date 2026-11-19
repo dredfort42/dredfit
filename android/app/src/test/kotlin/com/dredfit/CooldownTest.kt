@@ -146,7 +146,7 @@ class CooldownTest {
 
     @Test
     fun aPerSidePositionSplitsIntoTwoWholeSidesPlusThePause() {
-        // 15 + 15, and 15 + 4 + 15 where the switch is a re-set (issue #35):
+        // 15 + 4 + 15 (issue #35, §41.19):
         // the slot splits into two equal whole sides, and the pause is the
         // app-layer constant shared with the workout's per-side holds.
         assertEquals(Cooldown.positionSeconds, Cooldown.sideSeconds * 2, "the sides must consume the whole slot")
@@ -156,9 +156,9 @@ class CooldownTest {
 
     // MARK: - The stage machine (issue #35)
 
-    /** Session one: chest opener, half fold, hip flexors (a re-set between
-     *  sides), the side reach, the figure-four and the twist (switched on the
-     *  spot) — every kind of position the block has. */
+    /** Session one: chest opener, half fold, hip flexors, the side reach, the
+     *  figure-four and the twist — held whole or split around a pause, every
+     *  kind of position the block has. */
     private val machinePositions: List<CooldownPosition>
         get() = Cooldown.positions(sessionNumber = 1)
 
@@ -181,20 +181,21 @@ class CooldownTest {
         assertEquals(GuidedStage.getReady, next?.stage)
     }
 
-    /** The warm-up's rule for its circles, here for sides: where the body
-     *  stays put, the second side starts on the tone with the clock running. */
+    /** §41.19: no stretch changes side in no time, so EVERY side switch of
+     *  the pool stops the clock — the 2.6.0 switch "on the spot" took the
+     *  re-set out of the second side. Over the whole pool, not one session:
+     *  wrists and the side reach are drawn only every other session. */
     @Test
-    fun aSwitchOnTheSpotRunsNoPause() {
-        val positions = machinePositions
-        for (id in listOf("child-side-reach", "lying-figure-four", "lying-twist")) {
-            val at = index(of = id)
-            assertEquals(GuidedStage.secondHalf,
-                         GuidedBlock.step(after = Step(at, GuidedStage.firstHalf), positions = positions)?.stage,
-                         "$id: a switch on the spot must not stop the clock")
-            assertEquals(Cooldown.positionSeconds, Cooldown.slotSeconds(positions[at]))
+    fun everySideSwitchPauses() {
+        val perSide = wholePool.filter { it.halves != null }
+        assertEquals(6, perSide.size, "six per-side stretches in the pool")
+        for (position in perSide) {
+            assertEquals(GuidedStage.switchPause,
+                         GuidedBlock.step(after = Step(0, GuidedStage.firstHalf), positions = listOf(position))?.stage,
+                         "${position.id}: the second side starts after the pause")
+            assertEquals(Cooldown.positionSeconds + Cooldown.sideSwitchPauseSec,
+                         Cooldown.slotSeconds(position), position.id)
         }
-        assertEquals(Cooldown.positionSeconds + Cooldown.sideSwitchPauseSec,
-                     Cooldown.slotSeconds(positions[index(of = "hip-flexors")]))
     }
 
     @Test
@@ -240,18 +241,17 @@ class CooldownTest {
 
     /** The halves decide whether the app counts the sides itself and whether
      *  the clock stops between them, so they have to agree with the
-     *  position's own instructions (I-10): a re-set only where the base of the
-     *  body changes. */
+     *  position's own instructions (I-10): sides exactly where the steps
+     *  name one side. */
     @Test
     fun theHalvesAgreeWithWhatTheBodyDoes() {
-        val reSet = setOf("hip-flexors", "standing-hip-flexors")
-        val onTheSpot = setOf("wrists", "child-side-reach", "lying-figure-four", "lying-twist")
+        val sided = setOf("wrists", "hip-flexors", "child-side-reach", "lying-figure-four",
+                          "lying-twist", "standing-hip-flexors")
         for (position in wholePool) {
             when (position.halves) {
-                WarmupHalves.sides -> assertTrue(position.id in reSet, position.id)
-                WarmupHalves.sidesOnTheSpot -> assertTrue(position.id in onTheSpot, position.id)
+                WarmupHalves.sides -> assertTrue(position.id in sided, position.id)
                 WarmupHalves.directions -> fail("${position.id}: no stretch of the pool reverses")
-                null -> assertFalse(position.id in reSet + onTheSpot, position.id)
+                null -> assertFalse(position.id in sided, position.id)
             }
         }
     }

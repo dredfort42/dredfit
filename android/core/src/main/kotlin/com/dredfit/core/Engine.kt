@@ -103,10 +103,11 @@ object EngineConfig {
      *  variation below instead, while there is one. */
     internal const val deloadDrop = 3
     /** The two blocks are budgeted in whole minutes — see Engine.swift for the
-     *  arithmetic behind five and four: the worst pair is 464 s against 540,
-     *  and each block fits its own minutes. */
-    const val warmupMin = 5
-    const val cooldownMin = 4
+     *  arithmetic behind four and five: the worst pair is 480 s against 540,
+     *  and each block fits its own minutes (§41.19 moved the minute from the
+     *  warm-up's share to the cool-down's when every side switch paused again). */
+    const val warmupMin = 4
+    const val cooldownMin = 5
     /** Rest between sets by BAND (the sets in the state, not the sets on
      *  screen): a cut takes volume off, not recovery. */
     internal val restSetByBand: Map<Int, Int> = mapOf(1 to 60, 2 to 60, 3 to 60, 4 to 90, 5 to 120)

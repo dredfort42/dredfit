@@ -1,9 +1,8 @@
 //
 //  The warm-up and the cool-down run the same machine: each position is
 //  announced by a transition, then held whole or in two halves with a switch
-//  between them — a counted pause when switching sides re-sets the body, a
-//  tone alone when a side is switched on the spot or a direction reversed —
-//  all on one clock. One engine for both, so a rule of the
+//  between them — a counted pause when switching sides, a tone alone when a
+//  direction is reversed — all on one clock. One engine for both, so a rule of the
 //  machine cannot live in one block and be missing from the other; where the
 //  two differ on purpose, the code says so by name (`self == .cooldown`).
 //
@@ -31,9 +30,9 @@ extension CooldownPosition: GuidedPosition {}
 
 /// Every position opens with `.getReady` (issue #52). One held whole runs
 /// `.whole`; one with a halfway boundary runs `.firstHalf` → `.switchPause`
-/// → `.secondHalf` — 15 + 4 + 15 — when switching sides re-sets the body, and
-/// `.firstHalf` → `.secondHalf` when the body stays put: a side switched on
-/// the spot, a circle reversed on the move (`WarmupHalves.pausesAtTheSwitch`).
+/// → `.secondHalf` — 15 + 4 + 15 — when switching sides, and `.firstHalf` →
+/// `.secondHalf` for a circle reversed on the move
+/// (`WarmupHalves.pausesAtTheSwitch`).
 ///
 /// HALF, not side: the warm-up's split moves switch a direction rather than a
 /// side, and a stage named for one of the two kinds would be wrong for the
