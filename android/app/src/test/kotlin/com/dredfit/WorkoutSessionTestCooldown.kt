@@ -1,6 +1,6 @@
 //
 //  Port of ios/DredfitTests/WorkoutSessionTests+Cooldown.swift: the cool-down
-//  as the flow runs it — a side switched on the spot, and the block picking up
+//  as the flow runs it — a side switched across its pause, and the block picking up
 //  where the athlete is when the sheet changes it.
 //
 //  Every test is ported.
@@ -22,7 +22,6 @@ import com.dredfit.workout.declineWarmup
 import com.dredfit.workout.rebaseCooldownOnComposition
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -40,13 +39,14 @@ class WorkoutSessionTestCooldown : WorkoutSessionTestCase() {
         return flow
     }
 
-    /** The warm-up circle's rule, for a side: the halfway boundary of a
-     *  stretch switched on the spot is the switch tone with the clock running
-     *  — no pause, and no go in the middle of a hold that never stopped. */
+    /** As the flow runs it: the figure-four — switched "on the spot"
+     *  with the clock running in 2.6.0, which took the re-set out of the second
+     *  side — switches on the tone into a pause, and the second side starts
+     *  whole on a go when the pause is over. */
     @Test
-    fun aSideSwitchedOnTheSpotRunsOnTheSwitchTone() {
+    fun theFigureFourSwitchesAcrossThePause() {
         val flow = inCooldown(makeStore())
-        val spot = assertNotNull(flow.cooldownPositions.indexOfFirst { it.halves == WarmupHalves.sidesOnTheSpot }
+        val spot = assertNotNull(flow.cooldownPositions.indexOfFirst { it.id == "lying-figure-four" }
                                      .takeIf { it >= 0 })
         run(flow, limit = 1_000) { flow.cooldown.index == spot && flow.cooldown.stage == GuidedStage.firstHalf }
         run(flow) { flow.cooldown.clock.remaining == WorkoutSession.countdownSignalSeconds + 1 }
@@ -57,11 +57,12 @@ class WorkoutSessionTestCooldown : WorkoutSessionTestCase() {
             if (flow.cooldown.stage == GuidedStage.switchPause) paused = true
             flow.cooldown.stage == GuidedStage.secondHalf
         }
-        assertFalse(paused, "a switch on the spot must not stop the clock")
+        assertTrue(paused, "the second side waits for the re-set")
         assertEquals(spot, flow.cooldown.index, "the second side belongs to the same position")
-        assertEquals(Cooldown.sideSeconds, flow.cooldown.clock.remaining)
-        assertEquals(listOf(Event.Tick, Event.Tick, Event.Tick, Event.SwitchSides), signals.tones)
-        assertTrue(signals.events.contains(Event.Announce(SplitStageWords(WarmupHalves.sidesOnTheSpot).switching.english)),
+        assertEquals(Cooldown.sideSeconds, flow.cooldown.clock.remaining,
+                     "the pause takes nothing from the second side")
+        assertEquals(listOf(Event.Tick, Event.Tick, Event.Tick, Event.SwitchSides, Event.Go), signals.tones)
+        assertTrue(signals.events.contains(Event.Announce(SplitStageWords(WarmupHalves.sides).switching.english)),
                    "the switch is spoken in the words of a side")
     }
 

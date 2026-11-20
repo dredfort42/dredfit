@@ -19,10 +19,13 @@
 //  three movements of the session, so it almost always landed on the same
 //  three positions, and the twist that now closes the block never came up.
 //
-//  A side changes ON THE SPOT, on a tone with the clock running — the warm-up's
-//  rule for its circles. The pause stays only where the body has to re-set:
-//  changing the leg of a kneeling lunge is getting up and down again, and
-//  fifteen seconds would lose three of theirs to it.
+//  EVERY SIDE SWITCH PAUSES. A switch "on the spot", on a tone with
+//  the clock running, was tried in 2.6.0 and lost in use: no stretch changes
+//  side in no time — the legs of the figure-four uncross and cross again, the
+//  knees of the twist pass through the middle, the hands of the side reach
+//  walk over, the other wrist is taken — and those three to five seconds came
+//  out of the second side's fifteen. Only a circle reversing on the move (the
+//  warm-up's) switches without a pause.
 //
 //  The block's length is not restated here: what the offer screen promises is
 //  derived (`cooldownIntroMinutes`), and the engine's reserve is the engine's
@@ -115,7 +118,7 @@ enum Cooldown {
     }
     private static var wrists: CooldownPosition {
         position("wrists", String(localized: "cooldown.wrists", defaultValue: "Wrists and forearms"),
-                 .standing, .sidesOnTheSpot, [
+                 .standing, .sides, [
             String(localized: "cooldown.wrists.step1",
                    defaultValue: "Arm straight, palm down; gently pull the fingers down and toward you."),
             String(localized: "cooldown.wrists.step2",
@@ -138,8 +141,6 @@ enum Cooldown {
                    defaultValue: "Come up slowly, pressing the hands into the thighs."),
         ])
     }
-    /// The one position whose switch keeps the pause: changing the front leg
-    /// of a kneeling lunge is a whole re-set of the body.
     private static var hipFlexors: CooldownPosition {
         position("hip-flexors", String(localized: "cooldown.hipFlexors", defaultValue: "Hip flexor stretch"),
                  .halfKneeling, .sides, [
@@ -154,7 +155,7 @@ enum Cooldown {
     private static var childSideReach: CooldownPosition {
         position("child-side-reach",
                  String(localized: "cooldown.childSideReach", defaultValue: "Rest pose, side reach"),
-                 .kneeling, .sidesOnTheSpot, [
+                 .kneeling, .sides, [
             String(localized: "cooldown.childSideReach.step1",
                    defaultValue: "Kneel, sit back toward the heels and walk both hands forward on the floor."),
             String(localized: "cooldown.childSideReach.step2",
@@ -180,7 +181,7 @@ enum Cooldown {
     private static var lyingFigureFour: CooldownPosition {
         position("lying-figure-four",
                  String(localized: "cooldown.lyingFigureFour", defaultValue: "Figure-four stretch, lying"),
-                 .lying, .sidesOnTheSpot, [
+                 .lying, .sides, [
             String(localized: "cooldown.lyingFigureFour.step1",
                    defaultValue: "On your back, knees bent; cross one ankle over the opposite knee."),
             String(localized: "cooldown.lyingFigureFour.step2",
@@ -202,7 +203,7 @@ enum Cooldown {
     /// told how to get up.
     private static var lyingTwist: CooldownPosition {
         position("lying-twist", String(localized: "cooldown.lyingTwist", defaultValue: "Lying twist"),
-                 .lying, .sidesOnTheSpot, [
+                 .lying, .sides, [
             String(localized: "cooldown.lyingTwist.step1",
                    defaultValue: "On your back, knees bent; drop both knees to one side."),
             String(localized: "cooldown.lyingTwist.step2",
@@ -212,8 +213,7 @@ enum Cooldown {
         ])
     }
     /// The hip flexors' fallback for someone who cannot kneel. Standing, so it
-    /// keeps the block's one-way order; stepping the feet over is a re-set, so
-    /// it keeps the pause too.
+    /// keeps the block's one-way order.
     private static var standingHipFlexors: CooldownPosition {
         position("standing-hip-flexors",
                  String(localized: "cooldown.standingHipFlexors", defaultValue: "Hip flexor stretch, standing"),

@@ -119,7 +119,7 @@ final class CooldownTests: XCTestCase {
     }
 
     func testAPerSidePositionSplitsIntoTwoWholeSidesPlusThePause() {
-        // 15 + 15, and 15 + 4 + 15 where the switch is a re-set (issue #35):
+        // 15 + 4 + 15 (issue #35):
         // the slot splits into two equal whole sides, and the pause is the
         // app-layer constant shared with the workout's per-side holds.
         XCTAssertEqual(Cooldown.sideSeconds * 2, Cooldown.positionSeconds,
@@ -130,9 +130,9 @@ final class CooldownTests: XCTestCase {
 
     // MARK: - The stage machine (issue #35)
 
-    /// Session one: chest opener, half fold, hip flexors (a re-set between
-    /// sides), the side reach, the figure-four and the twist (switched on the
-    /// spot) — every kind of position the block has.
+    /// Session one: chest opener, half fold, hip flexors, the side reach, the
+    /// figure-four and the twist — held whole or split around a pause, every
+    /// kind of position the block has.
     private var machinePositions: [CooldownPosition] {
         Cooldown.positions(sessionNumber: 1)
     }
@@ -155,18 +155,19 @@ final class CooldownTests: XCTestCase {
         XCTAssertEqual(next?.stage, .getReady)
     }
 
-    /// The warm-up's rule for its circles, here for sides: where the body
-    /// stays put, the second side starts on the tone with the clock running.
-    func testASwitchOnTheSpotRunsNoPause() throws {
-        let positions = machinePositions
-        for id in ["child-side-reach", "lying-figure-four", "lying-twist"] {
-            let at = try index(of: id)
-            XCTAssertEqual(GuidedBlock.step(after: (at, .firstHalf), positions: positions)?.stage,
-                           .secondHalf, "\(id): a switch on the spot must not stop the clock")
-            XCTAssertEqual(Cooldown.slotSeconds(of: positions[at]), Cooldown.positionSeconds)
+    /// No stretch changes side in no time, so EVERY side switch of
+    /// the pool stops the clock — the 2.6.0 switch "on the spot" took the
+    /// re-set out of the second side. Over the whole pool, not one session:
+    /// wrists and the side reach are drawn only every other session.
+    func testEverySideSwitchPauses() {
+        let perSide = wholePool.filter(\.perSide)
+        XCTAssertEqual(perSide.count, 6, "six per-side stretches in the pool")
+        for position in perSide {
+            XCTAssertEqual(GuidedBlock.step(after: (0, .firstHalf), positions: [position])?.stage,
+                           .switchPause, "\(position.id): the second side starts after the pause")
+            XCTAssertEqual(Cooldown.slotSeconds(of: position),
+                           Cooldown.positionSeconds + Cooldown.sideSwitchPauseSec, position.id)
         }
-        XCTAssertEqual(Cooldown.slotSeconds(of: positions[try index(of: "hip-flexors")]),
-                       Cooldown.positionSeconds + Cooldown.sideSwitchPauseSec)
     }
 
     func testTheBlockEndsAfterTheFarSideOfTheTwist() {
@@ -209,17 +210,16 @@ final class CooldownTests: XCTestCase {
 
     /// The halves decide whether the app counts the sides itself and whether
     /// the clock stops between them, so they have to agree with the
-    /// position's own instructions (I-10): a re-set only where the base of the
-    /// body changes.
+    /// position's own instructions (I-10): sides exactly where the steps
+    /// name one side.
     func testTheHalvesAgreeWithWhatTheBodyDoes() {
-        let reSet: Set<String> = ["hip-flexors", "standing-hip-flexors"]
-        let onTheSpot: Set<String> = ["wrists", "child-side-reach", "lying-figure-four", "lying-twist"]
+        let sided: Set<String> = ["wrists", "hip-flexors", "child-side-reach", "lying-figure-four",
+                                  "lying-twist", "standing-hip-flexors"]
         for position in wholePool {
             switch position.halves {
-            case .sides:          XCTAssertTrue(reSet.contains(position.id), position.id)
-            case .sidesOnTheSpot: XCTAssertTrue(onTheSpot.contains(position.id), position.id)
-            case .directions:     XCTFail("\(position.id): no stretch of the pool reverses")
-            case nil:             XCTAssertFalse(reSet.union(onTheSpot).contains(position.id), position.id)
+            case .sides:      XCTAssertTrue(sided.contains(position.id), position.id)
+            case .directions: XCTFail("\(position.id): no stretch of the pool reverses")
+            case nil:         XCTAssertFalse(sided.contains(position.id), position.id)
             }
         }
     }

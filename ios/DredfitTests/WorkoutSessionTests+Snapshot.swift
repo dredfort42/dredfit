@@ -260,8 +260,8 @@ extension WorkoutSessionTests {
     }
 
     func testASwitchPausedNearItsEndGetsTheCountInBack() {
-        // The cool-down's: only a side switch that re-sets the body pauses —
-        // the kneeling lunge, third in session one.
+        // The cool-down's: every side switch pauses — here the kneeling
+        // lunge, third in session one.
         let store = makeStore()
         let flow = makeFlow(store)
         flow.declineWarmup()
