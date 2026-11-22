@@ -75,7 +75,8 @@ left count five for the cool-down ahead, and the calorie estimate written
 to Health Connect charges the two blocks by the new shares, as on iOS. What
 does not change: the saved state and the journal format, so there are no
 migrations; no account, no network permission, no analytics; Android 10 and
-later, phones. The Play version code moves from 2 to 3.
+later. The Play version code moves from 2 to 4: code 3 was uploaded without
+the fix below and never sent for review.
 
 ### What changed
 
@@ -84,11 +85,16 @@ later, phones. The Play version code moves from 2 to 3.
   the figure-four stretch and the lying twist as for the lunges. 2.6.0
   switched them on the spot, on a tone, and the three to five seconds a
   switch takes came out of the second side.
+- **Devices whose screen cannot turn to portrait can install the app**
+  (#335). The app's portrait lock made Google Play treat a portrait
+  display as required hardware, hide the app from such devices and hold
+  the release back from review. The feature is now declared optional; the
+  lock itself is unchanged.
 
 ### Housekeeping
 
 - 132 core and 1 027 app unit tests, as in 2.6.0: #333 rewrote two tests
-  and added none.
+  and added none, #335 is a manifest line.
 
 ## 2.6.0
 
