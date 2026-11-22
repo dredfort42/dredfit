@@ -198,7 +198,8 @@ POS_C = dict(POS_A, push_h=(2, 15))
 # ladder at four sets and produces a 67-minute session; the listing promises
 # ~30 min for a full one (30.5 on the 2.1.0 sweep, 31.5 on reference 3.5.0
 # since #240 — read the current release_texts, not this line). With the band
-# on hinge alone the header on the frame reads "≈ 30 min left" — verified
+# on hinge alone the header on the frame reads "≈ 31 min left" (≈ 30 until
+# 2.6.1 moved a minute into `cooldownMin`, which the header counts) — verified
 # against Engine.estimatedMin through SessionAhead's own arithmetic, not
 # eyeballed.
 POS_D = dict(POS_A, hinge=(7, 11))

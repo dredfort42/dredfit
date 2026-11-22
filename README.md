@@ -212,7 +212,7 @@ outside this repository; the recorded fixture is what ships.)
 
 ## Testing
 
-Three layers, 1 094 automated tests: 121 core + 893 app units + 80 UI tests; core and app units confirmed green on this wave's run — core `[121/121]`, app units `Executed 893 tests, with 0 failures` — and the full UI run is pending on this tree; the last full UI run was nightly CI 39360364010 on 2026-10-20 (e884337e): `Executed 82 tests, with 2 failures (1 unexpected)`, where `testCooldownRunsBetweenLastExerciseAndRating` failed on the infinite-frame flake and passed on retry — the nightlies since were skipped by the change filter.
+Three layers, 1 094 automated tests: 121 core + 893 app units + 80 UI tests; core and app units confirmed green on this wave's run — core `[121/121]`, app units `Executed 893 tests, with 0 failures` — and the full UI suite on the 2.6.1 release tree, 2026-11-21, `-retry-tests-on-failure -test-iterations 3`: `** TEST SUCCEEDED **`, `Executed 80 tests, with 0 failures`, no retry; the previous full run, nightly CI 44856457555, took 82 runs = 80 methods + 2 retries of `testCooldownRunsBetweenLastExerciseAndRating`.
 
 | Layer | Count | What it covers |
 | --- | --- | --- |
@@ -268,7 +268,7 @@ procedure, and how to enable branch protection are in
 
 ## Status
 
-Shipping. Working on device, tested across all seven locales. The newest tag is `v2.4.4`; `develop` carries the work after it, not yet released. The engine reference is 3.10.0.
+Shipping. Working on device, tested across all seven locales. The newest tag is `v2.6.0`; `develop` carries the work after it, not yet released. The engine reference is 3.10.0.
 
 Planned work and deliberately-rejected ideas are tracked in the project backlog (`instructions/BACKLOG.md`, kept alongside the engine specification outside this repository).
 
