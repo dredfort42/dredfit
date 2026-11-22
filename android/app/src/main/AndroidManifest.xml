@@ -57,6 +57,16 @@
         <package android:name="com.google.android.apps.healthdata" />
     </queries>
 
+    <!-- MainActivity's portrait lock implies this feature as REQUIRED, and Play
+         then hides the app from every device whose display cannot turn to
+         portrait (desktops, Android XR) and refuses to send a release for
+         review until it is waived. Optional, it changes only who can install:
+         the lock itself still asks for portrait wherever the system honours
+         it. -->
+    <uses-feature
+        android:name="android.hardware.screen.portrait"
+        android:required="false" />
+
     <!-- roundIcon is the same adaptive icon: where a device asks for the
          round one, the launcher masks it like any other
          (mipmap-anydpi/ic_launcher.xml). -->
