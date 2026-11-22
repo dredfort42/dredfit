@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (1 094 tests: 121 core + 893 app units + 80 UI tests; core and app units confirmed green on this wave's run, the full UI run is pending on this tree — the last full run was nightly CI 39360364010 on 2026-10-20 (e884337e), `Executed 82 tests, with 2 failures (1 unexpected)`, one flake that passed on retry; later nightlies were skipped by the change filter) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (1 094 tests: 121 core + 893 app units + 80 UI tests; core and app units confirmed green on this wave's run, the full UI suite on the 2.6.1 release tree, 2026-11-21: `** TEST SUCCEEDED **`, `Executed 80 tests, with 0 failures`, no retry; the previous full run, nightly CI 44856457555, took 82 runs = 80 methods + 2 retries of `testCooldownRunsBetweenLastExerciseAndRating`) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -765,8 +765,8 @@ session (all 48 levels locked forever), and "I was ill" (40).
 > **The handles stand; the floor numbers below do not.** "Level 0 … about 34 minutes,
 > and about 25 minutes at the shortest" was measured on the 0–47 library. On the shipped
 > v3 library a clean start is about **31 minutes**, and about **23** cut to the sets
-> floor from inside the workout. The declared entry boundary in spec §37.1 and the App
-> Store listing still carry the old pair — see I-17.
+> floor from inside the workout. The declared entry boundary in spec §37.1 still carries
+> the old pair — see I-17 (the store listing already says 31/23).
 
 A wave of removal. The pain channel and the time budget are gone, and two handles
 take their place — on the **plan**, not inside the workout, so pressing one
@@ -1152,7 +1152,7 @@ instant. Uncrossing and crossing the legs of the figure-four, bringing the twist
 through the middle, walking the hands over, taking the other wrist: three to five seconds
 came out of the second side's fifteen. Every side switch now pauses 4 s, like the lunges.
 Only the warm-up's circles still reverse with no pause — reversing a circle is instant.
-The cool-down grew to 248–252 s, past its four minutes, so a minute moved from the
+The cool-down grew to 240–252 s (248 with nothing set aside, 252 at worst; up to three positions can be set aside, giving 240/244/248/252); 244–252 s run past its four minutes, so a minute moved from the
 warm-up's share to the cool-down's: `warmupMin` 5 → 4, `cooldownMin` 4 → 5. The sum is
 still 9:00, and no announced duration changes.
 

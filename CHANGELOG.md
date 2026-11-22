@@ -1,5 +1,95 @@
 # Changelog
 
+## 2.6.1
+
+This release takes back one decision of 2.6.0. That release had the
+cool-down switch sides on the spot, on a tone, with the clock running, and
+kept a pause between sides only for the lunges. In use, no stretch changes
+side in no time: the legs of the figure-four stretch uncross and cross again,
+the knees of the lying twist pass through the middle, the hands of the side
+reach walk over, the other wrist is taken. Those three to five seconds came
+out of the second side's fifteen. Now every side switch in the cool-down
+pauses for four seconds. The cool-down grows by 12 seconds with no position
+set aside, and by 4 to 16 with some, so the plan engine moves to reference **3.10.0** with two values changed and nothing
+else: the time reserved for the warm-up goes from five minutes to four, and
+the time reserved for the cool-down from four to five. The two blocks
+together still get 9:00, so the length Today, the next-workout preview and
+the lock-screen widget announce does not move: a fresh install still reads
+about 23 to 31 minutes, re-measured on 3.10.0 as 30.5 and 23.3. The
+reference chain ran in full, and in the golden trace's 413 steps only those
+two values move. What this release does not touch: the entry plan of three
+sets of four in the gentlest variation of six movements, the exercises and
+their ladders, the saved state and the journal format, which gain no field,
+so there are no migrations, the Health permissions and data types, the App
+Privacy answers, the network, which the app still never uses, and the string
+catalogs, where no string is added or changed.
+
+### Every side switch in the cool-down pauses (#333, engine 3.10.0)
+
+- **Fifteen seconds, four to switch, fifteen seconds.** The wrists, the rest
+  pose with its side reach, the figure-four stretch and the lying twist now
+  switch the way the lunges always did: a tone, the "Switch sides" screen
+  counting down from four, a go, and fifteen seconds marked "second side".
+  The second side gets all of its time back.
+- **The warm-up's circles still reverse on a tone**, with the clock running
+  and no pause. Reversing a circle is the one switch that really is instant.
+- **The cool-down takes 248 seconds with no position set aside**, instead
+  of 236, so the screen that offers it reads "about 5 min" instead of
+  "about 4 min". With positions set aside it takes 240 to 252 seconds, and
+  at 240 the offer still reads "about 4 min". The warm-up's offer still
+  reads about 4 min: it takes 228 s.
+- **A minute moves from the warm-up's share to the cool-down's.** A
+  cool-down that can take 252 seconds no longer fits the four minutes
+  2.6.0 reserved for it. Keeping five minutes for the warm-up would have made the reserve
+  10:00 and every announced length a minute longer, so the shares change
+  and the sum does not. Today, the next-workout preview and the widget read
+  as in 2.6.0, and so does "Includes about 9 min of warm-up and cool-down.".
+- **Inside a workout, the minutes left count five for the cool-down
+  ahead**, not four, so on the exercise, rest and summary screens "≈ N min
+  left" reads one minute more than in 2.6.0. With no position set aside it
+  reads one more on the cool-down's first and fourth positions too: 5
+  instead of 4, and 3 instead of 2.
+- **The calorie estimate follows the shares.** A block with no measured
+  length is charged its plan, now 240 s of warm-up and 300 s of cool-down
+  instead of 300 and 240, and a measured block is charged at most the same
+  figures, so a measured cool-down of up to 252 s now counts in full. The
+  model itself is unchanged.
+
+### Housekeeping
+
+- 1 094 automated tests, as in 2.6.0: 121 core, 893 app units, 80 UI. This
+  release added none: #333 rewrote the two tests that pinned the switch on
+  the spot into tests of the pause.
+
+## 2.6.1 (Android)
+
+The Android app follows iOS 2.6.1 in the same release: every side switch in
+the cool-down pauses for four seconds, the warm-up's circles still reverse
+on a tone, and with no position set aside the cool-down's offer reads
+about 5 minutes, all as on the iPhone. The Kotlin port of the engine moves to reference **3.10.0** and stays
+held to the same golden trace as the Swift port: the warm-up's share of the
+reserve goes from five minutes to four and the cool-down's from four to
+five, so the length Today and the next-workout preview announce does not
+move, about 23–31 minutes for a fresh install. Inside a workout the minutes
+left count five for the cool-down ahead, and the calorie estimate written
+to Health Connect charges the two blocks by the new shares, as on iOS. What
+does not change: the saved state and the journal format, so there are no
+migrations; no account, no network permission, no analytics; Android 10 and
+later, phones. The Play version code moves from 2 to 3.
+
+### What changed
+
+- **Every side switch in the cool-down pauses** (#333): 15 seconds, a
+  four-second "Switch sides", 15 seconds, for the wrists, the side reach,
+  the figure-four stretch and the lying twist as for the lunges. 2.6.0
+  switched them on the spot, on a tone, and the three to five seconds a
+  switch takes came out of the second side.
+
+### Housekeeping
+
+- 132 core and 1 027 app unit tests, as in 2.6.0: #333 rewrote two tests
+  and added none.
+
 ## 2.6.0
 
 This release is about the two blocks around the work. The warm-up now happens
