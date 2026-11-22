@@ -10,21 +10,21 @@ Por que funciona
 • Nada é planejado que você ainda não tenha feito. Sua posição são dois fatos: a variação e a dose — repetições numa série, ou segundos numa isometria. Um passo é +1 repetição (ou +5 segundos) em uma série.
 • Uma variação mais difícil não é entregue — você a testa. No topo da faixa de repetições, a última série vira um teste: uma série da próxima variação. Se você dá conta, o próximo treino começa ali. Se não, nada muda — um teste que falha não custa nada.
 • Uma puxada em todo treino mantém seus ombros em equilíbrio.
-• Três vezes seguidas abaixo do plano voltam o movimento três passos — um respiro, não um castigo.
+• Três vezes seguidas abaixo do plano: até 3 casas para baixo — dose, séries, depois variação — um respiro, não um castigo.
 • Sem sequências, sem mecânicas de culpa, sem “sentimos sua falta”. Nunca.
 
 O que tem dentro
 • 59 exercícios em 10 padrões de movimento. Uma cadeira, uma mesa, uma parede, uma toalha e um degrau cobrem 52 deles.
 • Módulo opcional de barra fixa: ative e a cada dois treinos entra a puxada vertical, da suspensão na barra à barra fixa completa. Só essas sete exigem equipamento.
-• Aquecimento e desaquecimento guiados e pausáveis, com tempo de preparo antes de cada posição. Descanso 3-2-1 (dá para esticar ou pular), isometria para pranchas e quatro segundos entre o toque e o relógio.
+• Aquecimento e desaquecimento guiados e pausáveis, com tempo de preparo antes de cada posição. Descanso 3-2-1 (dá para esticar ou pular), isometria para pranchas e quatro segundos do toque de iniciar ao relógio.
 • Cada exercício se explica sozinho: três passos de técnica, dois erros comuns e uma linha “Na vida”.
 • Durante o treino, uma notificação faz a contagem regressiva do descanso e da isometria; um widget na tela inicial mostra o dia e, maior, sua semana e o plano.
 • Cada movimento tem sua própria escada, mais gráfico e calendário.
 
 Você decide quanto tempo leva
-• Antes de começar, o Hoje mostra uma faixa: o treino completo e o mais curto que ele pode ficar. Dentro dele, dá para pular a série atual ou o que resta de um movimento, conforme o exercício permitir, e os minutos restantes caem conforme o uso. O app nunca escolhe os movimentos por você.
-• Um treino interrompido pode ser retomado, mesmo se o app foi fechado no meio. Sem tempo? “Terminar agora” registra com honestidade o que você fez.
-• Ao voltar de uma pausa, o plano propõe começar mais leve — quanto mais tempo fora, mais leve — e te alcança rápido, porque segue o que você mostra.
+• Antes de começar, o Hoje mostra uma faixa: o treino completo e o mais curto possível. Dentro dele, dá para pular a série atual ou o que resta de um movimento, quando o exercício permite, e os minutos restantes caem junto. O app nunca escolhe os movimentos por você.
+• Um treino interrompido pode ser retomado, mesmo se o app foi fechado no meio. Sem tempo? “Terminar agora” registra honestamente o que você fez.
+• Ao voltar de uma pausa, o plano propõe começar mais leve — quanto mais tempo fora, mais leve — e te alcança rápido, pois segue o que você mostra.
 • Você escolhe os dias de descanso, um lembrete chega nos dias de treino, o histórico pode ser exportado e importado em JSON, e, se você ativar, os treinos vão para o app Conexão Saúde (Health Connect), com uma estimativa de energia quando seu peso é conhecido.
 
 Privacidade por design

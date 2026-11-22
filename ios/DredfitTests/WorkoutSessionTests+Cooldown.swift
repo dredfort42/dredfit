@@ -2,7 +2,7 @@ import XCTest
 import DredfitCore
 @testable import Dredfit
 
-/// The cool-down as the flow runs it: a side switched on the spot, and the
+/// The cool-down as the flow runs it: a side switched across its pause, and the
 /// block picking up where the athlete is when the sheet changes it.
 extension WorkoutSessionTests {
 
@@ -18,13 +18,15 @@ extension WorkoutSessionTests {
         return flow
     }
 
-    /// The warm-up circle's rule, for a side: the halfway boundary of a stretch
-    /// switched on the spot is the switch tone with the clock running — no
-    /// pause, and no go in the middle of a hold that never stopped.
-    func testASideSwitchedOnTheSpotRunsOnTheSwitchTone() throws {
+    /// As the flow runs it: the figure-four — switched "on the spot"
+    /// with the clock running in 2.6.0, which took the re-set out of the second
+    /// side — switches on the tone into a pause, and the second side starts
+    /// whole on a go when the pause is over.
+    func testTheFigureFourSwitchesAcrossThePause() throws {
         let flow = inCooldown(makeStore())
-        let spot = try XCTUnwrap(flow.cooldownPositions.firstIndex { $0.halves == .sidesOnTheSpot })
-        run(flow, until: { flow.cooldown.index == spot && flow.cooldown.stage == .firstHalf }, limit: 1_000)
+        let figureFour = try XCTUnwrap(flow.cooldownPositions.firstIndex { $0.id == "lying-figure-four" })
+        run(flow, until: { flow.cooldown.index == figureFour && flow.cooldown.stage == .firstHalf },
+            limit: 1_000)
         run(flow, until: { flow.cooldown.clock.remaining == WorkoutSession.countdownSignalSeconds + 1 })
         signals.events.removeAll()
 
@@ -33,11 +35,12 @@ extension WorkoutSessionTests {
             if flow.cooldown.stage == .switchPause { paused = true }
             return flow.cooldown.stage == .secondHalf
         })
-        XCTAssertFalse(paused, "a switch on the spot must not stop the clock")
-        XCTAssertEqual(flow.cooldown.index, spot, "the second side belongs to the same position")
-        XCTAssertEqual(flow.cooldown.clock.remaining, Cooldown.sideSeconds)
-        XCTAssertEqual(signals.tones, [.tick, .tick, .tick, .switchSides])
-        XCTAssertTrue(signals.events.contains(.announce(SplitStageWords(halves: .sidesOnTheSpot).switching)),
+        XCTAssertTrue(paused, "the second side waits for the re-set")
+        XCTAssertEqual(flow.cooldown.index, figureFour, "the second side belongs to the same position")
+        XCTAssertEqual(flow.cooldown.clock.remaining, Cooldown.sideSeconds,
+                       "the pause takes nothing from the second side")
+        XCTAssertEqual(signals.tones, [.tick, .tick, .tick, .switchSides, .go])
+        XCTAssertTrue(signals.events.contains(.announce(SplitStageWords(halves: .sides).switching)),
                       "the switch is spoken in the words of a side")
     }
 

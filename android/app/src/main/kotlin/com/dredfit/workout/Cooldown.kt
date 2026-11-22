@@ -2,14 +2,15 @@
 //  The cool-down block as data: six positions × 30 s plus their transitions,
 //  from standing DOWN to lying, one zone of the body each. Port of
 //  ios/Dredfit/Cooldown.swift — why the block goes one way down, why every
-//  session gets the same zones, and why a side changes on the spot is there;
+//  session gets the same zones, and why every side switch pauses is there;
 //  `BlockReserveTest` holds the arithmetic.
 //
 //  Two positions standing, then a single descent — onto one knee, onto both
 //  knees, onto the back — and nobody gets up again until the block is over.
-//  Two of the six zones alternate their variant from session to session. A
-//  side changes ON THE SPOT, on a tone with the clock running; the pause stays
-//  only where the body has to re-set (`WarmupHalves.pausesAtTheSwitch`).
+//  Two of the six zones alternate their variant from session to session.
+//  EVERY side switch pauses: a switch "on the spot" with the clock
+//  running took the re-set out of the second side
+//  (`WarmupHalves.pausesAtTheSwitch`).
 //
 
 package com.dredfit.workout
@@ -79,7 +80,7 @@ object Cooldown {
                                         "Breathe slowly and keep the lower back still."))
     private val wrists: CooldownPosition
         get() = position("wrists", "cooldown.wrists", "Wrists and forearms", Level.standing,
-                         halves = WarmupHalves.sidesOnTheSpot,
+                         halves = WarmupHalves.sides,
                          steps = listOf("Arm straight, palm down; gently pull the fingers down and toward you.",
                                         "Then turn the palm up and repeat the gentle pull.",
                                         "Pull only to a stretch — ease off at anything sharp or tingling."))
@@ -91,8 +92,6 @@ object Cooldown {
                          steps = listOf("Feet hip-width, knees soft, hands on the thighs.",
                                         "Hinge forward with a flat back until the backs of the thighs stretch; head in line with the back.",
                                         "Come up slowly, pressing the hands into the thighs."))
-    /** The one position whose switch keeps the pause: changing the front leg
-     *  of a kneeling lunge is a whole re-set of the body. */
     private val hipFlexors: CooldownPosition
         get() = position("hip-flexors", "cooldown.hipFlexors", "Hip flexor stretch", Level.halfKneeling,
                          halves = WarmupHalves.sides,
@@ -101,7 +100,7 @@ object Cooldown {
                                         "Hold steady and breathe — no bouncing."))
     private val childSideReach: CooldownPosition
         get() = position("child-side-reach", "cooldown.childSideReach", "Rest pose, side reach", Level.kneeling,
-                         halves = WarmupHalves.sidesOnTheSpot,
+                         halves = WarmupHalves.sides,
                          steps = listOf("Kneel, sit back toward the heels and walk both hands forward on the floor.",
                                         "Walk the hands to one side until the side of the back stretches.",
                                         "Knees wider apart if the knees or hips object."))
@@ -115,7 +114,7 @@ object Cooldown {
      *  kneeling positions instead of bringing it back up. */
     private val lyingFigureFour: CooldownPosition
         get() = position("lying-figure-four", "cooldown.lyingFigureFour", "Figure-four stretch, lying", Level.lying,
-                         halves = WarmupHalves.sidesOnTheSpot,
+                         halves = WarmupHalves.sides,
                          steps = listOf("On your back, knees bent; cross one ankle over the opposite knee.",
                                         "Draw the supporting thigh toward the chest until the crossed hip stretches.",
                                         "Head and shoulders stay on the floor."))
@@ -127,13 +126,12 @@ object Cooldown {
      *  told how to get up. */
     private val lyingTwist: CooldownPosition
         get() = position("lying-twist", "cooldown.lyingTwist", "Lying twist", Level.lying,
-                         halves = WarmupHalves.sidesOnTheSpot,
+                         halves = WarmupHalves.sides,
                          steps = listOf("On your back, knees bent; drop both knees to one side.",
                                         "Shoulders stay on the floor, head turns the other way.",
                                         "Let the knees sink on their own and breathe slowly; to get up, roll onto your side first."))
     /** The hip flexors' fallback for someone who cannot kneel. Standing, so it
-     *  keeps the block's one-way order; stepping the feet over is a re-set, so
-     *  it keeps the pause too. */
+     *  keeps the block's one-way order. */
     private val standingHipFlexors: CooldownPosition
         get() = position("standing-hip-flexors", "cooldown.standingHipFlexors", "Hip flexor stretch, standing",
                          Level.standing, halves = WarmupHalves.sides,

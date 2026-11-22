@@ -197,9 +197,9 @@ extension WorkoutSession {
         // read: the tone was the only channel, and it is behind the same
         // switch as the haptic. The words are the ones the new screen already
         // shows — no string of their own to drift — with one exception: a
-        // switch with no pause is spoken as the instruction ("Switch
-        // direction", "Switch sides") while its screen goes straight to the
-        // state ("the other way", "second side"). The screen has no pause to
+        // switch with no pause (a circle reversing) is spoken as the
+        // instruction ("Switch direction") while its screen goes straight to
+        // the state ("the other way"). The screen has no pause to
         // show an instruction in; the ear still needs one.
         switch (next.entered, next.stage) {
         case (.getReady, .getReady):
@@ -213,8 +213,8 @@ extension WorkoutSession {
             // and nothing is invented if it somehow is not.
             if let halves = position.halves { announce(SplitStageWords(halves: halves).switching) }
         case (.secondHalf, _) where position.halves?.pausesAtTheSwitch == false:
-            // A circle reversed or a side switched on the spot has no pause to
-            // open, so the halfway boundary IS the switch and sounds like one.
+            // A circle reversed on the move has no pause to open, so the
+            // halfway boundary IS the switch and sounds like one.
             // A go here would read as a second start in the middle of a hold
             // that never stopped.
             playSwitch()

@@ -1,5 +1,5 @@
 {
- "generator": "adaptive_engine.js v3.9.0",
+ "generator": "adaptive_engine.js v3.10.0",
  "patternOrder": [
   "squat",
   "push_h",
@@ -526,8 +526,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 30.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -797,8 +797,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 31.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -1092,8 +1092,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 31.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -1402,8 +1402,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 31.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -1707,8 +1707,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 32.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -2012,8 +2012,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 30.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -2297,8 +2297,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 33.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -2592,8 +2592,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 33,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -2902,8 +2902,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 32.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -3212,8 +3212,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 34.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -3507,8 +3507,8 @@
     {
      "sessionNumber": 11,
      "estimatedTotalMin": 33.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -3792,8 +3792,8 @@
     {
      "sessionNumber": 12,
      "estimatedTotalMin": 33.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -4102,8 +4102,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 30.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -4373,8 +4373,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 32.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -4668,8 +4668,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 31.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -4980,8 +4980,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 31.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -5287,8 +5287,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 32.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -5599,8 +5599,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 31,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -5912,8 +5912,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 33.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -6227,8 +6227,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 32.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -6542,8 +6542,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 31.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -6857,8 +6857,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 34,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -7167,8 +7167,8 @@
     {
      "sessionNumber": 11,
      "estimatedTotalMin": 32.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -7482,8 +7482,8 @@
     {
      "sessionNumber": 12,
      "estimatedTotalMin": 33,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -7797,8 +7797,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 34,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -8074,8 +8074,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 33.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -8372,8 +8372,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 34.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -8680,8 +8680,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 33.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -8973,8 +8973,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 37,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -9271,8 +9271,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 33.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -9665,8 +9665,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 30.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -9936,8 +9936,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 32.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -10231,8 +10231,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 31.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -10536,8 +10536,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 32,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -10846,8 +10846,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 33.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -11146,8 +11146,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 31.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -11426,8 +11426,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 34.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -11726,8 +11726,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 34.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -12031,8 +12031,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 33.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -12336,8 +12336,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 36.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -12636,8 +12636,8 @@
     {
      "sessionNumber": 11,
      "estimatedTotalMin": 35.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -12923,8 +12923,8 @@
     {
      "sessionNumber": 12,
      "estimatedTotalMin": 35,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -13223,8 +13223,8 @@
     {
      "sessionNumber": 13,
      "estimatedTotalMin": 37.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -13523,8 +13523,8 @@
     {
      "sessionNumber": 14,
      "estimatedTotalMin": 32.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -13833,8 +13833,8 @@
     {
      "sessionNumber": 15,
      "estimatedTotalMin": 37,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -14148,8 +14148,8 @@
     {
      "sessionNumber": 16,
      "estimatedTotalMin": 34.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -14458,8 +14458,8 @@
     {
      "sessionNumber": 17,
      "estimatedTotalMin": 27.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -14762,8 +14762,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 34.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -15035,8 +15035,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 32.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -15330,8 +15330,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 35.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -15639,8 +15639,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 33.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -15945,8 +15945,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 35,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -16259,8 +16259,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 34.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -16566,8 +16566,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 35.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -16881,8 +16881,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 33.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -17194,8 +17194,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 35.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -17499,8 +17499,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 33.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -17908,8 +17908,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 32.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -18191,8 +18191,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 31.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -18486,8 +18486,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 33.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -18802,8 +18802,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 32.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -19114,8 +19114,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 33.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -19426,8 +19426,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 32.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -19720,8 +19720,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 34.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -20017,8 +20017,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 34,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -20332,8 +20332,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 33.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -20639,8 +20639,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 34.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -21036,8 +21036,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 30.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -21311,8 +21311,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 31.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -21606,8 +21606,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 34.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -21927,8 +21927,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 31.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -22228,8 +22228,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 33.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -22533,8 +22533,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 36.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -22839,8 +22839,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 36.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -23139,8 +23139,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 33.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -23446,8 +23446,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 37.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -23758,8 +23758,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 34.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -24058,8 +24058,8 @@
     {
      "sessionNumber": 11,
      "estimatedTotalMin": 37.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -24372,8 +24372,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 31.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -24658,8 +24658,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 33.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -24961,8 +24961,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 30.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -25264,8 +25264,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 32,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -25570,8 +25570,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 29.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -25885,8 +25885,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 30.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -26385,8 +26385,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 33.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -26709,8 +26709,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 31.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -27149,8 +27149,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 60,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -27481,8 +27481,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 67.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -27813,8 +27813,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 77.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -28152,8 +28152,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 71,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -28517,8 +28517,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 78.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -28888,8 +28888,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 68.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -29258,8 +29258,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 75.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -29622,8 +29622,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 76.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -29993,8 +29993,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 76.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -30346,8 +30346,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 75.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -30698,8 +30698,8 @@
     {
      "sessionNumber": 11,
      "estimatedTotalMin": 80.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -31062,8 +31062,8 @@
     {
      "sessionNumber": 12,
      "estimatedTotalMin": 72.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -31433,8 +31433,8 @@
     {
      "sessionNumber": 13,
      "estimatedTotalMin": 81.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -31804,8 +31804,8 @@
     {
      "sessionNumber": 14,
      "estimatedTotalMin": 70,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -32355,8 +32355,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 31.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -32629,8 +32629,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 33.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -32932,8 +32932,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 32.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -33246,8 +33246,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 31.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -33562,8 +33562,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 33.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -33871,8 +33871,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 31.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -34165,8 +34165,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 34.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -34465,8 +34465,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 32.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -34782,8 +34782,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 32.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -35097,8 +35097,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 33,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -35498,8 +35498,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 31.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -35774,8 +35774,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 32.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -36074,8 +36074,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 32.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -36389,8 +36389,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 32.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -36696,8 +36696,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 34,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -37003,8 +37003,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 31.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -37325,8 +37325,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 34.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -37641,8 +37641,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 34,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -37964,8 +37964,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 32.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -38280,8 +38280,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 35,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -38606,8 +38606,8 @@
     {
      "sessionNumber": 11,
      "estimatedTotalMin": 33.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -38917,8 +38917,8 @@
     {
      "sessionNumber": 12,
      "estimatedTotalMin": 33.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -39219,8 +39219,8 @@
     {
      "sessionNumber": 13,
      "estimatedTotalMin": 35.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -39531,8 +39531,8 @@
     {
      "sessionNumber": 14,
      "estimatedTotalMin": 32.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -39956,8 +39956,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 34.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -40233,8 +40233,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 34.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -40531,8 +40531,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 33,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -40851,8 +40851,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 34.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -41158,8 +41158,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 34.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -41480,8 +41480,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 36,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -41785,8 +41785,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 36.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -42095,8 +42095,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 35.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -42407,8 +42407,8 @@
     {
      "sessionNumber": 11,
      "estimatedTotalMin": 36.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -42712,8 +42712,8 @@
     {
      "sessionNumber": 12,
      "estimatedTotalMin": 36,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -43033,8 +43033,8 @@
     {
      "sessionNumber": 13,
      "estimatedTotalMin": 35.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -43455,8 +43455,8 @@
     {
      "sessionNumber": 12,
      "estimatedTotalMin": 34,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -43787,8 +43787,8 @@
     {
      "sessionNumber": 13,
      "estimatedTotalMin": 33,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -44374,8 +44374,8 @@
     {
      "sessionNumber": 14,
      "estimatedTotalMin": 30,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -44966,8 +44966,8 @@
     {
      "sessionNumber": 15,
      "estimatedTotalMin": 25.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -45560,8 +45560,8 @@
     {
      "sessionNumber": 16,
      "estimatedTotalMin": 25.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -45903,8 +45903,8 @@
     {
      "sessionNumber": 17,
      "estimatedTotalMin": 23.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -46497,8 +46497,8 @@
     {
      "sessionNumber": 18,
      "estimatedTotalMin": 24.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -46840,8 +46840,8 @@
     {
      "sessionNumber": 19,
      "estimatedTotalMin": 23.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -47183,8 +47183,8 @@
     {
      "sessionNumber": 20,
      "estimatedTotalMin": 24.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -47526,8 +47526,8 @@
     {
      "sessionNumber": 21,
      "estimatedTotalMin": 24.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -48373,8 +48373,8 @@
     {
      "sessionNumber": 22,
      "estimatedTotalMin": 23.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -48891,8 +48891,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 33.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -49223,8 +49223,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 31.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -49815,8 +49815,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 27.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -50154,8 +50154,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 28.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -50746,8 +50746,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 28.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -51098,8 +51098,8 @@
     {
      "sessionNumber": 11,
      "estimatedTotalMin": 31,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -51708,8 +51708,8 @@
     {
      "sessionNumber": 12,
      "estimatedTotalMin": 27.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -52550,8 +52550,8 @@
     {
      "sessionNumber": 13,
      "estimatedTotalMin": 27.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -52902,8 +52902,8 @@
     {
      "sessionNumber": 14,
      "estimatedTotalMin": 26.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -53250,8 +53250,8 @@
     {
      "sessionNumber": 15,
      "estimatedTotalMin": 28.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -53780,8 +53780,8 @@
     {
      "sessionNumber": 21,
      "estimatedTotalMin": 99.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -54112,8 +54112,8 @@
     {
      "sessionNumber": 22,
      "estimatedTotalMin": 31.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -54699,8 +54699,8 @@
     {
      "sessionNumber": 23,
      "estimatedTotalMin": 25.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -55286,8 +55286,8 @@
     {
      "sessionNumber": 24,
      "estimatedTotalMin": 24,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -55873,8 +55873,8 @@
     {
      "sessionNumber": 25,
      "estimatedTotalMin": 23.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -56467,8 +56467,8 @@
     {
      "sessionNumber": 26,
      "estimatedTotalMin": 24.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -57054,8 +57054,8 @@
     {
      "sessionNumber": 27,
      "estimatedTotalMin": 23.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -57896,8 +57896,8 @@
     {
      "sessionNumber": 28,
      "estimatedTotalMin": 26.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -58406,8 +58406,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 35.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -58745,8 +58745,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 35.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -59094,8 +59094,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 36.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -59447,8 +59447,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 35.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -59806,8 +59806,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 32.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -60176,8 +60176,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 35,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -60532,8 +60532,8 @@
     {
      "sessionNumber": 11,
      "estimatedTotalMin": 36.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -60897,8 +60897,8 @@
     {
      "sessionNumber": 12,
      "estimatedTotalMin": 31.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -61250,8 +61250,8 @@
     {
      "sessionNumber": 13,
      "estimatedTotalMin": 32,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -61846,8 +61846,8 @@
     {
      "sessionNumber": 14,
      "estimatedTotalMin": 28.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -62363,8 +62363,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 29.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -62643,8 +62643,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 33.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -62936,8 +62936,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 35.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -63244,8 +63244,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 32.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -63550,8 +63550,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 36.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -63853,8 +63853,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 35.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -64144,8 +64144,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 33.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -64452,8 +64452,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 37,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -64878,8 +64878,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 31.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -65210,8 +65210,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 32.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -65557,8 +65557,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 33.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -65914,8 +65914,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 32.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -66271,8 +66271,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 34.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -66623,8 +66623,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 33.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -66955,8 +66955,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 35.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -67287,8 +67287,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 35.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -67634,8 +67634,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 34.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -67991,8 +67991,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 36.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -68526,8 +68526,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 35.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -68818,8 +68818,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 37.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -69329,8 +69329,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 37.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -69845,8 +69845,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 35.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -70367,8 +70367,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 38.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -70888,8 +70888,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 34.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -71400,8 +71400,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 36.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -71908,8 +71908,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 38.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -72354,8 +72354,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 48.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -72677,8 +72677,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 38.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -73032,8 +73032,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 43.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -73400,8 +73400,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 35.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -73771,8 +73771,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 41.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -74120,8 +74120,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 39.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -74468,8 +74468,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 37.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -75045,8 +75045,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 51.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -75632,8 +75632,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 49.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -76147,8 +76147,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 39.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -76732,8 +76732,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 49.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -77064,8 +77064,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 60.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -77398,8 +77398,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 56.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -77730,8 +77730,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 64,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -78069,8 +78069,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 60.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -78414,8 +78414,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 65.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -78759,8 +78759,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 79.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -79105,8 +79105,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 79.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -79450,8 +79450,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 80.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -79788,8 +79788,8 @@
     {
      "sessionNumber": 11,
      "estimatedTotalMin": 82.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -80123,8 +80123,8 @@
     {
      "sessionNumber": 12,
      "estimatedTotalMin": 85.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -80455,8 +80455,8 @@
     {
      "sessionNumber": 13,
      "estimatedTotalMin": 96,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -80787,8 +80787,8 @@
     {
      "sessionNumber": 14,
      "estimatedTotalMin": 94.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -81119,8 +81119,8 @@
     {
      "sessionNumber": 15,
      "estimatedTotalMin": 93,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -81451,8 +81451,8 @@
     {
      "sessionNumber": 16,
      "estimatedTotalMin": 99.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -81783,8 +81783,8 @@
     {
      "sessionNumber": 17,
      "estimatedTotalMin": 94.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -82115,8 +82115,8 @@
     {
      "sessionNumber": 18,
      "estimatedTotalMin": 96.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -82447,8 +82447,8 @@
     {
      "sessionNumber": 19,
      "estimatedTotalMin": 98.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -82953,8 +82953,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 36,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -83287,8 +83287,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 37.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -83634,8 +83634,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 36.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -83993,8 +83993,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 35.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -84350,8 +84350,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 39.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -84704,8 +84704,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 35.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -85043,8 +85043,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 38.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -85390,8 +85390,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 37,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -85749,8 +85749,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 35.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -86108,8 +86108,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 40.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -86455,8 +86455,8 @@
     {
      "sessionNumber": 11,
      "estimatedTotalMin": 36.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -86794,8 +86794,8 @@
     {
      "sessionNumber": 12,
      "estimatedTotalMin": 37.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -87325,8 +87325,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 71,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -87910,8 +87910,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 80.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -88242,8 +88242,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 91.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -88581,8 +88581,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 86.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -88955,8 +88955,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 92.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -89331,8 +89331,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 79.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -89947,8 +89947,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 87.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -90572,8 +90572,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 89.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -90952,8 +90952,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 85.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -91327,8 +91327,8 @@
     {
      "sessionNumber": 10,
      "estimatedTotalMin": 55.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -91949,8 +91949,8 @@
     {
      "sessionNumber": 11,
      "estimatedTotalMin": 64.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -92495,8 +92495,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 30.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -92773,8 +92773,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 35.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -93083,8 +93083,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 37.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -93408,8 +93408,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 32.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -93711,8 +93711,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 32.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -94010,8 +94010,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 32,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -94329,8 +94329,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 23.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -94622,8 +94622,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 28.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -94927,8 +94927,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 26.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -95232,8 +95232,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 25.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -95537,8 +95537,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 24.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -96050,8 +96050,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 27.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -96355,8 +96355,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 32.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -96665,8 +96665,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 31.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -97113,8 +97113,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 32.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -97403,8 +97403,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 31.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -97698,8 +97698,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 33,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -98002,8 +98002,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 32.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -98309,8 +98309,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 33.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -98611,8 +98611,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 32.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -99018,8 +99018,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 34.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -99295,8 +99295,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 31.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -99590,8 +99590,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 34.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -99906,8 +99906,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 33.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -100213,8 +100213,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 33.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -100523,8 +100523,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 33,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -100925,8 +100925,8 @@
     {
      "sessionNumber": 42,
      "estimatedTotalMin": 44.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -101208,8 +101208,8 @@
     {
      "sessionNumber": 43,
      "estimatedTotalMin": 42.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -101515,8 +101515,8 @@
     {
      "sessionNumber": 44,
      "estimatedTotalMin": 36.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -101828,8 +101828,8 @@
     {
      "sessionNumber": 45,
      "estimatedTotalMin": 44.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -102150,8 +102150,8 @@
     {
      "sessionNumber": 46,
      "estimatedTotalMin": 36.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -102585,8 +102585,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 32,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -102905,8 +102905,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 37.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -103236,8 +103236,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 36.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -103592,8 +103592,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 32,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -103939,8 +103939,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 37,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -104255,8 +104255,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 34.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -104570,8 +104570,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 35.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -104874,8 +104874,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 38.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -105291,8 +105291,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 34,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -105589,8 +105589,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 36.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -105906,8 +105906,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 36.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -106223,8 +106223,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 34.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -106539,8 +106539,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 37.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -106966,8 +106966,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 31.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -107263,8 +107263,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 33,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -107560,8 +107560,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 31.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -107871,8 +107871,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 32.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -108173,8 +108173,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 33.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -108484,8 +108484,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 30.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -108775,8 +108775,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 34.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -109072,8 +109072,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 34.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -109487,8 +109487,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 31,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -109759,8 +109759,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 32.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -110055,8 +110055,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 31.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -110366,8 +110366,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 28.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -110863,8 +110863,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 31.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -111164,8 +111164,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 27.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -111445,8 +111445,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 33.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -111840,8 +111840,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 28.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -112116,8 +112116,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 34.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -112411,8 +112411,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 31.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -112726,8 +112726,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 34,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -113041,8 +113041,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 33.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -113346,8 +113346,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 35.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -113637,8 +113637,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 33.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -113942,8 +113942,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 37.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -114361,8 +114361,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 28.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -114636,8 +114636,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 32.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -114930,8 +114930,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 32,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -115244,8 +115244,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 32.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -115553,8 +115553,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 33.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -115863,8 +115863,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 31.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -116271,8 +116271,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 28.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -116547,8 +116547,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 32.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -116857,8 +116857,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 30.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -117171,8 +117171,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 28.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -117483,8 +117483,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 33.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -117788,8 +117788,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 27.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -118193,8 +118193,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 30.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -118478,8 +118478,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 31.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -118776,8 +118776,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 30.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -119080,8 +119080,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 31,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -119394,8 +119394,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 33,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -119702,8 +119702,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 31.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -120015,8 +120015,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 33.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -120310,8 +120310,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 33.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -120714,8 +120714,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 32,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -120986,8 +120986,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 32.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -121282,8 +121282,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 33.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -121588,8 +121588,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 31.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -121894,8 +121894,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 35.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -122195,8 +122195,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 33,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -122478,8 +122478,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 34.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -122759,8 +122759,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 35.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -123141,8 +123141,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 41.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -123434,8 +123434,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 38.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -123736,8 +123736,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 41.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -124053,8 +124053,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 46.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -124371,8 +124371,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 38.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -124694,8 +124694,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 45.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -125130,8 +125130,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 40.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -125421,8 +125421,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 34.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -125736,8 +125736,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 41.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -126062,8 +126062,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 40.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -126382,8 +126382,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 38.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -126702,8 +126702,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 40.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -127135,8 +127135,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 41.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -127423,8 +127423,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 38.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -127730,8 +127730,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 39.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -128052,8 +128052,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 42,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -128364,8 +128364,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 36.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -128681,8 +128681,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 42.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -129099,8 +129099,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 42.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -129389,8 +129389,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 37.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -129691,8 +129691,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 38.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -130134,8 +130134,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 32.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -130428,8 +130428,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 32.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -130731,8 +130731,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 33.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -131044,8 +131044,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 33.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -131352,8 +131352,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 33.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -131774,8 +131774,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 40.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -132071,8 +132071,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 36.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -132387,8 +132387,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 39,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -132719,8 +132719,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 40.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -133040,8 +133040,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 36.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -133372,8 +133372,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 39.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -133678,8 +133678,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 39,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -134002,8 +134002,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 39.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -134323,8 +134323,8 @@
     {
      "sessionNumber": 9,
      "estimatedTotalMin": 42.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -134774,8 +134774,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 62.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -135077,8 +135077,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 46.3,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -135379,8 +135379,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 54.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -135696,8 +135696,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 63.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -136008,8 +136008,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 44.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -136325,8 +136325,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 62.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -136622,8 +136622,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 53.4,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -136929,8 +136929,8 @@
     {
      "sessionNumber": 8,
      "estimatedTotalMin": 56.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -137367,8 +137367,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 39.2,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -137669,8 +137669,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 36.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -137970,8 +137970,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 41.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -138281,8 +138281,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 44.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -138604,8 +138604,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 38.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -138921,8 +138921,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 44.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -139336,8 +139336,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 37.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -139635,8 +139635,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 35.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -139937,8 +139937,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 37.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -140253,8 +140253,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 37.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -140574,8 +140574,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 38.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -141003,8 +141003,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 38.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -141302,8 +141302,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 35.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -141604,8 +141604,8 @@
     {
      "sessionNumber": 5,
      "estimatedTotalMin": 37.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -141920,8 +141920,8 @@
     {
      "sessionNumber": 6,
      "estimatedTotalMin": 40.6,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -142242,8 +142242,8 @@
     {
      "sessionNumber": 7,
      "estimatedTotalMin": 38.5,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -142671,8 +142671,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 28.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -142986,8 +142986,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 29.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -143281,8 +143281,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 32,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -143590,8 +143590,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 34.1,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -144024,8 +144024,8 @@
     {
      "sessionNumber": 1,
      "estimatedTotalMin": 59.7,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -144312,8 +144312,8 @@
     {
      "sessionNumber": 2,
      "estimatedTotalMin": 51.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "pull",
@@ -144621,8 +144621,8 @@
     {
      "sessionNumber": 3,
      "estimatedTotalMin": 54.8,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "squat",
@@ -144938,8 +144938,8 @@
     {
      "sessionNumber": 4,
      "estimatedTotalMin": 62.9,
-     "warmupMin": 5,
-     "cooldownMin": 4,
+     "warmupMin": 4,
+     "cooldownMin": 5,
      "exercises": [
       {
        "pattern": "push_h",
